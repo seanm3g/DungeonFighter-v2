@@ -70,7 +70,8 @@ namespace RPGGame.Data
                 var block = new CadenceEditorBlock
                 {
                     Cadence = ToEditorCadence(ResolveGroupCadence(group)),
-                    Duration = group.Count > 0 ? group.Count : Math.Max(1, action.ComboBonusDuration)
+                    Duration = group.Count > 0 ? group.Count : Math.Max(1, action.ComboBonusDuration),
+                    Timing = CadenceTiming.CloneOrNull(group.Timing)
                 };
                 foreach (var bonus in group.Bonuses)
                 {
@@ -249,7 +250,8 @@ namespace RPGGame.Data
             var group = new ActionAttackBonusGroup
             {
                 Count = duration,
-                DurationType = cadence
+                DurationType = cadence,
+                Timing = CadenceTiming.CloneOrNull(block.Timing)
             };
 
             if (CadenceKeywords.IsAction(cadence))

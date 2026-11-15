@@ -22,11 +22,11 @@ namespace RPGGame.Tuning
                          ("weapon", hero.Weapon), ("head", hero.Head), ("body", hero.Body), ("legs", hero.Legs), ("feet", hero.Feet)
                      })
             {
-                double currentScore = current == null ? double.MinValue : ItemValueModel.Score(current);
+                double currentScore = current == null ? double.MinValue : ItemValueModel.Score(current, hero);
                 var best = hero.Inventory
                     .Where(i => SlotOf(i) == slot)
                     .Where(i => i is not WeaponItem w || w.WeaponType == weaponType)
-                    .Select(i => (item: i, score: ItemValueModel.Score(i)))
+                    .Select(i => (item: i, score: ItemValueModel.Score(i, hero)))
                     .Where(x => x.score > currentScore * 1.02 + 0.01)
                     .OrderByDescending(x => x.score)
                     .ToList();

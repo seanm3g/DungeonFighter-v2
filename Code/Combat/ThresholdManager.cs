@@ -87,11 +87,44 @@ namespace RPGGame.Combat
         /// </summary>
         public int GetComboThreshold(Actor actor)
         {
+            int threshold = GetStoredComboThreshold(actor);
+            int rise = GetComboChainRise(actor);
+            return rise > 0 ? Math.Max(threshold, Math.Min(MaxChainComboThreshold, threshold + rise)) : threshold;
+        }
+
+        /// <summary>Highest threshold the per-slot rise can push to: a natural 20 always continues the chain.</summary>
+        public const int MaxChainComboThreshold = 20;
+
+        /// <summary>
+        /// Per-slot combo rise for the slot about to roll (slot = ComboStep + 1): comboSystem.comboThresholdRisePerSlot per
+        /// comboThresholdRiseEvery slots, counted from comboThresholdRiseStartSlot. 0 before the start slot or when off.
+        /// </summary>
+        public static int GetComboChainRise(Actor actor)
+        {
+            var combo = GameConfiguration.Instance.ComboSystem;
+            if (combo == null || combo.ComboThresholdRisePerSlot == 0 || actor is not Character { ComboStep: > 0 } c)
+                return 0;
+            return GetComboChainRise(c.ComboStep + 1, combo.ComboThresholdRisePerSlot,
+                combo.ComboThresholdRiseEvery, combo.ComboThresholdRiseStartSlot);
+        }
+
+        /// <summary>Rise at 1-based strip slot <paramref name="slot"/> for the given settings.</summary>
+        public static int GetComboChainRise(int slot, int risePerStep, int every, int startSlot)
+        {
+            int start = Math.Max(2, startSlot);
+            if (risePerStep == 0 || slot < start)
+                return 0;
+            return ((slot - start) / Math.Max(1, every) + 1) * risePerStep;
+        }
+
+        /// <summary>Combo threshold without the per-slot chain rise; setters and cascades work in these stored terms.</summary>
+        public int GetStoredComboThreshold(Actor actor)
+        {
             if (_actorThresholds.TryGetValue(actor, out var modifiers) && modifiers.ComboThreshold.HasValue)
             {
                 return modifiers.ComboThreshold.Value;
             }
-            
+
             // Use default 14 if config value is 0 or invalid
             int threshold = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
             return threshold > 0 ? threshold : 14;
@@ -196,7 +229,7 @@ namespace RPGGame.Combat
         /// </summary>
         public void AdjustComboThreshold(Actor actor, int adjustment)
         {
-            int current = GetComboThreshold(actor);
+            int current = GetStoredComboThreshold(actor);
             SetComboThreshold(actor, current - adjustment);
         }
 
@@ -207,7 +240,7 @@ namespace RPGGame.Combat
         public void SetHitThreshold(Actor actor, int threshold)
         {
             var mod = GetOrCreateModifiers(actor);
-            int combo = GetComboThreshold(actor);
+            int combo = GetStoredComboThreshold(actor);
             mod.HitThreshold = Math.Max(MinHitThreshold, Math.Min(threshold, combo - 2));
             // Cascade: CRIT_MISS stays below HIT; when HIT goes lower, CRIT_MISS moves with it
             int critMiss = GetCriticalMissThreshold(actor);

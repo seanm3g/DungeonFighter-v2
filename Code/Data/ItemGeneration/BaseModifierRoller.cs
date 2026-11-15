@@ -9,7 +9,10 @@ using System.Text.Json.Serialization;
 namespace RPGGame.Data.ItemGeneration
 {
     /// <summary>
-    /// Base item modifiers (<c>GameData/BaseModifiers.json</c>): the base's built-in line. It changes other things the hero
+    /// Base item modifiers: the base's built-in line. Since 2026-11-15 each base's modifier is fixed in the catalog
+    /// (<c>modifier</c> / <c>modifierName</c> in Weapons.json / Armor.json, written by Scripts/build-item-mods.py) and
+    /// <see cref="FromCatalog"/> only rolls its values. <see cref="Roll"/> (the <c>GameData/BaseModifiers.json</c> pools) is
+    /// the fallback for saved items whose base is no longer in the catalog. It changes other things the hero
     /// does (one named action, a tag's actions, the class's actions, a status) instead of firing as a trigger. The result is
     /// one passive <see cref="CrossWires"/> rule stored on <see cref="Item.ImplicitRule"/>, e.g.
     /// <c>WHILE IF ACTION Cleave -&gt; DAMAGE 12%</c> or <c>WHILE -&gt; POTENCY bleed 20%</c>.
@@ -31,48 +34,99 @@ namespace RPGGame.Data.ItemGeneration
         {
             [JsonPropertyName("tags")] public Dictionary<string, List<string>> Tags { get; set; } = new(StringComparer.OrdinalIgnoreCase);
             [JsonPropertyName("classes")] public Dictionary<string, List<Entry>> Classes { get; set; } = new(StringComparer.OrdinalIgnoreCase);
-            /// <summary>Chance a base of this rarity carries its modifier (missing rarity = 1).</summary>
-            [JsonPropertyName("rarityChance")] public Dictionary<string, double> RarityChance { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         }
+
+        private static readonly System.Text.RegularExpressions.Regex RangeToken =
+            new(@"\{(-?[0-9]+(?:\.[0-9]+)?)-(-?[0-9]+(?:\.[0-9]+)?)\}", System.Text.RegularExpressions.RegexOptions.Compiled);
 
         /// <summary>
-        /// Writes <paramref name="chances"/> (rarity → 0..1) into <c>rarityChance</c> in BaseModifiers.json, keeping every other
-        /// field, and reloads. Used by Settings → Item Generation.
+        /// Rolls a catalog modifier (Weapons.json / Armor.json <c>modifier</c>): each <c>{lo-hi}</c> becomes a whole number in
+        /// that range. The rule text (action, tag, condition) is fixed to the base; only the values roll. Null when the
+        /// template is empty or does not parse.
         /// </summary>
-        public static void SaveRarityChances(IReadOnlyDictionary<string, double> chances, string? path = null)
+        public static Rolled? FromCatalog(string? template, Random rng)
         {
-            lock (Lock)
+            if (string.IsNullOrWhiteSpace(template))
+                return null;
+            double first = 0;
+            bool seen = false;
+            string rule = RangeToken.Replace(template.Trim(), m =>
             {
-                // Only the rarityChance block is rewritten, so the rest of the hand-laid-out file keeps its layout.
-                path ??= FilePath;
-                string text = File.Exists(path) ? File.ReadAllText(path) : "{\n}\n";
-                string nl = text.Contains("\r\n") ? "\r\n" : "\n";
-                string body = string.Join("," + nl, chances.Select(kv =>
-                    $"    \"{kv.Key}\": {Math.Round(Math.Clamp(kv.Value, 0, 1), 4).ToString(CultureInfo.InvariantCulture)}"));
-                string block = "\"rarityChance\": {" + nl + body + nl + "  }";
-                var existing = System.Text.RegularExpressions.Regex.Match(text, "\"rarityChance\"\\s*:\\s*\\{[^}]*\\}");
-                if (existing.Success)
-                    text = text.Substring(0, existing.Index) + block + text.Substring(existing.Index + existing.Length);
-                else
+                double lo = double.Parse(m.Groups[1].Value, CultureInfo.InvariantCulture);
+                double hi = double.Parse(m.Groups[2].Value, CultureInfo.InvariantCulture);
+                if (hi < lo)
+                    (lo, hi) = (hi, lo);
+                int v = (int)Math.Round(lo + rng.NextDouble() * (hi - lo), MidpointRounding.AwayFromZero);
+                if (!seen)
                 {
-                    int brace = text.IndexOf('{');
-                    text = text.Substring(0, brace + 1) + nl + "  " + block + "," + text.Substring(brace + 1);
+                    first = v;
+                    seen = true;
                 }
-                // Refuse to write a file that no longer parses.
-                JsonDocument.Parse(text, new JsonDocumentOptions { CommentHandling = JsonCommentHandling.Skip, AllowTrailingCommas = true }).Dispose();
-                File.WriteAllText(path, text);
-                _file = null;
+                return v.ToString(CultureInfo.InvariantCulture);
+            });
+            var parts = SplitRules(rule);
+            var influence = new List<string>();
+            foreach (string part in parts)
+            {
+                var parsed = CrossWireRule.Parse(part, "base modifier");
+                if (parsed == null || !parsed.IsPassive)
+                    return null;
+                foreach (var c in parsed.Conditions)
+                {
+                    if (c.Subject == "action")
+                    {
+                        var data = ActionLoader.GetAllActionData()
+                            .FirstOrDefault(a => string.Equals(a.Name?.Trim(), c.Key, StringComparison.OrdinalIgnoreCase));
+                        influence.AddRange(data?.Tags ?? new List<string>());
+                    }
+                    else if (c.Subject is "tag" or "class" or "target")
+                        influence.Add(c.Key);
+                }
+                if (parsed.Verb == "POTENCY")
+                    influence.Add(parsed.Store);
             }
+            return new Rolled(string.Join("; ", parts), first, influence);
         }
 
-        /// <summary>Chance an item of <paramref name="rarity"/> carries a base modifier (1 unless BaseModifiers.json lowers it).</summary>
-        public static double ChanceFor(string? rarity)
+        /// <summary>Sets <paramref name="item"/>'s modifier from a catalog row (starter gear, lab items); no-op without one.</summary>
+        public static void ApplyCatalogModifier(Item item, string? template, string? name, Random rng)
         {
-            var file = Load();
-            return !string.IsNullOrWhiteSpace(rarity) && file.RarityChance.TryGetValue(rarity.Trim(), out double c)
-                ? Math.Clamp(c, 0, 1)
-                : 1.0;
+            if (item == null || FromCatalog(template, rng) is not { } rolled)
+                return;
+            item.ImplicitRule = rolled.Rule;
+            item.ImplicitName = name?.Trim() ?? "";
         }
+
+        /// <summary>The rules of a modifier (<see cref="Item.ImplicitRule"/> may hold several, <c>;</c>-separated).</summary>
+        public static List<string> SplitRules(string? rule) =>
+            (rule ?? "").Split(';').Select(p => p.Trim()).Where(p => p.Length > 0).ToList();
+
+        /// <summary>The catalog modifier template and name of the base called <paramref name="baseName"/>; nulls when none.</summary>
+        public static (string? Template, string? Name) CatalogModifierFor(string? baseName)
+        {
+            if (string.IsNullOrWhiteSpace(baseName))
+                return (null, null);
+            Dictionary<string, (string?, string?)> map;
+            lock (Lock)
+            {
+                if (_catalog == null)
+                {
+                    // Built once (cleared by Reload): legacy saves call this per item on load.
+                    var cache = LootDataCache.Load();
+                    _catalog = new Dictionary<string, (string?, string?)>(StringComparer.OrdinalIgnoreCase);
+                    foreach (var w in cache.WeaponData ?? new List<WeaponData>())
+                        if (!string.IsNullOrWhiteSpace(w.Name))
+                            _catalog.TryAdd(w.Name.Trim(), (w.Modifier, w.ModifierName));
+                    foreach (var r in cache.ArmorData ?? new List<ArmorData>())
+                        if (!string.IsNullOrWhiteSpace(r.Name))
+                            _catalog.TryAdd(r.Name.Trim(), (r.Modifier, r.ModifierName));
+                }
+                map = _catalog;
+            }
+            return map.TryGetValue(baseName.Trim(), out var found) ? found : (null, null);
+        }
+
+        private static Dictionary<string, (string?, string?)>? _catalog;
 
         /// <summary>One rolled modifier: the rule text, its value, and tokens the roller's influence tilt can use.</summary>
         public readonly record struct Rolled(string Rule, double Value, IReadOnlyList<string> Influence);
@@ -84,7 +138,11 @@ namespace RPGGame.Data.ItemGeneration
 
         public static void Reload()
         {
-            lock (Lock) _file = null;
+            lock (Lock)
+            {
+                _file = null;
+                _catalog = null;
+            }
         }
 
         private static ModifierFile Load()
@@ -105,7 +163,6 @@ namespace RPGGame.Data.ItemGeneration
                             // Re-key case-insensitively (the deserializer builds plain dictionaries).
                             file.Tags = new Dictionary<string, List<string>>(parsed.Tags ?? new(), StringComparer.OrdinalIgnoreCase);
                             file.Classes = new Dictionary<string, List<Entry>>(parsed.Classes ?? new(), StringComparer.OrdinalIgnoreCase);
-                            file.RarityChance = new Dictionary<string, double>(parsed.RarityChance ?? new(), StringComparer.OrdinalIgnoreCase);
                         }
                     }
                 }

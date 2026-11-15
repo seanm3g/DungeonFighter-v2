@@ -25,6 +25,7 @@ namespace RPGGame
                     CadenceType = grp.CadenceType,
                     Count = grp.Count,
                     DurationType = grp.DurationType,
+                    Timing = CadenceTiming.CloneOrNull(grp.Timing),
                 };
                 g.Bonuses = grp.Bonuses == null || grp.Bonuses.Count == 0
                     ? new List<ActionAttackBonusItem>()

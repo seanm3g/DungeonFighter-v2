@@ -98,6 +98,14 @@ namespace RPGGame
         public double GetEquipmentStatBonusDouble(string statType, Character? character) =>
             bonusCalculator.GetStatBonusDouble(statType, character);
 
+        /// <summary>
+        /// What one suffix percent of <paramref name="statType"/> is worth for <paramref name="character"/>: the reference
+        /// value it is a percent of (1 for roll/threshold stats like HIT, which stay literal). Used by the sim bots to price
+        /// stat lines the way they apply.
+        /// </summary>
+        public double GetSuffixPercentReference(string statType, Character character) =>
+            bonusCalculator.GetSuffixPercentReference(statType, character);
+
         public int GetEquipmentDamageBonus(Character? character) => bonusCalculator.GetDamageBonus(character);
         public int GetEquipmentHealthBonus(Character? character) => bonusCalculator.GetHealthBonus(character);
         public int GetEquipmentRollBonus(Character? character) => bonusCalculator.GetRollBonus(character);

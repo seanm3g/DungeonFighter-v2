@@ -427,6 +427,20 @@ namespace RPGGame
         public bool MissBelowComboMidChain { get; set; } = true;
 
         /// <summary>
+        /// Combo decay: from strip slot <see cref="ComboThresholdRiseStartSlot"/> on, the combo threshold rises by this much
+        /// every <see cref="ComboThresholdRiseEvery"/> slots (defaults: slot 1 at base, slot 2 at base + 1, slot 3 at base + 2, ...).
+        /// Capped at 20 so a natural 20 still continues. 0 = flat threshold. Applies to heroes and enemies.
+        /// Design: Documentation/COMBO_SLOT_RISE_2026-11-15.md.
+        /// </summary>
+        public int ComboThresholdRisePerSlot { get; set; } = 1;
+
+        /// <summary>Slots per <see cref="ComboThresholdRisePerSlot"/> step (1 = every slot, 2 = every other slot).</summary>
+        public int ComboThresholdRiseEvery { get; set; } = 1;
+
+        /// <summary>First strip slot (1-based) that rolls at the risen threshold; earlier slots use the base threshold.</summary>
+        public int ComboThresholdRiseStartSlot { get; set; } = 2;
+
+        /// <summary>
         /// True: strip slot k deals 1 + (AMP − 1) × k instead of AMP^k, so INT's AMP keeps paying across long strips
         /// without exploding once later slots fire often. False (legacy): AMP^k.
         /// </summary>

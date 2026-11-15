@@ -102,7 +102,8 @@ namespace RPGGame
 
         /// <summary>
         /// Base implicits are modifiers now (<see cref="Item.ImplicitRule"/>, 2026-11-15). A saved item that still names an
-        /// implicit trigger loses that trigger and rolls a base modifier instead (stable per item name and base).
+        /// implicit trigger loses that trigger and gets its base's catalog modifier instead (values stable per item name and
+        /// base); a base no longer in the catalog rolls one from BaseModifiers.json.
         /// </summary>
         public static void MigrateLegacyImplicit(Item item)
         {
@@ -118,9 +119,18 @@ namespace RPGGame
                 int seed = 17;
                 foreach (char ch in (item.Name ?? "") + "|" + item.BaseName)
                     seed = unchecked(seed * 31 + ch);
-                double perLevel = GameConfiguration.Instance?.LootSystem?.ItemGeneration?.ImplicitPercentPerItemLevel ?? 0.01;
-                if (RPGGame.Data.ItemGeneration.BaseModifierRoller.Roll(item.ItemClass, item.Level, new Random(seed), perLevel) is { } rolled)
-                    item.ImplicitRule = rolled.Rule;
+                var (template, name) = RPGGame.Data.ItemGeneration.BaseModifierRoller.CatalogModifierFor(item.BaseName);
+                if (RPGGame.Data.ItemGeneration.BaseModifierRoller.FromCatalog(template, new Random(seed)) is { } fromCatalog)
+                {
+                    item.ImplicitRule = fromCatalog.Rule;
+                    item.ImplicitName = name?.Trim() ?? "";
+                }
+                else
+                {
+                    double perLevel = GameConfiguration.Instance?.LootSystem?.ItemGeneration?.ImplicitPercentPerItemLevel ?? 0.01;
+                    if (RPGGame.Data.ItemGeneration.BaseModifierRoller.Roll(item.ItemClass, item.Level, new Random(seed), perLevel) is { } rolled)
+                        item.ImplicitRule = rolled.Rule;
+                }
             }
             item.Implicit = "";
         }

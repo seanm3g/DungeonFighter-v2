@@ -15,7 +15,7 @@
     }
   ],
   "winRateTolerance": 4,
-  "heroTurnsTarget": 11,
+  "heroTurnsTarget": 10,
   "heroTurnsAnchors": [
     {
       "level": 1,
@@ -23,7 +23,7 @@
     },
     {
       "level": 10,
-      "turns": 11
+      "turns": 10
     }
   ],
   "heroTurnsTolerance": 1.5,
@@ -110,5 +110,5 @@
     "minClassDistance": 0.25
   },
   "classParityMaxSpread": 10,
-  "targetNotes": "2026-11-05 (designer): L1-L10 clear 99% -> 90%, hero actions per fight 3 at L1 -> 11 by L10 (heroTurnsTarget after); class parity: best and worst class within classParityMaxSpread clear points at every band. Legacy fields kept for reference only, nothing tunes to them: winRateAnchors, winRateTolerance, winRateMeaning, fightsPerDungeon, realClearTarget, realClearCheckLevel (balance-check still uses realClearCheckLevel for its playthrough row)."
+  "targetNotes": "2026-11-05 (designer): L1-L10 clear 99% -> 90%, hero actions per fight 3 at L1 -> 10 by L10 (heroTurnsTarget after; 11 -> 10 on 2026-11-15 with the combo slot rise); class parity: best and worst class within classParityMaxSpread clear points at every band. Legacy fields kept for reference only, nothing tunes to them: winRateAnchors, winRateTolerance, winRateMeaning, fightsPerDungeon, realClearTarget, realClearCheckLevel (balance-check still uses realClearCheckLevel for its playthrough row)."
 }

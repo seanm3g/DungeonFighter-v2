@@ -289,7 +289,8 @@ namespace RPGGame.Data
                 var block = new CadenceEditorBlock
                 {
                     Cadence = ToEditorCadence(bundle.Cadence),
-                    Duration = Math.Max(1, bundle.ResolveDurationCount())
+                    Duration = Math.Max(1, bundle.ResolveDurationCount()),
+                    Timing = CadenceTiming.CloneOrNull(bundle.Timing)
                 };
                 foreach (string id in bundle.ParseMechanicIds())
                 {
@@ -324,6 +325,7 @@ namespace RPGGame.Data
                         Cadence = cadence,
                         Enable = "1",
                         Duration = Math.Max(1, block.Duration).ToString(CultureInfo.InvariantCulture),
+                        Timing = CadenceTiming.CloneOrNull(block.Timing),
                         Mechanics = string.Join(", ",
                             block.Mechanics
                                 .Where(m => !string.IsNullOrWhiteSpace(m.MechanicId))

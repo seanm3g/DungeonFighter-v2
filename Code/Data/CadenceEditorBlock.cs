@@ -17,5 +17,7 @@ namespace RPGGame.Data
         public string Cadence { get; set; } = "Turn";
         public int Duration { get; set; } = 1;
         public List<CadenceMechanicRow> Mechanics { get; set; } = new List<CadenceMechanicRow>();
+        /// <summary>Slot / delay / shape timing carried from the bundle to the bonus group.</summary>
+        public CadenceTiming? Timing { get; set; }
     }
 }

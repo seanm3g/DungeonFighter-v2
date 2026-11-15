@@ -225,7 +225,10 @@ namespace RPGGame.Tuning.Profiles
                 FeetItem f => $"def {f.GetTotalArmor()}",
                 _ => ""
             };
-            sb.Append($"  [{item.Rarity}] {item.Name}  (ilvl {item.Level}, T{item.Tier}, {item.ItemClass}, {power})");
+            string dropped = string.IsNullOrWhiteSpace(item.DropRarity) ? "" : $", dropped {item.DropRarity}";
+            sb.Append($"  [{item.Rarity}] {item.Name}  (ilvl {item.Level}, T{item.Tier}, {item.ItemClass}, {power}{dropped})");
+            if (ItemTriggerBundleDisplay.FormatModifier(item) is { } modifier)
+                sb.Append($"\n      modifier {modifier}");
             if (!string.IsNullOrWhiteSpace(item.Implicit))
             {
                 var imp = (item.TriggerBundles ?? new()).Concat(item.EquipEffects ?? new())

@@ -212,6 +212,8 @@ namespace RPGGame
             destination.ItemClass = source.ItemClass ?? "";
             destination.Implicit = source.Implicit ?? "";
             destination.ImplicitRule = source.ImplicitRule ?? "";
+            destination.ImplicitName = source.ImplicitName ?? "";
+            destination.DropRarity = source.DropRarity ?? "";
             destination.DefenseRolled = source.DefenseRolled;
             destination.RollUps = source.RollUps;
             destination.StatBonuses = source.StatBonuses;

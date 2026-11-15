@@ -40,12 +40,15 @@ namespace RPGGame.Tests.Unit.Data
             TestTradeUpConstraints();
             TestNewGameBonusIsArmor();
             TestDefenseIsRolledOnce();
-            TestDamageScalesWithItemLevel();
+            TestWeaponDamageIsFixedToTheBase();
             TestImplicitSurvivesTriggerCleanUp();
             TestImplicitScalesWithItemLevel();
             TestCombatImplicitShowsInTooltip();
             TestModifierRulesChangeOtherActions();
-            TestSaveRarityChancesKeepsTheRest();
+            TestCatalogModifiersGrowWithTier();
+            TestRarityRollUpKeepsDropRarity();
+            TestCommonsHaveOneOrTwoLines();
+            TestEveryTierHasItsOwnName();
             TestNameComposition();
             TestWoodAndClothDrop();
             TestMaterialPoolCrossWiresParse();
@@ -291,12 +294,35 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(ok, "armor stores rolled defense and is not rescaled when read", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestDamageScalesWithItemLevel()
+        /// <summary>User 2026-11-15: damage comes from the base's own range (the tier carries the level), and higher tiers swing faster.</summary>
+        private static void TestWeaponDamageIsFixedToTheBase()
         {
-            double Avg(int ilvl) => Roll(new ItemRollRequest { ItemLevel = ilvl, Weapon = true, Tier = 2, AllowRollUps = false }, 200)
-                .Select(x => ((WeaponItem)x.Item).BaseDamage).DefaultIfEmpty(0).Average();
-            double low = Avg(1), high = Avg(80);
-            TestBase.AssertTrue(high > low, $"weapon damage grows with item level ({low:0.0} → {high:0.0})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var cfg = GameConfiguration.Instance.LootSystem.ItemGeneration;
+            bool inRange = true, speedOk = true;
+            string detail = "";
+            foreach (int ilvl in new[] { 1, 80 })
+            {
+                foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = ilvl, Weapon = true, AllowRollUps = false }, 200))
+                {
+                    var w = (WeaponItem)item;
+                    // A few catalog rows share a name; the item came from one of them.
+                    var rows = _cache.WeaponData.Where(r => r.Name == w.BaseName && r.Tier == w.Tier).ToList();
+                    if (!rows.Any(r => w.BaseDamage >= r.DamageMin && w.BaseDamage <= r.DamageMax))
+                    {
+                        inRange = false;
+                        detail = $"{w.BaseName} ilvl {ilvl}: {w.BaseDamage} outside [{rows[0].DamageMin}-{rows[0].DamageMax}]";
+                    }
+                    if (!rows.Any(r => Math.Abs(w.BaseAttackSpeed - Math.Round(r.AttackSpeed * (1.0 - cfg.WeaponSpeedPerTier * (r.Tier - 1)), 3)) < 1e-6))
+                        speedOk = false;
+                }
+            }
+            TestBase.AssertTrue(inRange, $"weapon damage stays in its base's range at any item level {detail}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(speedOk, "weapon swing time is the base's speed cut per tier", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            double Avg(int tier) => _cache.WeaponData.Where(r => r.Tier == tier).Average(r => (r.DamageMin + r.DamageMax) / 2.0);
+            bool climbs = Enumerable.Range(2, 4).All(t => Avg(t) > Avg(t - 1));
+            TestBase.AssertTrue(climbs, $"each weapon tier hits harder than the last ({string.Join(" < ", Enumerable.Range(1, 5).Select(t => Avg(t).ToString("0")))})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestImplicitSurvivesTriggerCleanUp()
@@ -310,18 +336,22 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(items.All(i => (i.TriggerBundles?.Count ?? 0) == 0 && string.IsNullOrWhiteSpace(i.Implicit)),
                 "rolled items carry no base or material triggers", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Commons: half carry one; every other rarity always does (non-starter bases).
-            var commons = items.Where(i => string.Equals(i.Rarity, "Common", StringComparison.OrdinalIgnoreCase) && i.Level > 0 && HasCatalogImplicit(i)).ToList();
-            var others = items.Where(i => !string.Equals(i.Rarity, "Common", StringComparison.OrdinalIgnoreCase) && HasCatalogImplicit(i)).ToList();
-            if (commons.Count >= 30)
+            // Every item carries its base's modifier (user 2026-11-15): the catalog rule with only the values rolled.
+            bool all = true, fixedToBase = true;
+            string detail = "";
+            foreach (var item in items)
             {
-                double share = commons.Count(i => !string.IsNullOrWhiteSpace(i.ImplicitRule)) / (double)commons.Count;
-                TestBase.AssertTrue(share > 0.3 && share < 0.7, $"about half of Commons carry a modifier ({share:P0} of {commons.Count})",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                var (template, name) = BaseModifierRoller.CatalogModifierFor(item.BaseName);
+                if (string.IsNullOrWhiteSpace(item.ImplicitRule) || item.ImplicitName != (name ?? "").Trim())
+                {
+                    all = false;
+                    detail = $"{item.Name} ({item.Rarity})";
+                }
+                if (Shape(item.ImplicitRule) != Shape(template))
+                    fixedToBase = false;
             }
-            if (others.Count > 0)
-                TestBase.AssertTrue(others.All(i => !string.IsNullOrWhiteSpace(i.ImplicitRule)), "non-Common bases always carry one",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(all, $"every item, Commons included, carries its base's named modifier {detail}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(fixedToBase, "the modifier's rule is the base's catalog rule (only values roll)", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // A save from before: its implicit trigger becomes a modifier on load.
             var legacy = new HeadItem("Wrap", 1, 1) { BaseName = "Wrap", ItemClass = "rogue", Level = 10, Implicit = "CritAmpCarry" };
@@ -334,18 +364,9 @@ namespace RPGGame.Tests.Unit.Data
                 $"a legacy implicit trigger becomes a modifier on load ({legacy.ImplicitRule})", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static bool HasCatalogImplicit(Item item)
-        {
-            string name = item.BaseName ?? "";
-            var row = (object?)LootDataCache.Load().WeaponData?.FirstOrDefault(w => w.Name == name)
-                ?? LootDataCache.Load().ArmorData?.FirstOrDefault(a => a.Name == name);
-            return row switch
-            {
-                WeaponData w => !string.IsNullOrWhiteSpace(w.TriggerName),
-                ArmorData a => !string.IsNullOrWhiteSpace(a.TriggerName),
-                _ => false
-            };
-        }
+        /// <summary>A modifier with its numbers blanked, so a rolled rule compares to its catalog template.</summary>
+        private static string Shape(string? rule) =>
+            System.Text.RegularExpressions.Regex.Replace(rule ?? "", @"\{[^}]*\}|-?[0-9]+(\.[0-9]+)?", "#");
 
         private static void TestCombatImplicitShowsInTooltip()
         {
@@ -367,29 +388,65 @@ namespace RPGGame.Tests.Unit.Data
                 "material set info waits for Alt", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        /// <summary>Settings → Item Generation writes rarityChance only; the rest of BaseModifiers.json is untouched.</summary>
-        private static void TestSaveRarityChancesKeepsTheRest()
+        /// <summary>Every catalog base has a modifier; tier 1 names no action, tier 5 has two rules (user 2026-11-15).</summary>
+        private static void TestCatalogModifiersGrowWithTier()
         {
-            string temp = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"basemods-{Guid.NewGuid():N}.json");
-            try
+            var rows = _cache.WeaponData.Select(w => (w.Name, w.Tier, w.Modifier, w.ModifierName))
+                .Concat(_cache.ArmorData.Select(a => (a.Name, a.Tier, a.Modifier, a.ModifierName))).ToList();
+            var rng = new Random(5);
+            var bad = rows.Where(r => string.IsNullOrWhiteSpace(r.ModifierName) || BaseModifierRoller.FromCatalog(r.Modifier, rng) == null).ToList();
+            TestBase.AssertTrue(bad.Count == 0, $"every base has a named modifier that parses ({bad.Count} bad, e.g. {bad.FirstOrDefault().Name})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(rows.Where(r => r.Tier == 1).All(r => !(r.Modifier ?? "").Contains("ACTION")),
+                "tier-1 modifiers are simple (no named action)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(rows.Where(r => r.Tier >= 5).All(r => (r.Modifier ?? "").Contains(';')),
+                "tier-5 modifiers carry a second rule", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>A rolled-up item shows the higher rarity and its line count, but its lines roll at the drop rarity.</summary>
+        private static void TestRarityRollUpKeepsDropRarity()
+        {
+            var cfg = GameConfiguration.Instance.LootSystem.ItemGeneration;
+            TestBase.AssertTrue(Math.Abs(cfg.RarityRollUp.Chance - 0.02) < 1e-9 && cfg.RarityRollUp.Decay >= 1.0,
+                $"rarity roll-up is 2% per step with no decay ({cfg.RarityRollUp.Chance:P0}, x{cfg.RarityRollUp.Decay})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int up = 0, total = 4000;
+            bool ok = true;
+            string detail = "";
+            foreach (var (item, spec) in Roll(new ItemRollRequest { ItemLevel = 60 }, total))
             {
-                string original = System.IO.File.ReadAllText(BaseModifierRoller.FilePath);
-                System.IO.File.WriteAllText(temp, original);
-                BaseModifierRoller.SaveRarityChances(new Dictionary<string, double> { ["Common"] = 0.25, ["Rare"] = 1.0 }, temp);
-                string saved = System.IO.File.ReadAllText(temp);
-                using var doc = System.Text.Json.JsonDocument.Parse(saved);
-                var chances = doc.RootElement.GetProperty("rarityChance");
-                TestBase.AssertTrue(Math.Abs(chances.GetProperty("Common").GetDouble() - 0.25) < 1e-9 && chances.GetProperty("Rare").GetDouble() == 1.0,
-                    "saved rarity chances read back", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                int at = original.IndexOf("\"tags\"", StringComparison.Ordinal);
-                TestBase.AssertTrue(at > 0 && saved.EndsWith(original.Substring(at), StringComparison.Ordinal),
-                    "everything after rarityChance keeps its text", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                if (string.IsNullOrWhiteSpace(spec.DropRarity))
+                    continue;
+                up++;
+                int drop = RarityOrder.IndexOf(spec.DropRarity), shown = RarityOrder.IndexOf(item.Rarity);
+                bool linesAtDrop = spec.Lines.All(l => TierOf(l) is not { } t || t.AllowsRarity(drop));
+                if (shown <= drop || item.DropRarity != spec.DropRarity || !linesAtDrop)
+                {
+                    ok = false;
+                    detail = $"{item.Name}: {spec.DropRarity} -> {item.Rarity}, {spec.Lines.Count} lines";
+                }
             }
-            finally
-            {
-                if (System.IO.File.Exists(temp)) System.IO.File.Delete(temp);
-                BaseModifierRoller.Reload();
-            }
+            TestBase.AssertTrue(up > 0 && up < total * 0.06, $"about 2% of drops roll up a rarity ({up}/{total})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ok, $"rolled-up items keep their drop rarity for line rolls {detail}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>User 2026-11-15: a Common has 1 line (its action) or 2 (plus one descriptor suffix).</summary>
+        private static void TestCommonsHaveOneOrTwoLines()
+        {
+            var counts = Roll(new ItemRollRequest { ItemLevel = 30, Rarity = "Common", AllowRollUps = false }, 400)
+                .Select(x => x.Spec.Lines.Count - Math.Max(0, x.Item.MinGeneratedActionBonuses - 1)).ToList();
+            TestBase.AssertTrue(counts.All(c => c is 1 or 2) && counts.Contains(1) && counts.Contains(2),
+                $"Commons roll 1 or 2 lines, both happen ({counts.Count(c => c == 1)} x1, {counts.Count(c => c == 2)} x2)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>User 2026-11-15: every mod family names each tier differently (level-1 to level-100 versions).</summary>
+        private static void TestEveryTierHasItsOwnName()
+        {
+            var shared = _cache.ItemMods.Families
+                .Where(f => f.Tiers.Select(t => t.Keyword).Distinct(StringComparer.OrdinalIgnoreCase).Count() < f.Tiers.Count)
+                .Select(f => f.Family).ToList();
+            TestBase.AssertTrue(shared.Count == 0, $"every tier of every family has its own name ({string.Join(", ", shared.Take(5))})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestModifierRulesChangeOtherActions()
@@ -544,12 +601,15 @@ namespace RPGGame.Tests.Unit.Data
             foreach (var rarity in _cache.RarityData)
             {
                 var must = cfg.SuffixKindsFor(rarity.Name);
-                foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = 60, Rarity = rarity.Name, AllowRollUps = false }, 120))
+                foreach (var (item, spec) in Roll(new ItemRollRequest { ItemLevel = 60, Rarity = rarity.Name, AllowRollUps = false }, 120))
                 {
                     var kinds = item.StatBonuses.Select(s => s.ModLine).Concat(item.Modifications.Select(m => m.ModLine))
                         .Where(l => l != null && !string.IsNullOrWhiteSpace(l.SuffixKind))
                         .GroupBy(l => l!.Family).Select(g => g.First()!.SuffixKind!).ToList();
-                    if (kinds.Count != kinds.Distinct().Count() || must.Any(k => !kinds.Contains(k)))
+                    // Suffixes fit in the line budget (a 1-line Common is only its action); no kind joins beyond the rarity's.
+                    int budget = Math.Max(0, Math.Min(must.Count, spec.Lines.Count - Math.Max(1, item.MinGeneratedActionBonuses)));
+                    if (kinds.Count != kinds.Distinct().Count() || must.Count(k => kinds.Contains(k)) < budget
+                        || kinds.Any(k => !must.Contains(k) && k != SuffixKinds.Rare))
                     {
                         ok = false;
                         detail = $"{rarity.Name} {item.Name}: [{string.Join(",", kinds)}]";
@@ -568,15 +628,15 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(cfg.PoeticSuffixChance > 0 ? share > 0 && share < 3 * cfg.PoeticSuffixChance + 0.01 : share == 0,
                 $"commons get a poetic phrase only at the configured chance ({share:P1}, chance {cfg.PoeticSuffixChance:P0})", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // A Common item is exactly one action plus one descriptor suffix (beyond any action minimum its base sets).
+            // A Common item is its action plus at most one descriptor suffix (beyond any action minimum its base sets).
             bool plain = Roll(new ItemRollRequest { ItemLevel = 60, Rarity = "Common", AllowRollUps = false }, 400).All(x =>
             {
                 var mods = x.Item.Modifications.Where(m => m.ModLine != null).Select(m => m.ModLine!)
                     .Concat(x.Item.StatBonuses.Where(s => s.ModLine != null).Select(s => s.ModLine!)).ToList();
-                return mods.Count == 1 && mods[0].SuffixKind == SuffixKinds.Common
+                return mods.Count <= 1 && mods.All(m => m.SuffixKind == SuffixKinds.Common)
                     && x.Item.ActionBonuses.Count == Math.Max(1, x.Item.MinGeneratedActionBonuses);
             });
-            TestBase.AssertTrue(plain, "a Common item is one descriptor suffix plus its action", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(plain, "a Common item is its action plus at most one descriptor suffix", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var named = new HeadItem("Cap", 1, 5) { BaseName = "Cap", Material = "Iron" };
             named.Modifications.Add(new Modification { Name = "Bathed in Blood", ModLine = new ItemModLineInfo { Pool = "mechanic", Affix = "suffix", Tier = 1, Keyword = "Bathed in Blood", Family = "Vampiric", SuffixKind = "rare" } });

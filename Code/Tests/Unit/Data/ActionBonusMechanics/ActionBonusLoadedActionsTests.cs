@@ -112,6 +112,24 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                             if (ok) actionPassed++;
                         }
                     }
+                    else if (group.Timing != null) // TURN with timing (delay / every / slotIf): lands within its window, not always next roll
+                    {
+                        bool ok = !string.IsNullOrWhiteSpace(group.Timing.SlotIf); // slot-gated: needs a strip slot, checked in CadenceTimingTests
+                        if (!ok)
+                        {
+                            character.Effects.AddActionAttackBonuses(new ActionAttackBonuses { BonusGroups = new List<ActionAttackBonusGroup> { group } });
+                            int window = Math.Max(1, group.Count) + Math.Max(0, group.Timing.Delay);
+                            for (int roll = 0; roll < window && !ok; roll++)
+                            {
+                                var got = character.Effects.GetAndConsumeTurnBonuses();
+                                ok = group.Bonuses != null && group.Bonuses.All(b => got.Any(p => p.Type == b.Type));
+                            }
+                        }
+                        TestBase.AssertTrue(ok,
+                            $"{action.Name} TURN (timed): bonuses land within the grant window",
+                            ref _testsRun, ref _testsPassed, ref _testsFailed);
+                        if (ok) actionPassed++;
+                    }
                     else // ATTACK
                     {
                         character.Effects.AddActionAttackBonuses(new ActionAttackBonuses { BonusGroups = new List<ActionAttackBonusGroup> { group } });

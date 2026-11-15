@@ -385,6 +385,10 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
         }
 
 
+        private static double SlotDamageMod(Character c, int slot) =>
+            c.Effects.GetPendingActionBonusesForSlot(slot).Where(b => b.Type == "DAMAGE_MOD").Sum(b => b.Value);
+
+
         private static void TestActionBonusClipMidCombo()
         {
             Console.WriteLine("\n--- ACTION grant clip: mid-combo Count=3 clips to remaining slots ---\n");
@@ -408,8 +412,8 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 TestBase.AssertTrue(result.Hit && result.IsCombo,
                     "Mid-combo action hit+combo",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(2, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "Slot 1 of 4 with Count=3 clips to 2 remaining actions",
+                TestBase.AssertEqual(2, character.Effects.GetPendingActionBonusSlots().Count(),
+                    "Slot 1 of 4 with Count=3 clips to 2 remaining actions (one copy per slot)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
@@ -550,11 +554,11 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
 
 
         /// <summary>
-        /// 3-action combo [buff, mid, finisher]: ACTION x3 clipped to 2 deposits (+50% DAMAGE_MOD bank); mid redeems all.
+        /// 3-action combo [buff, mid, finisher]: ACTION x3 clipped to the 2 remaining slots, one +25% copy each (spread, 2026-11-15).
         /// </summary>
         private static void TestThreeActionComboDamageModBuffsRemainingSlots()
         {
-            Console.WriteLine("\n--- ACTION x3: additive bank redeems on first hit+combo (mid) ---\n");
+            Console.WriteLine("\n--- ACTION x3: spreads one copy per remaining slot ---\n");
 
             var lastUsed = new Dictionary<Actor, Action>();
             var lastCritMiss = new Dictionary<Actor, bool>();
@@ -578,12 +582,9 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 TestBase.AssertTrue(r1.Hit && r1.IsCombo,
                     "Buff action hit+combo grants FIFO layers",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(2, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "Count=3 clipped to 2 additive deposits after slot 0",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-                var bankPeek = character.Effects.PeekPendingActionBonusesNextHeroRoll();
-                TestBase.AssertTrue(bankPeek.Any(b => b.Type == "DAMAGE_MOD" && Math.Abs(b.Value - 50) < 0.01),
-                    "Two +25% deposits merge to +50% DAMAGE_MOD in bank",
+                TestBase.AssertTrue(SlotDamageMod(character, 1) == 25 && SlotDamageMod(character, 2) == 25
+                        && character.Effects.GetPendingActionCadenceLayerCount() == 0,
+                    "Count=3 clipped to 2 slots after slot 0: +25% on mid and +25% on finisher",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(character.Effects.PeekTurnBonuses().Count == 0,
                     "ACTION cadence must not duplicate DAMAGE_MOD into ATTACK queue",
@@ -595,10 +596,10 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 ActionSelector.SetStoredActionRoll(character, comboRoll);
                 var r2 = ActionExecutionFlow.Execute(character, enemy, null, null, mid, null, lastUsed, lastCritMiss);
                 TestBase.AssertTrue(r2.Hit && r2.IsCombo,
-                    "Mid action hit+combo redeems full bank",
+                    "Mid action hit+combo redeems its slot",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "Bank empty after mid redeems",
+                TestBase.AssertTrue(SlotDamageMod(character, 1) == 0 && SlotDamageMod(character, 2) == 25,
+                    "Mid spent its +25%; finisher's +25% still pending",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 int midDamage = hpBeforeMid - enemy.CurrentHealth;
                 TestBase.AssertTrue(midDamage > 0, "Mid action dealt damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -609,10 +610,10 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 ActionSelector.SetStoredActionRoll(character, comboRoll);
                 var r3 = ActionExecutionFlow.Execute(character, enemy, null, null, finisher, null, lastUsed, lastCritMiss);
                 TestBase.AssertTrue(r3.Hit && r3.IsCombo,
-                    "Finisher hit+combo after bank already redeemed",
+                    "Finisher hit+combo redeems its slot",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(0, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "Bank still empty after finisher",
+                TestBase.AssertEqual(0, character.Effects.GetPendingActionBonusSlots().Count(),
+                    "No slot bonuses left after finisher",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 int finisherDamage = hpBeforeFinisher - enemy.CurrentHealth;
                 TestBase.AssertTrue(finisherDamage > 0, "Finisher dealt damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -626,7 +627,7 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 _ = ActionExecutionFlow.Execute(baseline, baselineEnemy, null, null, mid, null, lastUsed, lastCritMiss);
                 int baselineMidDamage = hpBeforeBaselineMid - baselineEnemy.CurrentHealth;
                 TestBase.AssertTrue(midDamage > baselineMidDamage,
-                    "Mid with +50% bank deals more than unbuffed mid (+25% x2 deposits)",
+                    "Mid with +25% deals more than unbuffed mid",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 baseline.ComboStep = 2;
@@ -636,8 +637,8 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 var rBaseFin = ActionExecutionFlow.Execute(baseline, baselineEnemy, null, null, finisher, null, lastUsed, lastCritMiss);
                 TestBase.AssertTrue(rBaseFin.Hit, "Baseline finisher hits", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 int baselineFinDamage = hpBeforeBaselineFin - baselineEnemy.CurrentHealth;
-                TestBase.AssertTrue(Math.Abs(finisherDamage - baselineFinDamage) < 0.01,
-                    "Finisher deals normal damage after bank was spent on mid",
+                TestBase.AssertTrue(finisherDamage > baselineFinDamage,
+                    "Finisher gets its own +25% (ACTION x3 spread over the remaining slots)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
@@ -674,12 +675,11 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 TestBase.AssertTrue(result.Hit && result.IsCombo,
                     "ACTION BONUS hit+combo",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(2, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "ComboBonusDuration=2 should add two additive deposits even when bonus group Count=3",
+                TestBase.AssertEqual(2, character.Effects.GetPendingActionBonusSlots().Count(),
+                    "ComboBonusDuration=2 should spread over two slots even when bonus group Count=3",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-                var bank = character.Effects.PeekPendingActionBonusesNextHeroRoll();
-                TestBase.AssertTrue(bank.Any(b => b.Type == "DAMAGE_MOD" && Math.Abs(b.Value - 50) < 0.01),
-                    "Duration 2 merges to +50% DAMAGE_MOD in bank",
+                TestBase.AssertTrue(SlotDamageMod(character, 1) == 25 && SlotDamageMod(character, 2) == 25,
+                    "Duration 2: +25% DAMAGE_MOD on each of the next two slots",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(2, ActionCadenceDurationResolver.GetDisplayCount(buff, buff.ActionAttackBonuses!.BonusGroups[0]),
                     "Display count should follow ComboBonusDuration",
@@ -729,8 +729,8 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 ActionSelector.SetStoredActionRoll(character, comboRoll);
                 var result = ActionExecutionFlow.Execute(character, new Enemy("T", 1, 500, 5, 5, 5, 5), null, null, forced, null, lastUsed, lastCritMiss);
                 TestBase.AssertTrue(result.Hit && result.IsCombo, "ACTION BONUS hit+combo", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(3, character.Effects.GetPendingActionCadenceLayerCount(),
-                    "Forced GetAction should add three additive deposits from loader duration (not stale strip Count=5)",
+                TestBase.AssertEqual(3, character.Effects.GetPendingActionBonusSlots().Count(),
+                    "Forced GetAction should spread over three slots from loader duration (not stale strip Count=5)",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally

@@ -232,6 +232,15 @@ namespace RPGGame
         /// <summary>
         /// Dice / threshold modifier keys from suffix tables: numeric values are flat (+2 ⇒ +2), not percent of a reference.
         /// </summary>
+        /// <summary>Reference one suffix percent of <paramref name="statType"/> applies to (1 for literal roll stats).</summary>
+        public double GetSuffixPercentReference(string statType, Character character)
+        {
+            string t = NormalizeEquipmentStatKey(statType);
+            if (t.Length == 0 || IsLiteralRollModifierSuffixStat(t))
+                return 1;
+            return ResolveSuffixPercentReference(character, t) / 100.0;
+        }
+
         private static bool IsLiteralRollModifierSuffixStat(string normalizedStat)
         {
             if (string.IsNullOrWhiteSpace(normalizedStat))

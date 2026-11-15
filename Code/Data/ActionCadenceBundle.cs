@@ -27,6 +27,11 @@ namespace RPGGame.Data
         [JsonPropertyName("mechanics")]
         public string Mechanics { get; set; } = "";
 
+        /// <summary>Optional slot / delay / shape timing (<see cref="CadenceTiming"/>); null = plain cadence.</summary>
+        [JsonPropertyName("timing")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public CadenceTiming? Timing { get; set; }
+
         public bool IsEnabled =>
             IsTruthy(Enable)
             || !string.IsNullOrWhiteSpace(Duration)

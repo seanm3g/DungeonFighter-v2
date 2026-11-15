@@ -54,6 +54,19 @@ namespace RPGGame.Data
         
         [JsonPropertyName("durationType")]
         public string DurationType { get; set; } = ""; // "ABILITY", "ACTION", "FIGHT", "DUNGEON", "CHAIN", "COMBO", or empty for default
+
+        /// <summary>Slot / delay / shape timing (<see cref="CadenceTiming"/>); null = plain cadence.</summary>
+        [JsonPropertyName("timing")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public CadenceTiming? Timing { get; set; }
+
+        /// <summary>Runtime (TURN): rolls seen since the grant (delay rolls included).</summary>
+        [JsonIgnore]
+        public int Elapsed { get; set; }
+
+        /// <summary>Runtime (TURN): the granted duration, for ramp / decay.</summary>
+        [JsonIgnore]
+        public int Total { get; set; }
     }
     
     /// <summary>

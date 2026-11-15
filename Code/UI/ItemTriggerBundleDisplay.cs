@@ -63,14 +63,25 @@ namespace RPGGame
             return sb.ToString();
         }
 
-        /// <summary>The base item's modifier (<see cref="Item.ImplicitRule"/>) as card text, e.g. "+12% damage with Cleave";
-        /// null when the item has none.</summary>
+        /// <summary>The base item's modifier (<see cref="Item.ImplicitRule"/>) as card text, e.g.
+        /// "Cleave Technique: +12% damage with Cleave" (rules joined with "; "); null when the item has none.</summary>
         public static string? FormatModifier(Item? item)
         {
             if (item == null || string.IsNullOrWhiteSpace(item.ImplicitRule))
                 return null;
-            var rule = CrossWireRule.Parse(item.ImplicitRule, item.Name ?? "");
-            return rule == null ? null : CrossWires.Describe(rule);
+            var parts = new List<string>();
+            foreach (string part in item.ImplicitRule.Split(';'))
+            {
+                if (string.IsNullOrWhiteSpace(part))
+                    continue;
+                var rule = CrossWireRule.Parse(part.Trim(), item.Name ?? "");
+                if (rule != null)
+                    parts.Add(CrossWires.Describe(rule));
+            }
+            if (parts.Count == 0)
+                return null;
+            string text = string.Join("; ", parts);
+            return string.IsNullOrWhiteSpace(item.ImplicitName) ? text : $"{item.ImplicitName.Trim()}: {text}";
         }
 
         public static IEnumerable<string> FormatSummaries(IEnumerable<ActionTriggerBundle>? bundles)

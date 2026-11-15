@@ -21,6 +21,12 @@ namespace RPGGame.Tuning
         {
             /// <summary>Owned actions below this total (mined priority + synergy) stay off the strip, unless a fill-slot node is learned.</summary>
             public double MinScore { get; set; } = 0.5;
+            /// <summary>
+            /// Combo slot rise (comboSystem.comboThresholdRisePerSlot &gt; 0): blend each untimed action's mined strip
+            /// position toward its score rank (best first) by this weight, since later slots are reached far less often.
+            /// 0 = mined order only. Cadence-timed actions keep their timing position.
+            /// </summary>
+            public double RiseOrderWeight { get; set; }
             /// <summary>Per set piece past 2 (up to 5) the WHEN weights grow by this fraction.</summary>
             public double SetPieceGrowth { get; set; } = 0.25;
             /// <summary>Node ranks past this count no longer add weight.</summary>
@@ -52,6 +58,21 @@ namespace RPGGame.Tuning
             public double CrossWireNodeBonus { get; set; } = 0.3;
             /// <summary>Skill score bonus for a Persistence capstone (Rite branch, carries stores between fights).</summary>
             public double PersistNodeBonus { get; set; } = 0.2;
+            /// <summary>
+            /// Strip score of an owned action the miner never saw (2026-11-15: the mined lists name 60 of ~190 actions, none of
+            /// the 11-11 status rows or the cadence-timing rows), before its grant value (<see cref="GrantWeights"/>).
+            /// </summary>
+            public double UnminedBase { get; set; } = 0.35;
+            /// <summary>
+            /// Grant features -> strip points for unmined actions: dmgGrant / ampGrant / speedGrant are the total percent an
+            /// action grants over its cadence duration / 100 (ramp and decay summed, every-n pulses counted, perSlot at slot 2);
+            /// hit / combo / crit are roll points per grant.
+            /// </summary>
+            public Dictionary<string, double> GrantWeights { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+            /// <summary>Strip points per 10% of worn action-scoped DAMAGE rules (base modifiers, RULE prefixes, nodes) a swing of the action gets; SPEED counts 0.8 of it.</summary>
+            public double RuleBonusPer10Pct { get; set; } = 0.15;
+            /// <summary>Verb weight share for APPLY &lt;status&gt; when nothing the hero has (set WHEN, node, conversion) uses that status.</summary>
+            public double UnusedApplyShare { get; set; } = 0.5;
         }
 
         private static SynergyData? _data;
@@ -128,9 +149,105 @@ namespace RPGGame.Tuning
                         f["fx:" + word] = 1;
                 if (f.ContainsKey("tag:focus"))
                     f["fx:focus"] = 1;
+                // APPLY <status> verb rows: their status is the action's payload (fx:<status>), so status nodes and WHENs see it.
+                string verb = Str(row, "verb").Trim();
+                if (verb.StartsWith("APPLY ", StringComparison.OrdinalIgnoreCase))
+                {
+                    var parts = verb.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    if (parts.Length > 1)
+                        f["fx:" + parts[1].ToLowerInvariant()] = 1;
+                }
+                double grants = GrantMultiplier(Str(row, "cadenceBundlesJson"));
+                if (grants > 0)
+                {
+                    Set(f, "dmgGrant", grants * Num(row, "damageMod", 0) / 100.0);
+                    Set(f, "ampGrant", grants * Num(row, "ampMod", 0) / 100.0);
+                    Set(f, "speedGrant", grants * Num(row, "speedMod", 0) / 100.0);
+                }
                 result[name] = f;
             }
             return result;
+        }
+
+        /// <summary>
+        /// How many full copies a row's first cadence bundle grants: its duration, with ramp / decay summing 1..n,
+        /// <c>every</c> n counting only the pulses and <c>perSlot</c> valued at slot 2. 0 without a cadence bundle.
+        /// </summary>
+        internal static double GrantMultiplier(string cadenceBundlesJson)
+        {
+            if (string.IsNullOrWhiteSpace(cadenceBundlesJson))
+                return 0;
+            try
+            {
+                using var doc = JsonDocument.Parse(cadenceBundlesJson);
+                if (doc.RootElement.ValueKind != JsonValueKind.Array || doc.RootElement.GetArrayLength() == 0)
+                    return 0;
+                var b = doc.RootElement[0];
+                double n = b.TryGetProperty("duration", out var d) && double.TryParse(d.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out double dv) ? Math.Max(1, dv) : 1;
+                double copies = n;
+                if (b.TryGetProperty("timing", out var t) && t.ValueKind == JsonValueKind.Object)
+                {
+                    int every = t.TryGetProperty("every", out var e) && e.TryGetInt32(out int ev) ? ev : 1;
+                    double pulses = every > 1 ? Math.Floor(n / every) : n;
+                    string shape = t.TryGetProperty("shape", out var sh) ? sh.GetString() ?? "" : "";
+                    copies = shape is "ramp" or "decay" ? pulses * (pulses + 1) / 2 : pulses;
+                    if (t.TryGetProperty("perSlot", out var ps) && ps.ValueKind == JsonValueKind.True)
+                        copies *= 2;
+                }
+                return copies;
+            }
+            catch (JsonException)
+            {
+                return 0;
+            }
+        }
+
+        /// <summary>Strip score of an owned action no mined list names: <see cref="SynergyData.UnminedBase"/> + its grant features.</summary>
+        public static double UnminedScore(string actionName) => Data.UnminedBase + Dot(Data.GrantWeights, Features(actionName));
+
+        /// <summary>
+        /// Strip points from worn action-scoped rules (base modifiers "+n% damage with X", RULE prefixes, skill nodes with
+        /// IF ACTION / TAG / CLASS) that a swing of <paramref name="action"/> would get.
+        /// </summary>
+        public static double ActionRuleBonus(Character hero, RPGGame.Action? action)
+        {
+            if (action == null)
+                return 0;
+            double pct = CrossWires.Passive(hero, "DAMAGE", null, action, actionOnly: true)
+                         + 0.8 * CrossWires.Passive(hero, "SPEED", null, action, actionOnly: true);
+            return Data.RuleBonusPer10Pct * pct / 10.0;
+        }
+
+        /// <summary>
+        /// Where an action's cadence timing wants it on a strip of <paramref name="length"/> slots, as 0 (first) .. 1 (last);
+        /// null when position doesn't matter. slotIf / perSlot place the action itself; an ACTION grant aimed at a slot
+        /// (slot n / last) wants its source early, one aimed at the next cycle's first slots (slot first) wants it late.
+        /// </summary>
+        public static double? TimingPosition(string actionName, int length)
+        {
+            var timing = ActionLoader.GetAction(actionName)?.ActionAttackBonuses?.BonusGroups?.FirstOrDefault()?.Timing;
+            if (timing == null || length <= 1)
+                return null;
+            double At(int slot1) => Math.Clamp((slot1 - 1) / (double)(length - 1), 0, 1);
+            string slotIf = (timing.SlotIf ?? "").Trim().ToLowerInvariant();
+            if (slotIf.Length > 0)
+            {
+                if (slotIf == "first") return 0;
+                if (slotIf == "last") return 1;
+                if (slotIf == "even") return At(2);
+                if (slotIf == "odd") return 0;
+                string digits = new string(slotIf.Where(char.IsDigit).ToArray());
+                if (int.TryParse(digits, out int k))
+                    return slotIf.StartsWith("<") ? 0 : At(k);
+            }
+            if (timing.PerSlot)
+                return At(Math.Min(3, length));
+            string slot = (timing.Slot ?? "").Trim().ToLowerInvariant();
+            if (slot == "first")
+                return 1;
+            if (slot.Length > 0)
+                return 0;
+            return null;
         }
 
         private static void Set(Dictionary<string, double> f, string key, double v)
@@ -242,9 +359,30 @@ namespace RPGGame.Tuning
                 VerbKind.Liquidate => formed.Count >= 2 ? w : 0,
                 VerbKind.Transmute => formed.Count >= 2 || ConversionTable.OwnsAny(hero) ? w : 0,
                 VerbKind.Index => w * Math.Max(0, Attunement.CountDistinctMaterials(hero) - 2),
+                VerbKind.Apply => StatusUsed(hero, Features(actionName)) ? w : w * Data.UnusedApplyShare,
+                VerbKind.Detonate => OwnsStatusApplier(hero, actionName) ? w : 0,
                 _ => w
             };
         }
+
+        private static readonly string[] DotStatuses = { "bleed", "burn", "poison", "acid" };
+
+        /// <summary>True when an active source (set WHEN or learned node) weights the action's fx:&lt;status&gt;, or a conversion uses it.</summary>
+        private static bool StatusUsed(Character hero, IReadOnlyDictionary<string, double> features)
+        {
+            var fx = features.Keys.Where(k => k.StartsWith("fx:", StringComparison.OrdinalIgnoreCase)).ToList();
+            if (fx.Count == 0)
+                return false;
+            foreach (var (source, _) in ActiveSources(hero))
+                if (Data.Rules.TryGetValue(source, out var weights) && fx.Any(k => weights.TryGetValue(k, out double v) && v > 0))
+                    return true;
+            return ConversionTable.OwnsAny(hero);
+        }
+
+        /// <summary>DETONATE needs a status to blow up: another owned action applies a damage-over-time status.</summary>
+        private static bool OwnsStatusApplier(Character hero, string self) =>
+            hero.GetActionPool().Any(a => !string.Equals(a.Name, self, StringComparison.OrdinalIgnoreCase)
+                && DotStatuses.Any(s => Features(a.Name).ContainsKey("fx:" + s)));
 
         // ---------------------------------------------------------------- affixes, cross-wires, capstones
 
@@ -269,7 +407,10 @@ namespace RPGGame.Tuning
         private static string? SourceStore(string when)
         {
             int colon = when.IndexOf(':');
-            return colon > 0 && TriggerEvents.Strip(when[..colon]).Equals("ONCASH", StringComparison.OrdinalIgnoreCase)
+            if (colon <= 0)
+                return null;
+            string head = TriggerEvents.Strip(when[..colon]);
+            return head.Equals("ONCASH", StringComparison.OrdinalIgnoreCase) || head.Equals("ONSTOREFULL", StringComparison.OrdinalIgnoreCase)
                 ? when[(colon + 1)..]
                 : null;
         }

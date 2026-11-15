@@ -52,10 +52,11 @@ namespace RPGGame.Actions.Execution
                 int overflow = 0;
                 if (eqCombo != 0)
                 {
-                    int before = thresholdManager.GetComboThreshold(gearCharacter);
+                    // Stored base, not the slot-risen value: the rise's cap at 20 would hide how far the base moved.
+                    int before = thresholdManager.GetStoredComboThreshold(gearCharacter);
                     thresholdManager.AdjustComboThreshold(gearCharacter, eqCombo);
                     if (eqCombo > 0)
-                        overflow += Math.Max(0, eqCombo - (before - thresholdManager.GetComboThreshold(gearCharacter)));
+                        overflow += Math.Max(0, eqCombo - (before - thresholdManager.GetStoredComboThreshold(gearCharacter)));
                 }
                 if (eqHit != 0)
                 {

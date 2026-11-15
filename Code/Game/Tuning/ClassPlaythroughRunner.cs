@@ -92,7 +92,9 @@ namespace RPGGame.Tuning
             {
                 for (int n = 0; n < ResolveStartLootPerLevel(StartAtLevel); n++)
                 {
-                    var item = LootGenerator.GenerateLoot(lvl, lvl, null);
+                    // Rolled for this hero (class tags, magic find, material bias) like real drops in RewardManager;
+                    // a null player rolled every class evenly (25% home class instead of the real share).
+                    var item = LootGenerator.GenerateLoot(lvl, lvl, hero);
                     if (item != null)
                         hero.AddToInventory(item);
                 }

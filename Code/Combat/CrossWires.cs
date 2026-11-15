@@ -39,7 +39,8 @@ namespace RPGGame
     /// ONTAKEHIT…). EVERY n fires on every n-th match this fight.</item>
     /// <item>IF: <c>RAGE&gt;=3</c> (hero store), <c>HP&lt;50</c> (hero HP %), <c>STEP&gt;=2</c> (combo step),
     /// <c>SPENT&gt;=10</c> (event amount), <c>LENGTH&lt;0.7</c> (action length), <c>ROLL&gt;=15</c> (natural roll),
-    /// <c>DISTINCT&gt;=4</c> (worn materials), <c>TURN&gt;=3</c>; <c>TARGET bleed</c> / <c>TARGET bleed&gt;=3</c> /
+    /// <c>DISTINCT&gt;=4</c> (worn materials), <c>TURN&gt;=3</c>, <c>SLOT&gt;=3</c> (the swing's 1-based strip slot),
+    /// <c>SLOTS&gt;=5</c> (strip length); <c>TARGET bleed</c> / <c>TARGET bleed&gt;=3</c> /
     /// <c>TARGET HP&lt;30</c>; <c>PREFIX undead</c> (enemy prefix tag).</item>
     /// <item>Triggered verbs: <c>MINT</c> (hero mint), <c>ADD</c> (hero resource: harden, fortify, focus, temphp % max
     /// HP), <c>APPLY</c> (target status), <c>HEAL n%</c> (of the event's damage; plain n = % max HP), <c>REFLECT n%</c>
@@ -85,7 +86,7 @@ namespace RPGGame
         public static readonly string[] PotencyStatuses = { "bleed", "burn", "poison", "acid" };
         public static readonly string[] BuffStats = { "STR", "AGI", "TECH", "TEC", "INT", "HIT", "COMBO", "CRIT", "ACCURACY" };
         public static readonly string[] Exemptions = { "STREAK", "COMBO" };
-        private static readonly string[] SelfKeys = { "HP", "STEP", "SPENT", "LENGTH", "ROLL", "DISTINCT", "TURN" };
+        private static readonly string[] SelfKeys = { "HP", "STEP", "SLOT", "SLOTS", "SPENT", "LENGTH", "ROLL", "DISTINCT", "TURN" };
         private static readonly Regex Compare = new(@"^([A-Za-z_]+)(>=|<=|>|<|=)(-?[0-9]+(?:\.[0-9]+)?)$", RegexOptions.Compiled);
 
         public static CrossWireRule? Parse(string? spec, string source = "")
@@ -333,12 +334,17 @@ namespace RPGGame
             {
                 if (item == null)
                     continue;
-                // The base item's modifier (Item.ImplicitRule, e.g. "+12% damage with Cleave").
+                // The base item's modifier (Item.ImplicitRule, e.g. "+12% damage with Cleave"); high tiers hold two rules.
                 if (!string.IsNullOrWhiteSpace(item.ImplicitRule))
                 {
-                    var implicitRule = Cached(item.ImplicitRule.Trim(), item.Name);
-                    if (implicitRule != null)
-                        list.Add(implicitRule);
+                    foreach (string part in item.ImplicitRule.Split(';'))
+                    {
+                        if (string.IsNullOrWhiteSpace(part))
+                            continue;
+                        var implicitRule = Cached(part.Trim(), item.Name);
+                        if (implicitRule != null)
+                            list.Add(implicitRule);
+                    }
                 }
                 if (item.Modifications == null)
                     continue;
@@ -493,6 +499,8 @@ namespace RPGGame
                     {
                         "HP" => HealthPercent(hero),
                         "STEP" => hero.ComboStep,
+                        "SLOT" => StripSlot(hero, action),
+                        "SLOTS" => ActionUtilities.GetComboActions(hero).Count,
                         "SPENT" => eventAmount,
                         "LENGTH" => evt?.Action?.Length ?? 0,
                         "ROLL" => evt?.NaturalRollValue ?? 0,
@@ -503,6 +511,18 @@ namespace RPGGame
                     return c.Op.Length == 0 ? v > 0 : Compare(v, c.Op, c.Value);
                 }
             }
+        }
+
+        /// <summary>1-based strip slot of <paramref name="action"/> (else the hero's current combo slot); 0 with no strip.</summary>
+        private static double StripSlot(Character hero, Action? action)
+        {
+            var combo = ActionUtilities.GetComboActions(hero);
+            if (combo.Count == 0)
+                return 0;
+            int idx = action != null ? ActionUtilities.TryGetComboActionSlotIndex(action, combo) : -1;
+            if (idx < 0)
+                idx = ((hero.ComboStep % combo.Count) + combo.Count) % combo.Count;
+            return idx + 1;
         }
 
         private static double HealthPercent(Actor actor) =>
@@ -737,6 +757,8 @@ namespace RPGGame
                 {
                     "HP" => $"your HP{cmp}%",
                     "STEP" => $"combo step{cmp}",
+                    "SLOT" => $"in strip slot{cmp}",
+                    "SLOTS" => $"strip length{cmp}",
                     "SPENT" => $"spending{cmp}",
                     "LENGTH" => $"action length{cmp}",
                     "ROLL" => $"roll{cmp}",

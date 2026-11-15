@@ -214,10 +214,7 @@ namespace RPGGame.Actions.Execution
                                 string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType);
                             if (!CadenceKeywords.IsAction(ct) || group.Bonuses == null)
                                 continue;
-                            int layers = ActionCadenceDurationResolver.ResolveGrantedLayers(selected, group, comboActions, selected);
-                            if (layers <= 0) continue;
-                            var payload = CloneActionAttackBonusItems(group.Bonuses);
-                            bonusSourceCharacter.Effects.AccumulatePendingActionCadenceBank(payload, layers, previewSlot);
+                            DepositActionCadenceGroup(bonusSourceCharacter, selected, group, comboActions, previewSlot);
                         }
                     }
                 }
@@ -479,6 +476,7 @@ namespace RPGGame.Actions.Execution
             {
                 modMissCharacter.Effects.AddModifierBonusesFromAction(result.SelectedAction, useEnemySpreadsheetMods: false);
                 modMissCharacter.Effects.GetAndClearConsumedTurnBonusesThisRoll(); // Discard; TURN bonuses consumed on roll but not applied on miss
+                modMissCharacter.Effects.BreakTurnBonusesOnMiss(); // timing.untilMiss grants end here
                 if (result.TurnStatSnapshot is { } snapshot)
                     TempStatSnapshot.Restore(modMissCharacter, snapshot);
             }
@@ -535,6 +533,62 @@ namespace RPGGame.Actions.Execution
             }
             ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction!, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, false, false, 0, 0, false, result.BaseRoll, battleNarrative);
             CombatTriggerContext.NotifySwingResolved(source, result.SelectedAction, connected: false, missed: true);
+        }
+
+        /// <summary>
+        /// One ACTION-cadence group from a combo hit. ×1 with no timing → the additive bank (next action).
+        /// ×N spreads one copy onto each of the next N strip slots (per-slot queue, redeemed when that slot lands a combo);
+        /// <see cref="CadenceTiming"/> picks the start slot (slot / delay), scales per application (ramp / decay / perSlot),
+        /// gates on this action's slot (slotIf), or keeps the old all-on-one-action burst (shape charge).
+        /// </summary>
+        internal static void DepositActionCadenceGroup(
+            Character hero, Action selected, ActionAttackBonusGroup group, List<Action> comboActions, int previewSlot)
+        {
+            var timing = group.Timing;
+            int n = comboActions.Count;
+            int sourceSlot = ActionUtilities.GetComboSlotForPendingBonuses(hero, selected, comboActions);
+            if (timing != null && !timing.SlotIfHolds(sourceSlot, n))
+                return;
+            double perSlot = timing?.PerSlot == true ? sourceSlot + 1 : 1;
+
+            if (timing?.IsCharge == true)
+            {
+                // Charge: all copies on the next combo action (clipped at strip end, the pre-2026-11-15 ACTION ×N).
+                int layers = ActionCadenceDurationResolver.ResolveGrantedLayers(selected, group, comboActions, selected);
+                if (layers > 0)
+                    hero.Effects.AccumulatePendingActionCadenceBank(CadenceTiming.Scale(group.Bonuses, perSlot), layers, previewSlot);
+                return;
+            }
+
+            // Explicit placement (slot / delay) may wrap the strip into the next combo cycle.
+            if (!string.IsNullOrWhiteSpace(timing?.Slot) || (timing?.Delay ?? 0) > 0)
+            {
+                int requested = Math.Max(1, ActionCadenceDurationResolver.GetRequestedLayerCount(selected, group));
+                SpreadActionCadence(hero, group, timing, sourceSlot, n, requested, perSlot);
+                return;
+            }
+
+            // "Next N actions": clipped to the slots left in this combo cycle (a finisher grants nothing, as before).
+            int granted = ActionCadenceDurationResolver.ResolveGrantedLayers(selected, group, comboActions, selected);
+            if (granted <= 0)
+                return;
+            if (granted == 1)
+            {
+                hero.Effects.AccumulatePendingActionCadenceBank(CadenceTiming.Scale(group.Bonuses, perSlot), 1, previewSlot);
+                return;
+            }
+            SpreadActionCadence(hero, group, timing, sourceSlot, n, granted, perSlot);
+        }
+
+        private static void SpreadActionCadence(
+            Character hero, ActionAttackBonusGroup group, CadenceTiming? timing, int sourceSlot, int n, int count, double perSlot)
+        {
+            var slots = CadenceTiming.ResolveActionSlots(timing, sourceSlot, n, count);
+            for (int k = 0; k < slots.Count; k++)
+            {
+                double factor = perSlot * (timing?.ShapeFactor(k + 1, slots.Count) ?? 1);
+                hero.Effects.AddPendingActionBonuses(slots[k], CadenceTiming.Scale(group.Bonuses, factor));
+            }
         }
 
         /// <summary>

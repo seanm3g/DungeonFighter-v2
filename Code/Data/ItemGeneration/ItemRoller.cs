@@ -78,7 +78,10 @@ namespace RPGGame.Data.ItemGeneration
             private Item _item = null!;
             private string _slot = "";
             private int _ilvl;
+            /// <summary>Rarity used for line gates and values: the drop rarity, before any rarity roll-up.</summary>
             private int _rarityIndex;
+            private string? _modifierTemplate;
+            private string? _modifierName;
 
             public RollState(ItemRoller roller, ItemRollRequest request, ItemRollSpec spec, int seed)
             {
@@ -124,11 +127,17 @@ namespace RPGGame.Data.ItemGeneration
                     return null;
                 _spec.Slot = _slot;
 
-                // 5. Rarity.
-                var rarity = RollRarity();
+                // 5. Rarity. A roll-up gives the higher rarity's line count, suffixes and name; the lines still roll as
+                // the drop rarity (so a rolled-up Common keeps the common-only high tiers).
+                var rarity = RollRarity(out var dropRarity);
                 _item.Rarity = rarity.Name;
                 _spec.Rarity = rarity.Name;
-                _rarityIndex = RarityOrder.IndexOf(rarity.Name);
+                _rarityIndex = RarityOrder.IndexOf(dropRarity.Name);
+                if (!string.Equals(dropRarity.Name, rarity.Name, StringComparison.OrdinalIgnoreCase))
+                {
+                    _item.DropRarity = dropRarity.Name;
+                    _spec.DropRarity = dropRarity.Name;
+                }
 
                 // 6. Material (+ the piece's material trigger), then the base implicit.
                 ApplyMaterial(For("material"), context);
@@ -261,17 +270,20 @@ namespace RPGGame.Data.ItemGeneration
                 }
                 if (hi < lo)
                     (lo, hi) = (hi, lo);
-                int rolled = rng.Next(lo, hi + 1);
-                int damage = Math.Max(1, (int)Math.Round(rolled * (1.0 + Cfg.DamagePerItemLevel * (_ilvl - 1))));
+                // Damage is the base's own range (its tier is already in it); item level does not scale it (user 2026-11-15).
+                int damage = Math.Max(1, rng.Next(lo, hi + 1));
+                // Higher tiers swing faster: swing time × (1 − per-tier cut × (tier − 1)).
+                double speed = row.AttackSpeed * Math.Max(0.1, 1.0 - Cfg.WeaponSpeedPerTier * (Math.Max(1, row.Tier) - 1));
 
-                var weapon = new WeaponItem(row.Name, row.Tier, damage, row.AttackSpeed, type)
+                var weapon = new WeaponItem(row.Name, row.Tier, damage, Math.Round(speed, 3), type)
                 {
                     BaseName = row.Name,
                     Level = _ilvl,
                     ExtraActionSlots = RollRange(rng, row.ExtraActionSlots, row.ExtraActionSlotsMin, row.ExtraActionSlotsMax),
-                    Tags = GameDataTagHelper.NormalizeDistinct(row.Tags),
-                    Implicit = row.TriggerName?.Trim() ?? ""
+                    Tags = GameDataTagHelper.NormalizeDistinct(row.Tags)
                 };
+                _modifierTemplate = row.Modifier;
+                _modifierName = row.ModifierName;
                 if (row.AttributeRequirements is { Count: > 0 })
                 {
                     weapon.AttributeRequirements = new AttributeRequirements(row.AttributeRequirements);
@@ -310,7 +322,8 @@ namespace RPGGame.Data.ItemGeneration
                 item.Level = _ilvl;
                 item.DefenseRolled = true;
                 item.Tags = GameDataTagHelper.NormalizeDistinct(row.Tags);
-                item.Implicit = row.TriggerName?.Trim() ?? "";
+                _modifierTemplate = row.Modifier;
+                _modifierName = row.ModifierName;
                 item.BaseStrength = Scale(row.Strength);
                 item.BaseAgility = Scale(row.Agility);
                 item.BaseTechnique = Scale(row.Technique);
@@ -340,19 +353,25 @@ namespace RPGGame.Data.ItemGeneration
 
             // ---------- 5. rarity ----------
 
-            private RarityData RollRarity()
+            /// <summary>The item's rarity after roll-ups; <paramref name="dropRarity"/> is the one first rolled.</summary>
+            private RarityData RollRarity(out RarityData dropRarity)
             {
                 var rows = Cache.RarityData ?? new List<RarityData>();
                 if (!string.IsNullOrWhiteSpace(_req.Rarity))
                 {
-                    return rows.FirstOrDefault(r => string.Equals(r.Name, _req.Rarity!.Trim(), StringComparison.OrdinalIgnoreCase))
-                        ?? new RarityData { Name = _req.Rarity!.Trim(), MinLines = 2, MaxLines = 2 };
+                    dropRarity = rows.FirstOrDefault(r => string.Equals(r.Name, _req.Rarity!.Trim(), StringComparison.OrdinalIgnoreCase))
+                        ?? new RarityData { Name = _req.Rarity!.Trim(), MinLines = 1, MaxLines = 2 };
+                    return dropRarity;
                 }
 
                 var unlocked = rows.Where(r => r.MinLevel <= _ilvl && Weight(r) > 0).ToList();
                 if (unlocked.Count == 0)
-                    return rows.FirstOrDefault() ?? new RarityData { Name = "Common", MinLines = 2, MaxLines = 2 };
+                {
+                    dropRarity = rows.FirstOrDefault() ?? new RarityData { Name = "Common", MinLines = 1, MaxLines = 2 };
+                    return dropRarity;
+                }
                 var rarity = PickWeighted(For("rarity"), unlocked, Weight);
+                dropRarity = rarity;
 
                 if (_req.AllowRollUps)
                 {
@@ -417,25 +436,20 @@ namespace RPGGame.Data.ItemGeneration
             }
 
             /// <summary>
-            /// The base's modifier (<see cref="BaseModifierRoller"/>): one passive rule on another action, a tag, the class's
-            /// actions or a status. Bases whose catalog row has an implicit (every non-starter base) get one; the old trigger
-            /// implicit itself is retired.
+            /// The base's modifier: fixed to the base in the catalog (<c>modifier</c> / <c>modifierName</c>), so finding a
+            /// specific mechanic means finding that base again; only its values roll. Every base carries one, starters and
+            /// Commons included (user 2026-11-15). Higher tiers are more complex (conditions, a second rule).
             /// </summary>
             private void ApplyImplicit()
             {
-                bool hasModifier = !string.IsNullOrWhiteSpace(_item.Implicit);
                 _item.Implicit = "";
-                if (!hasModifier)
-                    return;
-                var rng = For("implicit");
-                // Rarity gate (BaseModifiers.json rarityChance): half of Commons come bare.
-                if (rng.NextDouble() >= BaseModifierRoller.ChanceFor(_item.Rarity))
-                    return;
-                var rolled = BaseModifierRoller.Roll(_spec.Class, _ilvl, rng, Cfg.ImplicitPercentPerItemLevel);
+                var rolled = BaseModifierRoller.FromCatalog(_modifierTemplate, For("implicit"));
                 if (rolled is not { } r)
                     return;
                 _item.ImplicitRule = r.Rule;
+                _item.ImplicitName = _modifierName?.Trim() ?? "";
                 _spec.Implicit = r.Rule;
+                _spec.ImplicitName = _item.ImplicitName;
                 _spec.ImplicitValue = r.Value;
                 foreach (string token in r.Influence)
                     AddInfluence(token);
@@ -510,7 +524,8 @@ namespace RPGGame.Data.ItemGeneration
             {
                 int actions = Math.Min(lineCount, Cfg.GuaranteedActionLines);
                 var lineRng = For("lines");
-                int suffixes = RollSuffixes(rarity, For("suffixes"), lineRng);
+                // Suffixes take lines out of the rarity's count, never on top of it (a 1-line Common is just its action).
+                int suffixes = RollSuffixes(rarity, For("suffixes"), lineRng, lineCount - actions);
                 int weighted = Math.Max(0, lineCount - actions - suffixes);
                 var poolRng = For("pools");
                 // A pool whose pick fails (e.g. a listener with no event for this slot) gets a few more tries, then closes.
@@ -560,21 +575,22 @@ namespace RPGGame.Data.ItemGeneration
 
             /// <summary>
             /// Suffixes: at most one of each kind (common descriptor, uncommon animal, rare poetic phrase). The item's rarity
-            /// sets the kinds it always gets (<see cref="ItemGenerationConfig.SuffixKinds"/>); each lower kind it lacks joins
-            /// at <see cref="ItemGenerationConfig.SuffixExtraChance"/>, and a poetic phrase at
-            /// <see cref="ItemGenerationConfig.PoeticSuffixChance"/> when the rarity doesn't guarantee one. A kind with nothing this item can roll is skipped.
-            /// Returns the number of suffix lines rolled.
+            /// sets the kinds it gets (<see cref="ItemGenerationConfig.SuffixKinds"/>), plus a poetic phrase at
+            /// <see cref="ItemGenerationConfig.PoeticSuffixChance"/> when the rarity doesn't guarantee one. No other kinds join
+            /// (user 2026-11-15). A kind with nothing this item can roll is skipped, and at most <paramref name="maxLines"/>
+            /// roll, highest kind first. Returns the number of suffix lines rolled.
             /// </summary>
-            private int RollSuffixes(RarityData rarity, Random kindRng, Random lineRng)
+            private int RollSuffixes(RarityData rarity, Random kindRng, Random lineRng, int maxLines)
             {
                 var kinds = new HashSet<string>(Cfg.SuffixKindsFor(rarity.Name), StringComparer.OrdinalIgnoreCase);
-                int top = kinds.Count == 0 ? -1 : kinds.Max(SuffixKinds.Rank);
-                foreach (string kind in SuffixKinds.All)
-                    if (!kinds.Contains(kind) && SuffixKinds.Rank(kind) < top && kindRng.NextDouble() < Cfg.SuffixExtraChance)
-                        kinds.Add(kind);
                 // A small chance of a poetic phrase on items whose rarity doesn't guarantee one.
                 if (!kinds.Contains(SuffixKinds.Rare) && kindRng.NextDouble() < Cfg.PoeticSuffixChance)
                     kinds.Add(SuffixKinds.Rare);
+
+                // Over the line budget: keep the highest kinds (a Rare's poetic phrase before its descriptor).
+                if (kinds.Count > Math.Max(0, maxLines))
+                    kinds = new HashSet<string>(kinds.OrderByDescending(SuffixKinds.Rank).Take(Math.Max(0, maxLines)),
+                        StringComparer.OrdinalIgnoreCase);
 
                 int rolled = 0;
                 foreach (string kind in SuffixKinds.All)

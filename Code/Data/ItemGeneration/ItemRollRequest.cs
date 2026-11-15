@@ -80,10 +80,15 @@ namespace RPGGame.Data.ItemGeneration
         public int Tier { get; set; }
         public string BaseName { get; set; } = "";
         public string Rarity { get; set; } = "";
+        /// <summary>The rarity first rolled when a roll-up raised it (empty otherwise); lines roll at this rarity.</summary>
+        public string DropRarity { get; set; } = "";
         public string Material { get; set; } = "";
+        /// <summary>The base modifier rule(s) as rolled (catalog template with its values filled in).</summary>
         public string Implicit { get; set; } = "";
+        /// <summary>The base modifier's name (catalog <c>modifierName</c>).</summary>
+        public string ImplicitName { get; set; } = "";
 
-        /// <summary>The implicit's magnitude after item-level scaling (null when it has none).</summary>
+        /// <summary>The first rolled value of the base modifier (null when it has none).</summary>
         public double? ImplicitValue { get; set; }
         public Dictionary<string, int> PlannedLines { get; } = new();
         public List<ItemRollLine> Lines { get; } = new();

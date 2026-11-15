@@ -250,6 +250,8 @@ namespace RPGGame
                 CadenceType = group.CadenceType,
                 Count = count,
                 DurationType = group.DurationType,
+                Timing = CadenceTiming.CloneOrNull(group.Timing),
+                Total = count,
                 Bonuses = group.Bonuses == null
                     ? new List<ActionAttackBonusItem>()
                     : group.Bonuses.Select(b => new ActionAttackBonusItem { Type = b.Type, Value = b.Value }).ToList()
@@ -387,12 +389,42 @@ namespace RPGGame
             var toRemove = new List<ActionAttackBonusGroup>();
             foreach (var group in TurnBonuses.ToArray())
             {
-                if (group.Count > 0 && group.Bonuses != null) { result.AddRange(group.Bonuses); group.Count--; if (group.Count <= 0) toRemove.Add(group); }
+                if (group.Count <= 0 || group.Bonuses == null) continue;
+                result.AddRange(TurnPayload(group));
+                group.Elapsed++;
+                // Delay rolls (timing.delay) don't spend the duration.
+                if (group.Elapsed > (group.Timing?.Delay ?? 0))
+                    group.Count--;
+                if (group.Count <= 0) toRemove.Add(group);
             }
             foreach (var g in toRemove) TurnBonuses.Remove(g);
             return result;
         }
-        public List<ActionAttackBonusItem> PeekTurnBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in SnapshotTurnBonuses()) { if (g?.Bonuses != null) r.AddRange(g.Bonuses); } return r; }
+        public List<ActionAttackBonusItem> PeekTurnBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in SnapshotTurnBonuses()) { if (g?.Bonuses != null) r.AddRange(TurnPayload(g)); } return r; }
+
+        /// <summary>
+        /// What <paramref name="group"/> gives on its next roll: nothing while delayed (timing.delay) or off-beat (timing.every);
+        /// ramp / decay scale by the application index; plain groups give their bonuses as-is.
+        /// </summary>
+        internal static List<ActionAttackBonusItem> TurnPayload(ActionAttackBonusGroup group)
+        {
+            var t = group.Timing;
+            if (t == null)
+                return group.Bonuses ?? new List<ActionAttackBonusItem>();
+            int roll = group.Elapsed + 1;
+            if (roll <= t.Delay)
+                return new List<ActionAttackBonusItem>();
+            int k = roll - t.Delay;
+            if (t.Every > 1 && k % t.Every != 0)
+                return new List<ActionAttackBonusItem>();
+            int total = group.Total > 0 ? group.Total : Math.Max(1, group.Count + k - 1);
+            double factor = t.ShapeFactor(t.Every > 1 ? k / t.Every : k, t.Every > 1 ? Math.Max(1, total / t.Every) : total);
+            return factor == 1 ? group.Bonuses ?? new List<ActionAttackBonusItem>() : CadenceTiming.Scale(group.Bonuses, factor);
+        }
+
+        /// <summary>A miss ends TURN grants marked timing.untilMiss.</summary>
+        public void BreakTurnBonusesOnMiss() =>
+            TurnBonuses.RemoveAll(g => g?.Timing?.UntilMiss == true);
 
         /// <summary>
         /// Copy of the TURN groups for readers. Combat mutates <see cref="TurnBonuses"/> off the UI thread;

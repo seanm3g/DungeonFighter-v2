@@ -34,6 +34,7 @@ namespace RPGGame.Tests.Unit.Data
             ActionBonusMechanics.ActionBonusAbilityCadenceTests.RunAll(ref testsRun, ref testsPassed, ref testsFailed);
             ActionBonusMechanics.ActionBonusLoadedActionsTests.RunAll(ref testsRun, ref testsPassed, ref testsFailed);
             ActionBonusMechanics.ActionBonusScopedCadenceTests.RunAll(ref testsRun, ref testsPassed, ref testsFailed);
+            ActionBonusMechanics.CadenceTimingTests.RunAll(ref testsRun, ref testsPassed, ref testsFailed);
 
             TestBase.PrintSummary("Action Bonus Mechanics Tests", testsRun, testsPassed, testsFailed);
         }

@@ -215,6 +215,17 @@ namespace RPGGame
         [JsonPropertyName("defenseMax")]
         [JsonConverter(typeof(JsonInt32NullAsZeroConverter))]
         public int DefenseMax { get; set; }
+
+        /// <summary>
+        /// The base's fixed modifier (Scripts/build-item-mods.py): CrossWires WHILE rule(s), <c>;</c>-separated, with
+        /// <c>{lo-hi}</c> for each value rolled per drop. Every base has one (user 2026-11-15).
+        /// </summary>
+        [JsonPropertyName("modifier")]
+        public string? Modifier { get; set; }
+
+        /// <summary>The modifier's name: its subject plus the tier word ("Cleave Mastery").</summary>
+        [JsonPropertyName("modifierName")]
+        public string? ModifierName { get; set; }
     }
 
     public class WeaponData
@@ -273,12 +284,23 @@ namespace RPGGame
         [JsonPropertyName("class")]
         public string? Class { get; set; }
 
-        /// <summary>Damage range at item level 1 (catalog damage + bonus range + tier bonus); rolled once, scaled by item level.</summary>
+        /// <summary>The base's own damage range, rolled once per drop; the tier carries the scaling, item level does not.</summary>
         [JsonPropertyName("damageMin")]
         public int DamageMin { get; set; }
 
         [JsonPropertyName("damageMax")]
         public int DamageMax { get; set; }
+
+        /// <summary>
+        /// The base's fixed modifier (Scripts/build-item-mods.py): CrossWires WHILE rule(s), <c>;</c>-separated, with
+        /// <c>{lo-hi}</c> for each value rolled per drop. Every base has one (user 2026-11-15).
+        /// </summary>
+        [JsonPropertyName("modifier")]
+        public string? Modifier { get; set; }
+
+        /// <summary>The modifier's name: its subject plus the tier word ("Cleave Mastery").</summary>
+        [JsonPropertyName("modifierName")]
+        public string? ModifierName { get; set; }
     }
 
     /// <summary>One row of <c>RarityTable.json</c>.</summary>

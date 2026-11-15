@@ -300,7 +300,7 @@ namespace RPGGame.Tuning
                     };
                     if (worn != null && string.Equals(ItemMaterialRules.RemapLegacyMaterial(worn.Material), group.Key, StringComparison.OrdinalIgnoreCase))
                         continue;
-                    indices.Add(slot.OrderByDescending(x => ItemValueModel.Score(x.item)).First().index);
+                    indices.Add(slot.OrderByDescending(x => ItemValueModel.Score(x.item, hero)).First().index);
                 }
                 int worn2 = MaterialSetController.CountEquipped(hero, group.Key);
                 if (indices.Count >= 2 || (indices.Count == 1 && worn2 == 1))
@@ -370,7 +370,7 @@ namespace RPGGame.Tuning
 
             var picks = new HashSet<int>();
             foreach (var slot in indexed.GroupBy(x => PlaythroughGearPolicy.SlotOf(x.item)))
-                foreach (var x in slot.OrderByDescending(x => ItemValueModel.Score(x.item)).Take(2))
+                foreach (var x in slot.OrderByDescending(x => ItemValueModel.Score(x.item, hero)).Take(2))
                     picks.Add(x.index);
             foreach (var x in indexed.Where(x => !string.IsNullOrWhiteSpace(x.item.Material) && equippedMaterials.Contains(x.item.Material)))
                 picks.Add(x.index);
@@ -390,7 +390,13 @@ namespace RPGGame.Tuning
                 {
                     "weapon" => hero.Weapon, "head" => hero.Head, "body" => hero.Body, "legs" => hero.Legs, _ => hero.Feet
                 };
-                hero.EquipItem(item, slot);
+                // Same flow as the inventory screen (InventoryItemActionHandler): requirement check, the new piece leaves
+                // the bag, the replaced piece goes back into it (it used to be dropped, so starter pieces were lost).
+                if (!hero.TryEquipItem(item, slot, out var replaced, out _))
+                    return false;
+                hero.Inventory.Remove(item);
+                if (replaced != null && !ReferenceEquals(replaced, item) && !hero.Inventory.Contains(replaced))
+                    hero.Inventory.Add(replaced);
                 var after = slot switch
                 {
                     "weapon" => hero.Weapon, "head" => hero.Head, "body" => hero.Body, "legs" => hero.Legs, _ => hero.Feet

@@ -324,11 +324,20 @@ namespace RPGGame
         [JsonPropertyName("implicit")]
         public string Implicit { get; set; } = "";
 
-        /// <summary>The base item's modifier: one passive rule (<see cref="CrossWires"/>) that changes other actions, a tag,
-        /// a class's actions or a status, e.g. <c>WHILE IF ACTION Cleave -&gt; DAMAGE 12%</c>. Rolled from
-        /// <c>GameData/BaseModifiers.json</c> by the item's class; the value already includes item-level scaling.</summary>
+        /// <summary>The base item's modifier: passive rule(s) (<see cref="CrossWires"/>, <c>;</c>-separated) that change other
+        /// actions, a tag, a class's actions or a status, e.g. <c>WHILE IF ACTION Cleave -&gt; DAMAGE 12%</c>. Fixed per base in
+        /// the catalog (<c>modifier</c> in Weapons.json / Armor.json); only the values roll.</summary>
         [JsonPropertyName("implicitRule")]
         public string ImplicitRule { get; set; } = "";
+
+        /// <summary>The modifier's name from the catalog (subject + tier word, e.g. "Cleave Mastery"); empty on old items.</summary>
+        [JsonPropertyName("implicitName")]
+        public string ImplicitName { get; set; } = "";
+
+        /// <summary>The rarity the item dropped as before any rarity roll-up; line values were rolled at this rarity.
+        /// Empty when it did not roll up.</summary>
+        [JsonPropertyName("dropRarity")]
+        public string DropRarity { get; set; } = "";
 
         /// <summary>
         /// True when armor's <c>Armor</c> value is the defense rolled at generation (item level already applied); false for

@@ -1,7 +1,8 @@
 # Item generation redesign (2026-11-14)
 
 Status: **implemented** on branch `item-gen-redesign` (see §13 for what was built and how it differs from the plan
-below). Not balanced: no sims have been run on it yet. Replaced the roll pipeline in `Code/Data/LootGenerator.cs` +
+below, and §14 for the 2026-11-15 changes: fixed weapon damage, 2% rarity roll-up, fixed base modifiers, 1-2 line
+Commons, a name per tier). Not balanced: no sims have been run on it yet. Replaced the roll pipeline in `Code/Data/LootGenerator.cs` +
 `LootItemSelector` / `LootRarityProcessor` / `LootBonusApplier`.
 
 ## Goals (from the 11-14 request)
@@ -529,9 +530,62 @@ data copy or removed knobs (`adjust_rarity_weight`, `adjust_rarity_bonuses`, `en
 
 **Still open:**
 - Balance pass (everything moved; night-v45i was measured on the old loot).
-- Naming pass: rule / listener families use "Greater / Grand <name>", common-only tiers "Lucky <keyword>".
-- Implicit scaling with item level.
-- Google Sheets sync: the new catalog columns are not on the sheets yet, so a sheet pull would drop them.
+- ~~Naming pass~~ (done 2026-11-15, §14: every tier has its own name).
+- ~~Implicit scaling with item level~~ (replaced 2026-11-15, §14: base modifiers are fixed per base and scale by tier).
+- Google Sheets sync: the new catalog columns (`damageMin` / `damageMax` / `class`, and since 2026-11-15 `modifier` /
+  `modifierName`) are not on the sheets yet, so a sheet pull would drop them.
 - Old `Modifications.json` / `StatBonuses.json` rows remain the templates the families clone (their own values are no
   longer used for rolls).
 - `ITEMSTATS --samples N` prints full rolled items for eyeballing.
+
+---
+
+## 14. Changes 2026-11-15 (user review of the roll steps)
+
+These replace the matching parts of §1-§13.
+
+**Weapon damage is fixed to the base (stage 4).** No item-level multiplier at roll time (`DamagePerItemLevel` is
+gone). Each base's catalog range (`damageMin`..`damageMax`) already carries its tier: the old level-1 range × the old
+item-level multiplier at the tier's usual drop level (T1 ×1.05, T2 ×1.23, T3 ×1.47, T4 ×1.71, T5 ×1.91), widened to
+center × (1 ∓ 0.2), a 1 : 1.5 range like [50-75]. Higher tiers also swing faster: swing time = catalog `attackSpeed` ×
+(1 − `weaponSpeedPerTier` 0.04 × (tier − 1)). Armor is unchanged.
+
+**Rarity roll-up (stage 5).** 2% per step, no decay, any number of steps up to Mythic (`rarityRollUp` 0.02 / 1.0 / 5).
+A rolled-up item shows the higher rarity and gets its line count, suffix kinds and name, but its lines roll at the drop
+rarity (`Item.DropRarity`, `ItemRollSpec.DropRarity`). A rolled-up Common keeps the common-only "Uncanny" tiers, whose
+values beat anything a rarer item can roll.
+
+**Base modifiers are fixed per base (stage 6).** Every base, starters included, has one modifier written into its
+catalog row by `Scripts/build-item-mods.py`: `modifier` (CrossWires WHILE rule(s), `;`-separated, `{lo-hi}` for each
+rolled value) and `modifierName`. Only the values roll, so to get a specific mechanic you find that base again. There is
+no per-rarity chance any more (the Settings row and `rarityChance` are gone). Complexity grows with the tier:
+
+| Tier | Shape | Example |
+|---|---|---|
+| 1 | the class's actions, or a status | `WHILE IF CLASS barbarian -> DAMAGE {4-8}%`, `WHILE -> POTENCY bleed {12-20}%` |
+| 2 | a tag's actions, or a status | `WHILE IF TAG duelist -> DAMAGE {6-12}%` |
+| 3 | one named action | `WHILE IF ACTION BODY_BLOW -> SPEED {8-14}%` |
+| 4 | a named action or tag plus a condition | `WHILE IF ACTION DANCE AND STEP>=3 -> DAMAGE {16-26}%` |
+| 5 | a conditional action rule plus a second rule | `... AND TARGET bleed -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%` |
+
+The name is the subject plus a tier word (Knack, Habit, Technique, Mastery, Legend), e.g. "Barbarian Knack", "Cleave
+Technique", "Cleave Legend". Conditions per class: Barbarian HP<50 / target bleeding, Warrior combo step ≥3 / strip slot
+≥3, Rogue target poisoned / bleeding, Wizard combo step ≥3 / target burning. Catalog rows that share a name share one
+modifier. `BaseModifiers.json` now only holds the per-class tag lists the script reads and the fallback pools for saved
+items whose base left the catalog. Old saves: an item with a legacy implicit trigger gets its base's catalog modifier.
+The tooltip shows "Name: description", and the bot values each rule (a rule that also needs fight state at half).
+
+**Common line count (stage 7).** Common: 1 line minimum, 2 maximum (explode 0.5): its action, and half the time one
+descriptor suffix. Suffix lines now come out of the rarity's line count, never on top of it.
+
+**No extra suffix kinds (stage 8).** The 25% chance for each lower suffix kind an item lacked (`suffixExtraChance`) is
+removed: an item gets exactly the kinds its rarity lists (plus `poeticSuffixChance`, which is 0).
+
+**Every tier has its own name.** Each family names each tier, weakest to strongest; the script stops if two tiers of a
+family share a name. Stat prefixes have 7 words each (Brutality: Rough, Heavy, Brutal, Crushing, Ruinous, Devastating,
+Cataclysmic), descriptors 7 (Vigor: of Health … of Immortality), animals keep Young … Primal, material families 3
+(Listening: Heeding, Listening, All-Hearing), and every rare poetic suffix one phrase per tier (Vampiric: Tasted of
+Blood, Bathed in Blood, Drowned in Blood). "Uncanny <word>" still marks the common-only tier.
+
+Not re-measured: no sims on these changes. Weapon damage matches the old curve only at mid-tier, and early-tier drops
+are now stronger relative to item level than late-tier drops.

@@ -230,8 +230,8 @@ each). Roughly **80 names instead of 508**.
   families, the 3 DoTs and the extra action slot moved from prefix to suffix, one phrase each ("Bathed in Blood" =
   Vampiric, "Remembered by the Careless" = +1 strip slot; mostly the old story phrases).
 - `lootSystem.itemGeneration.suffixKinds`: the kinds a rarity always gets (Common: common; Uncommon: uncommon; Rare /
-  Epic: rare; Legendary: uncommon + rare; Mythic: all three). Each lower kind it lacks joins at `suffixExtraChance`
-  (0.25); an item whose rarity doesn't guarantee a poetic phrase still rolls one at `poeticSuffixChance` (0.03, user
+  Epic: rare; Legendary: uncommon + rare; Mythic: all three). (Removed later on 2026-11-15: each lower kind it lacked
+  joined at `suffixExtraChance` 0.25; see ITEM_GENERATION_REDESIGN_2026-11-14.md §14.) An item whose rarity doesn't guarantee a poetic phrase still rolls one at `poeticSuffixChance` (0.03, user
   2026-11-15). A kind with nothing eligible at that item level is skipped (rare phrases start at L3 / L8). Suffix lines
   count toward the rarity's line count; the weighted lines fill the rest with prefixes and actions (mechanic pool
   weight is now 0: every mechanic family is a rare suffix).

@@ -116,6 +116,8 @@ namespace RPGGame
 
             var starterWeapon = ItemGenerator.GenerateWeaponItem(catalogRow);
             ApplyStartingWeaponTuning(starterWeapon, weaponType, slotFallback: null, baseDamageFromWeaponsCatalog: true);
+            // Every base carries its catalog modifier, starters included (user 2026-11-15).
+            RPGGame.Data.ItemGeneration.BaseModifierRoller.ApplyCatalogModifier(starterWeapon, catalogRow.Modifier, catalogRow.ModifierName, RandomUtility.Ambient);
             var materialApplier = new LootBonusApplier(LootDataCache.Load(), RandomUtility.Ambient);
             // Starters wear their class's own common material (Mace Bone, Sword Bronze, Dagger Glass, Wand Willow),
             // not a random pick from the shared twelve, so each class starts on its own material.

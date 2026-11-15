@@ -71,9 +71,6 @@ namespace RPGGame
         /// </summary>
         public Dictionary<string, List<string>> SuffixKinds { get; set; } = DefaultSuffixKinds();
 
-        /// <summary>Chance for each lower suffix kind an item doesn't already have (one max per kind).</summary>
-        public double SuffixExtraChance { get; set; } = 0.25;
-
         /// <summary>Chance an item whose rarity doesn't guarantee a poetic (rare) suffix rolls one anyway. 0 by user call
         /// (2026-11-15): poetic phrases only on Rare and up.</summary>
         public double PoeticSuffixChance { get; set; } = 0.0;
@@ -98,7 +95,12 @@ namespace RPGGame
         }
 
         public RollUpRule ItemLevelRollUp { get; set; } = new(0.10, 0.5, 5);
-        public RollUpRule RarityRollUp { get; set; } = new(0.05, 0.5, 2);
+        /// <summary>
+        /// Rarity roll-up (user 2026-11-15): 2% per step, no decay, any number of steps (up to Mythic). A rolled-up item
+        /// keeps its drop rarity for line values (tier gates such as the common-only highs) and gets the higher rarity's
+        /// line count, suffix kinds and name.
+        /// </summary>
+        public RollUpRule RarityRollUp { get; set; } = new(0.02, 1.0, 5);
         public RollUpRule TierRollUp { get; set; } = new(0.08, 0.5, 2);
 
         public static Dictionary<string, double> DefaultPoolWeights() => new()
@@ -116,8 +118,11 @@ namespace RPGGame
         /// <summary>Chance a weapon's action comes from its own class's actions (else the rest of the gear pool).</summary>
         public double WeaponActionClassShare { get; set; } = 0.7;
 
-        /// <summary>Weapon damage × (1 + this × (item level − 1)).</summary>
-        public double DamagePerItemLevel { get; set; } = 0.01;
+        /// <summary>
+        /// Weapon swing time × (1 − this × (tier − 1)): higher tiers swing faster. Damage has no item-level term; each
+        /// base's catalog range (damageMin..damageMax) already carries its tier (user 2026-11-15).
+        /// </summary>
+        public double WeaponSpeedPerTier { get; set; } = 0.04;
 
         /// <summary>Catalog attributes on armor (STR / AGI / TEC / INT) × (1 + this × (item level − 1)).</summary>
         public double AttributePerItemLevel { get; set; } = 0.02;
@@ -148,10 +153,10 @@ namespace RPGGame
             GuaranteedActionLines = Math.Max(0, GuaranteedActionLines);
             if (SuffixKinds == null || SuffixKinds.Count == 0)
                 SuffixKinds = DefaultSuffixKinds();
-            SuffixExtraChance = Math.Clamp(SuffixExtraChance, 0, 1);
             PoeticSuffixChance = Math.Clamp(PoeticSuffixChance, 0, 1);
             ItemLevelRollUp ??= new RollUpRule(0.10, 0.5, 5);
-            RarityRollUp ??= new RollUpRule(0.05, 0.5, 2);
+            RarityRollUp ??= new RollUpRule(0.02, 1.0, 5);
+            WeaponSpeedPerTier = Math.Clamp(WeaponSpeedPerTier, 0, 0.2);
             TierRollUp ??= new RollUpRule(0.08, 0.5, 2);
             HeroClassShare = Math.Clamp(HeroClassShare, 0, 1);
             if (InfluenceCap < 1)

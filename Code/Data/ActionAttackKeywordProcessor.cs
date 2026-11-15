@@ -162,7 +162,8 @@ namespace RPGGame.Data
                     return $"{sign}{b.Value} {b.Type}";
                 });
                 
-                parts.Add($"For {keywordText}: {string.Join(", ", bonusStrings)}");
+                string timing = group.Timing?.Describe() ?? "";
+                parts.Add($"For {keywordText}{(timing.Length > 0 ? $" ({timing})" : "")}: {string.Join(", ", bonusStrings)}");
             }
             
             return string.Join("; ", parts);

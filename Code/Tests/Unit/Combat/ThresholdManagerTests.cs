@@ -40,6 +40,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestDefaultThresholds();
             TestCombatEndResetPattern();
             TestConcurrentDistinctActors();
+            TestComboThresholdRisePerSlot();
 
             TestBase.PrintSummary("ThresholdManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -323,6 +324,75 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(true,
                 "Concurrent distinct-actor threshold updates completed without exception",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>comboSystem.comboThresholdRise* raises COMBO per strip slot, capped at 20, without touching stored values.</summary>
+        private static void TestComboThresholdRisePerSlot()
+        {
+            Console.WriteLine("\n--- Testing ComboThresholdRisePerSlot ---");
+
+            var combo = GameConfiguration.Instance.ComboSystem;
+            int oldRise = combo.ComboThresholdRisePerSlot, oldEvery = combo.ComboThresholdRiseEvery, oldStart = combo.ComboThresholdRiseStartSlot;
+            try
+            {
+                var manager = new ThresholdManager();
+                var actor = TestDataBuilders.Character().WithName("RiseActor").Build();
+                manager.SetComboThreshold(actor, 14);
+
+                combo.ComboThresholdRisePerSlot = 0;
+                combo.ComboThresholdRiseEvery = 1;
+                combo.ComboThresholdRiseStartSlot = 2;
+                actor.ComboStep = 3;
+                TestBase.AssertEqual(14, manager.GetComboThreshold(actor), "Rise 0: slot 4 keeps base threshold",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                combo.ComboThresholdRisePerSlot = 1;
+                actor.ComboStep = 0;
+                TestBase.AssertEqual(14, manager.GetComboThreshold(actor), "Rise 1: slot 1 rolls at base",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                actor.ComboStep = 1;
+                TestBase.AssertEqual(15, manager.GetComboThreshold(actor), "Rise 1: slot 2 rolls at base + 1",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                actor.ComboStep = 2;
+                TestBase.AssertEqual(16, manager.GetComboThreshold(actor), "Rise 1: slot 3 rolls at base + 2",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                actor.ComboStep = 9;
+                TestBase.AssertEqual(20, manager.GetComboThreshold(actor), "Rise caps at 20 (natural 20 continues)",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                combo.ComboThresholdRiseEvery = 2;
+                actor.ComboStep = 1;
+                TestBase.AssertEqual(15, manager.GetComboThreshold(actor), "Every 2: slot 2 at base + 1",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                actor.ComboStep = 2;
+                TestBase.AssertEqual(15, manager.GetComboThreshold(actor), "Every 2: slot 3 still base + 1",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                actor.ComboStep = 3;
+                TestBase.AssertEqual(16, manager.GetComboThreshold(actor), "Every 2: slot 4 at base + 2",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                combo.ComboThresholdRiseEvery = 1;
+                combo.ComboThresholdRiseStartSlot = 4;
+                actor.ComboStep = 2;
+                TestBase.AssertEqual(14, manager.GetComboThreshold(actor), "Start slot 4: slot 3 at base",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+                actor.ComboStep = 3;
+                TestBase.AssertEqual(15, manager.GetComboThreshold(actor), "Start slot 4: slot 4 at base + 1",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                combo.ComboThresholdRiseStartSlot = 2;
+                actor.ComboStep = 2;
+                manager.AdjustComboThreshold(actor, 2);
+                actor.ComboStep = 0;
+                TestBase.AssertEqual(12, manager.GetComboThreshold(actor), "Adjust mid-chain works on the stored base, not the risen value",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                combo.ComboThresholdRisePerSlot = oldRise;
+                combo.ComboThresholdRiseEvery = oldEvery;
+                combo.ComboThresholdRiseStartSlot = oldStart;
+            }
         }
 
         #endregion

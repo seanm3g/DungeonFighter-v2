@@ -223,8 +223,9 @@ namespace RPGGame.Tuning
                 .Where(i => i.GetEquipBlockedReason(hero) == null)
                 .Distinct()
                 .ToList();
+            double V(Item i) => ItemValueModel.Score(i, hero);
             var bestBySlot = slots.ToDictionary(s => s,
-                s => pool.Where(i => PlaythroughGearPolicy.SlotOf(i) == s).OrderByDescending(ItemValueModel.Score).FirstOrDefault());
+                s => pool.Where(i => PlaythroughGearPolicy.SlotOf(i) == s).OrderByDescending(V).FirstOrDefault());
 
             var sets = pool
                 .Select(i => (item: i, material: ItemMaterialRules.RemapLegacyMaterial(i.Material)))
@@ -233,8 +234,8 @@ namespace RPGGame.Tuning
                 .Select(g =>
                 {
                     var pieces = g.GroupBy(x => PlaythroughGearPolicy.SlotOf(x.item))
-                        .Select(s => s.Select(x => x.item).OrderByDescending(ItemValueModel.Score).First())
-                        .Where(i => i is not WeaponItem || ItemValueModel.Score(i) >= 0.75 * ItemValueModel.Score(bestBySlot["weapon"]!))
+                        .Select(s => s.Select(x => x.item).OrderByDescending(V).First())
+                        .Where(i => i is not WeaponItem || V(i) >= 0.75 * V(bestBySlot["weapon"]!))
                         .ToList();
                     string? owner = MaterialBuildsLoader.FindByMaterial(g.Key)?.AssociatedClass;
                     bool isHome = string.Equals(owner, home, StringComparison.OrdinalIgnoreCase);
@@ -246,7 +247,7 @@ namespace RPGGame.Tuning
                 .OrderByDescending(s => s.wearable)
                 .ThenByDescending(s => s.pieces.Count)
                 .ThenByDescending(s => s.isHome)
-                .ThenByDescending(s => s.pieces.Sum(ItemValueModel.Score))
+                .ThenByDescending(s => s.pieces.Sum(V))
                 .ToList();
 
             var target = new Dictionary<string, Item?>(bestBySlot);
@@ -257,7 +258,7 @@ namespace RPGGame.Tuning
                 var planned = RulesSynergy.FormedSets(hero).Select(s => s.Material).ToList();
                 if (sets.Count > 0)
                     planned.Add(sets[0].material);
-                double Aware(Item i) => ItemValueModel.Score(i) + RulesSynergy.AffixValue(i, planned);
+                double Aware(Item i) => V(i) + RulesSynergy.AffixValue(i, planned);
                 foreach (string slot in slots.Where(s => s != "weapon"))
                     target[slot] = pool.Where(i => PlaythroughGearPolicy.SlotOf(i) == slot).OrderByDescending(Aware).FirstOrDefault();
                 if (sets.Count > 0)
@@ -306,7 +307,7 @@ namespace RPGGame.Tuning
             }
             foreach (string slot in slots)
             {
-                var scores = pool.Where(i => PlaythroughGearPolicy.SlotOf(i) == slot).Select(ItemValueModel.Score)
+                var scores = pool.Where(i => PlaythroughGearPolicy.SlotOf(i) == slot).Select(i => ItemValueModel.Score(i, hero))
                     .OrderByDescending(s => s).Take(2).ToList();
                 if (scores.Count == 2 && scores[0] > 0)
                     SlotContest.Add(Math.Round(Math.Max(0, scores[1]) / scores[0], 3));
@@ -357,8 +358,16 @@ namespace RPGGame.Tuning
                             picks.Add(a);
             if (picks.Count == 0)
                 return;
-            var position = Data.ActionOrder.GetValueOrDefault(cls) ?? new Dictionary<string, double>();
-            var strip = ExploreStrips ? picks.Take(length).ToList() : picks.Take(length).OrderBy(a => position.GetValueOrDefault(a, 0.5)).ToList();
+            List<string> strip;
+            if (ExploreStrips)
+                strip = picks.Take(length).ToList();
+            else
+            {
+                var kept = picks.Take(length).ToList();
+                var rank = kept.Select((a, i) => (a, i)).ToDictionary(x => x.a, x => -(double)x.i, StringComparer.OrdinalIgnoreCase);
+                AddRequiredBasic(hero, owned, kept, length, a => rank.GetValueOrDefault(a));
+                strip = OrderStrip(cls, kept);
+            }
             if (strip.SequenceEqual(StripOf(hero), StringComparer.OrdinalIgnoreCase))
                 return;
             hero.RestoreComboFromActionNames(strip);
@@ -389,9 +398,12 @@ namespace RPGGame.Tuning
                 }
                 decay *= 0.85;
             }
+            // Unmined actions (status rows, cadence-timing rows, anything newer than the mined lists) score by their
+            // grant payload instead of 0; worn action-scoped rules (base modifiers, RULE prefixes) pull their actions in.
             var scored = owned.Where(a => !picks.Contains(a, StringComparer.OrdinalIgnoreCase))
-                .Select(a => (name: a, mined: baseScore.GetValueOrDefault(a),
-                    syn: RulesSynergy.ActionSynergy(a, sources) + RulesSynergy.VerbSynergy(hero, a)))
+                .Select(a => (name: a, mined: baseScore.TryGetValue(a, out double m) ? m : RulesSynergy.UnminedScore(a),
+                    syn: RulesSynergy.ActionSynergy(a, sources) + RulesSynergy.VerbSynergy(hero, a)
+                         + RulesSynergy.ActionRuleBonus(hero, ActionLoader.GetAction(a))))
                 .Select(x => (x.name, x.mined, x.syn, total: x.mined + x.syn))
                 .OrderByDescending(x => x.total)
                 .ThenBy(x => x.name, StringComparer.OrdinalIgnoreCase)
@@ -407,8 +419,10 @@ namespace RPGGame.Tuning
             }
             if (picks.Count == 0)
                 return;
-            var position = Data.ActionOrder.GetValueOrDefault(cls) ?? new Dictionary<string, double>();
-            var strip = picks.Take(length).OrderBy(a => position.GetValueOrDefault(a, 0.5)).ToList();
+            var kept = picks.Take(length).ToList();
+            AddRequiredBasic(hero, owned, kept, length, a => scored.FirstOrDefault(x => x.name.Equals(a, StringComparison.OrdinalIgnoreCase)).total);
+            var strip = OrderStrip(cls, kept,
+                a => scored.FirstOrDefault(x => x.name.Equals(a, StringComparison.OrdinalIgnoreCase)).total, RiseOrderWeight());
             if (strip.SequenceEqual(StripOf(hero), StringComparer.OrdinalIgnoreCase))
                 return;
             hero.RestoreComboFromActionNames(strip);
@@ -422,6 +436,66 @@ namespace RPGGame.Tuning
                 _trace($"    synergy: sources {string.Join(", ", sources.Select(s => $"{s.Source}x{s.Scale:0.##}"))}");
                 _trace($"    synergy: sequence {string.Join(" > ", StripOf(hero))}  [{string.Join(", ", why)}]");
             }
+        }
+
+        /// <summary>
+        /// Strip order: an action's cadence timing position when it has one (slotIf / perSlot / slot-aimed grants, see
+        /// <see cref="RulesSynergy.TimingPosition"/>), else its mined position, else the middle. Stable on ties.
+        /// </summary>
+        private static List<string> OrderStrip(string cls, List<string> actions, Func<string, double>? score = null, double riseWeight = 0)
+        {
+            var position = Data.ActionOrder.GetValueOrDefault(cls) ?? new Dictionary<string, double>();
+            // Combo slot rise: later slots are reached less often, so pull high-scored actions forward (rank 0 = best).
+            var rank = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+            if (score != null && riseWeight > 0 && actions.Count > 1)
+            {
+                var byScore = actions.Select((a, i) => (a, i)).OrderByDescending(x => score(x.a)).ThenBy(x => x.i).ToList();
+                for (int r = 0; r < byScore.Count; r++)
+                    rank[byScore[r].a] = (double)r / (byScore.Count - 1);
+            }
+            return actions
+                .Select((a, i) =>
+                {
+                    double? timed = RulesSynergy.TimingPosition(a, actions.Count);
+                    double pos = timed ?? position.GetValueOrDefault(a, 0.5);
+                    if (timed == null && rank.TryGetValue(a, out double rk))
+                        pos = (1 - riseWeight) * pos + riseWeight * rk;
+                    return (a, i, pos);
+                })
+                .OrderBy(x => x.pos).ThenBy(x => x.i)
+                .Select(x => x.a)
+                .ToList();
+        }
+
+        /// <summary>The synergy bot's <see cref="RulesSynergy.SynergyData.RiseOrderWeight"/>, 0 while the combo slot rise is off.</summary>
+        private static double RiseOrderWeight()
+        {
+            var combo = GameConfiguration.Instance.ComboSystem;
+            if (combo == null || combo.ComboThresholdRisePerSlot <= 0)
+                return 0;
+            return Math.Clamp(RulesSynergy.Data.RiseOrderWeight, 0, 1);
+        }
+
+        /// <summary>
+        /// While the weapon's starter basic is compulsory, put it in the pick list before ordering (dropping the
+        /// lowest-scored non-convert pick if full), so the game's EnsureRequiredBasicInCombo doesn't evict the last slot.
+        /// </summary>
+        private static void AddRequiredBasic(Character hero, HashSet<string> owned, List<string> picks, int length, Func<string, double> score)
+        {
+            if (hero.Weapon is not WeaponItem w || !WeaponRequiredComboAction.IsRequirementActiveForWeaponPath(hero, w.WeaponType))
+                return;
+            string? basic = WeaponRequiredComboAction.TryGetRequiredBasicActionName(w.WeaponType);
+            if (string.IsNullOrEmpty(basic) || !owned.Contains(basic) || picks.Contains(basic, StringComparer.OrdinalIgnoreCase))
+                return;
+            if (picks.Count >= length)
+            {
+                var converts = MaterialSetController.GetGrantedConvertActionNames(hero).ToHashSet(StringComparer.OrdinalIgnoreCase);
+                var drop = picks.Where(a => !converts.Contains(a)).OrderBy(score).FirstOrDefault();
+                if (drop == null)
+                    return;
+                picks.Remove(drop);
+            }
+            picks.Add(basic);
         }
 
         /// <summary>The mined "Class@Level" strip key closest to <paramref name="level"/>, else the class key.</summary>

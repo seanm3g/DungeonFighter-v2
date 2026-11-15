@@ -137,8 +137,11 @@ namespace RPGGame
             if (bonuses?.BonusGroups == null) return;
 
             var turnOnly = new ActionAttackBonuses();
-            foreach (var group in bonuses.BonusGroups)
+            foreach (var rawGroup in bonuses.BonusGroups)
             {
+                var group = ApplySourceSlotTiming(rawGroup, sourceAction, owner);
+                if (group == null)
+                    continue;
                 string scope = CadenceKeywords.ResolveScope(
                     string.IsNullOrEmpty(group.CadenceType) ? group.Keyword : group.CadenceType,
                     group.DurationType);
@@ -160,6 +163,43 @@ namespace RPGGame
                 _state.AddActionAttackBonuses(turnOnly, sourceAction);
         }
 
+        /// <summary>
+        /// Source-slot timing (<see cref="CadenceTiming.SlotIf"/>, <see cref="CadenceTiming.PerSlot"/>) for a TURN / FIGHT /
+        /// DUNGEON grant: null when the action's strip slot fails <c>slotIf</c>; a scaled copy for <c>perSlot</c>.
+        /// </summary>
+        internal static ActionAttackBonusGroup? ApplySourceSlotTiming(ActionAttackBonusGroup? group, Action? sourceAction, Character? owner)
+        {
+            var timing = group?.Timing;
+            if (group == null || timing == null || (string.IsNullOrWhiteSpace(timing.SlotIf) && !timing.PerSlot))
+                return group;
+            var (slot0, count) = SourceSlot(sourceAction, owner);
+            if (!timing.SlotIfHolds(slot0, count))
+                return null;
+            if (!timing.PerSlot || slot0 < 0)
+                return group;
+            return new ActionAttackBonusGroup
+            {
+                Keyword = group.Keyword,
+                CadenceType = group.CadenceType,
+                Count = group.Count,
+                DurationType = group.DurationType,
+                Timing = group.Timing,
+                Bonuses = CadenceTiming.Scale(group.Bonuses, slot0 + 1)
+            };
+        }
+
+        /// <summary>0-based strip slot of <paramref name="sourceAction"/> on <paramref name="owner"/>'s combo strip, and the strip length.</summary>
+        internal static (int Slot0, int Count) SourceSlot(Action? sourceAction, Character? owner)
+        {
+            if (owner == null || sourceAction == null)
+                return (-1, 0);
+            var combo = ActionUtilities.GetComboActions(owner);
+            if (combo.Count == 0)
+                return (-1, 0);
+            int idx = ActionUtilities.TryGetComboActionSlotIndex(sourceAction, combo);
+            return (idx, combo.Count);
+        }
+
         private static int ResolveGrantStackTimes(ActionAttackBonusGroup group, Action? sourceAction)
         {
             int count = group.Count;
@@ -176,6 +216,7 @@ namespace RPGGame
         public void AddModifierBonusesFromAction(Action? action, int? nextComboSlot = null, bool useEnemySpreadsheetMods = false, Character? owner = null) => _state.AddModifierBonusesFromAction(action, nextComboSlot, useEnemySpreadsheetMods, owner);
         public List<ActionAttackBonusItem> GetAndConsumeTurnBonuses() => _state.GetAndConsumeTurnBonuses();
         public List<ActionAttackBonusItem> PeekTurnBonuses() => _state.PeekTurnBonuses();
+        public void BreakTurnBonusesOnMiss() => _state.BreakTurnBonusesOnMiss();
         public ActionAttackBonusGroup[] SnapshotTurnBonuses() => _state.SnapshotTurnBonuses();
         public void AddPendingActionBonuses(int slot, List<ActionAttackBonusItem> bonuses) => _state.AddPendingActionBonuses(slot, bonuses);
         public List<ActionAttackBonusItem> ConsumePendingActionBonusesForSlot(int slot) => _state.ConsumePendingActionBonusesForSlot(slot);

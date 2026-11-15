@@ -15,12 +15,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "HurtPride",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
     "damageMin": 7,
-    "damageMax": 10
+    "damageMax": 11,
+    "modifier": "WHILE IF CLASS barbarian -> DAMAGE {4-8}%",
+    "modifierName": "Barbarian Knack"
   },
   {
     "type": "Mace",
@@ -38,12 +39,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "HurtHarden",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
     "damageMin": 9,
-    "damageMax": 12
+    "damageMax": 13,
+    "modifier": "WHILE -> POTENCY bleed {12-20}%",
+    "modifierName": "Bleed Knack"
   },
   {
     "type": "Mace",
@@ -61,12 +63,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BarbarianActionDamage",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
     "damageMin": 7,
-    "damageMax": 10
+    "damageMax": 11,
+    "modifier": "WHILE IF CLASS barbarian -> SPEED {3-6}%",
+    "modifierName": "Barbarian Knack"
   },
   {
     "type": "Mace",
@@ -84,12 +87,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BarbarianBlood",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
     "damageMin": 9,
-    "damageMax": 12
+    "damageMax": 13,
+    "modifier": "WHILE IF CLASS barbarian -> DAMAGE {4-8}%",
+    "modifierName": "Barbarian Knack"
   },
   {
     "type": "Mace",
@@ -107,12 +111,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "StrCleave",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
     "damageMin": 7,
-    "damageMax": 10
+    "damageMax": 11,
+    "modifier": "WHILE -> POTENCY burn {12-20}%",
+    "modifierName": "Burn Knack"
   },
   {
     "type": "Mace",
@@ -131,12 +136,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
     "damageMin": 4,
-    "damageMax": 5
+    "damageMax": 6,
+    "modifier": "WHILE IF CLASS barbarian -> SPEED {3-6}%",
+    "modifierName": "Barbarian Knack"
   },
   {
     "type": "Mace",
@@ -154,12 +160,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BloodlustCrit",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
     "damageMin": 9,
-    "damageMax": 12
+    "damageMax": 13,
+    "modifier": "WHILE IF CLASS barbarian -> DAMAGE {4-8}%",
+    "modifierName": "Barbarian Knack"
   },
   {
     "type": "Mace",
@@ -177,12 +184,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "KillSpray",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
     "damageMin": 8,
-    "damageMax": 11
+    "damageMax": 12,
+    "modifier": "WHILE -> POTENCY bleed {12-20}%",
+    "modifierName": "Bleed Knack"
   },
   {
     "type": "Mace",
@@ -200,12 +208,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "KillReload20",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
     "damageMin": 10,
-    "damageMax": 13
+    "damageMax": 14,
+    "modifier": "WHILE IF CLASS barbarian -> SPEED {3-6}%",
+    "modifierName": "Barbarian Knack"
   },
   {
     "type": "Mace",
@@ -223,12 +232,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BludgeonChorus",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 14,
-    "damageMax": 16
+    "damageMin": 15,
+    "damageMax": 22,
+    "modifier": "WHILE IF TAG ragecaller -> DAMAGE {6-12}%",
+    "modifierName": "Ragecaller Habit"
   },
   {
     "type": "Mace",
@@ -246,12 +256,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EarthBrand",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 18,
-    "damageMax": 20
+    "damageMin": 19,
+    "damageMax": 28,
+    "modifier": "WHILE IF TAG ravager -> SPEED {5-9}%",
+    "modifierName": "Ravager Habit"
   },
   {
     "type": "Mace",
@@ -269,12 +280,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClutchIron",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 13,
-    "damageMax": 15
+    "damageMin": 14,
+    "damageMax": 21,
+    "modifier": "WHILE -> POTENCY burn {18-30}%",
+    "modifierName": "Burn Habit"
   },
   {
     "type": "Mace",
@@ -292,12 +304,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "DepthHunger",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 12,
-    "damageMax": 14
+    "damageMin": 13,
+    "damageMax": 19,
+    "modifier": "WHILE IF TAG warbrute -> DAMAGE {6-12}%",
+    "modifierName": "Warbrute Habit"
   },
   {
     "type": "Mace",
@@ -315,12 +328,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "PrimaryPulse",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 16,
-    "damageMax": 18
+    "damageMin": 17,
+    "damageMax": 25,
+    "modifier": "WHILE IF TAG status -> SPEED {5-9}%",
+    "modifierName": "Affliction Habit"
   },
   {
     "type": "Mace",
@@ -338,12 +352,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "MarchCadence",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 20,
-    "damageMax": 22
+    "damageMin": 21,
+    "damageMax": 31,
+    "modifier": "WHILE -> POTENCY bleed {18-30}%",
+    "modifierName": "Bleed Habit"
   },
   {
     "type": "Mace",
@@ -361,12 +376,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "GuardUp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 15,
-    "damageMax": 17
+    "damageMin": 16,
+    "damageMax": 24,
+    "modifier": "WHILE IF TAG verb -> DAMAGE {6-12}%",
+    "modifierName": "Verbal Habit"
   },
   {
     "type": "Mace",
@@ -384,12 +400,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FoeOvercommit",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 15,
-    "damageMax": 17
+    "damageMin": 16,
+    "damageMax": 24,
+    "modifier": "WHILE IF TAG ragecaller -> SPEED {5-9}%",
+    "modifierName": "Ragecaller Habit"
   },
   {
     "type": "Mace",
@@ -407,12 +424,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClassPrimaryAttr",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 15,
-    "damageMax": 17
+    "damageMin": 16,
+    "damageMax": 24,
+    "modifier": "WHILE IF TAG ragecaller -> SPEED {5-9}%",
+    "modifierName": "Ragecaller Habit"
   },
   {
     "type": "Mace",
@@ -430,12 +448,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "HurtPride",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 14,
-    "damageMax": 16
+    "damageMin": 15,
+    "damageMax": 22,
+    "modifier": "WHILE -> POTENCY burn {18-30}%",
+    "modifierName": "Burn Habit"
   },
   {
     "type": "Mace",
@@ -453,12 +472,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "HurtHarden",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 12,
-    "damageMax": 14
+    "damageMin": 13,
+    "damageMax": 19,
+    "modifier": "WHILE IF TAG ravager -> DAMAGE {6-12}%",
+    "modifierName": "Ravager Habit"
   },
   {
     "type": "Mace",
@@ -476,12 +496,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BarbarianActionDamage",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 19,
-    "damageMax": 25
+    "damageMin": 26,
+    "damageMax": 39,
+    "modifier": "WHILE IF ACTION ACTION_BONUS -> DAMAGE {10-18}%",
+    "modifierName": "Action Bonus Technique"
   },
   {
     "type": "Mace",
@@ -499,12 +520,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BarbarianBlood",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 22,
-    "damageMax": 28
+    "damageMin": 29,
+    "damageMax": 44,
+    "modifier": "WHILE IF ACTION AFTER_MISS_HEAL -> SPEED {8-14}%",
+    "modifierName": "After Miss Heal Technique"
   },
   {
     "type": "Mace",
@@ -522,12 +544,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "StrCleave",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 21,
-    "damageMax": 27
+    "damageMin": 28,
+    "damageMax": 42,
+    "modifier": "WHILE IF ACTION BARBARIAN_RAGE -> DAMAGE {10-18}%",
+    "modifierName": "Barbarian Rage Technique"
   },
   {
     "type": "Mace",
@@ -545,12 +568,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BloodlustCrit",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 29,
-    "damageMax": 35
+    "damageMin": 38,
+    "damageMax": 56,
+    "modifier": "WHILE IF ACTION BASH -> SPEED {8-14}%",
+    "modifierName": "Bash Technique"
   },
   {
     "type": "Mace",
@@ -568,12 +592,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "KillSpray",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 20,
-    "damageMax": 26
+    "damageMin": 27,
+    "damageMax": 41,
+    "modifier": "WHILE IF ACTION BERSERKER -> DAMAGE {10-18}%",
+    "modifierName": "Berserker Technique"
   },
   {
     "type": "Mace",
@@ -591,12 +616,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "KillReload20",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 26,
-    "damageMax": 32
+    "damageMin": 34,
+    "damageMax": 51,
+    "modifier": "WHILE IF ACTION BLOOD_FRENZY -> SPEED {8-14}%",
+    "modifierName": "Blood Frenzy Technique"
   },
   {
     "type": "Mace",
@@ -614,12 +640,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BludgeonChorus",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 24,
-    "damageMax": 30
+    "damageMin": 32,
+    "damageMax": 48,
+    "modifier": "WHILE IF ACTION BLOOD_OATH -> DAMAGE {10-18}%",
+    "modifierName": "Blood Oath Technique"
   },
   {
     "type": "Mace",
@@ -637,12 +664,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EarthBrand",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 23,
-    "damageMax": 29
+    "damageMin": 31,
+    "damageMax": 46,
+    "modifier": "WHILE IF ACTION BLUDGEON -> SPEED {8-14}%",
+    "modifierName": "Bludgeon Technique"
   },
   {
     "type": "Mace",
@@ -660,12 +688,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClutchIron",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 31,
-    "damageMax": 37
+    "damageMin": 40,
+    "damageMax": 60,
+    "modifier": "WHILE IF ACTION BODY_BLOW -> DAMAGE {10-18}%",
+    "modifierName": "Body Blow Technique"
   },
   {
     "type": "Mace",
@@ -683,12 +712,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "DepthHunger",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 20,
-    "damageMax": 26
+    "damageMin": 27,
+    "damageMax": 41,
+    "modifier": "WHILE IF ACTION CLEAVE_THROUGH -> SPEED {8-14}%",
+    "modifierName": "Cleave Through Technique"
   },
   {
     "type": "Mace",
@@ -706,12 +736,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "PrimaryPulse",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 39,
-    "damageMax": 51
+    "damageMin": 62,
+    "damageMax": 92,
+    "modifier": "WHILE IF ACTION CRIT_HEAL AND HP<50 -> DAMAGE {16-26}%",
+    "modifierName": "Crit Heal Mastery"
   },
   {
     "type": "Mace",
@@ -729,12 +760,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "MarchCadence",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 41,
-    "damageMax": 53
+    "damageMin": 64,
+    "damageMax": 96,
+    "modifier": "WHILE IF TAG warbrute AND TARGET bleed -> DAMAGE {12-20}%",
+    "modifierName": "Warbrute Mastery"
   },
   {
     "type": "Mace",
@@ -752,12 +784,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "GuardUp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 30,
-    "damageMax": 42
+    "damageMin": 49,
+    "damageMax": 74,
+    "modifier": "WHILE IF ACTION CRIT_MISS_HEAL AND HP<50 -> DAMAGE {16-26}%",
+    "modifierName": "Crit Miss Heal Mastery"
   },
   {
     "type": "Mace",
@@ -775,12 +808,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FoeOvercommit",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 50,
-    "damageMax": 62
+    "damageMin": 77,
+    "damageMax": 115,
+    "modifier": "WHILE IF TAG status AND TARGET bleed -> DAMAGE {12-20}%",
+    "modifierName": "Affliction Mastery"
   },
   {
     "type": "Mace",
@@ -798,12 +832,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClassPrimaryAttr",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 33,
-    "damageMax": 45
+    "damageMin": 53,
+    "damageMax": 80,
+    "modifier": "WHILE IF ACTION DAZE AND HP<50 -> DAMAGE {16-26}%",
+    "modifierName": "Daze Mastery"
   },
   {
     "type": "Mace",
@@ -821,12 +856,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "HurtPride",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 32,
-    "damageMax": 44
+    "damageMin": 52,
+    "damageMax": 78,
+    "modifier": "WHILE IF TAG verb AND TARGET bleed -> DAMAGE {12-20}%",
+    "modifierName": "Verbal Mastery"
   },
   {
     "type": "Mace",
@@ -844,12 +880,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "HurtHarden",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 41,
-    "damageMax": 53
+    "damageMin": 64,
+    "damageMax": 96,
+    "modifier": "WHILE IF ACTION DETONATE AND HP<50 -> DAMAGE {16-26}%",
+    "modifierName": "Detonate Mastery"
   },
   {
     "type": "Mace",
@@ -867,12 +904,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BarbarianActionDamage",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 31,
-    "damageMax": 43
+    "damageMin": 51,
+    "damageMax": 76,
+    "modifier": "WHILE IF TAG ragecaller AND TARGET bleed -> DAMAGE {12-20}%",
+    "modifierName": "Ragecaller Mastery"
   },
   {
     "type": "Mace",
@@ -890,12 +928,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BarbarianBlood",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 35,
-    "damageMax": 47
+    "damageMin": 56,
+    "damageMax": 84,
+    "modifier": "WHILE IF ACTION ENRAGE AND HP<50 -> DAMAGE {16-26}%",
+    "modifierName": "Enrage Mastery"
   },
   {
     "type": "Mace",
@@ -913,12 +952,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "StrCleave",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 52,
-    "damageMax": 72
+    "damageMin": 95,
+    "damageMax": 142,
+    "modifier": "WHILE IF ACTION EXPOSE AND TARGET bleed -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
+    "modifierName": "Expose Legend"
   },
   {
     "type": "Mace",
@@ -936,12 +976,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BloodlustCrit",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 45,
-    "damageMax": 65
+    "damageMin": 84,
+    "damageMax": 126,
+    "modifier": "WHILE IF ACTION EXTRA_EFFORT -> DAMAGE {14-22}%; WHILE IF TAG ravager -> SPEED {8-12}%",
+    "modifierName": "Extra Effort Legend"
   },
   {
     "type": "Mace",
@@ -959,12 +1000,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "KillSpray",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 69,
-    "damageMax": 89
+    "damageMin": 121,
+    "damageMax": 181,
+    "modifier": "WHILE IF ACTION FIGHTER AND HP<50 -> DAMAGE {20-32}%; WHILE -> POTENCY burn {25-40}%",
+    "modifierName": "Fighter Legend"
   },
   {
     "type": "Mace",
@@ -982,12 +1024,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "KillReload20",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 63,
-    "damageMax": 83
+    "damageMin": 112,
+    "damageMax": 167,
+    "modifier": "WHILE IF ACTION FLAME_BRAND -> DAMAGE {14-22}%; WHILE IF TAG warbrute -> SPEED {8-12}%",
+    "modifierName": "Flame Brand Legend"
   },
   {
     "type": "Mace",
@@ -1005,12 +1048,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BludgeonChorus",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 47,
-    "damageMax": 67
+    "damageMin": 87,
+    "damageMax": 131,
+    "modifier": "WHILE IF ACTION GATHERING_STORM AND TARGET bleed -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
+    "modifierName": "Gathering Storm Legend"
   },
   {
     "type": "Mace",
@@ -1028,12 +1072,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EarthBrand",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 65,
-    "damageMax": 85
+    "damageMin": 115,
+    "damageMax": 172,
+    "modifier": "WHILE IF ACTION GUTTING_STRIKE -> DAMAGE {14-22}%; WHILE IF TAG status -> SPEED {8-12}%",
+    "modifierName": "Gutting Strike Legend"
   },
   {
     "type": "Mace",
@@ -1051,12 +1096,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClutchIron",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 60,
-    "damageMax": 80
+    "damageMin": 107,
+    "damageMax": 160,
+    "modifier": "WHILE IF ACTION HAYMAKER AND HP<50 -> DAMAGE {20-32}%; WHILE -> POTENCY burn {25-40}%",
+    "modifierName": "Haymaker Legend"
   },
   {
     "type": "Mace",
@@ -1074,12 +1120,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "DepthHunger",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 81,
-    "damageMax": 101
+    "damageMin": 139,
+    "damageMax": 209,
+    "modifier": "WHILE IF ACTION HEADSMAN'S_PROMISE -> DAMAGE {14-22}%; WHILE IF TAG verb -> SPEED {8-12}%",
+    "modifierName": "Headsman's Promise Legend"
   },
   {
     "type": "Mace",
@@ -1097,12 +1144,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "PrimaryPulse",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "barbarian",
-    "damageMin": 42,
-    "damageMax": 62
+    "damageMin": 79,
+    "damageMax": 119,
+    "modifier": "WHILE IF ACTION IRON_GUARD AND TARGET bleed -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
+    "modifierName": "Iron Guard Legend"
   },
   {
     "type": "Sword",
@@ -1121,12 +1169,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
     "damageMin": 4,
-    "damageMax": 5
+    "damageMax": 6,
+    "modifier": "WHILE IF CLASS warrior -> DAMAGE {4-8}%",
+    "modifierName": "Warrior Knack"
   },
   {
     "type": "Sword",
@@ -1144,12 +1193,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboSpray",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
     "damageMin": 7,
-    "damageMax": 10
+    "damageMax": 11,
+    "modifier": "WHILE -> POTENCY bleed {12-20}%",
+    "modifierName": "Bleed Knack"
   },
   {
     "type": "Sword",
@@ -1167,12 +1217,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EndBreathDamage",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
     "damageMin": 7,
-    "damageMax": 10
+    "damageMax": 11,
+    "modifier": "WHILE IF CLASS warrior -> SPEED {3-6}%",
+    "modifierName": "Warrior Knack"
   },
   {
     "type": "Sword",
@@ -1190,12 +1241,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboThresholdPush",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
     "damageMin": 7,
-    "damageMax": 10
+    "damageMax": 11,
+    "modifier": "WHILE IF CLASS warrior -> DAMAGE {4-8}%",
+    "modifierName": "Warrior Knack"
   },
   {
     "type": "Sword",
@@ -1213,12 +1265,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OpenTheLane",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
     "damageMin": 8,
-    "damageMax": 11
+    "damageMax": 12,
+    "modifier": "WHILE -> POTENCY bleed {12-20}%",
+    "modifierName": "Bleed Knack"
   },
   {
     "type": "Sword",
@@ -1236,12 +1289,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SharpenedEdge",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
     "damageMin": 8,
-    "damageMax": 11
+    "damageMax": 12,
+    "modifier": "WHILE IF CLASS warrior -> SPEED {3-6}%",
+    "modifierName": "Warrior Knack"
   },
   {
     "type": "Sword",
@@ -1259,12 +1313,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "DoubleBeat",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
     "damageMin": 7,
-    "damageMax": 10
+    "damageMax": 11,
+    "modifier": "WHILE IF CLASS warrior -> DAMAGE {4-8}%",
+    "modifierName": "Warrior Knack"
   },
   {
     "type": "Sword",
@@ -1282,12 +1337,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FinisherEncore",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
     "damageMin": 8,
-    "damageMax": 11
+    "damageMax": 12,
+    "modifier": "WHILE -> POTENCY bleed {12-20}%",
+    "modifierName": "Bleed Knack"
   },
   {
     "type": "Sword",
@@ -1305,12 +1361,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboWeaken",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 15,
-    "damageMax": 17
+    "damageMin": 16,
+    "damageMax": 24,
+    "modifier": "WHILE IF TAG spellblade -> DAMAGE {6-12}%",
+    "modifierName": "Spellblade Habit"
   },
   {
     "type": "Sword",
@@ -1328,12 +1385,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EnemyFlinch",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 14,
-    "damageMax": 16
+    "damageMin": 15,
+    "damageMax": 22,
+    "modifier": "WHILE IF TAG duelist -> SPEED {5-9}%",
+    "modifierName": "Duelist Habit"
   },
   {
     "type": "Sword",
@@ -1351,12 +1409,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WarriorActionAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 14,
-    "damageMax": 16
+    "damageMin": 15,
+    "damageMax": 22,
+    "modifier": "WHILE -> POTENCY bleed {18-30}%",
+    "modifierName": "Bleed Habit"
   },
   {
     "type": "Sword",
@@ -1374,12 +1433,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WarriorPointsGuard",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 12,
-    "damageMax": 14
+    "damageMin": 13,
+    "damageMax": 19,
+    "modifier": "WHILE IF TAG warbrute -> DAMAGE {6-12}%",
+    "modifierName": "Warbrute Habit"
   },
   {
     "type": "Sword",
@@ -1397,12 +1457,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClassWarriorPrimary",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 13,
-    "damageMax": 15
+    "damageMin": 14,
+    "damageMax": 21,
+    "modifier": "WHILE IF TAG swift -> SPEED {5-9}%",
+    "modifierName": "Swift Habit"
   },
   {
     "type": "Sword",
@@ -1420,12 +1481,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FootworkGreaves",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 12,
-    "damageMax": 14
+    "damageMin": 13,
+    "damageMax": 19,
+    "modifier": "WHILE -> POTENCY bleed {18-30}%",
+    "modifierName": "Bleed Habit"
   },
   {
     "type": "Sword",
@@ -1443,12 +1505,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FinisherSeal",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 16,
-    "damageMax": 18
+    "damageMin": 17,
+    "damageMax": 25,
+    "modifier": "WHILE IF TAG verb -> DAMAGE {6-12}%",
+    "modifierName": "Verbal Habit"
   },
   {
     "type": "Sword",
@@ -1466,12 +1529,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboEndHeal",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 11,
-    "damageMax": 13
+    "damageMin": 12,
+    "damageMax": 18,
+    "modifier": "WHILE IF TAG spellblade -> SPEED {5-9}%",
+    "modifierName": "Spellblade Habit"
   },
   {
     "type": "Sword",
@@ -1489,12 +1553,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LoopChain",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 11,
-    "damageMax": 13
+    "damageMin": 12,
+    "damageMax": 18,
+    "modifier": "WHILE -> POTENCY bleed {18-30}%",
+    "modifierName": "Bleed Habit"
   },
   {
     "type": "Sword",
@@ -1512,12 +1577,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EchoStep",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 18,
-    "damageMax": 20
+    "damageMin": 19,
+    "damageMax": 28,
+    "modifier": "WHILE IF TAG duelist -> DAMAGE {6-12}%",
+    "modifierName": "Duelist Habit"
   },
   {
     "type": "Sword",
@@ -1535,12 +1601,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboSpray",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 17,
-    "damageMax": 23
+    "damageMin": 24,
+    "damageMax": 35,
+    "modifier": "WHILE IF ACTION AFTER_MISS_HEAL -> DAMAGE {10-18}%",
+    "modifierName": "After Miss Heal Technique"
   },
   {
     "type": "Sword",
@@ -1558,12 +1625,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EndBreathDamage",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 23,
-    "damageMax": 29
+    "damageMin": 31,
+    "damageMax": 46,
+    "modifier": "WHILE IF ACTION AVENGE -> SPEED {8-14}%",
+    "modifierName": "Avenge Technique"
   },
   {
     "type": "Sword",
@@ -1581,12 +1649,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboThresholdPush",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 21,
-    "damageMax": 27
+    "damageMin": 28,
+    "damageMax": 42,
+    "modifier": "WHILE IF ACTION BARRIER -> DAMAGE {10-18}%",
+    "modifierName": "Barrier Technique"
   },
   {
     "type": "Sword",
@@ -1604,12 +1673,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OpenTheLane",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 25,
-    "damageMax": 31
+    "damageMin": 33,
+    "damageMax": 49,
+    "modifier": "WHILE IF ACTION BODY_BLOW -> SPEED {8-14}%",
+    "modifierName": "Body Blow Technique"
   },
   {
     "type": "Sword",
@@ -1627,12 +1697,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SharpenedEdge",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 21,
-    "damageMax": 27
+    "damageMin": 28,
+    "damageMax": 42,
+    "modifier": "WHILE IF ACTION BRACE -> DAMAGE {10-18}%",
+    "modifierName": "Brace Technique"
   },
   {
     "type": "Sword",
@@ -1650,12 +1721,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "DoubleBeat",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 27,
-    "damageMax": 33
+    "damageMin": 35,
+    "damageMax": 53,
+    "modifier": "WHILE IF ACTION CADENCE_STRIKE -> SPEED {8-14}%",
+    "modifierName": "Cadence Strike Technique"
   },
   {
     "type": "Sword",
@@ -1673,12 +1745,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FinisherEncore",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 18,
-    "damageMax": 24
+    "damageMin": 25,
+    "damageMax": 37,
+    "modifier": "WHILE IF ACTION CHALLENGE -> DAMAGE {10-18}%",
+    "modifierName": "Challenge Technique"
   },
   {
     "type": "Sword",
@@ -1696,12 +1769,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboWeaken",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 22,
-    "damageMax": 28
+    "damageMin": 29,
+    "damageMax": 44,
+    "modifier": "WHILE IF ACTION CLEAVE_THROUGH -> SPEED {8-14}%",
+    "modifierName": "Cleave Through Technique"
   },
   {
     "type": "Sword",
@@ -1719,12 +1793,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EnemyFlinch",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 22,
-    "damageMax": 28
+    "damageMin": 29,
+    "damageMax": 44,
+    "modifier": "WHILE IF ACTION COMBO_END_HEAL -> DAMAGE {10-18}%",
+    "modifierName": "Combo End Heal Technique"
   },
   {
     "type": "Sword",
@@ -1742,12 +1817,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WarriorActionAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 19,
-    "damageMax": 25
+    "damageMin": 26,
+    "damageMax": 39,
+    "modifier": "WHILE IF ACTION CUNNING -> SPEED {8-14}%",
+    "modifierName": "Cunning Technique"
   },
   {
     "type": "Sword",
@@ -1765,12 +1841,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WarriorPointsGuard",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 31,
-    "damageMax": 43
+    "damageMin": 51,
+    "damageMax": 76,
+    "modifier": "WHILE IF ACTION DANCE AND STEP>=3 -> DAMAGE {16-26}%",
+    "modifierName": "Dance Mastery"
   },
   {
     "type": "Sword",
@@ -1788,12 +1865,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClassWarriorPrimary",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 36,
-    "damageMax": 48
+    "damageMin": 57,
+    "damageMax": 86,
+    "modifier": "WHILE IF TAG warbrute AND SLOT>=3 -> DAMAGE {12-20}%",
+    "modifierName": "Warbrute Mastery"
   },
   {
     "type": "Sword",
@@ -1811,12 +1889,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FootworkGreaves",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 32,
-    "damageMax": 44
+    "damageMin": 52,
+    "damageMax": 78,
+    "modifier": "WHILE IF ACTION DEEP_BREATHING AND STEP>=3 -> DAMAGE {16-26}%",
+    "modifierName": "Deep Breathing Mastery"
   },
   {
     "type": "Sword",
@@ -1834,12 +1913,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FinisherSeal",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 33,
-    "damageMax": 45
+    "damageMin": 53,
+    "damageMax": 80,
+    "modifier": "WHILE IF TAG swift AND SLOT>=3 -> DAMAGE {12-20}%",
+    "modifierName": "Swift Mastery"
   },
   {
     "type": "Sword",
@@ -1857,12 +1937,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboEndHeal",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 28,
-    "damageMax": 40
+    "damageMin": 47,
+    "damageMax": 70,
+    "modifier": "WHILE IF ACTION DISARM AND STEP>=3 -> DAMAGE {16-26}%",
+    "modifierName": "Disarm Mastery"
   },
   {
     "type": "Sword",
@@ -1880,12 +1961,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LoopChain",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 37,
-    "damageMax": 49
+    "damageMin": 59,
+    "damageMax": 88,
+    "modifier": "WHILE IF TAG verb AND SLOT>=3 -> DAMAGE {12-20}%",
+    "modifierName": "Verbal Mastery"
   },
   {
     "type": "Sword",
@@ -1903,12 +1985,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EchoStep",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 45,
-    "damageMax": 57
+    "damageMin": 70,
+    "damageMax": 105,
+    "modifier": "WHILE IF ACTION DUELIST_FEINT AND STEP>=3 -> DAMAGE {16-26}%",
+    "modifierName": "Duelist Feint Mastery"
   },
   {
     "type": "Sword",
@@ -1926,12 +2009,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboSpray",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 35,
-    "damageMax": 47
+    "damageMin": 56,
+    "damageMax": 84,
+    "modifier": "WHILE IF TAG spellblade AND SLOT>=3 -> DAMAGE {12-20}%",
+    "modifierName": "Spellblade Mastery"
   },
   {
     "type": "Sword",
@@ -1949,12 +2033,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EndBreathDamage",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 35,
-    "damageMax": 47
+    "damageMin": 56,
+    "damageMax": 84,
+    "modifier": "WHILE IF TAG spellblade AND SLOT>=3 -> DAMAGE {12-20}%",
+    "modifierName": "Spellblade Mastery"
   },
   {
     "type": "Sword",
@@ -1972,12 +2057,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboThresholdPush",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 27,
-    "damageMax": 39
+    "damageMin": 45,
+    "damageMax": 68,
+    "modifier": "WHILE IF ACTION FEINT_AND_THRUST AND STEP>=3 -> DAMAGE {16-26}%",
+    "modifierName": "Feint And Thrust Mastery"
   },
   {
     "type": "Sword",
@@ -1995,12 +2081,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OpenTheLane",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 28,
-    "damageMax": 40
+    "damageMin": 47,
+    "damageMax": 70,
+    "modifier": "WHILE IF TAG duelist AND SLOT>=3 -> DAMAGE {12-20}%",
+    "modifierName": "Duelist Mastery"
   },
   {
     "type": "Sword",
@@ -2018,12 +2105,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SharpenedEdge",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 43,
-    "damageMax": 63
+    "damageMin": 81,
+    "damageMax": 121,
+    "modifier": "WHILE IF ACTION FINESSE_THRUST AND STEP>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
+    "modifierName": "Finesse Thrust Legend"
   },
   {
     "type": "Sword",
@@ -2041,12 +2129,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "DoubleBeat",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 53,
-    "damageMax": 73
+    "damageMin": 96,
+    "damageMax": 144,
+    "modifier": "WHILE IF ACTION FLURRY_STEP -> DAMAGE {14-22}%; WHILE IF TAG warbrute -> SPEED {8-12}%",
+    "modifierName": "Flurry Step Legend"
   },
   {
     "type": "Sword",
@@ -2064,12 +2153,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FinisherEncore",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 53,
-    "damageMax": 73
+    "damageMin": 96,
+    "damageMax": 144,
+    "modifier": "WHILE IF ACTION FLURRY_STEP -> DAMAGE {14-22}%; WHILE IF TAG warbrute -> SPEED {8-12}%",
+    "modifierName": "Flurry Step Legend"
   },
   {
     "type": "Sword",
@@ -2087,12 +2177,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboWeaken",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 45,
-    "damageMax": 65
+    "damageMin": 84,
+    "damageMax": 126,
+    "modifier": "WHILE IF ACTION HARDEN AND SLOT>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
+    "modifierName": "Harden Legend"
   },
   {
     "type": "Sword",
@@ -2110,12 +2201,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EnemyFlinch",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 60,
-    "damageMax": 80
+    "damageMin": 107,
+    "damageMax": 160,
+    "modifier": "WHILE IF ACTION HOLD_THE_LINE -> DAMAGE {14-22}%; WHILE IF TAG swift -> SPEED {8-12}%",
+    "modifierName": "Hold The Line Legend"
   },
   {
     "type": "Sword",
@@ -2133,12 +2225,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WarriorActionAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 55,
-    "damageMax": 75
+    "damageMin": 99,
+    "damageMax": 149,
+    "modifier": "WHILE IF ACTION INVEST AND STEP>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
+    "modifierName": "Invest Legend"
   },
   {
     "type": "Sword",
@@ -2156,12 +2249,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WarriorPointsGuard",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 73,
-    "damageMax": 93
+    "damageMin": 127,
+    "damageMax": 190,
+    "modifier": "WHILE IF ACTION IRON_GUARD -> DAMAGE {14-22}%; WHILE IF TAG verb -> SPEED {8-12}%",
+    "modifierName": "Iron Guard Legend"
   },
   {
     "type": "Sword",
@@ -2179,12 +2273,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ClassWarriorPrimary",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 60,
-    "damageMax": 80
+    "damageMin": 107,
+    "damageMax": 160,
+    "modifier": "WHILE IF ACTION JAB AND SLOT>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
+    "modifierName": "Jab Legend"
   },
   {
     "type": "Sword",
@@ -2202,12 +2297,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FootworkGreaves",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 37,
-    "damageMax": 57
+    "damageMin": 72,
+    "damageMax": 108,
+    "modifier": "WHILE IF ACTION LATE_BLOOM -> DAMAGE {14-22}%; WHILE IF TAG spellblade -> SPEED {8-12}%",
+    "modifierName": "Late Bloom Legend"
   },
   {
     "type": "Sword",
@@ -2225,12 +2321,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FinisherSeal",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 43,
-    "damageMax": 63
+    "damageMin": 81,
+    "damageMax": 121,
+    "modifier": "WHILE IF ACTION LUNGE AND STEP>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
+    "modifierName": "Lunge Legend"
   },
   {
     "type": "Sword",
@@ -2248,12 +2345,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ComboEndHeal",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "warrior",
-    "damageMin": 44,
-    "damageMax": 64
+    "damageMin": 83,
+    "damageMax": 124,
+    "modifier": "WHILE IF ACTION MARATHON -> DAMAGE {14-22}%; WHILE IF TAG duelist -> SPEED {8-12}%",
+    "modifierName": "Marathon Legend"
   },
   {
     "type": "Dagger",
@@ -2271,12 +2369,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritAmpCarry",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
     "damageMin": 6,
-    "damageMax": 9
+    "damageMax": 9,
+    "modifier": "WHILE IF CLASS rogue -> DAMAGE {4-8}%",
+    "modifierName": "Rogue Knack"
   },
   {
     "type": "Dagger",
@@ -2294,12 +2393,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritThresholdPush",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
     "damageMin": 6,
-    "damageMax": 9
+    "damageMax": 9,
+    "modifier": "WHILE -> POTENCY poison {12-20}%",
+    "modifierName": "Poison Knack"
   },
   {
     "type": "Dagger",
@@ -2317,12 +2417,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritExpose",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
     "damageMin": 6,
-    "damageMax": 9
+    "damageMax": 9,
+    "modifier": "WHILE IF CLASS rogue -> SPEED {3-6}%",
+    "modifierName": "Rogue Knack"
   },
   {
     "type": "Dagger",
@@ -2340,12 +2441,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritFace19",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
     "damageMin": 6,
-    "damageMax": 9
+    "damageMax": 9,
+    "modifier": "WHILE IF CLASS rogue -> DAMAGE {4-8}%",
+    "modifierName": "Rogue Knack"
   },
   {
     "type": "Dagger",
@@ -2363,12 +2465,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritFace18",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
     "damageMin": 7,
-    "damageMax": 10
+    "damageMax": 11,
+    "modifier": "WHILE -> POTENCY bleed {12-20}%",
+    "modifierName": "Bleed Knack"
   },
   {
     "type": "Dagger",
@@ -2386,12 +2489,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ConnectPierce",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
     "damageMin": 6,
-    "damageMax": 9
+    "damageMax": 9,
+    "modifier": "WHILE IF CLASS rogue -> SPEED {3-6}%",
+    "modifierName": "Rogue Knack"
   },
   {
     "type": "Dagger",
@@ -2409,12 +2513,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "PunishDot",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
     "damageMin": 9,
-    "damageMax": 12
+    "damageMax": 13,
+    "modifier": "WHILE IF CLASS rogue -> DAMAGE {4-8}%",
+    "modifierName": "Rogue Knack"
   },
   {
     "type": "Dagger",
@@ -2432,12 +2537,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ObsidianEdge",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
     "damageMin": 7,
-    "damageMax": 10
+    "damageMax": 11,
+    "modifier": "WHILE -> POTENCY acid {12-20}%",
+    "modifierName": "Acid Knack"
   },
   {
     "type": "Dagger",
@@ -2455,12 +2561,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RogueActionAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
     "damageMin": 6,
-    "damageMax": 9
+    "damageMax": 9,
+    "modifier": "WHILE IF CLASS rogue -> SPEED {3-6}%",
+    "modifierName": "Rogue Knack"
   },
   {
     "type": "Dagger",
@@ -2479,12 +2586,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
     "damageMin": 4,
-    "damageMax": 5
+    "damageMax": 6,
+    "modifier": "WHILE IF CLASS rogue -> DAMAGE {4-8}%",
+    "modifierName": "Rogue Knack"
   },
   {
     "type": "Dagger",
@@ -2504,12 +2612,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RoguePointsSpeed",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 12,
-    "damageMax": 14
+    "damageMin": 13,
+    "damageMax": 19,
+    "modifier": "WHILE IF TAG hexblade -> DAMAGE {6-12}%",
+    "modifierName": "Hexblade Habit"
   },
   {
     "type": "Dagger",
@@ -2529,12 +2638,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AgiSkirmish",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 12,
-    "damageMax": 14
+    "damageMin": 13,
+    "damageMax": 19,
+    "modifier": "WHILE IF TAG hexblade -> DAMAGE {6-12}%",
+    "modifierName": "Hexblade Habit"
   },
   {
     "type": "Dagger",
@@ -2554,12 +2664,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SwiftSchool",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 12,
-    "damageMax": 14
+    "damageMin": 13,
+    "damageMax": 19,
+    "modifier": "WHILE IF TAG duelist -> SPEED {5-9}%",
+    "modifierName": "Duelist Habit"
   },
   {
     "type": "Dagger",
@@ -2579,12 +2690,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "QuickGrip",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 16,
-    "damageMax": 18
+    "damageMin": 17,
+    "damageMax": 25,
+    "modifier": "WHILE -> POTENCY poison {18-30}%",
+    "modifierName": "Poison Habit"
   },
   {
     "type": "Dagger",
@@ -2604,12 +2716,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SkipFiller",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 15,
-    "damageMax": 17
+    "damageMin": 16,
+    "damageMax": 24,
+    "modifier": "WHILE IF TAG ravager -> DAMAGE {6-12}%",
+    "modifierName": "Ravager Habit"
   },
   {
     "type": "Dagger",
@@ -2629,12 +2742,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LeapAhead",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 11,
-    "damageMax": 13
+    "damageMin": 12,
+    "damageMax": 18,
+    "modifier": "WHILE IF TAG status -> SPEED {5-9}%",
+    "modifierName": "Affliction Habit"
   },
   {
     "type": "Dagger",
@@ -2654,12 +2768,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SlotTwoEncore",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 13,
-    "damageMax": 15
+    "damageMin": 14,
+    "damageMax": 21,
+    "modifier": "WHILE -> POTENCY bleed {18-30}%",
+    "modifierName": "Bleed Habit"
   },
   {
     "type": "Dagger",
@@ -2679,12 +2794,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "MirrorSwingDamage",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 12,
-    "damageMax": 14
+    "damageMin": 13,
+    "damageMax": 19,
+    "modifier": "WHILE IF TAG verb -> DAMAGE {6-12}%",
+    "modifierName": "Verbal Habit"
   },
   {
     "type": "Dagger",
@@ -2704,12 +2820,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BossNeedle",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 11,
-    "damageMax": 13
+    "damageMin": 12,
+    "damageMax": 18,
+    "modifier": "WHILE IF TAG hexblade -> SPEED {5-9}%",
+    "modifierName": "Hexblade Habit"
   },
   {
     "type": "Dagger",
@@ -2729,12 +2846,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritAmpCarry",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 13,
-    "damageMax": 15
+    "damageMin": 14,
+    "damageMax": 21,
+    "modifier": "WHILE -> POTENCY acid {18-30}%",
+    "modifierName": "Acid Habit"
   },
   {
     "type": "Dagger",
@@ -2754,12 +2872,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritThresholdPush",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 12,
-    "damageMax": 14
+    "damageMin": 13,
+    "damageMax": 19,
+    "modifier": "WHILE IF TAG duelist -> DAMAGE {6-12}%",
+    "modifierName": "Duelist Habit"
   },
   {
     "type": "Dagger",
@@ -2779,12 +2898,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritExpose",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 25,
-    "damageMax": 31
+    "damageMin": 33,
+    "damageMax": 49,
+    "modifier": "WHILE IF ACTION BLOOD_FRENZY -> DAMAGE {10-18}%",
+    "modifierName": "Blood Frenzy Technique"
   },
   {
     "type": "Dagger",
@@ -2804,12 +2924,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritFace19",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 16,
-    "damageMax": 22
+    "damageMin": 22,
+    "damageMax": 34,
+    "modifier": "WHILE IF ACTION CONCENTRATE -> SPEED {8-14}%",
+    "modifierName": "Concentrate Technique"
   },
   {
     "type": "Dagger",
@@ -2829,12 +2950,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritFace18",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 22,
-    "damageMax": 28
+    "damageMin": 29,
+    "damageMax": 44,
+    "modifier": "WHILE IF ACTION CONFUSE -> DAMAGE {10-18}%",
+    "modifierName": "Confuse Technique"
   },
   {
     "type": "Dagger",
@@ -2854,12 +2976,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ConnectPierce",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 22,
-    "damageMax": 28
+    "damageMin": 29,
+    "damageMax": 44,
+    "modifier": "WHILE IF ACTION CORRODE -> SPEED {8-14}%",
+    "modifierName": "Corrode Technique"
   },
   {
     "type": "Dagger",
@@ -2879,12 +3002,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "PunishDot",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 19,
-    "damageMax": 25
+    "damageMin": 26,
+    "damageMax": 39,
+    "modifier": "WHILE IF ACTION COUNTED_PACES -> DAMAGE {10-18}%",
+    "modifierName": "Counted Paces Technique"
   },
   {
     "type": "Dagger",
@@ -2904,12 +3028,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ObsidianEdge",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 18,
-    "damageMax": 24
+    "damageMin": 25,
+    "damageMax": 37,
+    "modifier": "WHILE IF ACTION CRIT_FACES -> SPEED {8-14}%",
+    "modifierName": "Crit Faces Technique"
   },
   {
     "type": "Dagger",
@@ -2929,12 +3054,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RogueActionAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 20,
-    "damageMax": 26
+    "damageMin": 27,
+    "damageMax": 41,
+    "modifier": "WHILE IF ACTION CRIT_HEAL -> DAMAGE {10-18}%",
+    "modifierName": "Crit Heal Technique"
   },
   {
     "type": "Dagger",
@@ -2954,12 +3080,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RoguePointsSpeed",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 18,
-    "damageMax": 24
+    "damageMin": 25,
+    "damageMax": 37,
+    "modifier": "WHILE IF ACTION DISARM -> SPEED {8-14}%",
+    "modifierName": "Disarm Technique"
   },
   {
     "type": "Dagger",
@@ -2979,12 +3106,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AgiSkirmish",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 17,
-    "damageMax": 23
+    "damageMin": 24,
+    "damageMax": 35,
+    "modifier": "WHILE IF ACTION DISTILL -> DAMAGE {10-18}%",
+    "modifierName": "Distill Technique"
   },
   {
     "type": "Dagger",
@@ -3004,12 +3132,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SwiftSchool",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 17,
-    "damageMax": 23
+    "damageMin": 24,
+    "damageMax": 35,
+    "modifier": "WHILE IF ACTION DUELIST_FEINT -> SPEED {8-14}%",
+    "modifierName": "Duelist Feint Technique"
   },
   {
     "type": "Dagger",
@@ -3029,12 +3158,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "QuickGrip",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 33,
-    "damageMax": 45
+    "damageMin": 53,
+    "damageMax": 80,
+    "modifier": "WHILE IF ACTION ENRAGE AND TARGET poison -> DAMAGE {16-26}%",
+    "modifierName": "Enrage Mastery"
   },
   {
     "type": "Dagger",
@@ -3054,12 +3184,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SkipFiller",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 26,
-    "damageMax": 38
+    "damageMin": 44,
+    "damageMax": 66,
+    "modifier": "WHILE IF TAG ravager AND TARGET bleed -> DAMAGE {12-20}%",
+    "modifierName": "Ravager Mastery"
   },
   {
     "type": "Dagger",
@@ -3079,12 +3210,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LeapAhead",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 24,
-    "damageMax": 36
+    "damageMin": 41,
+    "damageMax": 62,
+    "modifier": "WHILE IF ACTION EVEN_ODDS AND TARGET poison -> DAMAGE {16-26}%",
+    "modifierName": "Even Odds Mastery"
   },
   {
     "type": "Dagger",
@@ -3104,12 +3236,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SlotTwoEncore",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 34,
-    "damageMax": 46
+    "damageMin": 55,
+    "damageMax": 82,
+    "modifier": "WHILE IF TAG status AND TARGET bleed -> DAMAGE {12-20}%",
+    "modifierName": "Affliction Mastery"
   },
   {
     "type": "Dagger",
@@ -3129,12 +3262,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "MirrorSwingDamage",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 27,
-    "damageMax": 39
+    "damageMin": 45,
+    "damageMax": 68,
+    "modifier": "WHILE IF ACTION EXPLODING_DICE AND TARGET poison -> DAMAGE {16-26}%",
+    "modifierName": "Exploding Dice Mastery"
   },
   {
     "type": "Dagger",
@@ -3154,12 +3288,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "BossNeedle",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 41,
-    "damageMax": 53
+    "damageMin": 64,
+    "damageMax": 96,
+    "modifier": "WHILE IF TAG verb AND TARGET bleed -> DAMAGE {12-20}%",
+    "modifierName": "Verbal Mastery"
   },
   {
     "type": "Dagger",
@@ -3179,12 +3314,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritAmpCarry",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 34,
-    "damageMax": 46
+    "damageMin": 55,
+    "damageMax": 82,
+    "modifier": "WHILE IF ACTION EXPOSE AND TARGET poison -> DAMAGE {16-26}%",
+    "modifierName": "Expose Mastery"
   },
   {
     "type": "Dagger",
@@ -3204,12 +3340,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritThresholdPush",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 23,
-    "damageMax": 35
+    "damageMin": 40,
+    "damageMax": 60,
+    "modifier": "WHILE IF TAG hexblade AND TARGET bleed -> DAMAGE {12-20}%",
+    "modifierName": "Hexblade Mastery"
   },
   {
     "type": "Dagger",
@@ -3229,12 +3366,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritExpose",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 26,
-    "damageMax": 38
+    "damageMin": 44,
+    "damageMax": 66,
+    "modifier": "WHILE IF ACTION FAN_OF_KNIVES AND TARGET poison -> DAMAGE {16-26}%",
+    "modifierName": "Fan Of Knives Mastery"
   },
   {
     "type": "Dagger",
@@ -3254,12 +3392,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritFace19",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 30,
-    "damageMax": 42
+    "damageMin": 49,
+    "damageMax": 74,
+    "modifier": "WHILE IF TAG duelist AND TARGET bleed -> DAMAGE {12-20}%",
+    "modifierName": "Duelist Mastery"
   },
   {
     "type": "Dagger",
@@ -3279,12 +3418,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "CritFace18",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 45,
-    "damageMax": 65
+    "damageMin": 84,
+    "damageMax": 126,
+    "modifier": "WHILE IF ACTION FEINT_AND_THRUST AND TARGET poison -> DAMAGE {20-32}%; WHILE -> POTENCY poison {25-40}%",
+    "modifierName": "Feint And Thrust Legend"
   },
   {
     "type": "Dagger",
@@ -3304,12 +3444,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ConnectPierce",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 33,
-    "damageMax": 53
+    "damageMin": 66,
+    "damageMax": 99,
+    "modifier": "WHILE IF ACTION FINESSE_THRUST -> DAMAGE {14-22}%; WHILE IF TAG ravager -> SPEED {8-12}%",
+    "modifierName": "Finesse Thrust Legend"
   },
   {
     "type": "Dagger",
@@ -3329,12 +3470,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "PunishDot",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 53,
-    "damageMax": 73
+    "damageMin": 96,
+    "damageMax": 144,
+    "modifier": "WHILE IF ACTION FOCUS AND TARGET bleed -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
+    "modifierName": "Focus Legend"
   },
   {
     "type": "Dagger",
@@ -3354,12 +3496,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ObsidianEdge",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 46,
-    "damageMax": 66
+    "damageMin": 86,
+    "damageMax": 128,
+    "modifier": "WHILE IF ACTION GAMBLERS_BLESSING -> DAMAGE {14-22}%; WHILE IF TAG status -> SPEED {8-12}%",
+    "modifierName": "Gamblers Blessing Legend"
   },
   {
     "type": "Dagger",
@@ -3379,12 +3522,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RogueActionAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 50,
-    "damageMax": 70
+    "damageMin": 92,
+    "damageMax": 138,
+    "modifier": "WHILE IF ACTION GUTTING_STRIKE AND TARGET poison -> DAMAGE {20-32}%; WHILE -> POTENCY acid {25-40}%",
+    "modifierName": "Gutting Strike Legend"
   },
   {
     "type": "Dagger",
@@ -3404,12 +3548,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "RoguePointsSpeed",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 49,
-    "damageMax": 69
+    "damageMin": 90,
+    "damageMax": 135,
+    "modifier": "WHILE IF ACTION HEXBLADE_CURSE -> DAMAGE {14-22}%; WHILE IF TAG verb -> SPEED {8-12}%",
+    "modifierName": "Hexblade Curse Legend"
   },
   {
     "type": "Dagger",
@@ -3429,12 +3574,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AgiSkirmish",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 40,
-    "damageMax": 60
+    "damageMin": 76,
+    "damageMax": 115,
+    "modifier": "WHILE IF ACTION JAB AND TARGET bleed -> DAMAGE {20-32}%; WHILE -> POTENCY poison {25-40}%",
+    "modifierName": "Jab Legend"
   },
   {
     "type": "Dagger",
@@ -3454,12 +3600,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SwiftSchool",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 41,
-    "damageMax": 61
+    "damageMin": 78,
+    "damageMax": 117,
+    "modifier": "WHILE IF ACTION LEECHING_CUT -> DAMAGE {14-22}%; WHILE IF TAG hexblade -> SPEED {8-12}%",
+    "modifierName": "Leeching Cut Legend"
   },
   {
     "type": "Dagger",
@@ -3479,12 +3626,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "QuickGrip",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 43,
-    "damageMax": 63
+    "damageMin": 81,
+    "damageMax": 121,
+    "modifier": "WHILE IF ACTION LOADED_DICE AND TARGET poison -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
+    "modifierName": "Loaded Dice Legend"
   },
   {
     "type": "Dagger",
@@ -3504,12 +3652,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SkipFiller",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "rogue",
-    "damageMin": 41,
-    "damageMax": 61
+    "damageMin": 78,
+    "damageMax": 117,
+    "modifier": "WHILE IF ACTION LOW_BLOW -> DAMAGE {14-22}%; WHILE IF TAG duelist -> SPEED {8-12}%",
+    "modifierName": "Low Blow Legend"
   },
   {
     "type": "Wand",
@@ -3527,12 +3676,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FirstBloodAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
     "damageMin": 8,
-    "damageMax": 11
+    "damageMax": 12,
+    "modifier": "WHILE IF CLASS wizard -> DAMAGE {4-8}%",
+    "modifierName": "Wizard Knack"
   },
   {
     "type": "Wand",
@@ -3550,12 +3700,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WizardActionAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
     "damageMin": 8,
-    "damageMax": 11
+    "damageMax": 12,
+    "modifier": "WHILE -> POTENCY burn {12-20}%",
+    "modifierName": "Burn Knack"
   },
   {
     "type": "Wand",
@@ -3573,12 +3724,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WizardPointsAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
     "damageMin": 6,
-    "damageMax": 9
+    "damageMax": 9,
+    "modifier": "WHILE IF CLASS wizard -> SPEED {3-6}%",
+    "modifierName": "Wizard Knack"
   },
   {
     "type": "Wand",
@@ -3596,12 +3748,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "IntArchitect",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
     "damageMin": 8,
-    "damageMax": 11
+    "damageMax": 12,
+    "modifier": "WHILE IF CLASS wizard -> DAMAGE {4-8}%",
+    "modifierName": "Wizard Knack"
   },
   {
     "type": "Wand",
@@ -3619,12 +3772,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FocusLens",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
     "damageMin": 7,
-    "damageMax": 10
+    "damageMax": 11,
+    "modifier": "WHILE -> POTENCY acid {12-20}%",
+    "modifierName": "Acid Knack"
   },
   {
     "type": "Wand",
@@ -3642,12 +3796,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "InsightClarity",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
     "damageMin": 7,
-    "damageMax": 10
+    "damageMax": 11,
+    "modifier": "WHILE IF CLASS wizard -> SPEED {3-6}%",
+    "modifierName": "Wizard Knack"
   },
   {
     "type": "Wand",
@@ -3665,12 +3820,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "Firebrand",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
     "damageMin": 9,
-    "damageMax": 12
+    "damageMax": 13,
+    "modifier": "WHILE IF CLASS wizard -> DAMAGE {4-8}%",
+    "modifierName": "Wizard Knack"
   },
   {
     "type": "Wand",
@@ -3688,12 +3844,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WaterBrand",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
     "damageMin": 7,
-    "damageMax": 10
+    "damageMax": 11,
+    "modifier": "WHILE -> POTENCY burn {12-20}%",
+    "modifierName": "Burn Knack"
   },
   {
     "type": "Wand",
@@ -3711,12 +3868,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AirBrand",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
     "damageMin": 6,
-    "damageMax": 9
+    "damageMax": 9,
+    "modifier": "WHILE IF CLASS wizard -> SPEED {3-6}%",
+    "modifierName": "Wizard Knack"
   },
   {
     "type": "Wand",
@@ -3735,12 +3893,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
     "damageMin": 4,
-    "damageMax": 5
+    "damageMax": 6,
+    "modifier": "WHILE IF CLASS wizard -> DAMAGE {4-8}%",
+    "modifierName": "Wizard Knack"
   },
   {
     "type": "Wand",
@@ -3758,12 +3917,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SteadyFocus",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
     "damageMin": 6,
-    "damageMax": 9
+    "damageMax": 9,
+    "modifier": "WHILE IF CLASS wizard -> DAMAGE {4-8}%",
+    "modifierName": "Wizard Knack"
   },
   {
     "type": "Wand",
@@ -3781,12 +3941,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OpenerCrown",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 16,
-    "damageMax": 18
+    "damageMin": 17,
+    "damageMax": 25,
+    "modifier": "WHILE IF TAG hexblade -> DAMAGE {6-12}%",
+    "modifierName": "Hexblade Habit"
   },
   {
     "type": "Wand",
@@ -3804,12 +3965,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LuckySevenHit",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 14,
-    "damageMax": 16
+    "damageMin": 15,
+    "damageMax": 22,
+    "modifier": "WHILE IF TAG spellblade -> SPEED {5-9}%",
+    "modifierName": "Spellblade Habit"
   },
   {
     "type": "Wand",
@@ -3827,12 +3989,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ExactFifteenCombo",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 14,
-    "damageMax": 16
+    "damageMin": 15,
+    "damageMax": 22,
+    "modifier": "WHILE -> POTENCY acid {18-30}%",
+    "modifierName": "Acid Habit"
   },
   {
     "type": "Wand",
@@ -3850,12 +4013,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EvenRollHeal",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 16,
-    "damageMax": 18
+    "damageMin": 17,
+    "damageMax": 25,
+    "modifier": "WHILE IF TAG ragecaller -> DAMAGE {6-12}%",
+    "modifierName": "Ragecaller Habit"
   },
   {
     "type": "Wand",
@@ -3873,12 +4037,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OddSpite",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 13,
-    "damageMax": 15
+    "damageMin": 14,
+    "damageMax": 21,
+    "modifier": "WHILE IF TAG verb -> SPEED {5-9}%",
+    "modifierName": "Verbal Habit"
   },
   {
     "type": "Wand",
@@ -3896,12 +4061,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ChaosOpen",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 15,
-    "damageMax": 17
+    "damageMin": 16,
+    "damageMax": 24,
+    "modifier": "WHILE -> POTENCY burn {18-30}%",
+    "modifierName": "Burn Habit"
   },
   {
     "type": "Wand",
@@ -3919,12 +4085,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ReplaceNextStrip",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 15,
-    "damageMax": 17
+    "damageMin": 16,
+    "damageMax": 24,
+    "modifier": "WHILE -> POTENCY burn {18-30}%",
+    "modifierName": "Burn Habit"
   },
   {
     "type": "Wand",
@@ -3942,12 +4109,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SpiteFocus",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 13,
-    "damageMax": 15
+    "damageMin": 14,
+    "damageMax": 21,
+    "modifier": "WHILE IF TAG store -> DAMAGE {6-12}%",
+    "modifierName": "Hoarder Habit"
   },
   {
     "type": "Wand",
@@ -3965,12 +4133,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FirstBloodAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 13,
-    "damageMax": 15
+    "damageMin": 14,
+    "damageMax": 21,
+    "modifier": "WHILE IF TAG hexblade -> SPEED {5-9}%",
+    "modifierName": "Hexblade Habit"
   },
   {
     "type": "Wand",
@@ -3988,12 +4157,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WizardActionAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 24,
-    "damageMax": 30
+    "damageMin": 32,
+    "damageMax": 48,
+    "modifier": "WHILE IF ACTION BLOOD_OATH -> DAMAGE {10-18}%",
+    "modifierName": "Blood Oath Technique"
   },
   {
     "type": "Wand",
@@ -4011,12 +4181,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WizardPointsAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 20,
-    "damageMax": 26
+    "damageMin": 27,
+    "damageMax": 41,
+    "modifier": "WHILE IF ACTION CHANNEL -> SPEED {8-14}%",
+    "modifierName": "Channel Technique"
   },
   {
     "type": "Wand",
@@ -4034,12 +4205,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "IntArchitect",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 18,
-    "damageMax": 24
+    "damageMin": 25,
+    "damageMax": 37,
+    "modifier": "WHILE IF ACTION CONCENTRATED_CHAOS -> DAMAGE {10-18}%",
+    "modifierName": "Concentrated Chaos Technique"
   },
   {
     "type": "Wand",
@@ -4057,12 +4229,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FocusLens",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 27,
-    "damageMax": 33
+    "damageMin": 35,
+    "damageMax": 53,
+    "modifier": "WHILE IF ACTION CONFUSE -> SPEED {8-14}%",
+    "modifierName": "Confuse Technique"
   },
   {
     "type": "Wand",
@@ -4080,12 +4253,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "InsightClarity",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 27,
-    "damageMax": 33
+    "damageMin": 35,
+    "damageMax": 53,
+    "modifier": "WHILE IF ACTION CONFUSE -> SPEED {8-14}%",
+    "modifierName": "Confuse Technique"
   },
   {
     "type": "Wand",
@@ -4103,12 +4277,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "Firebrand",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 26,
-    "damageMax": 32
+    "damageMin": 34,
+    "damageMax": 51,
+    "modifier": "WHILE IF ACTION CORRODE -> DAMAGE {10-18}%",
+    "modifierName": "Corrode Technique"
   },
   {
     "type": "Wand",
@@ -4126,12 +4301,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WaterBrand",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 22,
-    "damageMax": 28
+    "damageMin": 29,
+    "damageMax": 44,
+    "modifier": "WHILE IF ACTION CRESCENDO -> SPEED {8-14}%",
+    "modifierName": "Crescendo Technique"
   },
   {
     "type": "Wand",
@@ -4149,12 +4325,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AirBrand",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 19,
-    "damageMax": 25
+    "damageMin": 26,
+    "damageMax": 39,
+    "modifier": "WHILE IF ACTION DETONATE -> DAMAGE {10-18}%",
+    "modifierName": "Detonate Technique"
   },
   {
     "type": "Wand",
@@ -4172,12 +4349,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SteadyFocus",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 21,
-    "damageMax": 27
+    "damageMin": 28,
+    "damageMax": 42,
+    "modifier": "WHILE IF ACTION DISTILL -> SPEED {8-14}%",
+    "modifierName": "Distill Technique"
   },
   {
     "type": "Wand",
@@ -4195,12 +4373,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OpenerCrown",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 25,
-    "damageMax": 31
+    "damageMin": 33,
+    "damageMax": 49,
+    "modifier": "WHILE IF ACTION DUNGEON_ANALYSIS -> DAMAGE {10-18}%",
+    "modifierName": "Dungeon Analysis Technique"
   },
   {
     "type": "Wand",
@@ -4218,12 +4397,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LuckySevenHit",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 21,
-    "damageMax": 27
+    "damageMin": 28,
+    "damageMax": 42,
+    "modifier": "WHILE IF ACTION ECHO_SPELL -> SPEED {8-14}%",
+    "modifierName": "Echo Spell Technique"
   },
   {
     "type": "Wand",
@@ -4241,12 +4421,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ExactFifteenCombo",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 37,
-    "damageMax": 49
+    "damageMin": 59,
+    "damageMax": 88,
+    "modifier": "WHILE IF ACTION EMPOWERED AND STEP>=3 -> DAMAGE {16-26}%",
+    "modifierName": "Empowered Mastery"
   },
   {
     "type": "Wand",
@@ -4264,12 +4445,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EvenRollHeal",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 25,
-    "damageMax": 37
+    "damageMin": 42,
+    "damageMax": 64,
+    "modifier": "WHILE IF TAG spellblade AND TARGET burn -> DAMAGE {12-20}%",
+    "modifierName": "Spellblade Mastery"
   },
   {
     "type": "Wand",
@@ -4287,12 +4469,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OddSpite",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 29,
-    "damageMax": 41
+    "damageMin": 48,
+    "damageMax": 72,
+    "modifier": "WHILE IF ACTION EVEN_ODDS AND STEP>=3 -> DAMAGE {16-26}%",
+    "modifierName": "Even Odds Mastery"
   },
   {
     "type": "Wand",
@@ -4310,12 +4493,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ChaosOpen",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 34,
-    "damageMax": 46
+    "damageMin": 55,
+    "damageMax": 82,
+    "modifier": "WHILE IF TAG ragecaller AND TARGET burn -> DAMAGE {12-20}%",
+    "modifierName": "Ragecaller Mastery"
   },
   {
     "type": "Wand",
@@ -4333,12 +4517,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ReplaceNextStrip",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 44,
-    "damageMax": 56
+    "damageMin": 68,
+    "damageMax": 103,
+    "modifier": "WHILE IF ACTION EXPLODING_DICE AND STEP>=3 -> DAMAGE {16-26}%",
+    "modifierName": "Exploding Dice Mastery"
   },
   {
     "type": "Wand",
@@ -4356,12 +4541,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SpiteFocus",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 28,
-    "damageMax": 40
+    "damageMin": 47,
+    "damageMax": 70,
+    "modifier": "WHILE IF TAG verb AND TARGET burn -> DAMAGE {12-20}%",
+    "modifierName": "Verbal Mastery"
   },
   {
     "type": "Wand",
@@ -4379,12 +4565,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FirstBloodAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 42,
-    "damageMax": 54
+    "damageMin": 66,
+    "damageMax": 98,
+    "modifier": "WHILE IF ACTION FLAME_BRAND AND STEP>=3 -> DAMAGE {16-26}%",
+    "modifierName": "Flame Brand Mastery"
   },
   {
     "type": "Wand",
@@ -4402,12 +4589,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WizardActionAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 39,
-    "damageMax": 51
+    "damageMin": 62,
+    "damageMax": 92,
+    "modifier": "WHILE IF TAG store AND TARGET burn -> DAMAGE {12-20}%",
+    "modifierName": "Hoarder Mastery"
   },
   {
     "type": "Wand",
@@ -4425,12 +4613,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WizardPointsAmp",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 28,
-    "damageMax": 40
+    "damageMin": 47,
+    "damageMax": 70,
+    "modifier": "WHILE IF ACTION FROST_BOLT AND STEP>=3 -> DAMAGE {16-26}%",
+    "modifierName": "Frost Bolt Mastery"
   },
   {
     "type": "Wand",
@@ -4448,12 +4637,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "IntArchitect",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 46,
-    "damageMax": 58
+    "damageMin": 71,
+    "damageMax": 107,
+    "modifier": "WHILE IF TAG hexblade AND TARGET burn -> DAMAGE {12-20}%",
+    "modifierName": "Hexblade Mastery"
   },
   {
     "type": "Wand",
@@ -4471,12 +4661,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "FocusLens",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 45,
-    "damageMax": 65
+    "damageMin": 84,
+    "damageMax": 126,
+    "modifier": "WHILE IF ACTION HEXBLADE_CURSE AND STEP>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY acid {25-40}%",
+    "modifierName": "Hexblade Curse Legend"
   },
   {
     "type": "Wand",
@@ -4494,12 +4685,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "InsightClarity",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 57,
-    "damageMax": 77
+    "damageMin": 102,
+    "damageMax": 154,
+    "modifier": "WHILE IF ACTION INDEX -> DAMAGE {14-22}%; WHILE IF TAG spellblade -> SPEED {8-12}%",
+    "modifierName": "Index Legend"
   },
   {
     "type": "Wand",
@@ -4517,12 +4709,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "Firebrand",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 53,
-    "damageMax": 73
+    "damageMin": 96,
+    "damageMax": 144,
+    "modifier": "WHILE IF ACTION INVEST AND TARGET burn -> DAMAGE {20-32}%; WHILE -> POTENCY burn {25-40}%",
+    "modifierName": "Invest Legend"
   },
   {
     "type": "Wand",
@@ -4540,12 +4733,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "WaterBrand",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 50,
-    "damageMax": 70
+    "damageMin": 92,
+    "damageMax": 138,
+    "modifier": "WHILE IF ACTION LATE_BLOOM -> DAMAGE {14-22}%; WHILE IF TAG ragecaller -> SPEED {8-12}%",
+    "modifierName": "Late Bloom Legend"
   },
   {
     "type": "Wand",
@@ -4563,12 +4757,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "AirBrand",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 61,
-    "damageMax": 81
+    "damageMin": 108,
+    "damageMax": 163,
+    "modifier": "WHILE IF ACTION LIQUIDATE AND STEP>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY acid {25-40}%",
+    "modifierName": "Liquidate Legend"
   },
   {
     "type": "Wand",
@@ -4586,12 +4781,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "SteadyFocus",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 43,
-    "damageMax": 63
+    "damageMin": 81,
+    "damageMax": 121,
+    "modifier": "WHILE IF ACTION MIND_HEX -> DAMAGE {14-22}%; WHILE IF TAG verb -> SPEED {8-12}%",
+    "modifierName": "Mind Hex Legend"
   },
   {
     "type": "Wand",
@@ -4609,12 +4805,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "OpenerCrown",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 41,
-    "damageMax": 61
+    "damageMin": 78,
+    "damageMax": 117,
+    "modifier": "WHILE IF ACTION NATURAL_SEVEN AND TARGET burn -> DAMAGE {20-32}%; WHILE -> POTENCY burn {25-40}%",
+    "modifierName": "Natural Seven Legend"
   },
   {
     "type": "Wand",
@@ -4632,12 +4829,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "LuckySevenHit",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 46,
-    "damageMax": 66
+    "damageMin": 86,
+    "damageMax": 128,
+    "modifier": "WHILE IF ACTION PRE-FIGHT_PLANNING -> DAMAGE {14-22}%; WHILE IF TAG store -> SPEED {8-12}%",
+    "modifierName": "Pre-fight Planning Legend"
   },
   {
     "type": "Wand",
@@ -4655,12 +4853,13 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "ExactFifteenCombo",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 63,
-    "damageMax": 83
+    "damageMin": 112,
+    "damageMax": 167,
+    "modifier": "WHILE IF ACTION PRELUDE AND STEP>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY acid {25-40}%",
+    "modifierName": "Prelude Legend"
   },
   {
     "type": "Wand",
@@ -4678,11 +4877,12 @@
     "extraActionSlots": 0,
     "extraActionSlotsMin": 0,
     "extraActionSlotsMax": 0,
-    "triggerName": "EvenRollHeal",
     "triggerBundles": null,
     "equipEffects": null,
     "class": "wizard",
-    "damageMin": 67,
-    "damageMax": 87
+    "damageMin": 118,
+    "damageMax": 176,
+    "modifier": "WHILE IF ACTION RAGECALLER_HOWL -> DAMAGE {14-22}%; WHILE IF TAG hexblade -> SPEED {8-12}%",
+    "modifierName": "Ragecaller Howl Legend"
   }
 ]

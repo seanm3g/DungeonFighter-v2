@@ -197,7 +197,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "MixedMaterials", () => RPGGame.Tests.Unit.MixedMaterialsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "HybridTrees", () => RPGGame.Tests.Unit.HybridTreesTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "BuildGlue", () => RPGGame.Tests.Unit.Combat.BuildGlueTests.RunAllTests()));
-            list.Add(new TestSuiteEntry("combat", "ActionTextEffectCatalog", () => RPGGame.Tests.Unit.Combat.ActionTextEffectCatalogTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "ThresholdManager", () => RPGGame.Tests.Unit.Combat.ThresholdManagerTests.RunAllTests()));            list.Add(new TestSuiteEntry("combat", "ActionTextEffectCatalog", () => RPGGame.Tests.Unit.Combat.ActionTextEffectCatalogTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTextEmphasisTypewriter", () => RPGGame.Tests.Unit.Combat.ActionTextEmphasisTypewriterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "GameFonts", () => RPGGame.Tests.Unit.UI.GameFontsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CanvasPrimitiveStacking", () => RPGGame.Tests.Unit.UI.CanvasPrimitiveStackingTests.RunAllTests()));
@@ -244,6 +244,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "HeroEventHub", () => RPGGame.Tests.Unit.HeroEventHubTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "AffixTemplates", () => RPGGame.Tests.Unit.AffixTemplatesTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CrossWires", () => RPGGame.Tests.Unit.CrossWiresTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "BotDecision", () => RPGGame.Tests.Unit.BotDecisionTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ItemRules", () => RPGGame.Tests.Unit.ItemRulesTests.RunAllTests()));
             list.Add(new TestSuiteEntry("data", "MaterialTrigger", () => RPGGame.Tests.Unit.MaterialTriggerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ItemTriggerCombatIntegration", () => RPGGame.Tests.Unit.ItemTriggerCombatIntegrationTests.RunAllTests()));

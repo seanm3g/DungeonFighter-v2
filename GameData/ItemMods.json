@@ -1000,14 +1000,14 @@
       "integer": false,
       "tiers": [
         {
-          "keyword": "Brutal",
+          "keyword": "Rough",
           "min": 0.66,
           "max": 1.05,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "Uncanny Brutal",
+          "keyword": "Uncanny Rough",
           "min": 1.1,
           "max": 1.58,
           "level": 1,
@@ -1015,14 +1015,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Brutal",
+          "keyword": "Heavy",
           "min": 1.05,
           "max": 1.45,
           "level": 6,
           "weight": 140
         },
         {
-          "keyword": "Uncanny Brutal",
+          "keyword": "Uncanny Heavy",
           "min": 1.52,
           "max": 2.17,
           "level": 6,
@@ -1045,14 +1045,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Brutal",
+          "keyword": "Crushing",
           "min": 1.98,
           "max": 2.51,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "Uncanny Brutal",
+          "keyword": "Uncanny Crushing",
           "min": 2.64,
           "max": 3.76,
           "level": 25,
@@ -1060,14 +1060,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Brutal",
+          "keyword": "Ruinous",
           "min": 2.51,
           "max": 3.16,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "Uncanny Brutal",
+          "keyword": "Uncanny Ruinous",
           "min": 3.32,
           "max": 4.74,
           "level": 40,
@@ -1075,14 +1075,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Brutal",
+          "keyword": "Devastating",
           "min": 3.16,
           "max": 3.82,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "Uncanny Brutal",
+          "keyword": "Uncanny Devastating",
           "min": 4.01,
           "max": 5.73,
           "level": 60,
@@ -1090,14 +1090,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Brutal",
+          "keyword": "Cataclysmic",
           "min": 3.82,
           "max": 4.48,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "Uncanny Brutal",
+          "keyword": "Uncanny Cataclysmic",
           "min": 4.7,
           "max": 6.72,
           "level": 80,
@@ -1121,14 +1121,14 @@
       "integer": false,
       "tiers": [
         {
-          "keyword": "True",
+          "keyword": "Steady",
           "min": 4.23,
           "max": 6.78,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "Uncanny True",
+          "keyword": "Uncanny Steady",
           "min": 7.12,
           "max": 10.17,
           "level": 1,
@@ -1136,14 +1136,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "True",
+          "keyword": "Sure",
           "min": 6.78,
           "max": 9.32,
           "level": 6,
           "weight": 140
         },
         {
-          "keyword": "Uncanny True",
+          "keyword": "Uncanny Sure",
           "min": 9.79,
           "max": 13.98,
           "level": 6,
@@ -1166,14 +1166,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "True",
+          "keyword": "Keen",
           "min": 12.7,
           "max": 16.09,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "Uncanny True",
+          "keyword": "Uncanny Keen",
           "min": 16.89,
           "max": 24.13,
           "level": 25,
@@ -1181,14 +1181,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "True",
+          "keyword": "Unerring",
           "min": 16.09,
           "max": 20.33,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "Uncanny True",
+          "keyword": "Uncanny Unerring",
           "min": 21.35,
           "max": 30.49,
           "level": 40,
@@ -1196,14 +1196,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "True",
+          "keyword": "Infallible",
           "min": 20.33,
           "max": 24.56,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "Uncanny True",
+          "keyword": "Uncanny Infallible",
           "min": 25.79,
           "max": 36.84,
           "level": 60,
@@ -1211,14 +1211,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "True",
+          "keyword": "Fated",
           "min": 24.56,
           "max": 28.8,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "Uncanny True",
+          "keyword": "Uncanny Fated",
           "min": 30.24,
           "max": 43.2,
           "level": 80,
@@ -1242,14 +1242,14 @@
       "integer": false,
       "tiers": [
         {
-          "keyword": "Deadly",
+          "keyword": "Sharp",
           "min": 3.11,
           "max": 4.98,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "Uncanny Deadly",
+          "keyword": "Uncanny Sharp",
           "min": 5.23,
           "max": 7.47,
           "level": 1,
@@ -1257,14 +1257,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Deadly",
+          "keyword": "Wicked",
           "min": 4.98,
           "max": 6.85,
           "level": 6,
           "weight": 140
         },
         {
-          "keyword": "Uncanny Deadly",
+          "keyword": "Uncanny Wicked",
           "min": 7.19,
           "max": 10.27,
           "level": 6,
@@ -1287,14 +1287,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Deadly",
+          "keyword": "Lethal",
           "min": 9.34,
           "max": 11.83,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "Uncanny Deadly",
+          "keyword": "Uncanny Lethal",
           "min": 12.42,
           "max": 17.75,
           "level": 25,
@@ -1302,14 +1302,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Deadly",
+          "keyword": "Murderous",
           "min": 11.83,
           "max": 14.94,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "Uncanny Deadly",
+          "keyword": "Uncanny Murderous",
           "min": 15.69,
           "max": 22.41,
           "level": 40,
@@ -1317,14 +1317,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Deadly",
+          "keyword": "Merciless",
           "min": 14.94,
           "max": 18.06,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "Uncanny Deadly",
+          "keyword": "Uncanny Merciless",
           "min": 18.96,
           "max": 27.09,
           "level": 60,
@@ -1332,14 +1332,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Deadly",
+          "keyword": "Executioner's",
           "min": 18.06,
           "max": 21.17,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "Uncanny Deadly",
+          "keyword": "Uncanny Executioner's",
           "min": 22.23,
           "max": 31.76,
           "level": 80,
@@ -1363,14 +1363,14 @@
       "integer": false,
       "tiers": [
         {
-          "keyword": "Poised",
+          "keyword": "Balanced",
           "min": 0.55,
           "max": 0.87,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "Uncanny Poised",
+          "keyword": "Uncanny Balanced",
           "min": 0.91,
           "max": 1.3,
           "level": 1,
@@ -1393,14 +1393,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Poised",
+          "keyword": "Graceful",
           "min": 1.2,
           "max": 1.64,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "Uncanny Poised",
+          "keyword": "Uncanny Graceful",
           "min": 1.72,
           "max": 2.46,
           "level": 14,
@@ -1408,14 +1408,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Poised",
+          "keyword": "Fluid",
           "min": 1.64,
           "max": 2.08,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "Uncanny Poised",
+          "keyword": "Uncanny Fluid",
           "min": 2.18,
           "max": 3.12,
           "level": 25,
@@ -1423,14 +1423,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Poised",
+          "keyword": "Harmonious",
           "min": 2.08,
           "max": 2.62,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "Uncanny Poised",
+          "keyword": "Uncanny Harmonious",
           "min": 2.75,
           "max": 3.93,
           "level": 40,
@@ -1438,14 +1438,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Poised",
+          "keyword": "Masterful",
           "min": 2.62,
           "max": 3.17,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "Uncanny Poised",
+          "keyword": "Uncanny Masterful",
           "min": 3.33,
           "max": 4.75,
           "level": 60,
@@ -1453,14 +1453,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Poised",
+          "keyword": "Transcendent",
           "min": 3.17,
           "max": 3.72,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "Uncanny Poised",
+          "keyword": "Uncanny Transcendent",
           "min": 3.91,
           "max": 5.58,
           "level": 80,
@@ -1484,14 +1484,14 @@
       "integer": false,
       "tiers": [
         {
-          "keyword": "Swift",
+          "keyword": "Quick",
           "min": 0.02,
           "max": 0.03,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "Uncanny Swift",
+          "keyword": "Uncanny Quick",
           "min": 0.03,
           "max": 0.04,
           "level": 1,
@@ -1514,14 +1514,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Swift",
+          "keyword": "Fleet",
           "min": 0.05,
           "max": 0.06,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "Uncanny Swift",
+          "keyword": "Uncanny Fleet",
           "min": 0.06,
           "max": 0.09,
           "level": 14,
@@ -1529,14 +1529,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Swift",
+          "keyword": "Rapid",
           "min": 0.06,
           "max": 0.08,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "Uncanny Swift",
+          "keyword": "Uncanny Rapid",
           "min": 0.08,
           "max": 0.12,
           "level": 25,
@@ -1544,14 +1544,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Swift",
+          "keyword": "Blurring",
           "min": 0.08,
           "max": 0.1,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "Uncanny Swift",
+          "keyword": "Uncanny Blurring",
           "min": 0.11,
           "max": 0.15,
           "level": 40,
@@ -1559,14 +1559,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Swift",
+          "keyword": "Lightning",
           "min": 0.1,
           "max": 0.12,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "Uncanny Swift",
+          "keyword": "Uncanny Lightning",
           "min": 0.13,
           "max": 0.18,
           "level": 60,
@@ -1574,14 +1574,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Swift",
+          "keyword": "Timeless",
           "min": 0.12,
           "max": 0.14,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "Uncanny Swift",
+          "keyword": "Uncanny Timeless",
           "min": 0.15,
           "max": 0.21,
           "level": 80,
@@ -1620,14 +1620,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Twin",
+          "keyword": "Darting",
           "min": 0.06,
           "max": 0.08,
           "level": 6,
           "weight": 140
         },
         {
-          "keyword": "Uncanny Twin",
+          "keyword": "Uncanny Darting",
           "min": 0.08,
           "max": 0.12,
           "level": 6,
@@ -1635,14 +1635,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Twin",
+          "keyword": "Flurrying",
           "min": 0.08,
           "max": 0.11,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "Uncanny Twin",
+          "keyword": "Uncanny Flurrying",
           "min": 0.12,
           "max": 0.17,
           "level": 14,
@@ -1650,14 +1650,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Twin",
+          "keyword": "Volleying",
           "min": 0.11,
           "max": 0.14,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "Uncanny Twin",
+          "keyword": "Uncanny Volleying",
           "min": 0.15,
           "max": 0.21,
           "level": 25,
@@ -1665,14 +1665,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Twin",
+          "keyword": "Storming",
           "min": 0.14,
           "max": 0.18,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "Uncanny Twin",
+          "keyword": "Uncanny Storming",
           "min": 0.19,
           "max": 0.27,
           "level": 40,
@@ -1680,14 +1680,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Twin",
+          "keyword": "Myriad",
           "min": 0.18,
           "max": 0.22,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "Uncanny Twin",
+          "keyword": "Uncanny Myriad",
           "min": 0.23,
           "max": 0.33,
           "level": 60,
@@ -1695,14 +1695,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Twin",
+          "keyword": "Endless",
           "min": 0.22,
           "max": 0.26,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "Uncanny Twin",
+          "keyword": "Uncanny Endless",
           "min": 0.27,
           "max": 0.39,
           "level": 80,
@@ -1741,14 +1741,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Focused",
+          "keyword": "Honed",
           "min": 0.06,
           "max": 0.08,
           "level": 6,
           "weight": 140
         },
         {
-          "keyword": "Uncanny Focused",
+          "keyword": "Uncanny Honed",
           "min": 0.08,
           "max": 0.12,
           "level": 6,
@@ -1756,14 +1756,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Focused",
+          "keyword": "Amplified",
           "min": 0.08,
           "max": 0.11,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "Uncanny Focused",
+          "keyword": "Uncanny Amplified",
           "min": 0.12,
           "max": 0.17,
           "level": 14,
@@ -1771,14 +1771,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Focused",
+          "keyword": "Empowered",
           "min": 0.11,
           "max": 0.14,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "Uncanny Focused",
+          "keyword": "Uncanny Empowered",
           "min": 0.15,
           "max": 0.21,
           "level": 25,
@@ -1786,14 +1786,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Focused",
+          "keyword": "Overcharged",
           "min": 0.14,
           "max": 0.17,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "Uncanny Focused",
+          "keyword": "Uncanny Overcharged",
           "min": 0.18,
           "max": 0.26,
           "level": 40,
@@ -1801,14 +1801,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Focused",
+          "keyword": "Exalted",
           "min": 0.17,
           "max": 0.21,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "Uncanny Focused",
+          "keyword": "Uncanny Exalted",
           "min": 0.22,
           "max": 0.32,
           "level": 60,
@@ -1816,14 +1816,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Focused",
+          "keyword": "Apotheotic",
           "min": 0.21,
           "max": 0.24,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "Uncanny Focused",
+          "keyword": "Uncanny Apotheotic",
           "min": 0.25,
           "max": 0.36,
           "level": 80,
@@ -2697,14 +2697,14 @@
       "integer": false,
       "tiers": [
         {
-          "keyword": "Savage",
+          "keyword": "Feral",
           "min": 0.4,
           "max": 0.63,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "Uncanny Savage",
+          "keyword": "Uncanny Feral",
           "min": 0.66,
           "max": 0.95,
           "level": 1,
@@ -2727,14 +2727,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Savage",
+          "keyword": "Vicious",
           "min": 0.87,
           "max": 1.19,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "Uncanny Savage",
+          "keyword": "Uncanny Vicious",
           "min": 1.25,
           "max": 1.78,
           "level": 14,
@@ -2742,14 +2742,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Savage",
+          "keyword": "Ferocious",
           "min": 1.19,
           "max": 1.51,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "Uncanny Savage",
+          "keyword": "Uncanny Ferocious",
           "min": 1.58,
           "max": 2.26,
           "level": 25,
@@ -2757,14 +2757,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Savage",
+          "keyword": "Bloodthirsty",
           "min": 1.51,
           "max": 1.9,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "Uncanny Savage",
+          "keyword": "Uncanny Bloodthirsty",
           "min": 1.99,
           "max": 2.84,
           "level": 40,
@@ -2772,14 +2772,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Savage",
+          "keyword": "Rampaging",
           "min": 1.9,
           "max": 2.29,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "Uncanny Savage",
+          "keyword": "Uncanny Rampaging",
           "min": 2.41,
           "max": 3.44,
           "level": 60,
@@ -2787,14 +2787,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Savage",
+          "keyword": "Primeval",
           "min": 2.29,
           "max": 2.69,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "Uncanny Savage",
+          "keyword": "Uncanny Primeval",
           "min": 2.82,
           "max": 4.03,
           "level": 80,
@@ -2824,14 +2824,14 @@
       "integer": false,
       "tiers": [
         {
-          "keyword": "Flowing",
+          "keyword": "Nimble",
           "min": 0.33,
           "max": 0.52,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "Uncanny Flowing",
+          "keyword": "Uncanny Nimble",
           "min": 0.55,
           "max": 0.78,
           "level": 1,
@@ -2854,14 +2854,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Flowing",
+          "keyword": "Streaming",
           "min": 0.72,
           "max": 0.98,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "Uncanny Flowing",
+          "keyword": "Uncanny Streaming",
           "min": 1.03,
           "max": 1.48,
           "level": 14,
@@ -2869,14 +2869,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Flowing",
+          "keyword": "Rushing",
           "min": 0.98,
           "max": 1.25,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "Uncanny Flowing",
+          "keyword": "Uncanny Rushing",
           "min": 1.31,
           "max": 1.87,
           "level": 25,
@@ -2884,14 +2884,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Flowing",
+          "keyword": "Cascading",
           "min": 1.25,
           "max": 1.57,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "Uncanny Flowing",
+          "keyword": "Uncanny Cascading",
           "min": 1.65,
           "max": 2.36,
           "level": 40,
@@ -2899,14 +2899,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Flowing",
+          "keyword": "Torrential",
           "min": 1.57,
           "max": 1.9,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "Uncanny Flowing",
+          "keyword": "Uncanny Torrential",
           "min": 2.0,
           "max": 2.85,
           "level": 60,
@@ -2914,14 +2914,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Flowing",
+          "keyword": "Tidal",
           "min": 1.9,
           "max": 2.23,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "Uncanny Flowing",
+          "keyword": "Uncanny Tidal",
           "min": 2.35,
           "max": 3.35,
           "level": 80,
@@ -2952,14 +2952,14 @@
       "integer": false,
       "tiers": [
         {
-          "keyword": "Precise",
+          "keyword": "Careful",
           "min": 2.54,
           "max": 4.07,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "Uncanny Precise",
+          "keyword": "Uncanny Careful",
           "min": 4.27,
           "max": 6.1,
           "level": 1,
@@ -2982,14 +2982,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Precise",
+          "keyword": "Exacting",
           "min": 5.59,
           "max": 7.62,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "Uncanny Precise",
+          "keyword": "Uncanny Exacting",
           "min": 8.0,
           "max": 11.43,
           "level": 14,
@@ -2997,14 +2997,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Precise",
+          "keyword": "Surgical",
           "min": 7.62,
           "max": 9.65,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "Uncanny Precise",
+          "keyword": "Uncanny Surgical",
           "min": 10.13,
           "max": 14.48,
           "level": 25,
@@ -3012,14 +3012,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Precise",
+          "keyword": "Pinpoint",
           "min": 9.65,
           "max": 12.2,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "Uncanny Precise",
+          "keyword": "Uncanny Pinpoint",
           "min": 12.81,
           "max": 18.29,
           "level": 40,
@@ -3027,14 +3027,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Precise",
+          "keyword": "Flawless",
           "min": 12.2,
           "max": 14.74,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "Uncanny Precise",
+          "keyword": "Uncanny Flawless",
           "min": 15.47,
           "max": 22.1,
           "level": 60,
@@ -3042,14 +3042,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Precise",
+          "keyword": "Immaculate",
           "min": 14.74,
           "max": 17.28,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "Uncanny Precise",
+          "keyword": "Uncanny Immaculate",
           "min": 18.14,
           "max": 25.92,
           "level": 80,
@@ -3080,14 +3080,14 @@
       "integer": false,
       "tiers": [
         {
-          "keyword": "Echoing",
+          "keyword": "Ringing",
           "min": 0.02,
           "max": 0.04,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "Uncanny Echoing",
+          "keyword": "Uncanny Ringing",
           "min": 0.04,
           "max": 0.05,
           "level": 1,
@@ -3110,14 +3110,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Echoing",
+          "keyword": "Reverberating",
           "min": 0.05,
           "max": 0.07,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "Uncanny Echoing",
+          "keyword": "Uncanny Reverberating",
           "min": 0.07,
           "max": 0.1,
           "level": 14,
@@ -3125,14 +3125,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Echoing",
+          "keyword": "Thundering",
           "min": 0.07,
           "max": 0.08,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "Uncanny Echoing",
+          "keyword": "Uncanny Thundering",
           "min": 0.09,
           "max": 0.13,
           "level": 25,
@@ -3140,14 +3140,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Echoing",
+          "keyword": "Booming",
           "min": 0.08,
           "max": 0.1,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "Uncanny Echoing",
+          "keyword": "Uncanny Booming",
           "min": 0.11,
           "max": 0.16,
           "level": 40,
@@ -3155,14 +3155,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Echoing",
+          "keyword": "Clamorous",
           "min": 0.1,
           "max": 0.13,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "Uncanny Echoing",
+          "keyword": "Uncanny Clamorous",
           "min": 0.13,
           "max": 0.19,
           "level": 60,
@@ -3170,14 +3170,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "Echoing",
+          "keyword": "Deafening",
           "min": 0.13,
           "max": 0.14,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "Uncanny Echoing",
+          "keyword": "Uncanny Deafening",
           "min": 0.15,
           "max": 0.22,
           "level": 80,
@@ -3202,7 +3202,7 @@
       "integer": false,
       "tiers": [
         {
-          "keyword": "Kissed by Flame",
+          "keyword": "Warmed by Flame",
           "min": 5.15,
           "max": 8.58,
           "level": 3,
@@ -3216,21 +3216,21 @@
           "weight": 140
         },
         {
-          "keyword": "Kissed by Flame",
+          "keyword": "Wreathed in Flame",
           "min": 12.01,
           "max": 16.3,
           "level": 25,
           "weight": 180
         },
         {
-          "keyword": "Kissed by Flame",
+          "keyword": "Forged in Flame",
           "min": 16.3,
           "max": 21.45,
           "level": 45,
           "weight": 220
         },
         {
-          "keyword": "Kissed by Flame",
+          "keyword": "Born of Flame",
           "min": 21.45,
           "max": 27.46,
           "level": 70,
@@ -3254,7 +3254,7 @@
       "integer": false,
       "tiers": [
         {
-          "keyword": "Kissed by the Serpent",
+          "keyword": "Grazed by the Serpent",
           "min": 1.2,
           "max": 2.0,
           "level": 3,
@@ -3268,21 +3268,21 @@
           "weight": 140
         },
         {
-          "keyword": "Kissed by the Serpent",
+          "keyword": "Bitten by the Serpent",
           "min": 2.8,
           "max": 3.8,
           "level": 25,
           "weight": 180
         },
         {
-          "keyword": "Kissed by the Serpent",
+          "keyword": "Fed by the Serpent",
           "min": 3.8,
           "max": 5.0,
           "level": 45,
           "weight": 220
         },
         {
-          "keyword": "Kissed by the Serpent",
+          "keyword": "Crowned by the Serpent",
           "min": 5.0,
           "max": 6.4,
           "level": 70,
@@ -3306,7 +3306,7 @@
       "integer": false,
       "tiers": [
         {
-          "keyword": "Bled for the Fallen",
+          "keyword": "Scarred for the Fallen",
           "min": 24.0,
           "max": 40.0,
           "level": 3,
@@ -3320,21 +3320,21 @@
           "weight": 140
         },
         {
-          "keyword": "Bled for the Fallen",
+          "keyword": "Wept for the Fallen",
           "min": 56.0,
           "max": 76.0,
           "level": 25,
           "weight": 180
         },
         {
-          "keyword": "Bled for the Fallen",
+          "keyword": "Sworn for the Fallen",
           "min": 76.0,
           "max": 100.0,
           "level": 45,
           "weight": 220
         },
         {
-          "keyword": "Bled for the Fallen",
+          "keyword": "Drowned for the Fallen",
           "min": 100.0,
           "max": 128.0,
           "level": 70,
@@ -3357,7 +3357,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Listening",
+          "keyword": "Heeding",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3371,7 +3371,7 @@
           "weight": 140
         },
         {
-          "keyword": "Listening",
+          "keyword": "All-Hearing",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3393,7 +3393,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Attuned",
+          "keyword": "Tuned",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3407,7 +3407,7 @@
           "weight": 140
         },
         {
-          "keyword": "Attuned",
+          "keyword": "Harmonized",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3429,7 +3429,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Charged-Up",
+          "keyword": "Charged",
           "min": 8,
           "max": 12,
           "level": 1,
@@ -3443,7 +3443,7 @@
           "weight": 140
         },
         {
-          "keyword": "Charged-Up",
+          "keyword": "Overcharged",
           "min": 14,
           "max": 22,
           "level": 55,
@@ -3465,7 +3465,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Doubled",
+          "keyword": "Paired",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3479,7 +3479,7 @@
           "weight": 140
         },
         {
-          "keyword": "Doubled",
+          "keyword": "Redoubled",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3501,7 +3501,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Danced in Daylight",
+          "keyword": "Danced at Dawn",
           "min": 10,
           "max": 15,
           "level": 8,
@@ -3515,7 +3515,7 @@
           "weight": 140
         },
         {
-          "keyword": "Danced in Daylight",
+          "keyword": "Danced Beneath the Sun",
           "min": 18,
           "max": 27,
           "level": 60,
@@ -3538,7 +3538,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Given by Dying Hands",
+          "keyword": "Given by Weary Hands",
           "min": 10,
           "max": 15,
           "level": 8,
@@ -3552,7 +3552,7 @@
           "weight": 140
         },
         {
-          "keyword": "Given by Dying Hands",
+          "keyword": "Given by Dead Hands",
           "min": 18,
           "max": 27,
           "level": 60,
@@ -3575,7 +3575,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Gambled by Debt",
+          "keyword": "Lent Against Debt",
           "min": 12,
           "max": 18,
           "level": 8,
@@ -3589,7 +3589,7 @@
           "weight": 140
         },
         {
-          "keyword": "Gambled by Debt",
+          "keyword": "Bound by Blood Debt",
           "min": 22,
           "max": 32,
           "level": 60,
@@ -3612,7 +3612,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Spiteful",
+          "keyword": "Petty",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3626,7 +3626,7 @@
           "weight": 140
         },
         {
-          "keyword": "Spiteful",
+          "keyword": "Vengeful",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3648,7 +3648,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Resonant",
+          "keyword": "Humming",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3662,7 +3662,7 @@
           "weight": 140
         },
         {
-          "keyword": "Resonant",
+          "keyword": "Thrumming",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3684,7 +3684,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Measured",
+          "keyword": "Careful-Handed",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3698,7 +3698,7 @@
           "weight": 140
         },
         {
-          "keyword": "Measured",
+          "keyword": "Metered",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3720,7 +3720,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Syncopated",
+          "keyword": "Offbeat",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3734,7 +3734,7 @@
           "weight": 140
         },
         {
-          "keyword": "Syncopated",
+          "keyword": "Polyrhythmic",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3756,7 +3756,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Headhunter's",
+          "keyword": "Tracker's",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3770,7 +3770,7 @@
           "weight": 140
         },
         {
-          "keyword": "Headhunter's",
+          "keyword": "Skullreaver's",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3792,7 +3792,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Frayed",
+          "keyword": "Worn-Edged",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3806,7 +3806,7 @@
           "weight": 140
         },
         {
-          "keyword": "Frayed",
+          "keyword": "Unraveling",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3830,7 +3830,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Smouldering",
+          "keyword": "Warm",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3844,7 +3844,7 @@
           "weight": 140
         },
         {
-          "keyword": "Smouldering",
+          "keyword": "Seething",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3866,7 +3866,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Gritted",
+          "keyword": "Clenched",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3880,7 +3880,7 @@
           "weight": 140
         },
         {
-          "keyword": "Gritted",
+          "keyword": "Ironjawed",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3902,7 +3902,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Grim",
+          "keyword": "Dour",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3916,7 +3916,7 @@
           "weight": 140
         },
         {
-          "keyword": "Grim",
+          "keyword": "Funereal",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3938,7 +3938,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Weighted",
+          "keyword": "Heavy-Set",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3952,7 +3952,7 @@
           "weight": 140
         },
         {
-          "keyword": "Weighted",
+          "keyword": "Anchored",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3974,7 +3974,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Exultant",
+          "keyword": "Glad",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -3988,7 +3988,7 @@
           "weight": 140
         },
         {
-          "keyword": "Exultant",
+          "keyword": "Triumphant",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -4010,7 +4010,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Restless",
+          "keyword": "Fidgeting",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -4024,7 +4024,7 @@
           "weight": 140
         },
         {
-          "keyword": "Restless",
+          "keyword": "Unsleeping",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -4046,7 +4046,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Scrying",
+          "keyword": "Peering",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -4060,7 +4060,7 @@
           "weight": 140
         },
         {
-          "keyword": "Scrying",
+          "keyword": "Farseeing",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -4082,7 +4082,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Rhythmic",
+          "keyword": "Tapping",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -4096,7 +4096,7 @@
           "weight": 140
         },
         {
-          "keyword": "Rhythmic",
+          "keyword": "Drumming",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -4118,7 +4118,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Prismatic",
+          "keyword": "Glinting",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -4132,7 +4132,7 @@
           "weight": 140
         },
         {
-          "keyword": "Prismatic",
+          "keyword": "Iridescent",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -4154,7 +4154,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Cryptic",
+          "keyword": "Veiled",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -4168,7 +4168,7 @@
           "weight": 140
         },
         {
-          "keyword": "Cryptic",
+          "keyword": "Enigmatic",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -4191,7 +4191,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Peculiar",
+          "keyword": "Odd",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -4205,7 +4205,7 @@
           "weight": 140
         },
         {
-          "keyword": "Peculiar",
+          "keyword": "Bizarre",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -4227,7 +4227,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Ominous",
+          "keyword": "Foreboding",
           "min": 1,
           "max": 1,
           "level": 1,
@@ -4241,7 +4241,7 @@
           "weight": 140
         },
         {
-          "keyword": "Ominous",
+          "keyword": "Doom-Laden",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -4264,7 +4264,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Bathed in Blood",
+          "keyword": "Tasted of Blood",
           "min": 4,
           "max": 8,
           "level": 8,
@@ -4278,7 +4278,7 @@
           "weight": 140
         },
         {
-          "keyword": "Bathed in Blood",
+          "keyword": "Drowned in Blood",
           "min": 7,
           "max": 14,
           "level": 60,
@@ -4302,7 +4302,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Cradled on Edge",
+          "keyword": "Rested on Edge",
           "min": 15,
           "max": 30,
           "level": 8,
@@ -4316,7 +4316,7 @@
           "weight": 140
         },
         {
-          "keyword": "Cradled on Edge",
+          "keyword": "Crowned on Edge",
           "min": 27,
           "max": 54,
           "level": 60,
@@ -4339,7 +4339,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Worn to the Bone",
+          "keyword": "Worn to the Skin",
           "min": 2,
           "max": 3,
           "level": 8,
@@ -4353,7 +4353,7 @@
           "weight": 140
         },
         {
-          "keyword": "Worn to the Bone",
+          "keyword": "Worn to the Marrow",
           "min": 4,
           "max": 5,
           "level": 60,
@@ -4375,7 +4375,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Held in Breath",
+          "keyword": "Held for a Moment",
           "min": 10,
           "max": 15,
           "level": 8,
@@ -4389,7 +4389,7 @@
           "weight": 140
         },
         {
-          "keyword": "Held in Breath",
+          "keyword": "Held Beyond Breath",
           "min": 18,
           "max": 27,
           "level": 60,
@@ -4411,7 +4411,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Carried til Waking",
+          "keyword": "Carried til Dusk",
           "min": 1,
           "max": 2,
           "level": 8,
@@ -4425,7 +4425,7 @@
           "weight": 140
         },
         {
-          "keyword": "Carried til Waking",
+          "keyword": "Carried til the Grave",
           "min": 2,
           "max": 4,
           "level": 60,
@@ -4447,7 +4447,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Named After a Father",
+          "keyword": "Named After an Uncle",
           "min": 30,
           "max": 50,
           "level": 8,
@@ -4461,7 +4461,7 @@
           "weight": 140
         },
         {
-          "keyword": "Named After a Father",
+          "keyword": "Named After a King",
           "min": 54,
           "max": 90,
           "level": 60,
@@ -4483,7 +4483,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Burden of Kin",
+          "keyword": "Burden of Friends",
           "min": 10,
           "max": 15,
           "level": 8,
@@ -4497,7 +4497,7 @@
           "weight": 140
         },
         {
-          "keyword": "Burden of Kin",
+          "keyword": "Burden of Ancestors",
           "min": 18,
           "max": 27,
           "level": 60,
@@ -4519,7 +4519,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Claimed by None",
+          "keyword": "Claimed by Few",
           "min": 20,
           "max": 30,
           "level": 8,
@@ -4533,9 +4533,45 @@
           "weight": 140
         },
         {
-          "keyword": "Claimed by None",
+          "keyword": "Claimed by Death",
           "min": 36,
           "max": 54,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare"
+    },
+    {
+      "family": "Berserker's",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Berserker's",
+      "weight": 2.0,
+      "tags": [
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Roused by Rage",
+          "min": 15,
+          "max": 25,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Lost to Rage",
+          "min": 21,
+          "max": 35,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Consumed by Rage",
+          "min": 27,
+          "max": 45,
           "level": 60,
           "weight": 180
         }
@@ -4558,7 +4594,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Lost of Will",
+          "keyword": "Short of Will",
           "min": 1,
           "max": 1,
           "level": 8,
@@ -4572,7 +4608,7 @@
           "weight": 140
         },
         {
-          "keyword": "Lost of Will",
+          "keyword": "Robbed of Will",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4597,7 +4633,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Dipped in Moonlight",
+          "keyword": "Dipped in Starlight",
           "min": 1,
           "max": 1,
           "level": 8,
@@ -4611,7 +4647,7 @@
           "weight": 140
         },
         {
-          "keyword": "Dipped in Moonlight",
+          "keyword": "Dipped in Eclipse",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4636,7 +4672,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Absent for Long",
+          "keyword": "Absent for a While",
           "min": 1,
           "max": 1,
           "level": 8,
@@ -4650,7 +4686,7 @@
           "weight": 140
         },
         {
-          "keyword": "Absent for Long",
+          "keyword": "Absent Forever",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4674,7 +4710,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Hushed in Secret",
+          "keyword": "Whispered in Secret",
           "min": 1,
           "max": 1,
           "level": 8,
@@ -4688,7 +4724,7 @@
           "weight": 140
         },
         {
-          "keyword": "Hushed in Secret",
+          "keyword": "Buried in Secret",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4712,7 +4748,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Lost and Found Again",
+          "keyword": "Lost and Found",
           "min": 1,
           "max": 2,
           "level": 8,
@@ -4726,7 +4762,7 @@
           "weight": 140
         },
         {
-          "keyword": "Lost and Found Again",
+          "keyword": "Lost and Found Forever",
           "min": 2,
           "max": 4,
           "level": 60,
@@ -4748,7 +4784,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Kept in Faith",
+          "keyword": "Kept in Hope",
           "min": 20,
           "max": 30,
           "level": 8,
@@ -4762,7 +4798,7 @@
           "weight": 140
         },
         {
-          "keyword": "Kept in Faith",
+          "keyword": "Kept in Devotion",
           "min": 36,
           "max": 54,
           "level": 60,
@@ -4784,7 +4820,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Carried by a Brother",
+          "keyword": "Carried by a Cousin",
           "min": 20,
           "max": 30,
           "level": 8,
@@ -4798,7 +4834,7 @@
           "weight": 140
         },
         {
-          "keyword": "Carried by a Brother",
+          "keyword": "Carried by a Legion",
           "min": 36,
           "max": 54,
           "level": 60,
@@ -4822,7 +4858,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Kissed by Time",
+          "keyword": "Brushed by Time",
           "min": 1,
           "max": 1,
           "level": 8,
@@ -4836,7 +4872,7 @@
           "weight": 140
         },
         {
-          "keyword": "Kissed by Time",
+          "keyword": "Embraced by Time",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4861,7 +4897,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Woven from Embers",
+          "keyword": "Spun from Sparks",
           "min": 1,
           "max": 1,
           "level": 8,
@@ -4875,7 +4911,7 @@
           "weight": 140
         },
         {
-          "keyword": "Woven from Embers",
+          "keyword": "Forged from Wildfire",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4897,7 +4933,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Owed to an Heir",
+          "keyword": "Owed to a Stranger",
           "min": 1,
           "max": 1,
           "level": 8,
@@ -4911,7 +4947,7 @@
           "weight": 140
         },
         {
-          "keyword": "Owed to an Heir",
+          "keyword": "Owed to a Dynasty",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4933,7 +4969,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Rusted by Dew",
+          "keyword": "Spotted by Dew",
           "min": 8,
           "max": 12,
           "level": 8,
@@ -4947,7 +4983,7 @@
           "weight": 140
         },
         {
-          "keyword": "Rusted by Dew",
+          "keyword": "Eaten by Rust",
           "min": 14,
           "max": 22,
           "level": 60,
@@ -4969,7 +5005,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Cherished by Lovers",
+          "keyword": "Shared by Friends",
           "min": 6,
           "max": 10,
           "level": 8,
@@ -4983,7 +5019,7 @@
           "weight": 140
         },
         {
-          "keyword": "Cherished by Lovers",
+          "keyword": "Sworn by Soulmates",
           "min": 11,
           "max": 18,
           "level": 60,
@@ -5005,7 +5041,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Hidden by Rain",
+          "keyword": "Hidden by Mist",
           "min": 1,
           "max": 1,
           "level": 8,
@@ -5019,7 +5055,7 @@
           "weight": 140
         },
         {
-          "keyword": "Hidden by Rain",
+          "keyword": "Hidden by Storm",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -5043,7 +5079,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Mended by a Sister",
+          "keyword": "Fed by a Sister",
           "min": 8,
           "max": 12,
           "level": 8,
@@ -5057,7 +5093,7 @@
           "weight": 140
         },
         {
-          "keyword": "Mended by a Sister",
+          "keyword": "Raised by a Sister",
           "min": 14,
           "max": 22,
           "level": 60,
@@ -5079,7 +5115,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Hidden Beneath",
+          "keyword": "Hidden Nearby",
           "min": 15,
           "max": 25,
           "level": 8,
@@ -5093,7 +5129,7 @@
           "weight": 140
         },
         {
-          "keyword": "Hidden Beneath",
+          "keyword": "Hidden Below the World",
           "min": 27,
           "max": 45,
           "level": 60,
@@ -5118,7 +5154,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Worshipped by a Child",
+          "keyword": "Admired by a Child",
           "min": 1,
           "max": 1,
           "level": 8,
@@ -5132,7 +5168,7 @@
           "weight": 140
         },
         {
-          "keyword": "Worshipped by a Child",
+          "keyword": "Worshipped by a Nation",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -5156,7 +5192,7 @@
       "integer": true,
       "tiers": [
         {
-          "keyword": "Forgotten and Remembered",
+          "keyword": "Forgotten",
           "min": 1,
           "max": 1,
           "level": 8,
@@ -5170,7 +5206,7 @@
           "weight": 140
         },
         {
-          "keyword": "Forgotten and Remembered",
+          "keyword": "Remembered Forever",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -5218,14 +5254,14 @@
       "suffixKind": "common",
       "tiers": [
         {
-          "keyword": "of Might",
+          "keyword": "of Brawn",
           "min": 10.75,
           "max": 17.2,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "of Uncanny Might",
+          "keyword": "of Uncanny Brawn",
           "min": 18.06,
           "max": 25.8,
           "level": 1,
@@ -5248,14 +5284,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Might",
+          "keyword": "of Strength",
           "min": 23.66,
           "max": 32.26,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "of Uncanny Might",
+          "keyword": "of Uncanny Strength",
           "min": 33.87,
           "max": 48.38,
           "level": 14,
@@ -5263,14 +5299,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Might",
+          "keyword": "of Power",
           "min": 32.26,
           "max": 40.86,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "of Uncanny Might",
+          "keyword": "of Uncanny Power",
           "min": 42.9,
           "max": 61.29,
           "level": 25,
@@ -5278,14 +5314,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Might",
+          "keyword": "of Force",
           "min": 40.86,
           "max": 51.61,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "of Uncanny Might",
+          "keyword": "of Uncanny Force",
           "min": 54.19,
           "max": 77.42,
           "level": 40,
@@ -5293,14 +5329,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Might",
+          "keyword": "of Titans",
           "min": 51.61,
           "max": 62.36,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "of Uncanny Might",
+          "keyword": "of Uncanny Titans",
           "min": 65.48,
           "max": 93.54,
           "level": 60,
@@ -5308,14 +5344,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Might",
+          "keyword": "of Colossi",
           "min": 62.36,
           "max": 73.11,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "of Uncanny Might",
+          "keyword": "of Uncanny Colossi",
           "min": 76.77,
           "max": 109.67,
           "level": 80,
@@ -5341,14 +5377,14 @@
       "suffixKind": "common",
       "tiers": [
         {
-          "keyword": "of Grace",
+          "keyword": "of Ease",
           "min": 16.06,
           "max": 25.7,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "of Uncanny Grace",
+          "keyword": "of Uncanny Ease",
           "min": 26.99,
           "max": 38.56,
           "level": 1,
@@ -5371,14 +5407,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Grace",
+          "keyword": "of Agility",
           "min": 35.34,
           "max": 48.19,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "of Uncanny Grace",
+          "keyword": "of Uncanny Agility",
           "min": 50.6,
           "max": 72.29,
           "level": 14,
@@ -5386,14 +5422,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Grace",
+          "keyword": "of Nimbleness",
           "min": 48.19,
           "max": 61.05,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "of Uncanny Grace",
+          "keyword": "of Uncanny Nimbleness",
           "min": 64.1,
           "max": 91.58,
           "level": 25,
@@ -5401,14 +5437,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Grace",
+          "keyword": "of Celerity",
           "min": 61.05,
           "max": 77.11,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "of Uncanny Grace",
+          "keyword": "of Uncanny Celerity",
           "min": 80.97,
           "max": 115.67,
           "level": 40,
@@ -5416,14 +5452,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Grace",
+          "keyword": "of Gales",
           "min": 77.11,
           "max": 93.18,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "of Uncanny Grace",
+          "keyword": "of Uncanny Gales",
           "min": 97.83,
           "max": 139.76,
           "level": 60,
@@ -5431,14 +5467,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Grace",
+          "keyword": "of Zephyrs",
           "min": 93.18,
           "max": 109.24,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "of Uncanny Grace",
+          "keyword": "of Uncanny Zephyrs",
           "min": 114.7,
           "max": 163.86,
           "level": 80,
@@ -5464,14 +5500,14 @@
       "suffixKind": "common",
       "tiers": [
         {
-          "keyword": "of Finesse",
+          "keyword": "of Skill",
           "min": 3.44,
           "max": 5.51,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "of Uncanny Finesse",
+          "keyword": "of Uncanny Skill",
           "min": 5.78,
           "max": 8.26,
           "level": 1,
@@ -5494,14 +5530,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Finesse",
+          "keyword": "of Craft",
           "min": 7.58,
           "max": 10.33,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "of Uncanny Finesse",
+          "keyword": "of Uncanny Craft",
           "min": 10.85,
           "max": 15.5,
           "level": 14,
@@ -5509,14 +5545,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Finesse",
+          "keyword": "of Artistry",
           "min": 10.33,
           "max": 13.09,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "of Uncanny Finesse",
+          "keyword": "of Uncanny Artistry",
           "min": 13.74,
           "max": 19.63,
           "level": 25,
@@ -5524,14 +5560,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Finesse",
+          "keyword": "of Precision",
           "min": 13.09,
           "max": 16.53,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "of Uncanny Finesse",
+          "keyword": "of Uncanny Precision",
           "min": 17.35,
           "max": 24.79,
           "level": 40,
@@ -5539,14 +5575,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Finesse",
+          "keyword": "of Mastery",
           "min": 16.53,
           "max": 19.97,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "of Uncanny Finesse",
+          "keyword": "of Uncanny Mastery",
           "min": 20.97,
           "max": 29.95,
           "level": 60,
@@ -5554,14 +5590,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Finesse",
+          "keyword": "of Perfection",
           "min": 19.97,
           "max": 23.42,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "of Uncanny Finesse",
+          "keyword": "of Uncanny Perfection",
           "min": 24.58,
           "max": 35.13,
           "level": 80,
@@ -5602,14 +5638,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Wit",
+          "keyword": "of Insight",
           "min": 7.83,
           "max": 10.78,
           "level": 6,
           "weight": 140
         },
         {
-          "keyword": "of Uncanny Wit",
+          "keyword": "of Uncanny Insight",
           "min": 11.31,
           "max": 16.17,
           "level": 6,
@@ -5617,14 +5653,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Wit",
+          "keyword": "of Intellect",
           "min": 10.78,
           "max": 14.69,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "of Uncanny Wit",
+          "keyword": "of Uncanny Intellect",
           "min": 15.42,
           "max": 22.03,
           "level": 14,
@@ -5632,14 +5668,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Wit",
+          "keyword": "of Wisdom",
           "min": 14.69,
           "max": 18.61,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "of Uncanny Wit",
+          "keyword": "of Uncanny Wisdom",
           "min": 19.54,
           "max": 27.91,
           "level": 25,
@@ -5647,14 +5683,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Wit",
+          "keyword": "of Brilliance",
           "min": 18.61,
           "max": 23.5,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "of Uncanny Wit",
+          "keyword": "of Uncanny Brilliance",
           "min": 24.68,
           "max": 35.26,
           "level": 40,
@@ -5662,14 +5698,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Wit",
+          "keyword": "of Genius",
           "min": 23.5,
           "max": 28.4,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "of Uncanny Wit",
+          "keyword": "of Uncanny Genius",
           "min": 29.82,
           "max": 42.6,
           "level": 60,
@@ -5677,14 +5713,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Wit",
+          "keyword": "of Enlightenment",
           "min": 28.4,
           "max": 33.3,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "of Uncanny Wit",
+          "keyword": "of Uncanny Enlightenment",
           "min": 34.96,
           "max": 49.94,
           "level": 80,
@@ -5711,14 +5747,14 @@
       "suffixKind": "common",
       "tiers": [
         {
-          "keyword": "of Vigor",
+          "keyword": "of Health",
           "min": 4.8,
           "max": 7.68,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "of Uncanny Vigor",
+          "keyword": "of Uncanny Health",
           "min": 8.06,
           "max": 11.52,
           "level": 1,
@@ -5741,14 +5777,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Vigor",
+          "keyword": "of Vitality",
           "min": 10.56,
           "max": 14.4,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "of Uncanny Vigor",
+          "keyword": "of Uncanny Vitality",
           "min": 15.12,
           "max": 21.6,
           "level": 14,
@@ -5756,14 +5792,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Vigor",
+          "keyword": "of Stamina",
           "min": 14.4,
           "max": 18.24,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "of Uncanny Vigor",
+          "keyword": "of Uncanny Stamina",
           "min": 19.15,
           "max": 27.36,
           "level": 25,
@@ -5771,14 +5807,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Vigor",
+          "keyword": "of Fortitude",
           "min": 18.24,
           "max": 23.04,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "of Uncanny Vigor",
+          "keyword": "of Uncanny Fortitude",
           "min": 24.19,
           "max": 34.56,
           "level": 40,
@@ -5786,14 +5822,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Vigor",
+          "keyword": "of Endurance",
           "min": 23.04,
           "max": 27.84,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "of Uncanny Vigor",
+          "keyword": "of Uncanny Endurance",
           "min": 29.23,
           "max": 41.76,
           "level": 60,
@@ -5801,14 +5837,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Vigor",
+          "keyword": "of Immortality",
           "min": 27.84,
           "max": 32.64,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "of Uncanny Vigor",
+          "keyword": "of Uncanny Immortality",
           "min": 34.27,
           "max": 48.96,
           "level": 80,
@@ -5834,14 +5870,14 @@
       "suffixKind": "common",
       "tiers": [
         {
-          "keyword": "of Warding",
+          "keyword": "of Guarding",
           "min": 1.2,
           "max": 1.92,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "of Uncanny Warding",
+          "keyword": "of Uncanny Guarding",
           "min": 2.02,
           "max": 2.88,
           "level": 1,
@@ -5864,14 +5900,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Warding",
+          "keyword": "of Shielding",
           "min": 2.64,
           "max": 3.6,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "of Uncanny Warding",
+          "keyword": "of Uncanny Shielding",
           "min": 3.78,
           "max": 5.4,
           "level": 14,
@@ -5879,14 +5915,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Warding",
+          "keyword": "of Bulwarks",
           "min": 3.6,
           "max": 4.56,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "of Uncanny Warding",
+          "keyword": "of Uncanny Bulwarks",
           "min": 4.79,
           "max": 6.84,
           "level": 25,
@@ -5894,14 +5930,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Warding",
+          "keyword": "of Ramparts",
           "min": 4.56,
           "max": 5.76,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "of Uncanny Warding",
+          "keyword": "of Uncanny Ramparts",
           "min": 6.05,
           "max": 8.64,
           "level": 40,
@@ -5909,14 +5945,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Warding",
+          "keyword": "of Bastions",
           "min": 5.76,
           "max": 6.96,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "of Uncanny Warding",
+          "keyword": "of Uncanny Bastions",
           "min": 7.3,
           "max": 10.44,
           "level": 60,
@@ -5924,14 +5960,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Warding",
+          "keyword": "of Citadels",
           "min": 6.96,
           "max": 8.16,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "of Uncanny Warding",
+          "keyword": "of Uncanny Citadels",
           "min": 8.57,
           "max": 12.24,
           "level": 80,
@@ -5957,14 +5993,14 @@
       "suffixKind": "common",
       "tiers": [
         {
-          "keyword": "of Mending",
+          "keyword": "of Healing",
           "min": 0.8,
           "max": 1.28,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "of Uncanny Mending",
+          "keyword": "of Uncanny Healing",
           "min": 1.34,
           "max": 1.92,
           "level": 1,
@@ -5987,14 +6023,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Mending",
+          "keyword": "of Restoration",
           "min": 1.76,
           "max": 2.4,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "of Uncanny Mending",
+          "keyword": "of Uncanny Restoration",
           "min": 2.52,
           "max": 3.6,
           "level": 14,
@@ -6002,14 +6038,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Mending",
+          "keyword": "of Renewal",
           "min": 2.4,
           "max": 3.04,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "of Uncanny Mending",
+          "keyword": "of Uncanny Renewal",
           "min": 3.19,
           "max": 4.56,
           "level": 25,
@@ -6017,14 +6053,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Mending",
+          "keyword": "of Rejuvenation",
           "min": 3.04,
           "max": 3.84,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "of Uncanny Mending",
+          "keyword": "of Uncanny Rejuvenation",
           "min": 4.03,
           "max": 5.76,
           "level": 40,
@@ -6032,14 +6068,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Mending",
+          "keyword": "of Regrowth",
           "min": 3.84,
           "max": 4.64,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "of Uncanny Mending",
+          "keyword": "of Uncanny Regrowth",
           "min": 4.87,
           "max": 6.96,
           "level": 60,
@@ -6047,14 +6083,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Mending",
+          "keyword": "of Rebirth",
           "min": 4.64,
           "max": 5.44,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "of Uncanny Mending",
+          "keyword": "of Uncanny Rebirth",
           "min": 5.71,
           "max": 8.16,
           "level": 80,
@@ -6079,14 +6115,14 @@
       "suffixKind": "common",
       "tiers": [
         {
-          "keyword": "of Fortune",
+          "keyword": "of Luck",
           "min": 0.95,
           "max": 1.52,
           "level": 1,
           "weight": 100
         },
         {
-          "keyword": "of Uncanny Fortune",
+          "keyword": "of Uncanny Luck",
           "min": 1.59,
           "max": 2.28,
           "level": 1,
@@ -6109,14 +6145,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Fortune",
+          "keyword": "of Plenty",
           "min": 2.09,
           "max": 2.85,
           "level": 14,
           "weight": 180
         },
         {
-          "keyword": "of Uncanny Fortune",
+          "keyword": "of Uncanny Plenty",
           "min": 2.99,
           "max": 4.27,
           "level": 14,
@@ -6124,14 +6160,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Fortune",
+          "keyword": "of Riches",
           "min": 2.85,
           "max": 3.61,
           "level": 25,
           "weight": 220
         },
         {
-          "keyword": "of Uncanny Fortune",
+          "keyword": "of Uncanny Riches",
           "min": 3.79,
           "max": 5.41,
           "level": 25,
@@ -6139,14 +6175,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Fortune",
+          "keyword": "of Treasure",
           "min": 3.61,
           "max": 4.56,
           "level": 40,
           "weight": 260
         },
         {
-          "keyword": "of Uncanny Fortune",
+          "keyword": "of Uncanny Treasure",
           "min": 4.79,
           "max": 6.84,
           "level": 40,
@@ -6154,14 +6190,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Fortune",
+          "keyword": "of Bounty",
           "min": 4.56,
           "max": 5.51,
           "level": 60,
           "weight": 300
         },
         {
-          "keyword": "of Uncanny Fortune",
+          "keyword": "of Uncanny Bounty",
           "min": 5.78,
           "max": 8.26,
           "level": 60,
@@ -6169,14 +6205,14 @@
           "maxRarity": "Common"
         },
         {
-          "keyword": "of Fortune",
+          "keyword": "of Providence",
           "min": 5.51,
           "max": 6.46,
           "level": 80,
           "weight": 340
         },
         {
-          "keyword": "of Uncanny Fortune",
+          "keyword": "of Uncanny Providence",
           "min": 6.78,
           "max": 9.69,
           "level": 80,
