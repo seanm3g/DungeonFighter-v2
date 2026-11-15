@@ -626,6 +626,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 return 0;
 
             int rows = 0;
+            foreach (var triggerLine in BuildTriggerLines(item))
+                rows += WrappedLineCount(triggerLine, width);
+
             if (item.Modifications.Count > 0)
             {
                 rows += WrappedLineCount(
@@ -701,6 +704,25 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         {
             int n = TextWrappingHelper.WrapColoredSegments(segments, Math.Max(1, width)).Count;
             return Math.Max(1, n);
+        }
+
+        /// <summary>The item's own mechanics for the detail pane: "Triggers:" (combat) and "While equipped:" lines.</summary>
+        private static List<List<ColoredText>> BuildTriggerLines(Item item)
+        {
+            var result = new List<List<ColoredText>>();
+            void Add(string label, List<string> summaries)
+            {
+                if (summaries.Count == 0)
+                    return;
+                var b = new ColoredTextBuilder();
+                b.Add(label, ColorPalette.Cyan.GetColor());
+                b.Add(string.Join("; ", summaries), AsciiArtAssets.Colors.White);
+                result.Add(b.Build());
+            }
+
+            Add("Triggers: ", ItemTriggerBundleDisplay.FormatCombatSummaries(item).ToList());
+            Add("While equipped: ", ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList());
+            return result;
         }
 
         private static List<ColoredText> BuildActionsLine(IReadOnlyList<string> itemActions)
@@ -1102,6 +1124,14 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     displayedItem: item, weaponSpeedBaseline: character.Weapon as WeaponItem,
                     armorComparisonBaseline: ItemRendererHelper.GetArmorComparisonBaseline(character, item),
                     characterForEquipRequirements: character);
+            }
+
+            foreach (var triggerLine in BuildTriggerLines(item))
+            {
+                if (y >= bottomY) break;
+                written = textWriter.WriteLineColoredWrapped(triggerLine, x, y, width);
+                y += written;
+                currentLineCount += written;
             }
 
             if (item.Modifications.Count > 0 && y < bottomY)

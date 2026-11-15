@@ -321,11 +321,13 @@ namespace RPGGame.Tests.Unit.Data
                 return;
             var implicitBundle = item.TriggerBundles.First(b => MaterialTriggerMerge.IsImplicit(item, b));
             string expected = ItemTriggerBundleDisplay.FormatSummary(implicitBundle);
-            var tooltip = ItemTooltipFormatter.BuildItemTooltipLines(null, item, "Weapon", 60, includeExtendedDetails: true)
+            var tooltip = ItemTooltipFormatter.BuildItemTooltipLines(null, item, "Weapon", 60, includeExtendedDetails: false)
                 .Select(line => string.Concat(line.Select(seg => seg.Text)))
                 .ToList();
             TestBase.AssertTrue(tooltip.Any(l => l.Contains("Triggers")) && tooltip.Any(l => l.Contains(expected)),
-                $"the combat implicit shows in the tooltip ({expected})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                $"the combat implicit shows without Alt ({expected})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!tooltip.Any(l => l.Trim() == "Material"),
+                "material set info waits for Alt", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestImplicitScalesWithItemLevel()

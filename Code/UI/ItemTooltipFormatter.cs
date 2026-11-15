@@ -83,12 +83,25 @@ namespace RPGGame
                 }
             }
 
-            var setLines = MaterialSetController.FormatSetStatusLines(character, item).ToList();
-            if (setLines.Count > 0 && lines.Count < maxLines)
+            // The item's own mechanics (base implicit, material piece procs) show without Alt.
+            var combatSummaries = ItemTriggerBundleDisplay.FormatCombatSummaries(item).ToList();
+            if (combatSummaries.Count > 0 && lines.Count < maxLines)
             {
                 AddBlank(lines);
-                AddLine(lines, SectionHeader("Material"));
-                foreach (var summary in setLines)
+                AddLine(lines, SectionHeader("Triggers"));
+                foreach (var summary in combatSummaries)
+                {
+                    if (lines.Count >= maxLines) break;
+                    AddLine(lines, BuildTriggerLine(summary));
+                }
+            }
+
+            var equipSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList();
+            if (equipSummaries.Count > 0 && lines.Count < maxLines)
+            {
+                AddBlank(lines);
+                AddLine(lines, SectionHeader("While equipped"));
+                foreach (var summary in equipSummaries)
                 {
                     if (lines.Count >= maxLines) break;
                     AddLine(lines, BuildTriggerLine(summary));
@@ -131,6 +144,18 @@ namespace RPGGame
             }
             if (maxLines <= lines.Count) return Trim(lines, maxLines);
 
+            var setLines = MaterialSetController.FormatSetStatusLines(character, item).ToList();
+            if (setLines.Count > 0 && lines.Count < maxLines)
+            {
+                AddBlank(lines);
+                AddLine(lines, SectionHeader("Material"));
+                foreach (var summary in setLines)
+                {
+                    if (lines.Count >= maxLines) break;
+                    AddLine(lines, BuildTriggerLine(summary));
+                }
+            }
+
             if (item is not WeaponItem && lines.Count < maxLines)
             {
                 string? armorBreakdown = BuildArmorBreakdownLine(item);
@@ -152,30 +177,6 @@ namespace RPGGame
                 {
                     if (lines.Count >= maxLines) break;
                     AddLine(lines, BuildModificationLine(item, mod));
-                }
-            }
-
-            var combatSummaries = ItemTriggerBundleDisplay.FormatCombatSummaries(item).ToList();
-            if (combatSummaries.Count > 0 && lines.Count < maxLines)
-            {
-                AddBlank(lines);
-                AddLine(lines, SectionHeader("Triggers"));
-                foreach (var summary in combatSummaries)
-                {
-                    if (lines.Count >= maxLines) break;
-                    AddLine(lines, BuildTriggerLine(summary));
-                }
-            }
-
-            var equipSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList();
-            if (equipSummaries.Count > 0 && lines.Count < maxLines)
-            {
-                AddBlank(lines);
-                AddLine(lines, SectionHeader("While equipped"));
-                foreach (var summary in equipSummaries)
-                {
-                    if (lines.Count >= maxLines) break;
-                    AddLine(lines, BuildTriggerLine(summary));
                 }
             }
 
@@ -241,13 +242,11 @@ namespace RPGGame
 
         private static bool HasExtendedContent(Character? character, Item item)
         {
+            if (MaterialSetController.FormatSetStatusLines(character, item).Any())
+                return true;
             if (item is not WeaponItem && !string.IsNullOrEmpty(BuildArmorBreakdownLine(item)))
                 return true;
             if (item.Modifications != null && item.Modifications.Count > 0)
-                return true;
-            if (item.EquipEffects != null && item.EquipEffects.Count > 0)
-                return true;
-            if (ItemTriggerBundleDisplay.FormatCombatSummaries(item).Any())
                 return true;
             if (character != null)
             {
