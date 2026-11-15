@@ -45,6 +45,7 @@ namespace RPGGame.Tests.Unit.Data
             TestImplicitScalesWithItemLevel();
             TestNameComposition();
             TestWoodAndClothDrop();
+            TestMaterialPoolCrossWiresParse();
             TestWeaponsLeanToClassMaterials();
             TestActionsComeFromGearPool();
             TestRarerActionsWeighLess();
@@ -344,11 +345,11 @@ namespace RPGGame.Tests.Unit.Data
             }
             TestBase.AssertTrue(ok, $"name = prefix + material + base + suffix, stable (e.g. {sample})", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // A common-only ("Lucky") line puts one "Lucky" at the front; the keyword itself drops it.
+            // A common-only ("Uncanny") line puts one "Uncanny" at the front; the keyword itself drops it.
             var lucky = new HeadItem("Cap", 1, 5) { BaseName = "Cap", Material = "Iron" };
-            lucky.StatBonuses.Add(new StatBonus { Name = "of the Lucky Ox", StatType = "STR", ModLine = new ItemModLineInfo { Pool = "stat", Affix = "suffix", Tier = 2, Keyword = "of the Lucky Ox" } });
+            lucky.StatBonuses.Add(new StatBonus { Name = "of the Uncanny Ox", StatType = "STR", ModLine = new ItemModLineInfo { Pool = "stat", Affix = "suffix", Tier = 2, Keyword = "of the Uncanny Ox" } });
             lucky.Modifications.Add(new Modification { Name = "Sharp", ModLine = new ItemModLineInfo { Pool = "stat", Affix = "prefix", Tier = 1, Keyword = "Sharp" } });
-            TestBase.AssertEqual("Lucky Sharp Iron Cap of the Ox", ItemGenerator.ComposeRolledItemName(lucky), "Lucky moves to the front of the name",
+            TestBase.AssertEqual("Uncanny Sharp Iron Cap of the Ox", ItemGenerator.ComposeRolledItemName(lucky), "Uncanny moves to the front of the name",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -358,6 +359,26 @@ namespace RPGGame.Tests.Unit.Data
             foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = 10, Weapon = false }, 800))
                 seen.Add(item.Material ?? "");
             TestBase.AssertTrue(seen.Contains("Wood") && seen.Contains("Cloth"), "Wood and Cloth drop on armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestMaterialPoolCrossWiresParse()
+        {
+            var bad = new List<string>();
+            int wires = 0;
+            foreach (var family in _cache.ItemMods.InPool(ModPools.Material))
+            {
+                var template = (_cache.Modifications ?? new List<Modification>())
+                    .FirstOrDefault(m => string.Equals(m.Name?.Trim(), family.Template, StringComparison.OrdinalIgnoreCase));
+                if (string.IsNullOrWhiteSpace(template?.CrossWire))
+                    continue;
+                wires++;
+                var rule = CrossWireRule.Parse(template!.CrossWire, family.Family);
+                if (rule == null || (rule.Verb == "MINT" && RPGGame.Data.MaterialBuildsLoader.FindByKeyword(rule.Store) == null))
+                    bad.Add(family.Family);
+            }
+            TestBase.AssertTrue(wires >= 18 && bad.Count == 0,
+                $"material-pool cross-wires parse and mint real stores ({wires} wires; bad: {string.Join(", ", bad)})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestWeaponsLeanToClassMaterials()

@@ -71,7 +71,7 @@ namespace RPGGame
 
         public static Dictionary<string, double> DefaultPoolWeights() => new()
         {
-            ["stat"] = 50, ["mechanic"] = 20, ["material"] = 15, ["action"] = 15
+            ["stat"] = 50, ["mechanic"] = 20, ["material"] = 25, ["action"] = 15
         };
 
         /// <summary>Roll-up chances × (1 + magic find / 100 × this).</summary>

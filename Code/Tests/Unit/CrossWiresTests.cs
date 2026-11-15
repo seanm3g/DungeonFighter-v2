@@ -208,7 +208,7 @@ namespace RPGGame.Tests.Unit
                 TestBase.AssertEqual(4, n, $"4 {fam.Trim('-')} family nodes parse", ref _run, ref _passed, ref _failed);
             }
             int mods = LootDataCache.Load().Modifications.Count(m => AffixTemplates.Is(m, CrossWires.AffixEffect) && CrossWireRule.Parse(m.CrossWire) != null);
-            TestBase.AssertEqual(8, mods, "8 cross-wire prefixes parse", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(18, mods, "18 cross-wire prefixes parse", ref _run, ref _passed, ref _failed);
             int caps = trees?.Trees.SelectMany(t => t.Nodes).Count(n => !string.IsNullOrWhiteSpace(n.Persist)) ?? 0;
             TestBase.AssertEqual(4, caps, "4 class Persistence capstones", ref _run, ref _passed, ref _failed);
         }

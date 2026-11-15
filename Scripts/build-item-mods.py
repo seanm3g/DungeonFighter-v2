@@ -27,6 +27,10 @@ STAT_LADDER = [
 ]
 # Common-only tier above each normal tier: same level, values past that tier's max, rarer.
 EXCEPTIONAL_LOW, EXCEPTIONAL_HIGH, EXCEPTIONAL_WEIGHT = 1.05, 1.5, 0.25
+# Keyword word for those tiers ("Uncanny Sharp", "of the Uncanny Ox"); "Lucky" is the Leather roll advantage.
+EXCEPTIONAL_WORD = "Uncanny"
+# Animal suffix family weight (each of ~120 animals; stat families are 10).
+ANIMAL_WEIGHT = 8
 STATUS_LADDER = [(3, 0.6, 1.0, 100), (12, 1.0, 1.4, 140), (25, 1.4, 1.9, 180), (45, 1.9, 2.5, 220), (70, 2.5, 3.2, 260)]
 RULE_LADDER = [(8, 1.0, 1.0, 100), (30, 1.4, 1.4, 140), (60, 1.8, 1.8, 180)]
 MATERIAL_LADDER = [(1, 1.0, 1.0, 100), (25, 1.4, 1.4, 140), (55, 1.8, 1.8, 180)]
@@ -69,8 +73,9 @@ STATUS_EFFECTS = {
     "BLEED": ("Bleeding", ["Notched", "Serrated", "Barbed", "Rending", "Exsanguinating"], ["bleed", "onconnect", "barbarian"]),
 }
 
-MATERIAL_TEMPLATES = {"LISTEN", "TUNE", "STORECOND", "COUNTSDOUBLE"}
-MECHANIC_TEMPLATES = {"RULE", "CROSSWIRE", "OPENER", "FINISHER", "BLOODPRICE"}
+# Cross-wires spend one material store into another (or a status), so they sit in the material pool.
+MATERIAL_TEMPLATES = {"LISTEN", "TUNE", "STORECOND", "COUNTSDOUBLE", "CROSSWIRE"}
+MECHANIC_TEMPLATES = {"RULE", "OPENER", "FINISHER", "BLOODPRICE"}
 
 QUALITY_LADDER = [  # keyword, min, max, level, weight
     ("Worn", 1.02, 1.05, 1, 100), ("Second Hand", 1.05, 1.08, 8, 140), ("Like New", 1.08, 1.12, 18, 180),
@@ -136,7 +141,7 @@ def ladder_tiers(base, ladder, keywords, fmt, integer, exceptional):
             if integer and emin <= tmax:
                 emin = tmax + 1
             emax = max(emax, emin)
-            tiers.append({"keyword": fmt("Lucky " + keywords[i]), "min": emin, "max": emax, "level": level,
+            tiers.append({"keyword": fmt(EXCEPTIONAL_WORD + " " + keywords[i]), "min": emin, "max": emax, "level": level,
                           "weight": max(1, int(weight * EXCEPTIONAL_WEIGHT)), "maxRarity": "Common"})
     return tiers
 
@@ -234,7 +239,7 @@ def build_families(gd):
             continue
         families.append({
             "family": r["Name"], "pool": "mechanic", "affix": "suffix", "kind": "suffix", "template": r["Name"],
-            "weight": 2, "tags": sorted(set((r.get("tags") or []) + event_tags(r.get("Description")))),
+            "weight": ANIMAL_WEIGHT, "tags": sorted(set((r.get("tags") or []) + event_tags(r.get("Description")))),
             "integer": True, "tiers": [{"keyword": r["Name"], "min": 0, "max": 0, "level": 5, "weight": 100}],
         })
 

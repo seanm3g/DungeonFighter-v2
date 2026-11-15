@@ -76,6 +76,14 @@ Where the item generation work stands, for picking it up in a new chat. Design a
   / Explode. 10k roll (seed 1): 2.42 lines per item; per item stat 0.78, action 1.22, mechanic 0.29 (was ~0.06),
   material 0.13 (was ~0.1). Material stays low because only 4 families live in that pool and their tags rarely match
   the influence tilt; raise its weight in the balance pass if wanted.
+- **User calls 11-15 (items before balance):** animal suffix family weight 2 → 8 (`ANIMAL_WEIGHT`); common-only
+  tier word "Lucky" → **"Uncanny"** ("Lucky" stays the Leather roll advantage); material pool weight 15 → 25 and 18
+  families instead of 4: the 8 cross-wire prefixes moved from mechanic to material, plus 10 new cross-wires in
+  `Modifications.json` (Grim, Weighted, Exultant, Restless, Scrying, Rhythmic, Prismatic chain every class store into
+  another; Cryptic / Peculiar / Ominous spend ENIGMA / ODDITY / OMEN into Focus / target Expose / Fortify); the
+  tag-restricted action slot stays a plain +1 slot. 10k roll: material 0.20 lines per item (was 0.13), animals 0.24
+  (was 0.20, ~20 per animal per 10k), but the rest of the mechanic pool (DoT and rule prefixes) fell to ~0.03 (was
+  ~0.10) because animals now hold ~90% of its weight. Uncanny lines are 18% of stat lines.
 
 ## Open work, roughly in order
 
