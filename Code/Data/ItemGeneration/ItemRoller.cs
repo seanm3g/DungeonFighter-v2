@@ -73,6 +73,7 @@ namespace RPGGame.Data.ItemGeneration
             private readonly int _seed;
             private readonly HashSet<string> _influence = new(StringComparer.OrdinalIgnoreCase);
             private readonly HashSet<string> _usedFamilies = new(StringComparer.OrdinalIgnoreCase);
+            private readonly HashSet<string> _usedStats = new(StringComparer.OrdinalIgnoreCase);
             private readonly double _rollUpScale;
             private Item _item = null!;
             private string _slot = "";
@@ -135,7 +136,7 @@ namespace RPGGame.Data.ItemGeneration
                 BuildInfluence();
 
                 // 7–8. Line count, then each line's pool by weight, then the lines (actions last).
-                RollLines(PlanLineCount(rarity));
+                RollLines(PlanLineCount(rarity), rarity);
 
                 string? forcedAffix = _req.ForcedAffix ?? ToolForcedAffix;
                 if (!string.IsNullOrWhiteSpace(forcedAffix))
@@ -506,12 +507,13 @@ namespace RPGGame.Data.ItemGeneration
             /// pool by <see cref="ItemGenerationConfig.PoolWeights"/> × influence among the pools that still have something
             /// this item can roll, and rolls at once so it tilts the next pick. Action lines roll last.
             /// </summary>
-            private void RollLines(int lineCount)
+            private void RollLines(int lineCount, RarityData rarity)
             {
                 int actions = Math.Min(lineCount, Cfg.GuaranteedActionLines);
-                int weighted = lineCount - actions;
-                var poolRng = For("pools");
                 var lineRng = For("lines");
+                int suffixes = RollSuffixes(rarity, For("suffixes"), lineRng);
+                int weighted = Math.Max(0, lineCount - actions - suffixes);
+                var poolRng = For("pools");
                 // A pool whose pick fails (e.g. a listener with no event for this slot) gets a few more tries, then closes.
                 var fails = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
                 bool Dead(string p) => fails.GetValueOrDefault(p) >= 3;
@@ -553,8 +555,45 @@ namespace RPGGame.Data.ItemGeneration
                     _spec.PlannedLines[pool] = _spec.Lines.Count(l => l.Pool == pool);
             }
 
+            /// <summary>Families a weighted (prefix) line can roll; suffixes roll by kind in <see cref="RollSuffixes"/>.</summary>
             private List<ItemModFamily> EligibleFamilies(string pool) =>
-                Cache.ItemMods.InPool(pool).Where(f => FamilyAllowed(f) && EligibleTiers(f).Count > 0).ToList();
+                Cache.ItemMods.InPool(pool).Where(f => string.IsNullOrWhiteSpace(f.SuffixKind) && FamilyAllowed(f) && EligibleTiers(f).Count > 0).ToList();
+
+            /// <summary>
+            /// Suffixes: at most one of each kind (common descriptor, uncommon animal, rare poetic phrase). The item's rarity
+            /// sets the kinds it always gets (<see cref="ItemGenerationConfig.SuffixKinds"/>); each lower kind it lacks joins
+            /// at <see cref="ItemGenerationConfig.SuffixExtraChance"/>. A kind with nothing this item can roll is skipped.
+            /// Returns the number of suffix lines rolled.
+            /// </summary>
+            private int RollSuffixes(RarityData rarity, Random kindRng, Random lineRng)
+            {
+                var kinds = new HashSet<string>(Cfg.SuffixKindsFor(rarity.Name), StringComparer.OrdinalIgnoreCase);
+                int top = kinds.Count == 0 ? -1 : kinds.Max(SuffixKinds.Rank);
+                foreach (string kind in SuffixKinds.All)
+                    if (!kinds.Contains(kind) && SuffixKinds.Rank(kind) < top && kindRng.NextDouble() < Cfg.SuffixExtraChance)
+                        kinds.Add(kind);
+
+                int rolled = 0;
+                foreach (string kind in SuffixKinds.All)
+                {
+                    if (!kinds.Contains(kind))
+                        continue;
+                    var families = Cache.ItemMods.Families
+                        .Where(f => string.Equals(f.SuffixKind, kind, StringComparison.OrdinalIgnoreCase) && FamilyAllowed(f) && EligibleTiers(f).Count > 0)
+                        .ToList();
+                    for (int attempt = 0; attempt < 3 && families.Count > 0; attempt++)
+                    {
+                        var family = PickWeighted(lineRng, families, f => Math.Max(0, f.Weight) * Tilt(f.Tags));
+                        if (RollModLine(family.Pool, lineRng, family.Pool, chosenFamily: family))
+                        {
+                            rolled++;
+                            break;
+                        }
+                        families.Remove(family);
+                    }
+                }
+                return rolled;
+            }
 
             private bool FamilyAllowed(ItemModFamily f)
             {
@@ -576,7 +615,8 @@ namespace RPGGame.Data.ItemGeneration
                     case "suffix":
                         return FindStatTemplate(f.Template) != null;
                     case "stat":
-                        return !string.IsNullOrWhiteSpace(f.StatType);
+                        // One line per body stat: "of Might" and "of the Bear" never share an item.
+                        return !string.IsNullOrWhiteSpace(f.StatType) && !_usedStats.Contains(f.StatType!);
                     case "slots":
                         return true;
                     case "hybrid":
@@ -603,12 +643,16 @@ namespace RPGGame.Data.ItemGeneration
                 return list;
             }
 
-            private bool RollModLine(string pool, Random rng, string plannedPool, ItemModFamily? forcedFamily = null)
+            private bool RollModLine(string pool, Random rng, string plannedPool, ItemModFamily? forcedFamily = null, ItemModFamily? chosenFamily = null)
             {
                 ItemModFamily family;
                 if (forcedFamily != null)
                 {
                     family = forcedFamily;
+                }
+                else if (chosenFamily != null)
+                {
+                    family = chosenFamily;
                 }
                 else
                 {
@@ -660,7 +704,8 @@ namespace RPGGame.Data.ItemGeneration
                     Tier = tierIndex + 1,
                     Affix = family.Affix ?? "",
                     Keyword = tier.Keyword,
-                    RolledUp = rolledUp
+                    RolledUp = rolledUp,
+                    SuffixKind = string.IsNullOrWhiteSpace(family.SuffixKind) ? null : family.SuffixKind!.Trim().ToLowerInvariant()
                 };
                 bool materialized = string.Equals(family.Kind, "hybrid", StringComparison.OrdinalIgnoreCase)
                     ? MaterializeHybrid(family, tierIndex, tier, info, rng, out value)
@@ -690,6 +735,8 @@ namespace RPGGame.Data.ItemGeneration
                 switch (f.Kind?.ToLowerInvariant())
                 {
                     case "stat":
+                        if (!string.IsNullOrWhiteSpace(f.StatType))
+                            _usedStats.Add(f.StatType!);
                         _item.StatBonuses.Add(new StatBonus
                         {
                             Name = tier.Keyword,
@@ -769,7 +816,8 @@ namespace RPGGame.Data.ItemGeneration
                     var partTier = new ItemModTier { Keyword = tier.Keyword, Min = lo, Max = hi, Level = tier.Level, Weight = tier.Weight, MaxRarity = tier.MaxRarity };
                     var partInfo = new ItemModLineInfo
                     {
-                        Pool = info.Pool, Family = info.Family, Tier = info.Tier, Affix = info.Affix, Keyword = info.Keyword, RolledUp = info.RolledUp
+                        Pool = info.Pool, Family = info.Family, Tier = info.Tier, Affix = info.Affix, Keyword = info.Keyword, RolledUp = info.RolledUp,
+                        SuffixKind = info.SuffixKind
                     };
                     if (!Materialize(part, partTier, v, partInfo, rng))
                         return false;

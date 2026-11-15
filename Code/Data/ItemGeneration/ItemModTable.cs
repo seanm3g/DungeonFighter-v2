@@ -18,6 +18,26 @@ namespace RPGGame.Data.ItemGeneration
         public static readonly string[] All = { Material, Stat, Mechanic, Action };
     }
 
+    /// <summary>
+    /// Suffix kinds, in name order: common = descriptor ("of Might"), uncommon = animal ("of the Dire Bear", Pack-able),
+    /// rare = poetic phrase for the fanciest effects ("Bathed in Blood"). An item holds at most one of each.
+    /// </summary>
+    public static class SuffixKinds
+    {
+        public const string Common = "common";
+        public const string Uncommon = "uncommon";
+        public const string Rare = "rare";
+
+        public static readonly string[] All = { Common, Uncommon, Rare };
+
+        /// <summary>0 / 1 / 2 by name order; unknown (old lines) count as uncommon.</summary>
+        public static int Rank(string? kind)
+        {
+            int i = Array.FindIndex(All, k => string.Equals(k, kind?.Trim(), StringComparison.OrdinalIgnoreCase));
+            return i < 0 ? 1 : i;
+        }
+    }
+
     /// <summary>One tier of a mod family: its keyword, value range, item-level gate, weight and rarity gate.</summary>
     public sealed class ItemModTier
     {
@@ -71,6 +91,9 @@ namespace RPGGame.Data.ItemGeneration
 
         /// <summary>hybrid only: the single-stat families it combines (same slot, same tier index).</summary>
         [JsonPropertyName("parts")] public List<string>? Parts { get; set; }
+
+        /// <summary>Suffix families only: common / uncommon / rare (<see cref="SuffixKinds"/>). Null for prefixes.</summary>
+        [JsonPropertyName("suffixKind")] public string? SuffixKind { get; set; }
 
         [JsonPropertyName("statType")] public string? StatType { get; set; }
         [JsonPropertyName("template")] public string? Template { get; set; }

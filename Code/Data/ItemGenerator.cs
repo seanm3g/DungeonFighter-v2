@@ -315,8 +315,21 @@ namespace RPGGame
             if (!string.IsNullOrWhiteSpace(item.Material))
                 parts.Add(item.Material.Trim());
             parts.Add(item.BaseName.Trim());
-            if (Best("suffix") is { } suffix)
+
+            // Suffixes: one per kind, in kind order (descriptor, animal, poetic phrase). A hybrid's parts share one
+            // keyword, so they print once. Old lines without a kind keep the single best suffix.
+            var suffixes = lines.Where(l => string.Equals(l.Affix, "suffix", StringComparison.OrdinalIgnoreCase)).ToList();
+            if (suffixes.Any(l => !string.IsNullOrWhiteSpace(l.SuffixKind)))
+            {
+                foreach (var group in suffixes.Where(l => !string.IsNullOrWhiteSpace(l.SuffixKind))
+                             .GroupBy(l => l.SuffixKind!, StringComparer.OrdinalIgnoreCase)
+                             .OrderBy(g => RPGGame.Data.ItemGeneration.SuffixKinds.Rank(g.Key)))
+                    parts.Add(Keyword(group.OrderByDescending(l => l.Tier).First()));
+            }
+            else if (Best("suffix") is { } suffix)
+            {
                 parts.Add(Keyword(suffix));
+            }
             if (exceptional)
                 parts.Insert(0, ExceptionalWord);
             return System.Text.RegularExpressions.Regex.Replace(string.Join(" ", parts), @"\s+", " ").Trim();

@@ -49,6 +49,7 @@ namespace RPGGame.Tests.Unit.Data
             TestSuffixesNeverRepeatPrefixes();
             TestHybridsRollBothParts();
             TestAnimalPackDoubles();
+            TestSuffixKindsFollowRarity();
             TestWeaponsLeanToClassMaterials();
             TestActionsComeFromGearPool();
             TestRarerActionsWeighLess();
@@ -222,9 +223,11 @@ namespace RPGGame.Tests.Unit.Data
                 foreach (var (_, spec) in Roll(new ItemRollRequest { ItemLevel = 60, Rarity = "Common", AllowRollUps = false }, 200))
                 {
                     material += spec.Lines.Count(l => l.Pool == ModPools.Material);
-                    other += spec.Lines.Count(l => l.Pool == ModPools.Stat || l.Pool == ModPools.Mechanic);
+                    // Suffixes roll by kind, not by pool weight; count only the weighted (prefix) lines.
+                    other += spec.Lines.Count(l => (l.Pool == ModPools.Stat || l.Pool == ModPools.Mechanic)
+                        && string.IsNullOrWhiteSpace(_cache.ItemMods.Find(l.Family)?.SuffixKind));
                 }
-                TestBase.AssertTrue(material >= 200 && other == 0, $"pool weights decide each line's pool (material {material}, stat+mechanic {other})",
+                TestBase.AssertTrue(material > 0 && other == 0, $"pool weights decide each line's pool (material {material}, stat+mechanic {other})",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
@@ -416,9 +419,43 @@ namespace RPGGame.Tests.Unit.Data
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        private static void TestSuffixKindsFollowRarity()
+        {
+            var cfg = GameConfiguration.Instance.LootSystem.ItemGeneration;
+            bool ok = true;
+            string detail = "";
+            int threeSuffixes = 0;
+            foreach (var rarity in _cache.RarityData)
+            {
+                var must = cfg.SuffixKindsFor(rarity.Name);
+                foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = 60, Rarity = rarity.Name, AllowRollUps = false }, 120))
+                {
+                    var kinds = item.StatBonuses.Select(s => s.ModLine).Concat(item.Modifications.Select(m => m.ModLine))
+                        .Where(l => l != null && !string.IsNullOrWhiteSpace(l.SuffixKind))
+                        .GroupBy(l => l!.Family).Select(g => g.First()!.SuffixKind!).ToList();
+                    if (kinds.Count != kinds.Distinct().Count() || must.Any(k => !kinds.Contains(k)))
+                    {
+                        ok = false;
+                        detail = $"{rarity.Name} {item.Name}: [{string.Join(",", kinds)}]";
+                    }
+                    if (kinds.Count == 3)
+                        threeSuffixes++;
+                }
+            }
+            TestBase.AssertTrue(ok, $"each rarity gets its suffix kinds, at most one per kind {detail}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(threeSuffixes > 0, $"the rarest items carry all three suffixes ({threeSuffixes})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var named = new HeadItem("Cap", 1, 5) { BaseName = "Cap", Material = "Iron" };
+            named.Modifications.Add(new Modification { Name = "Bathed in Blood", ModLine = new ItemModLineInfo { Pool = "mechanic", Affix = "suffix", Tier = 1, Keyword = "Bathed in Blood", Family = "Vampiric", SuffixKind = "rare" } });
+            named.StatBonuses.Add(new StatBonus { Name = "of the Dire Bear", StatType = "STR", ModLine = new ItemModLineInfo { Pool = "stat", Affix = "suffix", Tier = 7, Keyword = "of the Dire Bear", Family = "Strength", SuffixKind = "uncommon" } });
+            named.StatBonuses.Add(new StatBonus { Name = "of Wit", StatType = "INT", ModLine = new ItemModLineInfo { Pool = "stat", Affix = "suffix", Tier = 1, Keyword = "of Wit", Family = "Wit", SuffixKind = "common" } });
+            TestBase.AssertEqual("Iron Cap of Wit of the Dire Bear Bathed in Blood", ItemGenerator.ComposeRolledItemName(named),
+                "suffixes print descriptor, animal, poetic phrase", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestAnimalPackDoubles()
         {
-            StatBonus Bear() => new StatBonus { Name = "of the Bear", StatType = "STR", Value = 10, ModLine = new ItemModLineInfo { Pool = "stat", Affix = "suffix", Family = "Strength", Tier = 3, Keyword = "of the Bear" } };
+            StatBonus Bear() => new StatBonus { Name = "of the Bear", StatType = "STR", Value = 10, ModLine = new ItemModLineInfo { Pool = "stat", Affix = "suffix", Family = "Strength", Tier = 3, Keyword = "of the Bear", SuffixKind = "uncommon" } };
             var head = new HeadItem("Cap", 1, 5);
             var feet = new FeetItem("Boots", 1, 5);
             head.StatBonuses.Add(Bear());

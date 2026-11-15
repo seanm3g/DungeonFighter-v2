@@ -16,6 +16,7 @@ namespace RPGGame.Data.ItemGeneration
             bonus?.ModLine is { } line
             && string.Equals(line.Pool, ModPools.Stat, StringComparison.OrdinalIgnoreCase)
             && string.Equals(line.Affix, "suffix", StringComparison.OrdinalIgnoreCase)
+            && string.Equals(line.SuffixKind, SuffixKinds.Uncommon, StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(line.Family);
 
         /// <summary>Pieces carrying each animal family (a piece counts once per family).</summary>

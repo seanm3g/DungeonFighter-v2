@@ -220,3 +220,20 @@ each). Roughly **80 names instead of 508**.
   lines × `animalPackMultiplier` (2) in `EquipmentBonusCalculator`'s suffix sums. Not shown in tooltips or the HUD
   yet, and the sim bot's gear score doesn't know about it.
 - 10k roll: 2.42 lines per item; stat 0.75, mechanic 0.27 (rules / DoTs / slot only now), material 0.20, action 1.21.
+
+### Three suffix kinds (user, 2026-11-15, built)
+
+- An item holds up to 3 suffixes, at most one of each kind, printed in this order after the base:
+  **common = descriptor** ("of Might"; 8, one per body stat, values at 0.8x the animal's at the same tier),
+  **uncommon = animal** ("of the Dire Bear", keeps the tier words; the 8 animals + 6 hybrid creatures; only these
+  form Packs), **rare = poetic phrase** for the fanciest effects: the 28 rule / opener / finisher / blood-price
+  families, the 3 DoTs and the extra action slot moved from prefix to suffix, one phrase each ("Bathed in Blood" =
+  Vampiric, "Remembered by the Careless" = +1 strip slot; mostly the old story phrases).
+- `lootSystem.itemGeneration.suffixKinds`: the kinds a rarity always gets (Common: common; Uncommon: uncommon; Rare /
+  Epic: rare; Legendary: uncommon + rare; Mythic: all three). Each lower kind it lacks joins at `suffixExtraChance`
+  (0.25). A kind with nothing eligible at that item level is skipped (rare phrases start at L3 / L8). Suffix lines
+  count toward the rarity's line count; the weighted lines fill the rest with prefixes and actions (mechanic pool
+  weight is now 0: every mechanic family is a rare suffix).
+- One line per body stat per item ("of Might" and "of the Bear" never share an item).
+- 10k roll: every Common has a descriptor; Uncommon 75% animal only, 25% descriptor + animal; Rare+ have a poetic
+  phrase except at very low item levels; 18 items with all three.

@@ -42,7 +42,7 @@ namespace RPGGame.Data
         /// <summary>ITEM MODS tab: family columns (repeated per row) then one tier per row.</summary>
         public static readonly string[] ItemModsCanonicalHeaders =
         {
-            "family", "pool", "affix", "kind", "statType", "template", "parts", "description", "slots", "familyWeight", "tags", "integer",
+            "family", "pool", "affix", "suffixKind", "kind", "statType", "template", "parts", "description", "slots", "familyWeight", "tags", "integer",
             "keyword", "min", "max", "level", "slotLevel", "weight", "maxRarity", "tierSlots"
         };
 

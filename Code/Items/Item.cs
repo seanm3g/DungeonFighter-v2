@@ -247,6 +247,10 @@ namespace RPGGame
         /// <summary>True when a tier roll-up lifted this line past what its item level allows.</summary>
         [JsonPropertyName("rolledUp")]
         public bool RolledUp { get; set; }
+
+        /// <summary>Suffix lines: common (descriptor) / uncommon (animal) / rare (poetic phrase). Null on prefixes and old lines.</summary>
+        [JsonPropertyName("suffixKind")]
+        public string? SuffixKind { get; set; }
     }
 
     public class ArmorStatus

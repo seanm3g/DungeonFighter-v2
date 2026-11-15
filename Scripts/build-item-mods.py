@@ -178,6 +178,64 @@ def event_tags(text):
     return tags
 
 
+# Three suffix kinds (user 2026-11-15), written in this order after the base: common = descriptor ("of Might"),
+# uncommon = animal ("of the Dire Bear", Pack-able), rare = poetic phrase for the fanciest effects ("Bathed in Blood").
+# An item gets at most one suffix of each kind; its rarity sets the minimum (lootSystem.itemGeneration.suffixKinds).
+DESCRIPTORS = {
+    # animal family -> (descriptor family, word)
+    "Strength": ("Might", "Might"), "Agility": ("Grace", "Grace"), "Technique": ("Finesse", "Finesse"),
+    "Intelligence": ("Wit", "Wit"), "Life": ("Vigor", "Vigor"), "Defense": ("Warding", "Warding"),
+    "Regeneration": ("Mending", "Mending"), "Magic Find": ("Fortune", "Fortune"),
+}
+DESCRIPTOR_SHARE = 0.8  # descriptor values = this x the animal's range at the same tier
+
+POETIC = {
+    "Burning": "Kissed by Flame", "Venom": "Kissed by the Serpent", "Bleeding": "Bled for the Fallen",
+    "Opening": "Danced in Daylight", "Closing": "Given by Dying Hands", "Bloodbound": "Gambled by Debt",
+    "Vampiric": "Bathed in Blood", "Thorned": "Cradled on Edge", "Butcher's": "Worn to the Bone",
+    "Leaden": "Held in Breath", "Bloodied": "Carried til Waking", "Towering": "Named After a Father",
+    "Ponderous": "Burden of Kin", "Headsman's": "Claimed by None", "Concussive": "Lost of Will",
+    "Prying": "Dipped in Moonlight", "Sapping": "Absent for Long", "Envenomed": "Hushed in Secret",
+    "Jester's": "Lost and Found Again", "Silvered": "Kept in Faith", "Giantslaying": "Carried by a Brother",
+    "Hourglass": "Kissed by Time", "Ember-Woven": "Woven from Embers", "Ledgered": "Owed to an Heir",
+    "Mismatched": "Rusted by Dew", "Linked": "Cherished by Lovers", "Winged": "Hidden by Rain",
+    "Feasting": "Mended by a Sister", "Hunter's": "Hidden Beneath", "Trophy-Strung": "Worshipped by a Child",
+    "Bountied": "Forgotten and Remembered", "Extra Action Slot": "Remembered by the Careless",
+}
+
+
+def apply_suffix_kinds(families):
+    by_name = {f["family"]: f for f in families}
+    # Uncommon: the animals and hybrid creatures.
+    for f in families:
+        if f["pool"] == "stat" and f["affix"] == "suffix":
+            f["suffixKind"] = "uncommon"
+    # Common: one descriptor per animal stat, same tier gates, values at DESCRIPTOR_SHARE.
+    for animal, (name, word) in DESCRIPTORS.items():
+        a = by_name[animal]
+        tiers = []
+        for t in a["tiers"]:
+            uncanny = t.get("maxRarity") == "Common"
+            tier = {"keyword": f"of {EXCEPTIONAL_WORD + ' ' if uncanny else ''}{word}",
+                    "min": rnd(t["min"] * DESCRIPTOR_SHARE, a["integer"]), "max": rnd(t["max"] * DESCRIPTOR_SHARE, a["integer"]),
+                    "level": t["level"], "weight": t["weight"]}
+            if uncanny:
+                tier["maxRarity"] = "Common"
+            tiers.append(tier)
+        families.append({**{k: v for k, v in a.items() if k != "tiers"}, "family": name, "suffixKind": "common", "tiers": tiers})
+    # Rare: every identity / fancy family moves to the suffix as a poetic phrase (one phrase for all its tiers).
+    for f in families:
+        if f["pool"] == "mechanic":
+            phrase = POETIC.get(f["family"])
+            if not phrase:
+                raise SystemExit(f"no poetic phrase for {f['family']}")
+            f["affix"] = "suffix"
+            f["suffixKind"] = "rare"
+            for t in f["tiers"]:
+                t["keyword"] = phrase
+
+
+
 def build_families(gd):
     stat_rows = load(gd, "StatBonuses.json")
     mods = load(gd, "Modifications.json")
@@ -289,6 +347,8 @@ def build_families(gd):
         "weight": 4, "tags": ["combo", "action"], "integer": True,
         "tiers": [{"keyword": "of Repertoire", "min": 1, "max": 1, "level": 20, "weight": 100}],
     })
+
+    apply_suffix_kinds(families)
     return families
 
 

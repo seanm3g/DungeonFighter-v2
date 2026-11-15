@@ -60,7 +60,7 @@ namespace RPGGame.Data
 
         private static object ItemModsCell(JsonObject fam, JsonObject tier, string header) => header switch
         {
-            "family" or "pool" or "affix" or "kind" or "statType" or "template" or "description" => Str(fam[header]),
+            "family" or "pool" or "affix" or "suffixKind" or "kind" or "statType" or "template" or "description" => Str(fam[header]),
             "familyWeight" => Num(fam["weight"]),
             "integer" => fam["integer"]?.GetValue<bool>() == true ? "TRUE" : "FALSE",
             "slots" => JoinList(fam["slots"]),
@@ -99,6 +99,7 @@ namespace RPGGame.Data
                     current = new JsonObject { ["family"] = name };
                     SetString(current, "pool", Cell("pool").ToLowerInvariant());
                     SetString(current, "affix", Cell("affix").ToLowerInvariant());
+                    SetString(current, "suffixKind", Cell("suffixKind").ToLowerInvariant());
                     SetString(current, "kind", Cell("kind").ToLowerInvariant());
                     SetString(current, "statType", Cell("statType"));
                     SetString(current, "template", Cell("template"));

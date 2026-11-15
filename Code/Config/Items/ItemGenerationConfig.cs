@@ -65,13 +65,41 @@ namespace RPGGame
         /// <summary>Action lines every item gets before the weighted lines (they count toward the rarity's line count).</summary>
         public int GuaranteedActionLines { get; set; } = 1;
 
+        /// <summary>
+        /// Suffix kinds each rarity always gets (common = descriptor, uncommon = animal, rare = poetic phrase). Suffix
+        /// lines count toward the rarity's line count; weighted lines fill the rest with prefixes and actions.
+        /// </summary>
+        public Dictionary<string, List<string>> SuffixKinds { get; set; } = DefaultSuffixKinds();
+
+        /// <summary>Chance for each lower suffix kind an item doesn't already have (one max per kind).</summary>
+        public double SuffixExtraChance { get; set; } = 0.25;
+
+        public static Dictionary<string, List<string>> DefaultSuffixKinds() => new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Common"] = new() { "common" },
+            ["Uncommon"] = new() { "uncommon" },
+            ["Rare"] = new() { "rare" },
+            ["Epic"] = new() { "rare" },
+            ["Legendary"] = new() { "uncommon", "rare" },
+            ["Mythic"] = new() { "common", "uncommon", "rare" },
+        };
+
+        public IReadOnlyList<string> SuffixKindsFor(string? rarity)
+        {
+            if (rarity != null && SuffixKinds != null)
+                foreach (var kv in SuffixKinds)
+                    if (string.Equals(kv.Key, rarity.Trim(), StringComparison.OrdinalIgnoreCase))
+                        return kv.Value ?? new List<string>();
+            return new[] { "common" };
+        }
+
         public RollUpRule ItemLevelRollUp { get; set; } = new(0.10, 0.5, 5);
         public RollUpRule RarityRollUp { get; set; } = new(0.05, 0.5, 2);
         public RollUpRule TierRollUp { get; set; } = new(0.08, 0.5, 2);
 
         public static Dictionary<string, double> DefaultPoolWeights() => new()
         {
-            ["stat"] = 50, ["mechanic"] = 20, ["material"] = 25, ["action"] = 15
+            ["stat"] = 50, ["mechanic"] = 0, ["material"] = 25, ["action"] = 15
         };
 
         /// <summary>Roll-up chances × (1 + magic find / 100 × this).</summary>
@@ -114,6 +142,9 @@ namespace RPGGame
             else
                 PoolWeights = new Dictionary<string, double>(PoolWeights, StringComparer.OrdinalIgnoreCase);
             GuaranteedActionLines = Math.Max(0, GuaranteedActionLines);
+            if (SuffixKinds == null || SuffixKinds.Count == 0)
+                SuffixKinds = DefaultSuffixKinds();
+            SuffixExtraChance = Math.Clamp(SuffixExtraChance, 0, 1);
             ItemLevelRollUp ??= new RollUpRule(0.10, 0.5, 5);
             RarityRollUp ??= new RollUpRule(0.05, 0.5, 2);
             TierRollUp ??= new RollUpRule(0.08, 0.5, 2);
