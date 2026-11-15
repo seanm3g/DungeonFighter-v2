@@ -185,6 +185,20 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 lines.Add(setLine.Build());
             }
 
+            var combatSummaries = ItemTriggerBundleDisplay.FormatCombatSummaries(item).ToList();
+            if (combatSummaries.Count > 0)
+            {
+                var triggerLine = new ColoredTextBuilder();
+                triggerLine.Add("  Triggers: ", ColorPalette.Info);
+                for (int i = 0; i < combatSummaries.Count; i++)
+                {
+                    if (i > 0)
+                        triggerLine.Add("; ", Colors.Gray);
+                    triggerLine.Add(combatSummaries[i], Colors.White);
+                }
+                lines.Add(triggerLine.Build());
+            }
+
             var equipSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList();
             if (equipSummaries.Count > 0)
             {

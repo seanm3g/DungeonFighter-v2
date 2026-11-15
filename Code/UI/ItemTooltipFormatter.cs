@@ -155,6 +155,18 @@ namespace RPGGame
                 }
             }
 
+            var combatSummaries = ItemTriggerBundleDisplay.FormatCombatSummaries(item).ToList();
+            if (combatSummaries.Count > 0 && lines.Count < maxLines)
+            {
+                AddBlank(lines);
+                AddLine(lines, SectionHeader("Triggers"));
+                foreach (var summary in combatSummaries)
+                {
+                    if (lines.Count >= maxLines) break;
+                    AddLine(lines, BuildTriggerLine(summary));
+                }
+            }
+
             var equipSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList();
             if (equipSummaries.Count > 0 && lines.Count < maxLines)
             {
@@ -234,6 +246,8 @@ namespace RPGGame
             if (item.Modifications != null && item.Modifications.Count > 0)
                 return true;
             if (item.EquipEffects != null && item.EquipEffects.Count > 0)
+                return true;
+            if (ItemTriggerBundleDisplay.FormatCombatSummaries(item).Any())
                 return true;
             if (character != null)
             {

@@ -77,6 +77,11 @@ namespace RPGGame
             }
         }
 
+        /// <summary>Combat triggers on <paramref name="item"/> (base implicit, material piece procs): every enabled
+        /// <see cref="Item.TriggerBundles"/> row except WHILE_EQUIPPED ones, which show with <see cref="Item.EquipEffects"/>.</summary>
+        public static IEnumerable<string> FormatCombatSummaries(Item? item) =>
+            FormatSummaries(item?.TriggerBundles?.Where(b => b != null && !ItemEquipEffectApplicator.IsWhileEquipped(b)));
+
         public static string FormatWhen(string? when)
         {
             if (string.IsNullOrWhiteSpace(when))

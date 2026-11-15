@@ -43,6 +43,7 @@ namespace RPGGame.Tests.Unit.Data
             TestDamageScalesWithItemLevel();
             TestImplicitSurvivesTriggerCleanUp();
             TestImplicitScalesWithItemLevel();
+            TestCombatImplicitShowsInTooltip();
             TestNameComposition();
             TestWoodAndClothDrop();
             TestMaterialPoolCrossWiresParse();
@@ -308,6 +309,23 @@ namespace RPGGame.Tests.Unit.Data
             MaterialTriggerMerge.ClearCatalogTriggerStamp(withImplicit);
             MaterialTriggerMerge.RepairMissingMaterialTrigger(withImplicit);
             TestBase.AssertTrue(Has(withImplicit), "the implicit survives material trigger clean-ups (save load)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestCombatImplicitShowsInTooltip()
+        {
+            var item = Roll(new ItemRollRequest { ItemLevel = 20, AllowRollUps = false }, 200)
+                .Select(x => x.Item)
+                .FirstOrDefault(i => (i.TriggerBundles ?? new()).Any(b => MaterialTriggerMerge.IsImplicit(i, b)));
+            TestBase.AssertNotNull(item, "some bases carry a combat implicit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (item == null)
+                return;
+            var implicitBundle = item.TriggerBundles.First(b => MaterialTriggerMerge.IsImplicit(item, b));
+            string expected = ItemTriggerBundleDisplay.FormatSummary(implicitBundle);
+            var tooltip = ItemTooltipFormatter.BuildItemTooltipLines(null, item, "Weapon", 60, includeExtendedDetails: true)
+                .Select(line => string.Concat(line.Select(seg => seg.Text)))
+                .ToList();
+            TestBase.AssertTrue(tooltip.Any(l => l.Contains("Triggers")) && tooltip.Any(l => l.Contains(expected)),
+                $"the combat implicit shows in the tooltip ({expected})", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestImplicitScalesWithItemLevel()
