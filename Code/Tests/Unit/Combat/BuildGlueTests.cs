@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestEnemyKitKeepsFlavorName();
             TestUnknownEnemyKitIsNull();
+            TestKitSlotNamesMatchTheirTemplate();
             TestDotModEffectNames();
             TestLastSwingSpeedModIsTakenOnce();
             TestPercentConvertPaysShareOfHit();
@@ -59,6 +60,30 @@ namespace RPGGame.Tests.Unit.Combat
         private static void TestUnknownEnemyKitIsNull()
         {
             TestBase.AssertNull(EnemyActionCatalog.TryCreate("NOT A REAL ENEMY MOVE"), "unknown flavor name has no kit",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>
+        /// A signature kit slot keeps its flavor name, so the name must alias to the same template the slot runs
+        /// ("Bark Fortify" running Rend read as a harden that never came). Also keeps kits-off play on the same mechanics.
+        /// </summary>
+        private static void TestKitSlotNamesMatchTheirTemplate()
+        {
+            EnemyActionCatalog.Reload();
+            EnemyLoader.LoadEnemies();
+            var mismatches = new System.Collections.Generic.List<string>();
+            foreach (var data in EnemyLoader.GetAllEnemyData())
+            {
+                if (data.Kit == null) continue;
+                for (int slot = 0; slot < data.Kit.Count && slot < data.Actions.Count; slot++)
+                {
+                    string? aliased = EnemyActionCatalog.ResolveTemplateName(data.Actions[slot]);
+                    if (!string.Equals(aliased, data.Kit[slot], StringComparison.OrdinalIgnoreCase))
+                        mismatches.Add($"{data.Name}: {data.Actions[slot]} -> {aliased ?? "none"}, kit {data.Kit[slot]}");
+                }
+            }
+            TestBase.AssertTrue(mismatches.Count == 0,
+                "every kit slot's action name aliases to its kit template" + (mismatches.Count > 0 ? ": " + string.Join("; ", mismatches.Take(5)) : ""),
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

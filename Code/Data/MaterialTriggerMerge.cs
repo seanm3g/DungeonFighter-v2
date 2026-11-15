@@ -86,6 +86,7 @@ namespace RPGGame
                 return;
 
             RemapLegacyMaterialOnItem(item);
+            MigrateLegacyImplicit(item);
 
             string material = ResolveMaterialName(item);
             if (string.IsNullOrWhiteSpace(material))
@@ -94,20 +95,34 @@ namespace RPGGame
             if (string.IsNullOrWhiteSpace(item.Material))
                 item.Material = ItemMaterialRules.RemapLegacyMaterial(material);
 
-            // lootSystem.materialPieceTriggers: keep the piece's own material-pool proc, drop anything else.
-            if (GameConfiguration.Instance?.LootSystem?.MaterialPieceTriggers == true
-                && MaterialTriggerCatalog.TryGetPool(material, out var pool))
-            {
-                bool FromPool(ActionTriggerBundle? b) => b != null && !string.IsNullOrWhiteSpace(b.IdentityName)
-                    && (pool.Any(d => string.Equals(d.TriggerName, b.IdentityName, StringComparison.OrdinalIgnoreCase))
-                        || IsImplicit(item, b));
-                item.TriggerBundles = (item.TriggerBundles ?? new List<ActionTriggerBundle>()).Where(FromPool).ToList();
-                item.EquipEffects = (item.EquipEffects ?? new List<ActionTriggerBundle>()).Where(FromPool).ToList();
-                return;
-            }
-
-            // MATERIAL BUILDS owns combat triggers; drop catalog/pool stamps so they cannot fire.
+            // Materials no longer add a trigger to the piece (2026-11-15): drop every catalog / material-pool stamp.
+            // Rolled affix lines live in Modifications.
             ClearCatalogTriggerStamp(item);
+        }
+
+        /// <summary>
+        /// Base implicits are modifiers now (<see cref="Item.ImplicitRule"/>, 2026-11-15). A saved item that still names an
+        /// implicit trigger loses that trigger and rolls a base modifier instead (stable per item name and base).
+        /// </summary>
+        public static void MigrateLegacyImplicit(Item item)
+        {
+            if (item == null || string.IsNullOrWhiteSpace(item.Implicit))
+                return;
+            string legacy = item.Implicit;
+            bool IsLegacy(ActionTriggerBundle? b) =>
+                b != null && string.Equals(b.IdentityName, legacy, StringComparison.OrdinalIgnoreCase);
+            item.TriggerBundles = (item.TriggerBundles ?? new List<ActionTriggerBundle>()).Where(b => !IsLegacy(b)).ToList();
+            item.EquipEffects = (item.EquipEffects ?? new List<ActionTriggerBundle>()).Where(b => !IsLegacy(b)).ToList();
+            if (string.IsNullOrWhiteSpace(item.ImplicitRule))
+            {
+                int seed = 17;
+                foreach (char ch in (item.Name ?? "") + "|" + item.BaseName)
+                    seed = unchecked(seed * 31 + ch);
+                double perLevel = GameConfiguration.Instance?.LootSystem?.ItemGeneration?.ImplicitPercentPerItemLevel ?? 0.01;
+                if (RPGGame.Data.ItemGeneration.BaseModifierRoller.Roll(item.ItemClass, item.Level, new Random(seed), perLevel) is { } rolled)
+                    item.ImplicitRule = rolled.Rule;
+            }
+            item.Implicit = "";
         }
 
         /// <summary>Prefer <see cref="Item.Material"/>; fall back to the Material prefix modification name.</summary>

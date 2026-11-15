@@ -70,7 +70,7 @@ namespace RPGGame
         /// <param name="target">The defender, for passive rule conditions (TARGET / PREFIX); default the current target.</param>
         public static double OutgoingDamagePercent(Character hero, Action? action, Actor? target = null)
         {
-            double pct = CrossWires.Passive(hero, "DAMAGE", target);
+            double pct = CrossWires.Passive(hero, "DAMAGE", target, action);
             int threshold = Math.Max(1, GameConfiguration.Instance.Combat.AffixConditionStoreThreshold);
             foreach (var (item, mod) in Equipped(hero, StoreCondition))
             {

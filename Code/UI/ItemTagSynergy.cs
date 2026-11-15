@@ -80,7 +80,7 @@ namespace RPGGame.UI
                     builder.Add(", ", ColorPalette.Gray.GetColor());
                 bool synergy = Synergizes(hero, item, tags[i]);
                 if (synergy)
-                    builder.Add("★" + tags[i], ColorPalette.Gold.GetColor());
+                    builder.Add(tags[i] + " ★",ColorPalette.Gold.GetColor());
                 else
                     builder.Add(tags[i], ColorPalette.Gray.GetColor());
             }

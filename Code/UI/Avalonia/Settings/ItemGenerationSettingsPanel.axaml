@@ -211,6 +211,75 @@
                                 CornerRadius="4"
                                 Padding="10,8">
                             <StackPanel Spacing="6">
+                                <TextBlock Text="Base modifier chance by rarity"
+                                           FontSize="12"
+                                           FontWeight="SemiBold"
+                                           Foreground="White"
+                                           ToolTip.Tip="Chance (%) that an item of each rarity carries its base item's modifier (+damage / speed with an action, a tag or the class's actions, or +status damage). Starter bases never carry one. Saved to GameData/BaseModifiers.json (rarityChance) and used by the next roll, here and in dungeon loot."/>
+                                <Border Background="#FF1E1E1E"
+                                        BorderBrush="#FF3F3F46"
+                                        BorderThickness="1"
+                                        CornerRadius="4"
+                                        Padding="4,4">
+                                    <WrapPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                                        <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,4,4" MinWidth="56">
+                                            <TextBlock Text="Common" FontSize="10" Classes="settings-muted" HorizontalAlignment="Center"/>
+                                            <Border BorderBrush="#FF3F3F46" BorderThickness="1" CornerRadius="4" Padding="4,2" MinHeight="26" MinWidth="56">
+                                                <TextBox x:Name="ModChanceCommon" Classes="LabPctBox" Text="100" MinHeight="22" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="5"
+                                                         ToolTip.Tip="Chance (%) a Common item's base carries its modifier (BaseModifiers.json rarityChance.Common). Saved when the box loses focus."/>
+                                            </Border>
+                                        </StackPanel>
+                                        <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,4,4" MinWidth="56">
+                                            <TextBlock Text="Uncommon" FontSize="10" Classes="settings-muted" HorizontalAlignment="Center"/>
+                                            <Border BorderBrush="#FF3F3F46" BorderThickness="1" CornerRadius="4" Padding="4,2" MinHeight="26" MinWidth="56">
+                                                <TextBox x:Name="ModChanceUncommon" Classes="LabPctBox" Text="100" MinHeight="22" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="5"
+                                                         ToolTip.Tip="Chance (%) a Uncommon item's base carries its modifier (BaseModifiers.json rarityChance.Uncommon). Saved when the box loses focus."/>
+                                            </Border>
+                                        </StackPanel>
+                                        <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,4,4" MinWidth="56">
+                                            <TextBlock Text="Rare" FontSize="10" Classes="settings-muted" HorizontalAlignment="Center"/>
+                                            <Border BorderBrush="#FF3F3F46" BorderThickness="1" CornerRadius="4" Padding="4,2" MinHeight="26" MinWidth="56">
+                                                <TextBox x:Name="ModChanceRare" Classes="LabPctBox" Text="100" MinHeight="22" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="5"
+                                                         ToolTip.Tip="Chance (%) a Rare item's base carries its modifier (BaseModifiers.json rarityChance.Rare). Saved when the box loses focus."/>
+                                            </Border>
+                                        </StackPanel>
+                                        <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,4,4" MinWidth="56">
+                                            <TextBlock Text="Epic" FontSize="10" Classes="settings-muted" HorizontalAlignment="Center"/>
+                                            <Border BorderBrush="#FF3F3F46" BorderThickness="1" CornerRadius="4" Padding="4,2" MinHeight="26" MinWidth="56">
+                                                <TextBox x:Name="ModChanceEpic" Classes="LabPctBox" Text="100" MinHeight="22" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="5"
+                                                         ToolTip.Tip="Chance (%) a Epic item's base carries its modifier (BaseModifiers.json rarityChance.Epic). Saved when the box loses focus."/>
+                                            </Border>
+                                        </StackPanel>
+                                        <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,4,4" MinWidth="56">
+                                            <TextBlock Text="Legendary" FontSize="10" Classes="settings-muted" HorizontalAlignment="Center"/>
+                                            <Border BorderBrush="#FF3F3F46" BorderThickness="1" CornerRadius="4" Padding="4,2" MinHeight="26" MinWidth="56">
+                                                <TextBox x:Name="ModChanceLegendary" Classes="LabPctBox" Text="100" MinHeight="22" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="5"
+                                                         ToolTip.Tip="Chance (%) a Legendary item's base carries its modifier (BaseModifiers.json rarityChance.Legendary). Saved when the box loses focus."/>
+                                            </Border>
+                                        </StackPanel>
+                                        <StackPanel Spacing="2" HorizontalAlignment="Center" Margin="0,0,0,4" MinWidth="56">
+                                            <TextBlock Text="Mythic" FontSize="10" Classes="settings-muted" HorizontalAlignment="Center"/>
+                                            <Border BorderBrush="#FF3F3F46" BorderThickness="1" CornerRadius="4" Padding="4,2" MinHeight="26" MinWidth="56">
+                                                <TextBox x:Name="ModChanceMythic" Classes="LabPctBox" Text="100" MinHeight="22" HorizontalContentAlignment="Center" TextAlignment="Center" BorderThickness="0" MaxLength="5"
+                                                         ToolTip.Tip="Chance (%) a Mythic item's base carries its modifier (BaseModifiers.json rarityChance.Mythic). Saved when the box loses focus."/>
+                                            </Border>
+                                        </StackPanel>
+                                    </WrapPanel>
+                                </Border>
+                                <TextBlock x:Name="ModChanceSummaryText"
+                                           FontSize="10"
+                                           Classes="settings-muted"
+                                           TextWrapping="Wrap"
+                                           LineHeight="13"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#FF252526"
+                                BorderBrush="#FF3F3F46"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                Padding="10,8">
+                            <StackPanel Spacing="6">
                                 <TextBlock x:Name="TierTableTitleText"
                                            Text="Live loot tier chances"
                                            FontSize="12"

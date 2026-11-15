@@ -413,30 +413,32 @@ namespace RPGGame.Data.ItemGeneration
 
                 new LootBonusApplier(Cache, rng).ApplySpecificMaterial(_item, material, _item.Rarity);
                 _spec.Material = _item.Material;
-                if (GameConfiguration.Instance?.LootSystem?.MaterialPieceTriggers == true)
-                    MaterialTriggerMerge.ApplyMaterialTrigger(_item, rng);
+                // Materials add no trigger to the piece (2026-11-15): the base's modifier is the item's built-in line.
             }
 
+            /// <summary>
+            /// The base's modifier (<see cref="BaseModifierRoller"/>): one passive rule on another action, a tag, the class's
+            /// actions or a status. Bases whose catalog row has an implicit (every non-starter base) get one; the old trigger
+            /// implicit itself is retired.
+            /// </summary>
             private void ApplyImplicit()
             {
-                if (string.IsNullOrWhiteSpace(_item.Implicit))
+                bool hasModifier = !string.IsNullOrWhiteSpace(_item.Implicit);
+                _item.Implicit = "";
+                if (!hasModifier)
                     return;
-                ItemGenerator.ApplyCatalogTrigger(_item.Implicit, null, null, out var combat, out var equip);
-                if (combat.Count == 0 && equip.Count == 0)
-                {
-                    _item.Implicit = "";
+                var rng = For("implicit");
+                // Rarity gate (BaseModifiers.json rarityChance): half of Commons come bare.
+                if (rng.NextDouble() >= BaseModifierRoller.ChanceFor(_item.Rarity))
                     return;
-                }
-                foreach (var b in combat.Concat(equip))
-                {
-                    ItemImplicitScaling.Apply(b, _ilvl, Cfg);
-                    _spec.ImplicitValue ??= b.Value;
-                }
-                _item.TriggerBundles ??= new List<ActionTriggerBundle>();
-                _item.EquipEffects ??= new List<ActionTriggerBundle>();
-                _item.TriggerBundles.AddRange(combat);
-                _item.EquipEffects.AddRange(equip);
-                _spec.Implicit = _item.Implicit;
+                var rolled = BaseModifierRoller.Roll(_spec.Class, _ilvl, rng, Cfg.ImplicitPercentPerItemLevel);
+                if (rolled is not { } r)
+                    return;
+                _item.ImplicitRule = r.Rule;
+                _spec.Implicit = r.Rule;
+                _spec.ImplicitValue = r.Value;
+                foreach (string token in r.Influence)
+                    AddInfluence(token);
             }
 
             /// <summary>Class, slot, the slot's event family, material (name, store, synthesis event), implicit event.</summary>
@@ -457,9 +459,6 @@ namespace RPGGame.Data.ItemGeneration
                     AddInfluence(build.WhenToken);
                     AddInfluence(build.AssociatedClass);
                 }
-                foreach (var b in (_item.TriggerBundles ?? new()).Concat(_item.EquipEffects ?? new()))
-                    if (MaterialTriggerMerge.IsImplicit(_item, b))
-                        AddInfluence(b.When);
             }
 
             private void AddInfluence(string? token)

@@ -42,7 +42,7 @@ namespace RPGGame.Actions.Execution
                     result.IsCombo,
                     result.IsCritical,
                     result.StatusEffectMessages);
-                // The action's own same-swing bundles (BERSERKER's "this hit +50%") must land before damage too.
+                // The action's own same-swing bundles (BERSERKER's "+1% per 1% HP missing") must land before damage too.
                 ActionTriggerBundleApplicator.ApplySameSwingBundles(
                     selected,
                     new CombatEvent(CombatEventType.ActionHit, source)

@@ -44,6 +44,8 @@ namespace RPGGame.Tests.Unit.Data
             TestImplicitSurvivesTriggerCleanUp();
             TestImplicitScalesWithItemLevel();
             TestCombatImplicitShowsInTooltip();
+            TestModifierRulesChangeOtherActions();
+            TestSaveRarityChancesKeepsTheRest();
             TestNameComposition();
             TestWoodAndClothDrop();
             TestMaterialPoolCrossWiresParse();
@@ -299,35 +301,129 @@ namespace RPGGame.Tests.Unit.Data
 
         private static void TestImplicitSurvivesTriggerCleanUp()
         {
-            var withImplicit = Roll(new ItemRollRequest { ItemLevel = 20, AllowRollUps = false }, 50)
-                .Select(x => x.Item).FirstOrDefault(i => !string.IsNullOrWhiteSpace(i.Implicit));
-            TestBase.AssertNotNull(withImplicit, "bases carry implicits", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            if (withImplicit == null)
-                return;
-            bool Has(Item i) => (i.TriggerBundles ?? new()).Concat(i.EquipEffects ?? new()).Any(b => MaterialTriggerMerge.IsImplicit(i, b));
-            TestBase.AssertTrue(Has(withImplicit), "the implicit's trigger is on the item", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            MaterialTriggerMerge.ClearCatalogTriggerStamp(withImplicit);
-            MaterialTriggerMerge.RepairMissingMaterialTrigger(withImplicit);
-            TestBase.AssertTrue(Has(withImplicit), "the implicit survives material trigger clean-ups (save load)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // Base implicits are modifiers now (BaseModifiers.json): a passive rule, never a trigger, and materials add none.
+            var items = Roll(new ItemRollRequest { ItemLevel = 20, AllowRollUps = false }, 200).Select(x => x.Item).ToList();
+            var withModifier = items.Where(i => !string.IsNullOrWhiteSpace(i.ImplicitRule)).ToList();
+            TestBase.AssertTrue(withModifier.Count > 0, "bases carry a modifier", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(withModifier.All(i => CrossWireRule.Parse(i.ImplicitRule) is { IsPassive: true }),
+                "every modifier is a passive rule", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(items.All(i => (i.TriggerBundles?.Count ?? 0) == 0 && string.IsNullOrWhiteSpace(i.Implicit)),
+                "rolled items carry no base or material triggers", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // Commons: half carry one; every other rarity always does (non-starter bases).
+            var commons = items.Where(i => string.Equals(i.Rarity, "Common", StringComparison.OrdinalIgnoreCase) && i.Level > 0 && HasCatalogImplicit(i)).ToList();
+            var others = items.Where(i => !string.Equals(i.Rarity, "Common", StringComparison.OrdinalIgnoreCase) && HasCatalogImplicit(i)).ToList();
+            if (commons.Count >= 30)
+            {
+                double share = commons.Count(i => !string.IsNullOrWhiteSpace(i.ImplicitRule)) / (double)commons.Count;
+                TestBase.AssertTrue(share > 0.3 && share < 0.7, $"about half of Commons carry a modifier ({share:P0} of {commons.Count})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            if (others.Count > 0)
+                TestBase.AssertTrue(others.All(i => !string.IsNullOrWhiteSpace(i.ImplicitRule)), "non-Common bases always carry one",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // A save from before: its implicit trigger becomes a modifier on load.
+            var legacy = new HeadItem("Wrap", 1, 1) { BaseName = "Wrap", ItemClass = "rogue", Level = 10, Implicit = "CritAmpCarry" };
+            legacy.TriggerBundles = new List<RPGGame.Data.ActionTriggerBundle>
+            {
+                new RPGGame.Data.ActionTriggerBundle { IdentityName = "CritAmpCarry", When = "ONCRITICAL", Mechanics = "hero_next_action_amp", Value = 10 }
+            };
+            MaterialTriggerMerge.RepairMissingMaterialTrigger(legacy);
+            TestBase.AssertTrue(legacy.TriggerBundles.Count == 0 && string.IsNullOrWhiteSpace(legacy.Implicit) && !string.IsNullOrWhiteSpace(legacy.ImplicitRule),
+                $"a legacy implicit trigger becomes a modifier on load ({legacy.ImplicitRule})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static bool HasCatalogImplicit(Item item)
+        {
+            string name = item.BaseName ?? "";
+            var row = (object?)LootDataCache.Load().WeaponData?.FirstOrDefault(w => w.Name == name)
+                ?? LootDataCache.Load().ArmorData?.FirstOrDefault(a => a.Name == name);
+            return row switch
+            {
+                WeaponData w => !string.IsNullOrWhiteSpace(w.TriggerName),
+                ArmorData a => !string.IsNullOrWhiteSpace(a.TriggerName),
+                _ => false
+            };
         }
 
         private static void TestCombatImplicitShowsInTooltip()
         {
             var item = Roll(new ItemRollRequest { ItemLevel = 20, AllowRollUps = false }, 200)
                 .Select(x => x.Item)
-                .FirstOrDefault(i => (i.TriggerBundles ?? new()).Any(b => MaterialTriggerMerge.IsImplicit(i, b)));
-            TestBase.AssertNotNull(item, "some bases carry a combat implicit", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                .FirstOrDefault(i => !string.IsNullOrWhiteSpace(i.ImplicitRule));
+            TestBase.AssertNotNull(item, "some items carry a base modifier", ref _testsRun, ref _testsPassed, ref _testsFailed);
             if (item == null)
                 return;
-            var implicitBundle = item.TriggerBundles.First(b => MaterialTriggerMerge.IsImplicit(item, b));
-            string expected = ItemTriggerBundleDisplay.FormatSummary(implicitBundle);
+            string? expected = ItemTriggerBundleDisplay.FormatModifier(item);
             var tooltip = ItemTooltipFormatter.BuildItemTooltipLines(null, item, "Weapon", 60, includeExtendedDetails: false)
                 .Select(line => string.Concat(line.Select(seg => seg.Text)))
                 .ToList();
-            TestBase.AssertTrue(tooltip.Any(l => l.Contains("Triggers")) && tooltip.Any(l => l.Contains(expected)),
-                $"the combat implicit shows without Alt ({expected})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(expected != null && tooltip.Any(l => l.Contains("Modifier")) && tooltip.Any(l => l.Contains(expected)),
+                $"the base modifier shows without Alt ({expected})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!tooltip.Any(l => l.Trim() == "Triggers"), "no Triggers section from the base or material",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!tooltip.Any(l => l.Trim() == "Material"),
                 "material set info waits for Alt", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Settings → Item Generation writes rarityChance only; the rest of BaseModifiers.json is untouched.</summary>
+        private static void TestSaveRarityChancesKeepsTheRest()
+        {
+            string temp = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"basemods-{Guid.NewGuid():N}.json");
+            try
+            {
+                string original = System.IO.File.ReadAllText(BaseModifierRoller.FilePath);
+                System.IO.File.WriteAllText(temp, original);
+                BaseModifierRoller.SaveRarityChances(new Dictionary<string, double> { ["Common"] = 0.25, ["Rare"] = 1.0 }, temp);
+                string saved = System.IO.File.ReadAllText(temp);
+                using var doc = System.Text.Json.JsonDocument.Parse(saved);
+                var chances = doc.RootElement.GetProperty("rarityChance");
+                TestBase.AssertTrue(Math.Abs(chances.GetProperty("Common").GetDouble() - 0.25) < 1e-9 && chances.GetProperty("Rare").GetDouble() == 1.0,
+                    "saved rarity chances read back", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                int at = original.IndexOf("\"tags\"", StringComparison.Ordinal);
+                TestBase.AssertTrue(at > 0 && saved.EndsWith(original.Substring(at), StringComparison.Ordinal),
+                    "everything after rarityChance keeps its text", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                if (System.IO.File.Exists(temp)) System.IO.File.Delete(temp);
+                BaseModifierRoller.Reload();
+            }
+        }
+
+        private static void TestModifierRulesChangeOtherActions()
+        {
+            var hero = TestDataBuilders.Character().WithName("ModHero").Build();
+            var head = new HeadItem("ModHelm", 1, 1);
+            hero.Equipment.Head = head;
+            var cleave = new Action("Cleave", ActionType.Attack, TargetType.SingleTarget, cooldown: 0, description: "") { Tags = new List<string> { "class", "warrior", "duelist" } };
+            var jab = new Action("Jab", ActionType.Attack, TargetType.SingleTarget, cooldown: 0, description: "") { Tags = new List<string> { "rogue" } };
+
+            head.ImplicitRule = "WHILE IF ACTION Cleave -> DAMAGE 12%";
+            TestBase.AssertTrue(Math.Abs(CrossWires.Passive(hero, "DAMAGE", null, cleave) - 12) < 1e-9, "named action: +12% damage with Cleave",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(CrossWires.Passive(hero, "DAMAGE", null, jab) == 0 && CrossWires.Passive(hero, "DAMAGE") == 0,
+                "and nothing for other actions or without a swing", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            head.ImplicitRule = "WHILE IF TAG duelist -> SPEED 10%";
+            TestBase.AssertTrue(Math.Abs(CrossWires.ActionSpeedPercent(hero, cleave) - 10) < 1e-9 && CrossWires.ActionSpeedPercent(hero, jab) == 0
+                && CrossWires.Passive(hero, "SPEED") == 0, "tag: +10% speed with duelist actions only", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            head.ImplicitRule = "WHILE IF CLASS warrior -> DAMAGE 6%";
+            TestBase.AssertTrue(Math.Abs(CrossWires.Passive(hero, "DAMAGE", null, cleave) - 6) < 1e-9 && CrossWires.Passive(hero, "DAMAGE", null, jab) == 0,
+                "class: +6% damage with Warrior actions", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            head.ImplicitRule = "WHILE -> POTENCY bleed 20%";
+            var foe = TestDataBuilders.Enemy().WithName("PotencyFoe").Build();
+            foe.DotPotency = CrossWires.PotencyAll(hero, jab, foe);
+            TestBase.AssertTrue(Math.Abs(foe.DotPotencyMultiplier("bleed") - 1.2) < 1e-9 && foe.DotPotencyMultiplier("burn") == 1.0,
+                "status: the hero's bleed on a foe ticks +20%", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual("+20% bleed damage", ItemTriggerBundleDisplay.FormatModifier(head), "status modifier card text",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            head.ImplicitRule = "WHILE IF ACTION Shield_Bash -> DAMAGE 12%";
+            TestBase.AssertEqual("+12% damage with Shield Bash", ItemTriggerBundleDisplay.FormatModifier(head), "action modifier card text",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestImplicitScalesWithItemLevel()

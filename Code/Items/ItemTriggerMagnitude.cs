@@ -36,12 +36,23 @@ namespace RPGGame
                 "INT" or "INTELLIGENCE" => character.Stats?.Intelligence ?? 0,
                 "PRIMARY" => ResolvePrimaryAttr(character),
                 "LEVEL" => character.Level,
+                "MISSINGHP" or "MISSINGHEALTH" => MissingHealthPercent(character),
                 "BARBARIAN" or "BARBARIANPOINTS" => character.BarbarianPoints,
                 "WARRIOR" or "WARRIORPOINTS" => character.WarriorPoints,
                 "ROGUE" or "ROGUEPOINTS" => character.RoguePoints,
                 "WIZARD" or "WIZARDPOINTS" => character.WizardPoints,
                 _ => 0
             };
+        }
+
+        /// <summary>Percent of max HP missing, 0..100 (full HP = 0).</summary>
+        public static int MissingHealthPercent(Character character)
+        {
+            int max = character.MaxHealth;
+            if (max <= 0)
+                return 0;
+            int cur = Math.Clamp(character.CurrentHealth, 0, max);
+            return (int)Math.Round(100.0 * (max - cur) / max);
         }
 
         private static int ResolvePrimaryAttr(Character character)

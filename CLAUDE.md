@@ -125,6 +125,7 @@ Status effect handlers live in `Code/Combat/Effects/` and `Code/Combat/Combat/Ef
 
 - `Item.cs` — base item with slots, rarity, mods, bonuses
 - Item generation: `Data/ItemGeneration/ItemRoller.cs` rolls every item (item level → slot/class → tier → base → rarity → material → lines → name); entry points on `LootGenerator`; knobs `lootSystem.itemGeneration`; design `Documentation/ITEM_GENERATION_REDESIGN_2026-11-14.md`
+- Base modifiers (2026-11-15): a non-starter base carries one passive rule on `Item.ImplicitRule` instead of a trigger (`GameData/BaseModifiers.json`, `BaseModifierRoller`): +stat% with a named action, a tag, the class's actions (`IF ACTION` / `IF TAG` / `IF CLASS` CrossWires conditions) or `POTENCY <status>` (hero DoT ticks on foes); Commons carry one 50% of the time. Materials add no trigger to the piece; legacy implicit triggers migrate on load (`MaterialTriggerMerge.MigrateLegacyImplicit`)
 - `InventoryManager.cs` — add/remove/sort inventory
 - `InventoryOperations.cs` — equip/unequip business logic
 - `ComboManager.cs` — combo action management for items

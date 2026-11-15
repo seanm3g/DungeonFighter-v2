@@ -225,6 +225,8 @@ namespace RPGGame
                 {
                     speedModPct += character.Effects.ConsumedSpeedModPercent;
                     speedModPct += character.Effects.TakeLastSwingSpeedModPercent();
+                    // Base item modifiers scoped to this swing ("+10% speed with fire actions").
+                    speedModPct += CrossWires.ActionSpeedPercent(character, action);
                 }
                 if (speedModPct != 0)
                     lengthMultiplier = lengthMultiplier / (1.0 + speedModPct / 100.0);

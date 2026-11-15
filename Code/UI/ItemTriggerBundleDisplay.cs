@@ -63,6 +63,16 @@ namespace RPGGame
             return sb.ToString();
         }
 
+        /// <summary>The base item's modifier (<see cref="Item.ImplicitRule"/>) as card text, e.g. "+12% damage with Cleave";
+        /// null when the item has none.</summary>
+        public static string? FormatModifier(Item? item)
+        {
+            if (item == null || string.IsNullOrWhiteSpace(item.ImplicitRule))
+                return null;
+            var rule = CrossWireRule.Parse(item.ImplicitRule, item.Name ?? "");
+            return rule == null ? null : CrossWires.Describe(rule);
+        }
+
         public static IEnumerable<string> FormatSummaries(IEnumerable<ActionTriggerBundle>? bundles)
         {
             if (bundles == null)

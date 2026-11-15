@@ -139,7 +139,7 @@ namespace RPGGame.Tests.Unit.World
             Check(names.Count <= AffixDataLoader.Enemy.Demon.MaxActions, "the Demon's pool is capped");
             Check(boss.Affixes.Any(a => a.Name == "Rooted IV") && boss.Affixes.Any(a => a.Name == "Bloodscent"),
                 "the Demon carries its region family one rank up and its dungeon affix");
-            Check(boss.Name.EndsWith("Demon of the Den"), "the Demon is titled after its dungeon");
+            Check(!boss.Name.Contains("Demon of the Den"), "the Demon carries no dungeon title");
             Check(boss.PendingPhaseAction?.Name == "Infernal Crush", "the third signature waits for the second phase");
 
             boss.CurrentHealth = (int)(boss.MaxHealth * 0.4);
@@ -199,7 +199,7 @@ namespace RPGGame.Tests.Unit.World
                     dungeons++;
                     var last = dungeon.Rooms.LastOrDefault();
                     var finalEnemy = last?.GetEnemies().LastOrDefault();
-                    if (finalEnemy != null && finalEnemy.IsBoss && finalEnemy.Prefix == "Demon" && finalEnemy.Name.EndsWith(identity.Demon))
+                    if (finalEnemy != null && finalEnemy.IsBoss && finalEnemy.Prefix == "Demonic" && !finalEnemy.Name.Contains(identity.Demon))
                         demons++;
                     foreach (var e in dungeon.Rooms.SelectMany(r => r.GetEnemies()))
                     {

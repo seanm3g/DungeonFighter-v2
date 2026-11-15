@@ -1,0 +1,55 @@
+{
+  "_doc": "Base item modifiers (the base's built-in line; replaces the old implicit trigger). Each non-starter base rolls one entry from its class's list (\"*\" for class-less bases) and it changes other things the hero does, never fires as a trigger. kind: action = one named action from the class's gear pool (+stat% with that action); tag = actions carrying a tag (tag, or one from tags[class] when tag is empty); class = the class's own actions; status = the hero's bleed/burn/poison/acid ticks on foes (POTENCY). stat: DAMAGE or SPEED (percent). min/max = value range at item level 1; item level scales it by lootSystem.itemGeneration.implicitPercentPerItemLevel. Values are first guesses for the balance pass. rarityChance: chance a base of that rarity carries its modifier (missing = always; Common 0.5). Read by BaseModifierRoller; rules are CrossWires WHILE rules (Item.ImplicitRule).",
+  "rarityChance": {
+    "Common": 0.5
+  },
+  "tags": {
+    "barbarian": [ "ragecaller", "ravager", "warbrute", "status", "verb" ],
+    "warrior": [ "spellblade", "duelist", "warbrute", "swift", "verb" ],
+    "rogue": [ "hexblade", "duelist", "ravager", "status", "verb" ],
+    "wizard": [ "hexblade", "spellblade", "ragecaller", "verb", "store" ],
+    "*": [ "status", "verb", "store", "swift" ]
+  },
+  "classes": {
+    "barbarian": [
+      { "kind": "action", "stat": "DAMAGE", "min": 10, "max": 18, "weight": 4 },
+      { "kind": "action", "stat": "SPEED", "min": 8, "max": 14, "weight": 1 },
+      { "kind": "tag", "stat": "DAMAGE", "min": 6, "max": 12, "weight": 3 },
+      { "kind": "class", "stat": "DAMAGE", "min": 4, "max": 8, "weight": 2 },
+      { "kind": "status", "status": "bleed", "min": 15, "max": 30, "weight": 2 },
+      { "kind": "status", "status": "burn", "min": 15, "max": 30, "weight": 1 }
+    ],
+    "warrior": [
+      { "kind": "action", "stat": "DAMAGE", "min": 10, "max": 18, "weight": 4 },
+      { "kind": "action", "stat": "SPEED", "min": 8, "max": 14, "weight": 1 },
+      { "kind": "tag", "stat": "DAMAGE", "min": 6, "max": 12, "weight": 3 },
+      { "kind": "class", "stat": "DAMAGE", "min": 4, "max": 8, "weight": 2 },
+      { "kind": "class", "stat": "SPEED", "min": 3, "max": 6, "weight": 1 },
+      { "kind": "status", "status": "bleed", "min": 15, "max": 30, "weight": 1 }
+    ],
+    "rogue": [
+      { "kind": "action", "stat": "DAMAGE", "min": 10, "max": 18, "weight": 3 },
+      { "kind": "action", "stat": "SPEED", "min": 8, "max": 14, "weight": 2 },
+      { "kind": "tag", "stat": "DAMAGE", "min": 6, "max": 12, "weight": 3 },
+      { "kind": "class", "stat": "SPEED", "min": 3, "max": 6, "weight": 2 },
+      { "kind": "status", "status": "poison", "min": 15, "max": 30, "weight": 2 },
+      { "kind": "status", "status": "bleed", "min": 15, "max": 30, "weight": 1 },
+      { "kind": "status", "status": "acid", "min": 15, "max": 30, "weight": 1 }
+    ],
+    "wizard": [
+      { "kind": "action", "stat": "DAMAGE", "min": 10, "max": 18, "weight": 4 },
+      { "kind": "action", "stat": "SPEED", "min": 8, "max": 14, "weight": 1 },
+      { "kind": "tag", "stat": "DAMAGE", "min": 6, "max": 12, "weight": 3 },
+      { "kind": "class", "stat": "DAMAGE", "min": 4, "max": 8, "weight": 2 },
+      { "kind": "status", "status": "burn", "min": 15, "max": 30, "weight": 2 },
+      { "kind": "status", "status": "acid", "min": 15, "max": 30, "weight": 1 }
+    ],
+    "*": [
+      { "kind": "action", "stat": "DAMAGE", "min": 10, "max": 18, "weight": 3 },
+      { "kind": "tag", "stat": "DAMAGE", "min": 6, "max": 12, "weight": 3 },
+      { "kind": "status", "status": "bleed", "min": 15, "max": 30, "weight": 1 },
+      { "kind": "status", "status": "burn", "min": 15, "max": 30, "weight": 1 },
+      { "kind": "status", "status": "poison", "min": 15, "max": 30, "weight": 1 }
+    ]
+  }
+}

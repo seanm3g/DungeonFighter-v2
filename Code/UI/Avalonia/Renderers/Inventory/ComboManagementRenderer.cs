@@ -38,6 +38,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         private const int CardHeight = 9;
         private const int CardGap = 3;
 
+        /// <summary>Compelled (required weapon basic) card: crimson leans toward magenta, away from the orange-red class color.</summary>
+        private static readonly global::Avalonia.Media.Color CompelledCrimson = global::Avalonia.Media.Color.FromRgb(170, 20, 50);
+        private static readonly global::Avalonia.Media.Color CompelledCrimsonBright = global::Avalonia.Media.Color.FromRgb(230, 40, 75);
+
         /// <summary>
         /// Full-screen Action Sequence editor: the sequence as a row of cards (click one to take it out) and the
         /// library of actions from equipped gear as a grid (click one to add it). F1 puts the sequence below the library
@@ -215,19 +219,27 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 DisplayText = action.Name
             };
             clickableElements.Add(element);
+            // The compelled weapon basic gets a crimson frame and title: a cooler, deeper red than the Barbarian
+            // class red (Berserker, Might), so "required" never reads as a class / rarity color.
+            bool compelled = WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon(character, action);
+            if (compelled)
+                border = dimmed ? ActionInfoStripLayout.DarkenRgb(CompelledCrimson, 0.5)
+                    : border == AsciiArtAssets.Colors.White ? CompelledCrimsonBright : CompelledCrimson;
             var frame = element.IsHovered ? ColorPalette.Yellow.GetColor() : border;
             canvas.AddBox(cx, cy, CardWidth, CardHeight, frame, global::Avalonia.Media.Colors.Black);
 
             int innerW = CardWidth - 4;
             int ty = cy + 1;
             string name = (action.Name ?? "").ToUpperInvariant();
-            // Same title colors as the combat strip: the compelled weapon basic is red, others carry class / rarity color.
-            var nameColor = WeaponRequiredComboAction.IsRequiredBasicForEquippedWeapon(character, action)
-                ? AsciiArtAssets.Colors.Red
-                : ActionNameColors.Resolve(action);
+            var nameColor = compelled ? CompelledCrimsonBright : ActionNameColors.Resolve(action);
             if (dimmed)
                 nameColor = ActionInfoStripLayout.DarkenRgb(nameColor, 0.5);
             canvas.AddText(cx + 2, ty++, Truncate(name, innerW), nameColor);
+            if (compelled && !dimmed)
+            {
+                const string tag = "required";
+                canvas.AddText(cx + CardWidth - 2 - tag.Length, cy + CardHeight - 2, tag, CompelledCrimson);
+            }
             if (!string.IsNullOrEmpty(swing))
                 canvas.AddText(cx + 2, ty++, Truncate(swing, innerW), dimmed ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Green);
             int linesLeft = cy + CardHeight - 1 - ty;

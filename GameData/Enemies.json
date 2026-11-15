@@ -755,8 +755,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Sand Dash",
-      "Desert Veil"
+      "Grit Lance",
+      "Sand Shackle"
     ],
     "kit": [
       "ENEMY PIERCE",
@@ -795,7 +795,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Burrow Strike",
+      "Burrowing Fang",
       "Sand Spray"
     ],
     "kit": [
@@ -837,8 +837,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Rolling Charge",
-      "Sand Armor"
+      "Spine Roll",
+      "Quicksand Wake"
     ],
     "kit": [
       "ENEMY PIERCE",
@@ -881,8 +881,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Solar Sting",
-      "Heat Wave"
+      "Sun Lance",
+      "Pinning Claw"
     ],
     "kit": [
       "ENEMY PIERCE",
@@ -924,7 +924,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Blinding Flash",
+      "Dazzle Snare",
       "Precision Shot"
     ],
     "kit": [
@@ -966,8 +966,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Crystal Barrage",
-      "Shatter"
+      "Glass Shackles",
+      "Shard Siphon"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -1007,8 +1007,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Illusion Strike",
-      "Vanish"
+      "Mirage Mire",
+      "Thirsting Mirage"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -1050,7 +1050,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Phase Shift",
+      "Shadow Tether",
       "Soul Drain"
     ],
     "kit": [
@@ -1089,7 +1089,7 @@
     "tempo": "fast",
     "actions": [
       "Vitality Leech",
-      "Sap Drain"
+      "Sticky Latch"
     ],
     "kit": [
       "ENEMY DRAIN",
@@ -1130,8 +1130,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Titan Fist",
-      "Ground Pound"
+      "Cracking Fist",
+      "Tomb Dust Slam"
     ],
     "kit": [
       "ENEMY CURSE",
@@ -1171,7 +1171,7 @@
     "tempo": "fast",
     "actions": [
       "Toxic Dart",
-      "Venom Volley"
+      "Life Tithe"
     ],
     "kit": [
       "ENEMY VENOM",
@@ -1212,8 +1212,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Solar Blessing",
-      "Sunbeam"
+      "Sun\u0027s Judgment",
+      "Sunlit Renewal"
     ],
     "kit": [
       "ENEMY CURSE",
@@ -1255,8 +1255,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Shell Defense",
-      "Mandible Crush"
+      "Scarab Curse",
+      "Venom Mandibles"
     ],
     "kit": [
       "ENEMY CURSE",
@@ -1299,8 +1299,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Ambush",
-      "Sand Blind"
+      "Grave Mark",
+      "Tomb Feast"
     ],
     "kit": [
       "ENEMY CURSE",
@@ -1337,8 +1337,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "slow",
     "actions": [
-      "Entomb",
-      "Mummy\u0027s Grasp"
+      "Embalming Draw",
+      "Pharaoh\u0027s Curse"
     ],
     "kit": [
       "ENEMY MEND",
@@ -1416,8 +1416,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "slow",
     "actions": [
-      "Crush",
-      "Binding Slam"
+      "Rot Wrap",
+      "Linen Leech"
     ],
     "kit": [
       "ENEMY VENOM",
@@ -1454,7 +1454,7 @@
     "tempo": "normal",
     "actions": [
       "Spectral Touch",
-      "Ancient Curse"
+      "Ancestral Renewal"
     ],
     "kit": [
       "ENEMY CURSE",
@@ -1490,8 +1490,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Talon Strike",
-      "Keen Eye"
+      "Talon Flurry",
+      "Plummet Strike"
     ],
     "kit": [
       "ENEMY FRENZY",
@@ -1572,7 +1572,7 @@
     "tempo": "fast",
     "actions": [
       "Cliff Drop",
-      "Ledge Grab"
+      "Ledge Flurry"
     ],
     "kit": [
       "ENEMY CRUSH",
@@ -1613,7 +1613,7 @@
     "tempo": "fast",
     "actions": [
       "Quick Bite",
-      "Disease Spread"
+      "Body Slam"
     ],
     "kit": [
       "ENEMY FRENZY",
@@ -1654,8 +1654,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Bile Splash",
-      "Corrupted Gulp"
+      "Bile Headbutt",
+      "Thrashing Gulps"
     ],
     "kit": [
       "ENEMY CONCUSS",
@@ -1691,8 +1691,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Last Stand Break",
-      "Phantom Strike"
+      "Hilt Bash",
+      "Deserter\u0027s Cleave"
     ],
     "kit": [
       "ENEMY CONCUSS",
@@ -1729,7 +1729,7 @@
     "tempo": "normal",
     "actions": [
       "Lightning Strike",
-      "Thunder Clap"
+      "Thunderfall"
     ],
     "kit": [
       "ENEMY CONCUSS",
@@ -1766,7 +1766,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Dive Bomb",
+      "Gale Flurry",
       "Wind Gust"
     ],
     "kit": [
@@ -1806,7 +1806,7 @@
     "tempo": "heavy",
     "actions": [
       "Peak Slam",
-      "Mountain\u0027s Fury"
+      "Avalanche Fist"
     ],
     "kit": [
       "ENEMY CRUSH",
@@ -1846,7 +1846,7 @@
     "tempo": "normal",
     "actions": [
       "Scorching Bite",
-      "Ember lunge"
+      "Ripping Fang"
     ],
     "kit": [
       "ENEMY SCORCH",
@@ -1883,8 +1883,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Tremor Burst",
-      "Molten Ooze"
+      "Magma Burst",
+      "Jagged Crust"
     ],
     "kit": [
       "ENEMY SCORCH",
@@ -1962,7 +1962,7 @@
     "tempo": "heavy",
     "actions": [
       "Coal Shell",
-      "Soot Pummel"
+      "Slag Rake"
     ],
     "kit": [
       "ENEMY SCORCH",
@@ -2002,7 +2002,7 @@
     "tempo": "slow",
     "actions": [
       "Ember Spit",
-      "Tongue Lash"
+      "Numbing Tongue"
     ],
     "kit": [
       "ENEMY SCORCH",
@@ -2044,7 +2044,7 @@
     "tempo": "fast",
     "actions": [
       "Smog Step",
-      "Murky Ambush"
+      "Smog Ignition"
     ],
     "kit": [
       "ENEMY REND",
@@ -2082,7 +2082,7 @@
     "tempo": "fast",
     "actions": [
       "Predator\u0027s Focus",
-      "Smoldering Strike"
+      "Smoldering Claw"
     ],
     "kit": [
       "ENEMY REND",
@@ -2123,8 +2123,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Bark Fortify",
-      "Root Slam"
+      "Splinter Lash",
+      "Withering Root"
     ],
     "kit": [
       "ENEMY REND",
@@ -2163,7 +2163,7 @@
     "tempo": "fast",
     "actions": [
       "Reignite",
-      "Flicker Dash"
+      "Dimming Flicker"
     ],
     "kit": [
       "ENEMY SCORCH",
@@ -2247,7 +2247,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Searing Focus",
+      "Armor Melt",
       "Lava Glob"
     ],
     "kit": [
@@ -2286,8 +2286,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Sear The Gap",
-      "Drift Strike"
+      "Searing Gust",
+      "Ember Ward"
     ],
     "kit": [
       "ENEMY SCORCH",
@@ -2369,7 +2369,7 @@
     "tempo": "slow",
     "actions": [
       "Stone Gaze",
-      "Rubble Toss"
+      "Rubble Guard"
     ],
     "kit": [
       "ENEMY SUNDER",
@@ -2411,7 +2411,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Soul Skewer",
+      "Ash Veil",
       "Wall of Ash"
     ],
     "kit": [
@@ -2450,7 +2450,7 @@
     "tempo": "heavy",
     "actions": [
       "Flame Salute",
-      "Blazing Advance"
+      "Flame Guard"
     ],
     "kit": [
       "ENEMY SCORCH",
@@ -2536,8 +2536,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Crumbling Curse",
-      "hollow Grasp"
+      "Stone Ward",
+      "Hollow Breach"
     ],
     "kit": [
       "ENEMY SHELL",
@@ -2581,7 +2581,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Expose Vein",
+      "Fevered Bite",
       "Draining Bite"
     ],
     "kit": [
@@ -2618,8 +2618,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Toxic Focus",
-      "Spore Burst"
+      "Spore Siphon",
+      "Spore Husk"
     ],
     "kit": [
       "ENEMY DRAIN",
@@ -2658,7 +2658,7 @@
     "tempo": "fast",
     "actions": [
       "Leech Grip",
-      "Crystal barb"
+      "Searing Barb"
     ],
     "kit": [
       "ENEMY DRAIN",
@@ -2743,7 +2743,7 @@
     "tempo": "fast",
     "actions": [
       "Magma Kiss",
-      "Slag Drift"
+      "Slag Shell"
     ],
     "kit": [
       "ENEMY SCORCH",
@@ -2782,7 +2782,7 @@
     "tempo": "heavy",
     "actions": [
       "Magma Carapace",
-      "Boiling Snap"
+      "Crust Guard"
     ],
     "kit": [
       "ENEMY SCORCH",
@@ -2825,7 +2825,7 @@
     "tempo": "heavy",
     "actions": [
       "Amber Casing",
-      "Petrify Sweep"
+      "Molten Sweep"
     ],
     "kit": [
       "ENEMY SHELL",
@@ -2868,7 +2868,7 @@
     "tempo": "fast",
     "actions": [
       "Lava Douse",
-      "Molten Pounce"
+      "Leeching Pounce"
     ],
     "kit": [
       "ENEMY SCORCH",
@@ -2911,8 +2911,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Amber Ooze",
-      "Resin Snare"
+      "Amber Siphon",
+      "Burning Resin"
     ],
     "kit": [
       "ENEMY DRAIN",
@@ -2949,8 +2949,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Guard Bite",
-      "Boundary Mark"
+      "Tearing Bite",
+      "Snapping Flurry"
     ],
     "kit": [
       "ENEMY REND",
@@ -3026,8 +3026,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Skeletal Burst",
-      "Marrow Drain"
+      "Bone Hammer",
+      "Bone Splinter"
     ],
     "kit": [
       "ENEMY CRUSH",
@@ -3063,8 +3063,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "slow",
     "actions": [
-      "Sacrificial Strike",
-      "Offering"
+      "Sacrificial Slam",
+      "Blood Offering"
     ],
     "kit": [
       "ENEMY CRUSH",
@@ -3100,8 +3100,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Hex Maul",
-      "Dark Roar"
+      "Crushing Maul",
+      "Mauling Frenzy"
     ],
     "kit": [
       "ENEMY CRUSH",
@@ -3141,7 +3141,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Earth Shield",
+      "Grave Rake",
       "Tremor"
     ],
     "kit": [
@@ -3185,8 +3185,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Celestial Strike",
-      "Night\u0027s Grace"
+      "Moon Sickle",
+      "Moonlit Flurry"
     ],
     "kit": [
       "ENEMY REND",
@@ -3223,8 +3223,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Sound Strike",
-      "Sonic Pulse"
+      "Echo Flurry",
+      "Sonic Hammer"
     ],
     "kit": [
       "ENEMY FRENZY",
@@ -3264,7 +3264,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Pack Leader\u0027s Call",
+      "Alpha\u0027s Pounce",
       "Dominant Bite"
     ],
     "kit": [
@@ -3303,7 +3303,7 @@
     "tempo": "fast",
     "actions": [
       "Trick Shot",
-      "Misdirect"
+      "Sapping Trick"
     ],
     "kit": [
       "ENEMY DISRUPT",
@@ -3341,7 +3341,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Thorn Bite",
+      "Hedge Ram",
       "Bush Ambush"
     ],
     "kit": [
@@ -3379,7 +3379,7 @@
     "tempo": "normal",
     "actions": [
       "Trap Door",
-      "Wall Shift"
+      "Dead End Dread"
     ],
     "kit": [
       "ENEMY DISRUPT",
@@ -3420,7 +3420,7 @@
     "tempo": "fast",
     "actions": [
       "Pathfind",
-      "Confuse Trail"
+      "Wearying Trail"
     ],
     "kit": [
       "ENEMY DISRUPT",
@@ -3458,7 +3458,7 @@
     "tempo": "normal",
     "actions": [
       "Circular Strike",
-      "Endless Cycle"
+      "Broken Loop"
     ],
     "kit": [
       "ENEMY CONCUSS",
@@ -3494,7 +3494,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Reflex Drain",
+      "Instinct Break",
       "Primal Fear"
     ],
     "kit": [
@@ -3569,7 +3569,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Broken Mirror",
+      "Feeble Reflection",
       "Fragment"
     ],
     "kit": [
@@ -3607,7 +3607,7 @@
     "tempo": "heavy",
     "actions": [
       "Identity Theft",
-      "Confusion"
+      "Doubt Sown"
     ],
     "kit": [
       "ENEMY DISRUPT",
@@ -3644,8 +3644,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "slow",
     "actions": [
-      "Spiked Charge",
-      "Bramble Hide"
+      "Venom Tusk",
+      "Bramble Snare"
     ],
     "kit": [
       "ENEMY VENOM",
@@ -3724,7 +3724,7 @@
     "tempo": "fast",
     "actions": [
       "Venom Bite",
-      "Rattle Warning"
+      "Coil Bind"
     ],
     "kit": [
       "ENEMY VENOM",
@@ -3764,7 +3764,7 @@
     "tempo": "fast",
     "actions": [
       "Sweet Sting",
-      "Collect"
+      "Sticky Nectar"
     ],
     "kit": [
       "ENEMY VENOM",
@@ -3839,8 +3839,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Gorge Strike",
-      "Echo Call"
+      "Toxic Fang",
+      "Hamstring"
     ],
     "kit": [
       "ENEMY VENOM",
@@ -3876,8 +3876,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Wall Slam",
-      "Climb"
+      "Mortar Grip",
+      "Stone Feast"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -3914,7 +3914,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Whip Strike",
+      "Binding Whip",
       "Grow"
     ],
     "kit": [
@@ -3952,8 +3952,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Decay Touch",
-      "Crumble"
+      "Grasping Decay",
+      "Decay Feast"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -3989,7 +3989,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Reed Skewer",
+      "Reed Tangle",
       "Predator\u0027s Eye"
     ],
     "kit": [
@@ -4030,8 +4030,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "swarm",
     "actions": [
-      "Freeding Frenzy",
-      "Swarm Dive"
+      "Needle Proboscis",
+      "Blood Suck"
     ],
     "kit": [
       "ENEMY PIERCE",
@@ -4067,7 +4067,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "slow",
     "actions": [
-      "Mud Shell",
+      "Mud Spike",
       "Mire Slam"
     ],
     "kit": [
@@ -4105,8 +4105,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Tidal Crash",
-      "Wave Slam"
+      "Tide Lance",
+      "Undertow Drag"
     ],
     "kit": [
       "ENEMY PIERCE",
@@ -4142,8 +4142,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Static Thrash",
-      "Mud Roll"
+      "Needle Teeth",
+      "Leeching Coil"
     ],
     "kit": [
       "ENEMY PIERCE",
@@ -4179,8 +4179,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Spore Drift",
-      "Surge"
+      "Sticky Spores",
+      "Hollow Siphon"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -4216,8 +4216,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Mist Strike",
-      "False Form"
+      "Fog Bind",
+      "Mimic Siphon"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -4258,7 +4258,7 @@
     "tempo": "fast",
     "actions": [
       "Chilling Grasp",
-      "Frost Crawl"
+      "Ice Spike"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -4295,8 +4295,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Veil Shatter",
-      "Phantom Lunge"
+      "Veil Snare",
+      "Phantom Siphon"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -4332,7 +4332,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Blinding Swarm",
+      "Glowing Web",
       "Biolumiscent Flash"
     ],
     "kit": [
@@ -4370,7 +4370,7 @@
     "tempo": "fast",
     "actions": [
       "Cold Seep",
-      "Frozen Burst"
+      "Frostburn"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -4411,7 +4411,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "slow",
     "actions": [
-      "Lurch Strike",
+      "Lurching Grab",
       "Cavern Thrash"
     ],
     "kit": [
@@ -4449,7 +4449,7 @@
     "tempo": "normal",
     "actions": [
       "Calcified Gaze",
-      "Basin Surge"
+      "Basin Renewal"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -4489,7 +4489,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Stone Carapace",
+      "Scalding Mud",
       "Pit Pull"
     ],
     "kit": [
@@ -4526,8 +4526,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Predator\u0027s Focus",
-      "Tentacle Snap"
+      "Scalding Ink",
+      "Tentacle Bind"
     ],
     "kit": [
       "ENEMY SCORCH",
@@ -4567,7 +4567,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Vent Focus",
+      "Steam Bind",
       "Steam Dash"
     ],
     "kit": [
@@ -4606,7 +4606,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Venom Spine",
+      "Reef Feed",
       "Splash"
     ],
     "kit": [
@@ -4643,8 +4643,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Veil Shatter",
-      "Phantom Surge"
+      "Veil Snare",
+      "Mist Renewal"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -4681,7 +4681,7 @@
     "tempo": "heavy",
     "actions": [
       "Tidal Bulwark",
-      "Shield Bash"
+      "Shield Wall"
     ],
     "kit": [
       "ENEMY SUNDER",
@@ -4722,8 +4722,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Deep Drain",
-      "Abyssal pull"
+      "Abyssal Shell",
+      "Abyssal Crush"
     ],
     "kit": [
       "ENEMY SHELL",
@@ -4760,7 +4760,7 @@
     "tempo": "heavy",
     "actions": [
       "Food Etch",
-      "Tidal Sweep"
+      "Tide Guard"
     ],
     "kit": [
       "ENEMY SUNDER",
@@ -4801,8 +4801,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Inner Current",
-      "Pressurized Strike"
+      "Pressure Point",
+      "Still Stance"
     ],
     "kit": [
       "ENEMY SUNDER",
@@ -4839,7 +4839,7 @@
     "tempo": "fast",
     "actions": [
       "Torrent Slam",
-      "Rapid Current"
+      "Spray Shield"
     ],
     "kit": [
       "ENEMY CRUSH",
@@ -4917,8 +4917,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Toxic Gaze",
-      "Still Waters"
+      "Stripping Gaze",
+      "Still Ward"
     ],
     "kit": [
       "ENEMY SUNDER",
@@ -4955,7 +4955,7 @@
     "tempo": "normal",
     "actions": [
       "Current Break",
-      "Shadow Surge"
+      "Undertow Slam"
     ],
     "kit": [
       "ENEMY SUNDER",
@@ -4991,7 +4991,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Sunken Curse",
+      "Armor Rot",
       "Drowned Wrath"
     ],
     "kit": [

@@ -145,6 +145,11 @@ namespace RPGGame
                 }
             }
 
+            // Base item POTENCY modifiers: the hero's DoTs on this foe tick harder (read at tick time).
+            if (attacker is Character potencyHero && potencyHero is not Enemy && target is Enemy potencyFoe
+                && combatEvent?.Type == CombatEventType.ActionHit && !combatEvent.IsMiss)
+                potencyFoe.DotPotency = CrossWires.PotencyAll(potencyHero, action, potencyFoe);
+
             // Enemy region / dungeon affixes: each on-hit affix rolls its chance on a landed hit.
             if (attacker is Enemy affixEnemy && affixEnemy.Affixes.Count > 0
                 && combatEvent?.Type == CombatEventType.ActionHit && !combatEvent.IsMiss

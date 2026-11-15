@@ -5,10 +5,10 @@
     "chancePerLevel": 0.002,
     "maxChance": 0.35
   },
-  "bossPrefix": "Demon",
+  "bossPrefix": "Demonic",
   "prefixes": [
     {
-      "name": "Demon",
+      "name": "Demonic",
       "bossOnly": true,
       "weight": 0,
       "tags": [ "demon", "fiend", "infernal" ],

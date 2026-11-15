@@ -55,7 +55,10 @@
       "Bash(find:*)",
       "Skill(test)",
       "Skill(tuner)",
-      "Skill(balance)"
+      "Skill(balance)",
+      "Bash(python Scripts/balancepatch.py resolve affix-v44m-early)",
+      "Bash(python -m json.tool)",
+      "Bash(python)"
     ]
   },
   "enableAllProjectMcpServers": true,

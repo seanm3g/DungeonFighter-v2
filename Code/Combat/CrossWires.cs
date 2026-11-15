@@ -12,13 +12,17 @@ namespace RPGGame
     /// <summary>One <c>IF</c> clause of a rule (see <see cref="CrossWireRule"/>).</summary>
     public sealed class RuleCondition
     {
-        /// <summary><c>self</c> (hero value or store), <c>target</c> (target status or HP), <c>prefix</c> (enemy prefix tag).</summary>
+        /// <summary><c>self</c> (hero value or store), <c>target</c> (target status or HP), <c>prefix</c> (enemy prefix tag),
+        /// or the swing's action: <c>action</c> (name), <c>tag</c> (action tag), <c>class</c> (class-tagged action).</summary>
         public string Subject { get; init; } = "self";
         /// <summary>HP, STEP, SPENT, LENGTH, ROLL, DISTINCT, TURN, or a store id (RAGE, focus, bleed…).</summary>
         public string Key { get; init; } = "";
         /// <summary>&gt;=, &lt;=, &gt;, &lt;, =; empty = "is up" (value &gt; 0) / prefix present.</summary>
         public string Op { get; init; } = "";
         public double Value { get; init; }
+
+        /// <summary>True for ACTION / TAG / CLASS: the condition reads the hero's swing, so it only holds when one is known.</summary>
+        public bool ReadsAction => Subject is "action" or "tag" or "class";
     }
 
     /// <summary>
@@ -26,7 +30,10 @@ namespace RPGGame
     /// family). Written as data on skill nodes (<c>crossWire</c>) and item prefixes (Effect <c>CROSSWIRE</c> or
     /// <c>RULE</c>, field <c>crossWire</c>; several rules separated by <c>;</c>; <c>{n}</c> = the prefix's rolled value).
     /// <code>WHEN[:arg] [EVERY n] [IF cond [AND cond]…] -> VERB what n[%] [FOR fight|dungeon]
-    /// WHILE [IF cond [AND cond]…] -> STAT ±n[%] [PER TARGET status]</code>
+    /// WHILE [IF cond [AND cond]…] -> STAT ±n[%] [PER TARGET status]
+    /// WHILE [IF cond …] -> POTENCY status ±n%</code>
+    /// Swing conditions (base item modifiers): <c>IF ACTION Name_With_Underscores</c>, <c>IF TAG tag</c>,
+    /// <c>IF CLASS warrior</c>. POTENCY scales the damage of the hero's bleed / burn / poison / acid ticks on foes.
     /// <list type="bullet">
     /// <item>WHEN: any event token, hub (ONCASH:RAGE, ONBEAT, ONSTATUSAPPLY:bleed…) or combat (ONKILL, ONCONNECT,
     /// ONTAKEHIT…). EVERY n fires on every n-th match this fight.</item>
@@ -73,7 +80,9 @@ namespace RPGGame
         public bool IsPassive => When.Equals("WHILE", StringComparison.OrdinalIgnoreCase);
 
         public static readonly string[] TriggeredVerbs = { "MINT", "ADD", "APPLY", "HEAL", "REFLECT", "BUFF" };
-        public static readonly string[] PassiveStats = { "DAMAGE", "ARMOR", "SPEED", "HIT", "COMBO", "CRIT" };
+        public static readonly string[] PassiveStats = { "DAMAGE", "ARMOR", "SPEED", "HIT", "COMBO", "CRIT", "POTENCY" };
+        /// <summary>Statuses POTENCY can scale (the hero's damage-over-time on foes).</summary>
+        public static readonly string[] PotencyStatuses = { "bleed", "burn", "poison", "acid" };
         public static readonly string[] BuffStats = { "STR", "AGI", "TECH", "TEC", "INT", "HIT", "COMBO", "CRIT", "ACCURACY" };
         public static readonly string[] Exemptions = { "STREAK", "COMBO" };
         private static readonly string[] SelfKeys = { "HP", "STEP", "SPENT", "LENGTH", "ROLL", "DISTINCT", "TURN" };
@@ -143,7 +152,7 @@ namespace RPGGame
             // Right side shapes: VERB store n | HEAL n | REFLECT n% | BUFF stat n [FOR scope] | STAT n [PER TARGET status]
             string store = "";
             int amountAt = 1;
-            if (verb is "MINT" or "ADD" or "APPLY" or "BUFF")
+            if (verb is "MINT" or "ADD" or "APPLY" or "BUFF" or "POTENCY")
             {
                 if (right.Length < 3)
                     return null;
@@ -151,6 +160,12 @@ namespace RPGGame
                 amountAt = 2;
                 if (verb == "BUFF" && !BuffStats.Contains(store.ToUpperInvariant()))
                     return null;
+                if (verb == "POTENCY")
+                {
+                    store = store.ToLowerInvariant();
+                    if (!PotencyStatuses.Contains(store))
+                        return null;
+                }
             }
             else if (passive)
                 store = verb;
@@ -200,6 +215,15 @@ namespace RPGGame
         private static RuleCondition? ParseCondition(string[] t, ref int i)
         {
             string head = t[i];
+            if ((head.Equals("ACTION", StringComparison.OrdinalIgnoreCase) || head.Equals("TAG", StringComparison.OrdinalIgnoreCase)
+                    || head.Equals("CLASS", StringComparison.OrdinalIgnoreCase)) && i + 1 < t.Length)
+            {
+                string subject = head.ToLowerInvariant();
+                string body = t[i + 1];
+                i += 2;
+                // Action names are written with underscores for spaces (one token).
+                return new RuleCondition { Subject = subject, Key = subject == "action" ? body.Replace('_', ' ') : body.ToLowerInvariant() };
+            }
             if ((head.Equals("TARGET", StringComparison.OrdinalIgnoreCase) || head.Equals("PREFIX", StringComparison.OrdinalIgnoreCase))
                 && i + 1 < t.Length)
             {
@@ -307,7 +331,16 @@ namespace RPGGame
             }
             foreach (var item in MaterialSetController.EnumerateEquipped(hero))
             {
-                if (item?.Modifications == null)
+                if (item == null)
+                    continue;
+                // The base item's modifier (Item.ImplicitRule, e.g. "+12% damage with Cleave").
+                if (!string.IsNullOrWhiteSpace(item.ImplicitRule))
+                {
+                    var implicitRule = Cached(item.ImplicitRule.Trim(), item.Name);
+                    if (implicitRule != null)
+                        list.Add(implicitRule);
+                }
+                if (item.Modifications == null)
                     continue;
                 foreach (var mod in item.Modifications)
                     if (mod != null)
@@ -424,18 +457,25 @@ namespace RPGGame
 
         // ------------------------------------------------------------------ conditions
 
-        public static bool ConditionsHold(Character hero, Actor? target, CrossWireRule rule, int eventAmount = 0, CombatEvent? evt = null)
+        public static bool ConditionsHold(Character hero, Actor? target, CrossWireRule rule, int eventAmount = 0, CombatEvent? evt = null,
+            Action? action = null)
         {
             foreach (var c in rule.Conditions)
-                if (!Holds(hero, target, c, eventAmount, evt))
+                if (!Holds(hero, target, c, eventAmount, evt, action ?? evt?.Action))
                     return false;
             return true;
         }
 
-        private static bool Holds(Character hero, Actor? target, RuleCondition c, int eventAmount, CombatEvent? evt)
+        private static bool Holds(Character hero, Actor? target, RuleCondition c, int eventAmount, CombatEvent? evt, Action? action)
         {
             switch (c.Subject)
             {
+                case "action":
+                    return action != null && string.Equals(action.Name?.Trim(), c.Key, StringComparison.OrdinalIgnoreCase);
+                case "tag":
+                    return action?.Tags != null && action.Tags.Any(t => string.Equals(t?.Trim(), c.Key, StringComparison.OrdinalIgnoreCase));
+                case "class":
+                    return action != null && GearActionPools.IsClassActionFor(action.Tags, new[] { c.Key });
                 case "prefix":
                     return target is Enemy e && e.PrefixTags.Any(t => string.Equals(t, c.Key, StringComparison.OrdinalIgnoreCase));
                 case "target":
@@ -515,7 +555,10 @@ namespace RPGGame
         /// Sum of the hero's passive rules for <paramref name="stat"/> (DAMAGE / ARMOR / SPEED in %, HIT / COMBO /
         /// CRIT in roll points) whose conditions hold against <paramref name="target"/> (default: current target).
         /// </summary>
-        public static double Passive(Character? hero, string stat, Actor? target = null)
+        /// <param name="action">The swing, for ACTION / TAG / CLASS conditions; rules with those conditions are skipped
+        /// when it is null (attack speed and roll bonuses are computed without a swing).</param>
+        /// <param name="actionOnly">Only rules with a swing condition (for callers that already counted the others).</param>
+        public static double Passive(Character? hero, string stat, Actor? target = null, Action? action = null, bool actionOnly = false)
         {
             if (hero == null || hero is Enemy)
                 return 0;
@@ -525,12 +568,15 @@ namespace RPGGame
             {
                 if (!rule.IsPassive || !rule.Verb.Equals(stat, StringComparison.OrdinalIgnoreCase))
                     continue;
+                bool readsAction = rule.Conditions.Any(c => c.ReadsAction);
+                if ((actionOnly && !readsAction) || (action == null && readsAction))
+                    continue;
                 if (!resolved)
                 {
                     target ??= HeroEventHub.CurrentTarget(hero);
                     resolved = true;
                 }
-                if (!ConditionsHold(hero, target, rule))
+                if (!ConditionsHold(hero, target, rule, action: action))
                     continue;
                 double v = rule.Amount;
                 if (rule.PerTargetStatus != null)
@@ -538,6 +584,50 @@ namespace RPGGame
                 sum += v;
             }
             return sum;
+        }
+
+        /// <summary>Swing-scoped SPEED rules (IF ACTION / TAG / CLASS) for <paramref name="action"/>, in % (+ = faster), floored at -50.
+        /// The unscoped SPEED rules are already in the hero's attack speed.</summary>
+        public static double ActionSpeedPercent(Character? hero, Action? action) =>
+            action == null || hero == null || hero is Enemy ? 0 : Math.Max(-50, Passive(hero, "SPEED", null, action, actionOnly: true));
+
+        /// <summary>POTENCY rules for <paramref name="status"/> (bleed / burn / poison / acid), in %: how much harder the hero's
+        /// ticks of it hit a foe. <paramref name="action"/> is the swing that applied it (for swing conditions).</summary>
+        public static double Potency(Character? hero, string status, Action? action = null, Actor? target = null)
+        {
+            if (hero == null || hero is Enemy || string.IsNullOrWhiteSpace(status))
+                return 0;
+            double sum = 0;
+            foreach (var rule in Collect(hero, TreesHavePassive()))
+            {
+                if (!rule.IsPassive || rule.Verb != "POTENCY" || !rule.Store.Equals(status, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (action == null && rule.Conditions.Any(c => c.ReadsAction))
+                    continue;
+                if (ConditionsHold(hero, target ?? HeroEventHub.CurrentTarget(hero), rule, action: action))
+                    sum += rule.Amount;
+            }
+            return sum;
+        }
+
+        /// <summary>Every POTENCY status for the hero in one pass (null when none apply).</summary>
+        public static Dictionary<string, double>? PotencyAll(Character? hero, Action? action, Actor? target)
+        {
+            if (hero == null || hero is Enemy)
+                return null;
+            Dictionary<string, double>? map = null;
+            foreach (var rule in Collect(hero, TreesHavePassive()))
+            {
+                if (!rule.IsPassive || rule.Verb != "POTENCY")
+                    continue;
+                if (action == null && rule.Conditions.Any(c => c.ReadsAction))
+                    continue;
+                if (!ConditionsHold(hero, target, rule, action: action))
+                    continue;
+                map ??= new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+                map[rule.Store] = (map.TryGetValue(rule.Store, out double v) ? v : 0) + rule.Amount;
+            }
+            return map;
         }
 
         /// <summary>Statuses rules can put on the target. DoTs add to their intensity (their handlers tick it).</summary>
@@ -587,6 +677,21 @@ namespace RPGGame
             }
             if (rule.Verb == "COUNTAS")
                 return $"{TriggerEvents.Label(rule.When) ?? rule.When}{cond} also counts as {(TriggerEvents.Label(rule.Store) ?? rule.Store).ToLowerInvariant()}";
+            if (rule.IsPassive && rule.Verb == "POTENCY")
+            {
+                string lead = cond.Length > 0 ? $"While{cond}: " : "";
+                return $"{lead}{sign}{rule.Amount:0.#}% {rule.Store} damage";
+            }
+            if (rule.IsPassive && rule.Conditions.Count > 0 && rule.Conditions.All(c => c.ReadsAction))
+            {
+                // Base item modifiers read as "+12% damage with Cleave".
+                string unit = rule.Percent ? "%" : "";
+                string statName = rule.Verb switch
+                {
+                    "DAMAGE" => "damage", "ARMOR" => "armor", "SPEED" => "speed", "HIT" => "to hit", "COMBO" => "to combo", _ => "to crit"
+                };
+                return $"{sign}{rule.Amount:0.#}{unit} {statName} {string.Join(" and ", rule.Conditions.Select(DescribeCondition))}";
+            }
             if (rule.IsPassive)
             {
                 string unit = rule.Percent ? "%" : "";
@@ -624,6 +729,9 @@ namespace RPGGame
             return c.Subject switch
             {
                 "prefix" => $"vs {c.Key}",
+                "action" => $"with {c.Key}",
+                "tag" => $"with {c.Key} actions",
+                "class" => $"with {CultureInfo.InvariantCulture.TextInfo.ToTitleCase(c.Key)} actions",
                 "target" => c.Key == "HP" ? $"target HP{cmp}%" : c.Op.Length == 0 ? $"vs a target with {c.Key}" : $"target {c.Key}{cmp}",
                 _ => c.Key switch
                 {

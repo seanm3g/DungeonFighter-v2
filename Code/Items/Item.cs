@@ -324,6 +324,12 @@ namespace RPGGame
         [JsonPropertyName("implicit")]
         public string Implicit { get; set; } = "";
 
+        /// <summary>The base item's modifier: one passive rule (<see cref="CrossWires"/>) that changes other actions, a tag,
+        /// a class's actions or a status, e.g. <c>WHILE IF ACTION Cleave -&gt; DAMAGE 12%</c>. Rolled from
+        /// <c>GameData/BaseModifiers.json</c> by the item's class; the value already includes item-level scaling.</summary>
+        [JsonPropertyName("implicitRule")]
+        public string ImplicitRule { get; set; } = "";
+
         /// <summary>
         /// True when armor's <c>Armor</c> value is the defense rolled at generation (item level already applied); false for
         /// legacy items, whose catalog armor is scaled by the patch's equipmentScaling knobs when read.

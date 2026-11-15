@@ -73,11 +73,20 @@ namespace RPGGame.Combat.Turn
             return Math.Max(1, (int)Math.Round(damage * m));
         }
 
+        /// <summary>A foe's tick of <paramref name="status"/> scaled by the hero's POTENCY on it (base item modifiers).</summary>
+        private static int ScaleFoeDot(Actor entity, string status, int damage)
+        {
+            if (damage <= 0 || entity is not Enemy)
+                return damage;
+            double m = entity.DotPotencyMultiplier(status);
+            return m == 1.0 ? damage : Math.Max(1, (int)Math.Round(damage * m));
+        }
+
         /// <summary>Bleed resolves when the afflicted actor finishes their combat turn (including stun).</summary>
         public static void ProcessBleedAfterActorResolvedTurn(Actor entity)
         {
             var results = new List<string>();
-            int damage = ScaleHeroDot(entity, CombatEffectsSimplified.ProcessBleedAfterActorTurn(entity, results));
+            int damage = ScaleHeroDot(entity, ScaleFoeDot(entity, "bleed", CombatEffectsSimplified.ProcessBleedAfterActorTurn(entity, results)));
             if (damage > 0)
             {
                 string? barId = HealthBarEntityId.ForActor(entity);
@@ -119,6 +128,10 @@ namespace RPGGame.Combat.Turn
             var breakdown = CombatEffectsSimplified.ProcessStatusEffectsWithBreakdown(entity, results);
             // Poison is already a % of max HP, so it scales with level by itself; only flat burn / acid follow the curve
             // (scaling poison too made a 0.25% tick ~12% of max HP at L58, the Pyramids / Venom deaths of 2026-11-13).
+            breakdown = new CombatEffectsSimplified.StatusEffectDamageBreakdown(
+                ScaleFoeDot(entity, "poison", breakdown.PoisonDamage),
+                ScaleFoeDot(entity, "burn", breakdown.BurnDamage),
+                ScaleFoeDot(entity, "acid", breakdown.AcidDamage));
             int damage = breakdown.PoisonDamage + ScaleHeroDot(entity, breakdown.BurnDamage + breakdown.AcidDamage);
 
             if (damage > 0)

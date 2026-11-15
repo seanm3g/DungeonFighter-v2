@@ -17,8 +17,15 @@ namespace RPGGame.Combat.Formatting
             double actionLength = action.Length;
 
             // Apply consumed SPEED_MOD from ACTION/ABILITY keyword (positive = faster = shorter time)
-            if (actor is Character speedModChar && speedModChar.Effects.ConsumedSpeedModPercent != 0)
-                actionLength = actionLength / (1.0 + speedModChar.Effects.ConsumedSpeedModPercent / 100.0);
+            if (actor is Character speedModChar && speedModChar is not Enemy)
+            {
+                // Consumed SPEED_MOD plus base item modifiers scoped to this swing (same as ActionSpeedSystem).
+                double pct = speedModChar.Effects.ConsumedSpeedModPercent + CrossWires.ActionSpeedPercent(speedModChar, action);
+                if (pct != 0)
+                    actionLength = actionLength / (1.0 + pct / 100.0);
+            }
+            else if (actor is Character enemySpeedMod && enemySpeedMod.Effects.ConsumedSpeedModPercent != 0)
+                actionLength = actionLength / (1.0 + enemySpeedMod.Effects.ConsumedSpeedModPercent / 100.0);
 
             
             // Apply critical miss penalty (doubles action length)

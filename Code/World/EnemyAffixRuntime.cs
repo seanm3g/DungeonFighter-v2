@@ -226,7 +226,7 @@ namespace RPGGame
             boss.InitializeActionSequence();
 
             ApplyStaticLevers(boss);
-            boss.AppendTitle(identity.Demon);
+            // The Demonic prefix alone marks the boss; the dungeon title ("Demon of the Den") stays in data, unshown.
         }
 
         /// <summary>The Demon's version of a signature template ("ENEMY REND" → "Infernal Rend").</summary>

@@ -325,20 +325,26 @@ namespace RPGGame.UI.Avalonia.Renderers
 
 
             // Single Continue button: the inventory is the hub (Dungeon Select, Skill Tree, Travel, Main Menu).
-            string continueLine = MenuOptionFormatter.Format(1, "Continue");
-            int continueX = textAreaLeft + System.Math.Max(0, (textAreaWidth - continueLine.Length) / 2);
-            var continueOption = new ClickableElement
+            // Drawn as a boxed button (3 rows tall, centered on the menu row); key 1 still works.
+            const string label = "CONTINUE";
+            int buttonW = System.Math.Min(textAreaWidth, label.Length + 10);
+            const int buttonH = 3;
+            int buttonX = textAreaLeft + System.Math.Max(0, (textAreaWidth - buttonW) / 2);
+            int buttonY = menuStartY - 1;
+            var accent = ColorPaletteExtensions.GetColor(ColorPalette.Success);
+            var fill = Color.FromRgb(236, 236, 236);
+            canvas.AddBox(buttonX, buttonY, buttonW, buttonH, accent, fill, borderThicknessPixels: 3, aboveBackdrop: true);
+            canvas.AddText(buttonX + System.Math.Max(1, (buttonW - label.Length) / 2), buttonY + buttonH / 2, label, Color.FromRgb(20, 20, 20));
+            clickableElements.Add(new ClickableElement
             {
-                X = continueX,
-                Y = menuStartY,
-                Width = continueLine.Length,
-                Height = 1,
+                X = buttonX,
+                Y = buttonY,
+                Width = buttonW,
+                Height = buttonH,
                 Type = ElementType.MenuOption,
                 Value = "1",
-                DisplayText = continueLine
-            };
-            clickableElements.Add(continueOption);
-            canvas.AddMenuOption(continueX, menuStartY, 1, "Continue", AsciiArtAssets.Colors.White, continueOption.IsHovered);
+                DisplayText = MenuOptionFormatter.Format(1, "Continue")
+            });
 
         }
 

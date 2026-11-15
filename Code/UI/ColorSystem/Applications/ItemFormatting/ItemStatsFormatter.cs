@@ -185,6 +185,14 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 lines.Add(setLine.Build());
             }
 
+            if (ItemTriggerBundleDisplay.FormatModifier(item) is { } modifier)
+            {
+                var modifierLine = new ColoredTextBuilder();
+                modifierLine.Add("  Modifier: ", ColorPalette.Info);
+                modifierLine.Add(modifier, Colors.White);
+                lines.Add(modifierLine.Build());
+            }
+
             var combatSummaries = ItemTriggerBundleDisplay.FormatCombatSummaries(item).ToList();
             if (combatSummaries.Count > 0)
             {

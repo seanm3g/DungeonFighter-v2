@@ -58,6 +58,16 @@ namespace RPGGame
         /// <summary>Bleed intensity: same decay math as burn, resolved when the afflicted actor takes an action.</summary>
         public int BleedIntensity { get; set; }
         public int PendingBleedFromHits { get; set; }
+
+        /// <summary>
+        /// POTENCY from the hero who last hit this foe (base item modifiers, "+20% bleed damage"): status id → percent.
+        /// Its bleed / burn / poison / acid ticks are scaled by it (<see cref="DotPotencyMultiplier"/>).
+        /// </summary>
+        public Dictionary<string, double>? DotPotency { get; set; }
+
+        /// <summary>1 + POTENCY% for <paramref name="status"/> (1 when none).</summary>
+        public double DotPotencyMultiplier(string status) =>
+            DotPotency != null && DotPotency.TryGetValue(status, out double pct) ? Math.Max(0, 1.0 + pct / 100.0) : 1.0;
         /// <summary>True when bleed intensity or pending bleed from hits is non-zero.</summary>
         public bool IsBleeding => BleedIntensity > 0 || PendingBleedFromHits > 0;
         

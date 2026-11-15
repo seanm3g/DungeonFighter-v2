@@ -757,15 +757,14 @@
   },
   {
     "action": "BERSERKER",
-    "description": "Fight harder when hurt: below 50% HP, this hit deals \u002B50% damage.",
+    "description": "The more you bleed, the harder it lands: \u002B1% damage for every 1% of HP you are missing.",
     "tier": 3,
     "dps": "92%",
     "numberOfHits": "1",
     "damage": "120%",
     "speed": "1.30",
     "block": "100",
-    "triggerConditions": "IFSOURCEHEALTHBELOW:0.5",
-    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022hero_action_damage\u0022,\u0022value\u0022:50,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022hero_action_damage\u0022,\u0022value\u0022:1,\u0022filters\u0022:null,\u0022scaleFrom\u0022:\u0022MISSINGHP\u0022,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "tags": "class, barbarian"
   },
   {

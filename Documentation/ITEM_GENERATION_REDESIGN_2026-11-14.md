@@ -189,6 +189,13 @@ above their loot level, and about 8% of lines are one tier above what the level 
 
 ## 5. Base items: class, implicit, level scaling (stage 4)
 
+> **2026-11-15 change (user):** implicits are no longer triggers. A base's built-in line is a *modifier* on other things the
+> hero does, rolled from `GameData/BaseModifiers.json` by the base's class: +DAMAGE/SPEED % with one named action (from the
+> class's gear pool), with a tag's actions, with the class's actions, or POTENCY on the hero's bleed / burn / poison / acid
+> ticks. Stored as one CrossWires WHILE rule on `Item.ImplicitRule`; value scales with item level. Commons carry one 50% of
+> the time (`rarityChance`). Materials no longer add a trigger to the piece. The `triggerName` column now only marks which
+> bases get a modifier (all but the 8 starters). The table below is the superseded trigger version.
+
 ### Catalog changes (`Weapons.json`, `Armor.json`)
 
 | Column | New / changed | Meaning |

@@ -723,6 +723,19 @@
   {
     "ItemRank": "Common",
     "prefixCategory": "ADJECTIVE",
+    "Name": "Berserker's",
+    "Description": "+{n}% damage while below 50% HP.",
+    "Effect": "RULE",
+    "crossWire": "WHILE IF HP<50 -> DAMAGE +{n}%",
+    "Weight": 0.2,
+    "DiceResult": 0,
+    "MinValue": 15,
+    "MaxValue": 25,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
     "Name": "Concussive",
     "Description": "Every 2nd critical stuns the target (Concussion Maul).",
     "Effect": "RULE",

@@ -83,7 +83,16 @@ namespace RPGGame
                 }
             }
 
-            // The item's own mechanics (base implicit, material piece procs) show without Alt.
+            // The base item's modifier (changes other actions / a tag / the class / a status) shows without Alt.
+            string? modifier = ItemTriggerBundleDisplay.FormatModifier(item);
+            if (modifier != null && lines.Count < maxLines)
+            {
+                AddBlank(lines);
+                AddLine(lines, SectionHeader("Modifier"));
+                AddLine(lines, BuildTriggerLine(modifier));
+            }
+
+            // Any trigger rows the item still carries show without Alt.
             var combatSummaries = ItemTriggerBundleDisplay.FormatCombatSummaries(item).ToList();
             if (combatSummaries.Count > 0 && lines.Count < maxLines)
             {
