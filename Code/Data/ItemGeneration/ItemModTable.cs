@@ -7,7 +7,7 @@ using System.Text.Json.Serialization;
 
 namespace RPGGame.Data.ItemGeneration
 {
-    /// <summary>Mod pools in ladder order (re-routing and pool roll-ups walk this order by default).</summary>
+    /// <summary>The four mod pools; each line picks one by <c>lootSystem.itemGeneration.poolWeights</c>.</summary>
     public static class ModPools
     {
         public const string Stat = "stat";

@@ -27,7 +27,7 @@ namespace RPGGame.MCP.Tools.LootTuning
                     weight = r.Weight,
                     probability = totalWeight > 0 ? (r.Weight / totalWeight) * 100 : 0,
                     minLevel = r.MinLevel,
-                    pools = r.Pools,
+                    minLines = r.MinLines,
                     maxLines = r.MaxLines,
                     explode = r.Explode
                 }).ToList();

@@ -134,12 +134,8 @@ namespace RPGGame.Data.ItemGeneration
                 ApplyImplicit();
                 BuildInfluence();
 
-                // 7–8. Line counts and lines.
-                var counts = PlanLineCounts(rarity);
-                var lineRng = For("lines");
-                foreach (string pool in new[] { ModPools.Material, ModPools.Mechanic, ModPools.Stat, ModPools.Action })
-                    for (int i = 0; i < counts.GetValueOrDefault(pool); i++)
-                        RollLine(pool, lineRng);
+                // 7–8. Line count, then each line's pool by weight, then the lines (actions last).
+                RollLines(PlanLineCount(rarity));
 
                 string? forcedAffix = _req.ForcedAffix ?? ToolForcedAffix;
                 if (!string.IsNullOrWhiteSpace(forcedAffix))
@@ -349,12 +345,12 @@ namespace RPGGame.Data.ItemGeneration
                 if (!string.IsNullOrWhiteSpace(_req.Rarity))
                 {
                     return rows.FirstOrDefault(r => string.Equals(r.Name, _req.Rarity!.Trim(), StringComparison.OrdinalIgnoreCase))
-                        ?? new RarityData { Name = _req.Rarity!.Trim(), MaxLines = 1, Pools = { ["stat"] = new[] { 1, 1 } } };
+                        ?? new RarityData { Name = _req.Rarity!.Trim(), MinLines = 2, MaxLines = 2 };
                 }
 
                 var unlocked = rows.Where(r => r.MinLevel <= _ilvl && Weight(r) > 0).ToList();
                 if (unlocked.Count == 0)
-                    return rows.FirstOrDefault() ?? new RarityData { Name = "Common", MaxLines = 1, Pools = { ["stat"] = new[] { 1, 1 } } };
+                    return rows.FirstOrDefault() ?? new RarityData { Name = "Common", MinLines = 2, MaxLines = 2 };
                 var rarity = PickWeighted(For("rarity"), unlocked, Weight);
 
                 if (_req.AllowRollUps)
@@ -480,35 +476,17 @@ namespace RPGGame.Data.ItemGeneration
                 return Math.Min(Cfg.InfluenceCap, 1.0 + Cfg.InfluenceAffinity * matches);
             }
 
-            // ---------- 7. line counts ----------
+            // ---------- 7. line count ----------
 
-            private Dictionary<string, int> PlanLineCounts(RarityData rarity)
+            /// <summary>The rarity's <c>MinLines</c>, plus exploding extras up to <c>MaxLines</c>.</summary>
+            private int PlanLineCount(RarityData rarity)
             {
-                var counts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-                int total = 0;
-                foreach (string pool in ModPools.All)
-                {
-                    counts[pool] = rarity.PoolRange(pool).Min;
-                    total += counts[pool];
-                }
-
+                int total = Math.Max(0, rarity.MinLines);
                 var rng = For("explode");
                 int maxLines = Math.Max(total, rarity.MaxLines);
                 while (total < maxLines && rng.NextDouble() < rarity.Explode)
-                {
-                    var open = ModPools.All.Where(p => counts[p] < rarity.PoolRange(p).Max).ToList();
-                    if (open.Count == 0)
-                        break;
-                    string pick = PickWeighted(rng, open, p => Cfg.ExtraPoolWeights.GetValueOrDefault(p, 1.0) * PoolTilt(p));
-                    counts[pick]++;
                     total++;
-                }
-
-                if (_item.MinGeneratedActionBonuses > counts[ModPools.Action])
-                    counts[ModPools.Action] = _item.MinGeneratedActionBonuses;
-                foreach (var kv in counts)
-                    _spec.PlannedLines[kv.Key] = kv.Value;
-                return counts;
+                return total;
             }
 
             private double PoolTilt(string pool)
@@ -523,32 +501,56 @@ namespace RPGGame.Data.ItemGeneration
 
             // ---------- 8. lines ----------
 
-            private void RollLine(string plannedPool, Random rng)
+            /// <summary>
+            /// The guaranteed actions (and the base's own action minimum) take the first lines; every other line picks a
+            /// pool by <see cref="ItemGenerationConfig.PoolWeights"/> × influence among the pools that still have something
+            /// this item can roll, and rolls at once so it tilts the next pick. Action lines roll last.
+            /// </summary>
+            private void RollLines(int lineCount)
             {
-                string pool = plannedPool;
-                var ladder = Cfg.PoolLadder.Select(p => p.ToLowerInvariant()).Where(ModPools.All.Contains).ToList();
-                if (_req.AllowRollUps)
+                int actions = Math.Min(lineCount, Cfg.GuaranteedActionLines);
+                int weighted = lineCount - actions;
+                var poolRng = For("pools");
+                var lineRng = For("lines");
+                // A pool whose pick fails (e.g. a listener with no event for this slot) gets a few more tries, then closes.
+                var fails = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                bool Dead(string p) => fails.GetValueOrDefault(p) >= 3;
+
+                for (int i = 0; i < weighted; i++)
                 {
-                    int steps = Cfg.PoolRollUp.Roll(rng, _rollUpScale);
-                    int at = ladder.IndexOf(pool);
-                    if (steps > 0 && at >= 0 && at < ladder.Count - 1)
+                    bool rolled = false;
+                    while (!rolled)
                     {
-                        pool = ladder[Math.Min(ladder.Count - 1, at + steps)];
-                        _spec.RollUps.Add($"pool:{plannedPool}>{pool}");
+                        var open = ModPools.All
+                            .Where(p => !Dead(p) && Cfg.PoolWeights.GetValueOrDefault(p) > 0
+                                && (p == ModPools.Action || EligibleFamilies(p).Count > 0))
+                            .ToList();
+                        if (open.Count == 0)
+                            break;
+                        string pool = PickWeighted(poolRng, open, p => Cfg.PoolWeights.GetValueOrDefault(p) * PoolTilt(p));
+                        if (pool == ModPools.Action)
+                        {
+                            actions++;
+                            rolled = true;
+                        }
+                        else if (RollModLine(pool, lineRng, pool))
+                        {
+                            rolled = true;
+                        }
+                        else
+                        {
+                            fails[pool] = fails.GetValueOrDefault(pool) + 1;
+                        }
                     }
                 }
 
-                // Re-route: this pool, then up the ladder, then down.
-                int start = Math.Max(0, ladder.IndexOf(pool));
-                var order = new List<string> { pool };
-                order.AddRange(ladder.Skip(start + 1));
-                order.AddRange(ladder.Take(start).Reverse());
-                foreach (string candidate in order.Distinct())
-                {
-                    bool rolled = candidate == ModPools.Action ? RollAction(rng, plannedPool) : RollModLine(candidate, rng, plannedPool);
-                    if (rolled)
-                        return;
-                }
+                actions = Math.Max(actions, _item.MinGeneratedActionBonuses);
+                for (int i = 0; i < actions; i++)
+                    if (!RollAction(lineRng, ModPools.Action))
+                        break;
+
+                foreach (string pool in ModPools.All)
+                    _spec.PlannedLines[pool] = _spec.Lines.Count(l => l.Pool == pool);
             }
 
             private List<ItemModFamily> EligibleFamilies(string pool) =>

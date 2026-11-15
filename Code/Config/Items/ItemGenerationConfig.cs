@@ -56,19 +56,23 @@ namespace RPGGame
         /// <summary>Chance armor takes one of its base class's three set materials (else the rarity-matched pool).</summary>
         public double ArmorClassMaterialShare { get; set; } = 0.5;
 
-        /// <summary>Pool ladder, low to high: re-routing and pool roll-ups walk it.</summary>
-        public List<string> PoolLadder { get; set; } = new() { "stat", "material", "mechanic", "action" };
+        /// <summary>
+        /// Each line (after the guaranteed actions) picks its pool by these weights × the item's influence tilt, among
+        /// the pools that still have something this item can roll. The one dial for how often each kind of line shows up.
+        /// </summary>
+        public Dictionary<string, double> PoolWeights { get; set; } = DefaultPoolWeights();
 
-        /// <summary>Pool weights for exploding extra lines (before influence).</summary>
-        public Dictionary<string, double> ExtraPoolWeights { get; set; } = new()
-        {
-            ["stat"] = 3, ["material"] = 1, ["mechanic"] = 1, ["action"] = 1
-        };
+        /// <summary>Action lines every item gets before the weighted lines (they count toward the rarity's line count).</summary>
+        public int GuaranteedActionLines { get; set; } = 1;
 
         public RollUpRule ItemLevelRollUp { get; set; } = new(0.10, 0.5, 5);
         public RollUpRule RarityRollUp { get; set; } = new(0.05, 0.5, 2);
-        public RollUpRule PoolRollUp { get; set; } = new(0.05, 0.5, 1);
         public RollUpRule TierRollUp { get; set; } = new(0.08, 0.5, 2);
+
+        public static Dictionary<string, double> DefaultPoolWeights() => new()
+        {
+            ["stat"] = 50, ["mechanic"] = 20, ["material"] = 15, ["action"] = 15
+        };
 
         /// <summary>Roll-up chances × (1 + magic find / 100 × this).</summary>
         public double MagicFindRollUpScale { get; set; } = 1.0;
@@ -96,13 +100,13 @@ namespace RPGGame
         public void EnsureSensibleDefaults()
         {
             SlotWeights ??= new Dictionary<string, double>();
-            PoolLadder ??= new List<string>();
-            if (PoolLadder.Count == 0)
-                PoolLadder.AddRange(new[] { "stat", "material", "mechanic", "action" });
-            ExtraPoolWeights ??= new Dictionary<string, double>();
+            if (PoolWeights == null || PoolWeights.Count == 0)
+                PoolWeights = DefaultPoolWeights();
+            else
+                PoolWeights = new Dictionary<string, double>(PoolWeights, StringComparer.OrdinalIgnoreCase);
+            GuaranteedActionLines = Math.Max(0, GuaranteedActionLines);
             ItemLevelRollUp ??= new RollUpRule(0.10, 0.5, 5);
             RarityRollUp ??= new RollUpRule(0.05, 0.5, 2);
-            PoolRollUp ??= new RollUpRule(0.05, 0.5, 1);
             TierRollUp ??= new RollUpRule(0.08, 0.5, 2);
             HeroClassShare = Math.Clamp(HeroClassShare, 0, 1);
             if (InfluenceCap < 1)

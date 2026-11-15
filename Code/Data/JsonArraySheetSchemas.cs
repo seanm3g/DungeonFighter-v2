@@ -46,11 +46,10 @@ namespace RPGGame.Data
             "keyword", "min", "max", "level", "slotLevel", "weight", "maxRarity", "tierSlots"
         };
 
-        /// <summary>RARITY tab: one row per rarity; per-pool line counts as min / max columns.</summary>
+        /// <summary>RARITY tab: one row per rarity; how many lines it rolls (each line's pool is a config weight).</summary>
         public static readonly string[] RarityCanonicalHeaders =
         {
-            "Name", "Weight", "MinLevel", "MaxLines", "Explode",
-            "materialMin", "materialMax", "statMin", "statMax", "mechanicMin", "mechanicMax", "actionMin", "actionMax"
+            "Name", "Weight", "MinLevel", "MinLines", "MaxLines", "Explode"
         };
 
         public static readonly string[] EnemiesCanonicalHeaders =

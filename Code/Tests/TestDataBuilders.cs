@@ -352,8 +352,8 @@ namespace RPGGame.Tests
             {
                 Name = "Common",
                 Weight = 500,
-                MaxLines = 2,
-                Pools = new System.Collections.Generic.Dictionary<string, int[]> { ["stat"] = new[] { 1, 1 }, ["action"] = new[] { 0, 1 } }
+                MinLines = 1,
+                MaxLines = 2
             });
             return cache;
         }

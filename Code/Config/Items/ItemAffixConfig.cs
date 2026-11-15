@@ -5,7 +5,7 @@ namespace RPGGame
 {
     /// <summary>
     /// <c>itemAffixByRarity</c> in a balance patch: optional rarity roll weights. Line counts per rarity live in
-    /// <c>RarityTable.json</c> (Pools / MaxLines / Explode) and mod tiers in <c>ItemMods.json</c>
+    /// <c>RarityTable.json</c> (MinLines / MaxLines / Explode) and mod tiers in <c>ItemMods.json</c>
     /// (Documentation/ITEM_GENERATION_REDESIGN_2026-11-14.md). Older patches' perRarity / perItemType / affixRolls keys
     /// are no longer read.
     /// </summary>

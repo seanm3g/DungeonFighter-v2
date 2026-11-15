@@ -34,7 +34,7 @@ namespace RPGGame.Tests.Unit.Data
             TestCommonsOwnTheHighestTiers();
             TestCommonsRollCommonOnlyTiers();
             TestNoDuplicateFamilies();
-            TestReRoutingFillsEmptyPools();
+            TestPoolWeightsPickLines();
             TestRollUpsCanLiftTiersPastItemLevel();
             TestForcedRarityHolds();
             TestTradeUpConstraints();
@@ -109,21 +109,21 @@ namespace RPGGame.Tests.Unit.Data
         {
             foreach (var rarity in _cache.RarityData)
             {
-                int minLines = ModPools.All.Sum(p => rarity.PoolRange(p).Min);
                 bool ok = true;
                 string detail = "";
                 foreach (var (item, spec) in Roll(new ItemRollRequest { ItemLevel = 60, Rarity = rarity.Name, AllowRollUps = false }, 150))
                 {
-                    int planned = spec.PlannedLines.Values.Sum();
-                    int cap = Math.Max(rarity.MaxLines, minLines) + Math.Max(0, item.MinGeneratedActionBonuses);
-                    if (planned < minLines || planned > cap || spec.Lines.Count > planned)
+                    int lines = spec.Lines.Count;
+                    int cap = Math.Max(rarity.MaxLines, rarity.MinLines) + Math.Max(0, item.MinGeneratedActionBonuses);
+                    bool hasAction = spec.Lines.Any(l => l.Pool == ModPools.Action);
+                    if (lines < rarity.MinLines || lines > cap || !hasAction)
                     {
                         ok = false;
-                        detail = $"{item.Name}: planned {planned}, rolled {spec.Lines.Count}, min {minLines}, cap {cap}";
+                        detail = $"{item.Name}: {lines} lines, min {rarity.MinLines}, cap {cap}, action {hasAction}";
                         break;
                     }
                 }
-                TestBase.AssertTrue(ok, $"{rarity.Name}: min ≤ lines ≤ max {detail}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(ok, $"{rarity.Name}: min ≤ lines ≤ max, always an action {detail}", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
 
@@ -194,18 +194,39 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(ok, "no family or action twice on one item", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestReRoutingFillsEmptyPools()
+        private static void TestPoolWeightsPickLines()
         {
-            // Item level 1: no mechanic family is eligible yet, so planned mechanic lines move to another pool.
-            int planned = 0, rerouted = 0;
+            // Item level 1: pools with nothing eligible are skipped, so the item still gets its lines.
+            bool mechanicAtL1 = _cache.ItemMods.InPool(ModPools.Mechanic).Any(f => f.Tiers.Any(t => t.Level <= 1));
+            int short1 = 0, mechanic1 = 0;
             foreach (var (_, spec) in Roll(new ItemRollRequest { ItemLevel = 1, Rarity = "Epic", AllowRollUps = false }, 200))
             {
-                planned += spec.PlannedLines.GetValueOrDefault(ModPools.Mechanic);
-                rerouted += spec.Lines.Count(l => l.From == ModPools.Mechanic);
+                if (spec.Lines.Count < 5)
+                    short1++;
+                mechanic1 += spec.Lines.Count(l => l.Pool == ModPools.Mechanic);
             }
-            bool mechanicAtL1 = _cache.ItemMods.InPool(ModPools.Mechanic).Any(f => f.Tiers.Any(t => t.Level <= 1));
-            TestBase.AssertTrue(mechanicAtL1 || (planned > 0 && rerouted == planned),
-                $"mechanic lines at L1 re-route (planned {planned}, re-routed {rerouted})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(short1 == 0 && (mechanicAtL1 || mechanic1 == 0),
+                $"empty pools are skipped at L1 (short {short1}, mechanic {mechanic1})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // The weights are the dial: only material weight → every weighted line is a material line while one is left.
+            var cfg = GameConfiguration.Instance.LootSystem.ItemGeneration;
+            var saved = cfg.PoolWeights;
+            try
+            {
+                cfg.PoolWeights = new Dictionary<string, double> { ["material"] = 1, ["stat"] = 0, ["mechanic"] = 0, ["action"] = 0 };
+                int material = 0, other = 0;
+                foreach (var (_, spec) in Roll(new ItemRollRequest { ItemLevel = 60, Rarity = "Common", AllowRollUps = false }, 200))
+                {
+                    material += spec.Lines.Count(l => l.Pool == ModPools.Material);
+                    other += spec.Lines.Count(l => l.Pool == ModPools.Stat || l.Pool == ModPools.Mechanic);
+                }
+                TestBase.AssertTrue(material >= 200 && other == 0, $"pool weights decide each line's pool (material {material}, stat+mechanic {other})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                cfg.PoolWeights = saved;
+            }
         }
 
         private static void TestRollUpsCanLiftTiersPastItemLevel()

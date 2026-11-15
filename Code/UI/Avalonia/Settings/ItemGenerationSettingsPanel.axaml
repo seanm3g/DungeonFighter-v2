@@ -107,7 +107,7 @@
                                            Foreground="#FFCCCCCC"
                                            TextWrapping="Wrap"
                                            LineHeight="15"
-                                           Text="Batches here use the same item roller as dungeon loot: item level, slot and class, tier, base, rarity, material, then lines. Rarity sets how many lines (RarityTable.json: per-pool min/max, MaxLines, Explode chance per extra line). Mod families and their tiers (keyword, value range, item level, weight, rarity gate) live in ItemMods.json; regenerate with Scripts/build-item-mods.py. Roll-ups, class / material shares and influence are under lootSystem.itemGeneration in the balance patch."/>
+                                           Text="Batches here use the same item roller as dungeon loot: item level, slot and class, tier, base, rarity, material, then lines. Rarity sets how many lines (RarityTable.json: MinLines, MaxLines, Explode chance per extra line); each line then picks its pool (stat / mechanic / material / action) by lootSystem.itemGeneration.poolWeights. Mod families and their tiers (keyword, value range, item level, weight, rarity gate) live in ItemMods.json; regenerate with Scripts/build-item-mods.py. Roll-ups, class / material shares and influence are under lootSystem.itemGeneration in the balance patch."/>
                                 <StackPanel Orientation="Horizontal" Spacing="12">
                                     <TextBlock Text="Combo max (base)" VerticalAlignment="Center" Classes="settings-muted" FontSize="10"/>
                                     <TextBox x:Name="ComboSeqBaseMaxText" Width="44" Classes="ParamField" MaxLength="2"

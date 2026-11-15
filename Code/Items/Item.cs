@@ -327,7 +327,7 @@ namespace RPGGame
         [JsonPropertyName("defenseRolled")]
         public bool DefenseRolled { get; set; }
 
-        /// <summary>Roll-ups that happened when the item was generated (ilvl+2, rarity+1, tier:Life+1, pool:stat>material).</summary>
+        /// <summary>Roll-ups that happened when the item was generated (ilvl+2, rarity+1, tier:Life+1).</summary>
         [JsonPropertyName("rollUps")]
         public List<string>? RollUps { get; set; }
 

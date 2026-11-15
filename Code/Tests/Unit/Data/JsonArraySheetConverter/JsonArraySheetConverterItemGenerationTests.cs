@@ -76,8 +76,7 @@ namespace RPGGame.Tests.Unit.Data.JsonArraySheetConverter
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var before = JsonSerializer.Deserialize<RarityData[]>(json, options)!;
             var after = JsonSerializer.Deserialize<RarityData[]>(RoundTrip(json, GameDataTabularSheetKind.Rarity), options)!;
-            string Sig(RarityData r) => $"{r.Name}|{r.Weight}|{r.MinLevel}|{r.MaxLines}|{r.Explode}|" +
-                string.Join(",", ModPools.All.Select(p => r.PoolRange(p)));
+            string Sig(RarityData r) => $"{r.Name}|{r.Weight}|{r.MinLevel}|{r.MinLines}|{r.MaxLines}|{r.Explode}";
             TestBase.AssertEqual(string.Join("\n", before.Select(Sig)), string.Join("\n", after.Select(Sig)),
                 "rarity weights, unlock level, line counts and explode chance survive push → pull", ref run, ref pass, ref fail);
         }

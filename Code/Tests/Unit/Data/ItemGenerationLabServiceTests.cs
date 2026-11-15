@@ -25,7 +25,7 @@ namespace RPGGame.Tests.Unit.Data
             TestLegsArmorSlotGeneratesOnlyLegsItems();
             TestSortingByRarityThenTier();
             TestAnyRarityRollsNonCommonDistribution();
-            TestBaseRollDistributionLevel1ExcludesMythic();
+            TestBaseRollDistributionLevel1IncludesMythic();
             TestAnyTierUsesTierDistributionAtLootLevel1();
             TestAnyTierUsesTierDistributionAtLootLevel19();
             TestFixedRarityChancesOverridesAnyAndIgnoresLevelGates();
@@ -146,15 +146,16 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(nonCommon >= 5, "Any rarity should roll mixed rarities (not 100% Common)", ref _run, ref _pass, ref _fail);
         }
 
-        private static void TestBaseRollDistributionLevel1ExcludesMythic()
+        private static void TestBaseRollDistributionLevel1IncludesMythic()
         {
-            TestBase.SetCurrentTestName(nameof(TestBaseRollDistributionLevel1ExcludesMythic));
+            TestBase.SetCurrentTestName(nameof(TestBaseRollDistributionLevel1IncludesMythic));
 
             var cache = LootDataCache.Load();
             var dist = LootRarityProcessor.GetBaseRollDistribution(cache, 1);
             TestBase.AssertTrue(dist.Count > 0, "distribution non-empty", ref _run, ref _pass, ref _fail);
             TestBase.AssertTrue(dist.Any(d => d.Name.Equals("Common", StringComparison.OrdinalIgnoreCase)), "has Common", ref _run, ref _pass, ref _fail);
-            TestBase.AssertTrue(!dist.Any(d => d.Name.Equals("Mythic", StringComparison.OrdinalIgnoreCase)), "L1 excludes Mythic", ref _run, ref _pass, ref _fail);
+            // Rarity is static the whole game (user, 2026-11-15): every rarity can drop at item level 1.
+            TestBase.AssertTrue(dist.Any(d => d.Name.Equals("Mythic", StringComparison.OrdinalIgnoreCase)), "L1 includes Mythic", ref _run, ref _pass, ref _fail);
             double sum = dist.Sum(d => d.ProbabilityPercent);
             TestBase.AssertTrue(Math.Abs(sum - 100.0) < 0.02, $"percents sum to 100, got {sum}", ref _run, ref _pass, ref _fail);
         }

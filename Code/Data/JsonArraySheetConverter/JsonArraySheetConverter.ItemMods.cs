@@ -29,7 +29,6 @@ namespace RPGGame.Data
             "level needed; slotLevel overrides per slot), weight, maxRarity (highest item rarity that can roll it; " +
             "'Common' tiers are the common-only highs), slots (optional per-tier slot limit).";
 
-        private static readonly string[] RarityPools = { "material", "stat", "mechanic", "action" };
 
         // ---------- ITEM MODS ----------
 
@@ -153,24 +152,13 @@ namespace RPGGame.Data
             {
                 if (node is not JsonObject r)
                     continue;
-                var pools = r["Pools"] as JsonObject ?? r["pools"] as JsonObject;
                 var row = new List<object>();
                 foreach (string h in RarityCanonicalHeaders)
-                {
-                    if (h.EndsWith("Min", StringComparison.Ordinal) && RarityPools.Contains(h[..^3]))
-                        row.Add(PoolBound(pools, h[..^3], 0));
-                    else if (h.EndsWith("Max", StringComparison.Ordinal) && RarityPools.Contains(h[..^3]))
-                        row.Add(PoolBound(pools, h[..^3], 1));
-                    else
-                        row.Add(r[h] is JsonValue v && v.TryGetValue<string>(out var s) ? s : Num(r[h]));
-                }
+                    row.Add(r[h] is JsonValue v && v.TryGetValue<string>(out var s) ? s : Num(r[h]));
                 rows.Add(row);
             }
             return rows;
         }
-
-        private static object PoolBound(JsonObject? pools, string pool, int i) =>
-            pools?[pool] is JsonArray a && a.Count > i ? Num(a[i]) : (i == 1 && pools?[pool] is JsonArray a1 && a1.Count == 1 ? Num(a1[0]) : "");
 
         /// <summary>RARITY CSV → <c>RarityTable.json</c> text (one compact row per rarity).</summary>
         public static string RarityCsvToJsonText(string csvContent)
@@ -188,19 +176,12 @@ namespace RPGGame.Data
                 string name = Cell("Name");
                 if (name.Length == 0)
                     continue;
-                var pools = new JsonObject();
-                foreach (string pool in RarityPools)
-                {
-                    int min = (int)Math.Round(ParseNumber(Cell(pool + "Min"), 0));
-                    int max = (int)Math.Round(ParseNumber(Cell(pool + "Max"), min));
-                    pools[pool] = new JsonArray(min, Math.Max(min, max));
-                }
                 var row = new JsonObject
                 {
                     ["Name"] = name,
                     ["Weight"] = ParseNumber(Cell("Weight"), 0),
                     ["MinLevel"] = (int)Math.Round(ParseNumber(Cell("MinLevel"), 1)),
-                    ["Pools"] = pools,
+                    ["MinLines"] = (int)Math.Round(ParseNumber(Cell("MinLines"), 1)),
                     ["MaxLines"] = (int)Math.Round(ParseNumber(Cell("MaxLines"), 0)),
                     ["Explode"] = ParseNumber(Cell("Explode"), 0)
                 };

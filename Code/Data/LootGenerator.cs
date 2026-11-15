@@ -292,25 +292,13 @@ namespace RPGGame
         /// <summary>Lowest item level this rarity can drop at (and be rolled up to).</summary>
         public int MinLevel { get; set; } = 1;
 
-        /// <summary>Line counts per pool (material / stat / mechanic / action): [min, max]. Min lines always roll.</summary>
-        public Dictionary<string, int[]> Pools { get; set; } = new();
+        /// <summary>Lines every item of this rarity rolls (the guaranteed action counts toward them).</summary>
+        public int MinLines { get; set; } = 1;
 
         /// <summary>Most lines an item of this rarity can hold (exploding extras stop here).</summary>
         public int MaxLines { get; set; }
 
         /// <summary>Chance of each exploding extra line; every success rolls again.</summary>
         public double Explode { get; set; }
-
-        public (int Min, int Max) PoolRange(string pool)
-        {
-            // Keys are lower-case pool names (the deserializer drops any comparer set here).
-            if (Pools != null && Pools.TryGetValue(pool.ToLowerInvariant(), out var r) && r != null && r.Length > 0)
-            {
-                int min = Math.Max(0, r[0]);
-                int max = r.Length > 1 ? Math.Max(min, r[1]) : min;
-                return (min, max);
-            }
-            return (0, 0);
-        }
     }
 }

@@ -244,7 +244,7 @@ namespace RPGGame.Tests.Unit.Config
 
             var config = new LootSystemConfig();
             TestBase.AssertNotNull(config.ItemGeneration, "ItemGeneration should be initialized", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(4, config.ItemGeneration.PoolLadder.Count, "pool ladder has four pools", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(4, config.ItemGeneration.PoolWeights.Count, "pool weights cover the four pools", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestLootSystemSanitizer()

@@ -4,7 +4,7 @@ Writes / updates, in GameData/:
   ItemMods.json     mod families with tier ladders (keyword, value range, item level, weight, rarity requirement)
   Weapons.json      + class, damageMin / damageMax, triggerName (the base item's implicit)
   Armor.json        + class, defenseMin / defenseMax, triggerName (implicit)
-  RarityTable.json  + MinLevel, Pools, MaxLines, Explode (old StatBonuses / ActionBonuses / Modifications columns dropped)
+  RarityTable.json  + MinLevel, MinLines, MaxLines, Explode (old StatBonuses / ActionBonuses / Modifications columns dropped)
 
 Sources: StatBonuses.json (stat suffixes + animal suffixes), Modifications.json (adjectives, RULE / CROSSWIRE
 prefixes, affix templates), PrefixMaterialQuality.json (Quality), Triggers.json (implicit candidates).
@@ -94,13 +94,14 @@ IMPLICITS = {
 }
 
 RARITY_COLUMNS = {
-    # MinLevel, Pools {pool: [min, max]}, MaxLines, Explode
-    "Common": (1, {"material": [0, 1], "stat": [1, 2], "mechanic": [0, 1], "action": [1, 1]}, 3, 0.25),
-    "Uncommon": (1, {"material": [0, 1], "stat": [1, 2], "mechanic": [0, 1], "action": [1, 2]}, 4, 0.30),
-    "Rare": (1, {"material": [1, 1], "stat": [2, 3], "mechanic": [0, 2], "action": [1, 2]}, 6, 0.35),
-    "Epic": (1, {"material": [1, 2], "stat": [2, 3], "mechanic": [1, 2], "action": [1, 2]}, 7, 0.40),
-    "Legendary": (1, {"material": [1, 2], "stat": [3, 4], "mechanic": [1, 2], "action": [1, 3]}, 8, 0.45),
-    "Mythic": (1, {"material": [1, 2], "stat": [3, 4], "mechanic": [1, 3], "action": [1, 3]}, 10, 0.50),
+    # MinLevel, MinLines, MaxLines, Explode. Each line picks its pool by lootSystem.itemGeneration.poolWeights
+    # (the first is the guaranteed action), so rarity only says how many lines an item gets.
+    "Common": (1, 2, 3, 0.25),
+    "Uncommon": (1, 2, 4, 0.30),
+    "Rare": (1, 4, 6, 0.35),
+    "Epic": (1, 5, 7, 0.40),
+    "Legendary": (1, 6, 8, 0.45),
+    "Mythic": (1, 6, 10, 0.50),
 }
 
 
@@ -315,8 +316,8 @@ def rarity_rows(gd):
     rows = load(gd, "RarityTable.json")
     out = []
     for r in rows:
-        min_level, pools, max_lines, explode = RARITY_COLUMNS[r["Name"]]
-        out.append({"Name": r["Name"], "Weight": r["Weight"], "MinLevel": min_level, "Pools": pools,
+        min_level, min_lines, max_lines, explode = RARITY_COLUMNS[r["Name"]]
+        out.append({"Name": r["Name"], "Weight": r["Weight"], "MinLevel": min_level, "MinLines": min_lines,
                     "MaxLines": max_lines, "Explode": explode})
     return out
 
