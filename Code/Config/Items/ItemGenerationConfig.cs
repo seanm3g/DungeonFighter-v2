@@ -74,6 +74,9 @@ namespace RPGGame
         /// <summary>Chance for each lower suffix kind an item doesn't already have (one max per kind).</summary>
         public double SuffixExtraChance { get; set; } = 0.25;
 
+        /// <summary>Chance an item whose rarity doesn't guarantee a poetic (rare) suffix rolls one anyway.</summary>
+        public double PoeticSuffixChance { get; set; } = 0.03;
+
         public static Dictionary<string, List<string>> DefaultSuffixKinds() => new(StringComparer.OrdinalIgnoreCase)
         {
             ["Common"] = new() { "common" },
@@ -145,6 +148,7 @@ namespace RPGGame
             if (SuffixKinds == null || SuffixKinds.Count == 0)
                 SuffixKinds = DefaultSuffixKinds();
             SuffixExtraChance = Math.Clamp(SuffixExtraChance, 0, 1);
+            PoeticSuffixChance = Math.Clamp(PoeticSuffixChance, 0, 1);
             ItemLevelRollUp ??= new RollUpRule(0.10, 0.5, 5);
             RarityRollUp ??= new RollUpRule(0.05, 0.5, 2);
             TierRollUp ??= new RollUpRule(0.08, 0.5, 2);

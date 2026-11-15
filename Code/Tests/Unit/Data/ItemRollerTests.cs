@@ -445,6 +445,13 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(ok, $"each rarity gets its suffix kinds, at most one per kind {detail}", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(threeSuffixes > 0, $"the rarest items carry all three suffixes ({threeSuffixes})", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
+            int poeticCommons = Roll(new ItemRollRequest { ItemLevel = 60, Rarity = "Common", AllowRollUps = false }, 1500)
+                .Count(x => x.Item.Modifications.Concat<object>(x.Item.StatBonuses).Any(o =>
+                    (o is Modification m ? m.ModLine : ((StatBonus)o).ModLine)?.SuffixKind == SuffixKinds.Rare));
+            double share = poeticCommons / 1500.0;
+            TestBase.AssertTrue(share > 0 && share < 3 * cfg.PoeticSuffixChance + 0.01,
+                $"commons roll a poetic phrase now and then ({share:P1}, chance {cfg.PoeticSuffixChance:P0})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
             var named = new HeadItem("Cap", 1, 5) { BaseName = "Cap", Material = "Iron" };
             named.Modifications.Add(new Modification { Name = "Bathed in Blood", ModLine = new ItemModLineInfo { Pool = "mechanic", Affix = "suffix", Tier = 1, Keyword = "Bathed in Blood", Family = "Vampiric", SuffixKind = "rare" } });
             named.StatBonuses.Add(new StatBonus { Name = "of the Dire Bear", StatType = "STR", ModLine = new ItemModLineInfo { Pool = "stat", Affix = "suffix", Tier = 7, Keyword = "of the Dire Bear", Family = "Strength", SuffixKind = "uncommon" } });

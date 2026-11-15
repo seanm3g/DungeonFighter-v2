@@ -231,9 +231,11 @@ each). Roughly **80 names instead of 508**.
   Vampiric, "Remembered by the Careless" = +1 strip slot; mostly the old story phrases).
 - `lootSystem.itemGeneration.suffixKinds`: the kinds a rarity always gets (Common: common; Uncommon: uncommon; Rare /
   Epic: rare; Legendary: uncommon + rare; Mythic: all three). Each lower kind it lacks joins at `suffixExtraChance`
-  (0.25). A kind with nothing eligible at that item level is skipped (rare phrases start at L3 / L8). Suffix lines
+  (0.25); an item whose rarity doesn't guarantee a poetic phrase still rolls one at `poeticSuffixChance` (0.03, user
+  2026-11-15). A kind with nothing eligible at that item level is skipped (rare phrases start at L3 / L8). Suffix lines
   count toward the rarity's line count; the weighted lines fill the rest with prefixes and actions (mechanic pool
   weight is now 0: every mechanic family is a rare suffix).
 - One line per body stat per item ("of Might" and "of the Bear" never share an item).
-- 10k roll: every Common has a descriptor; Uncommon 75% animal only, 25% descriptor + animal; Rare+ have a poetic
+- 10k roll (before the poetic chance): every Common has a descriptor; Uncommon 75% animal only, 25% descriptor + animal; Rare+ have a poetic
   phrase except at very low item levels; 18 items with all three.
+- With `poeticSuffixChance` 0.03: 516 of 10k items carry a poetic phrase (was ~250), 294 of them Common or Uncommon.

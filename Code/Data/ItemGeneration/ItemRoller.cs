@@ -562,7 +562,8 @@ namespace RPGGame.Data.ItemGeneration
             /// <summary>
             /// Suffixes: at most one of each kind (common descriptor, uncommon animal, rare poetic phrase). The item's rarity
             /// sets the kinds it always gets (<see cref="ItemGenerationConfig.SuffixKinds"/>); each lower kind it lacks joins
-            /// at <see cref="ItemGenerationConfig.SuffixExtraChance"/>. A kind with nothing this item can roll is skipped.
+            /// at <see cref="ItemGenerationConfig.SuffixExtraChance"/>, and a poetic phrase at
+            /// <see cref="ItemGenerationConfig.PoeticSuffixChance"/> when the rarity doesn't guarantee one. A kind with nothing this item can roll is skipped.
             /// Returns the number of suffix lines rolled.
             /// </summary>
             private int RollSuffixes(RarityData rarity, Random kindRng, Random lineRng)
@@ -572,6 +573,9 @@ namespace RPGGame.Data.ItemGeneration
                 foreach (string kind in SuffixKinds.All)
                     if (!kinds.Contains(kind) && SuffixKinds.Rank(kind) < top && kindRng.NextDouble() < Cfg.SuffixExtraChance)
                         kinds.Add(kind);
+                // A small chance of a poetic phrase on items whose rarity doesn't guarantee one.
+                if (!kinds.Contains(SuffixKinds.Rare) && kindRng.NextDouble() < Cfg.PoeticSuffixChance)
+                    kinds.Add(SuffixKinds.Rare);
 
                 int rolled = 0;
                 foreach (string kind in SuffixKinds.All)
