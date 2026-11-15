@@ -53,8 +53,16 @@ namespace RPGGame.Tests.Unit
             TestConcurrentLastActionMapsDoNotThrow();
             TestLuckResolvedFaceSelectsNamedComboAction();
             TestUnluckResolvedFaceSelectsUnnamedNormal();
+            TestStuckHitComboSpillsHalfIntoCrit();
 
             TestBase.PrintSummary("Action Execution Flow Tests", _testsRun, _testsPassed, _testsFailed);
+        }
+
+        private static void TestStuckHitComboSpillsHalfIntoCrit()
+        {
+            TestBase.AssertEqual(3, ActionExecutionFlow.CritShiftWithSpill(3, 0), "no stuck points: gear CRIT only", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, ActionExecutionFlow.CritShiftWithSpill(3, 1), "1 stuck HIT/COMBO point spills nothing (half, rounded down)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(5, ActionExecutionFlow.CritShiftWithSpill(3, 4), "4 stuck points spill 2 into CRIT", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestActionSelectionLogic()

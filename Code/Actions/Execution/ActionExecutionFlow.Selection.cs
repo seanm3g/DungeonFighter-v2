@@ -16,6 +16,13 @@ namespace RPGGame.Actions.Execution
 {
     internal static partial class ActionExecutionFlow
     {
+        /// <summary>
+        /// Gear CRIT shift plus the HIT / COMBO points that could not move a threshold stuck on its floor, spilled into
+        /// CRIT at half rate (rounded down: 1 stuck point spills nothing, 2 spill 1).
+        /// </summary>
+        internal static int CritShiftWithSpill(int gearCrit, int stuckHitComboPoints) =>
+            gearCrit + Math.Max(0, stuckHitComboPoints) / 2;
+
         private static void SelectActionAndResolveRoll(
             Actor source,
             Actor? target,
@@ -57,7 +64,7 @@ namespace RPGGame.Actions.Execution
                     if (eqHit > 0)
                         overflow += Math.Max(0, eqHit - (before - thresholdManager.GetHitThreshold(gearCharacter)));
                 }
-                int critShift = eqCrit + overflow;
+                int critShift = CritShiftWithSpill(eqCrit, overflow);
                 if (critShift != 0)
                     thresholdManager.AdjustCriticalHitThreshold(gearCharacter, critShift);
                 DungeonSearchBuffThresholdApplicator.Apply(gearCharacter, thresholdManager);
