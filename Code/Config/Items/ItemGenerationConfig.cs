@@ -74,8 +74,9 @@ namespace RPGGame
         /// <summary>Chance for each lower suffix kind an item doesn't already have (one max per kind).</summary>
         public double SuffixExtraChance { get; set; } = 0.25;
 
-        /// <summary>Chance an item whose rarity doesn't guarantee a poetic (rare) suffix rolls one anyway.</summary>
-        public double PoeticSuffixChance { get; set; } = 0.03;
+        /// <summary>Chance an item whose rarity doesn't guarantee a poetic (rare) suffix rolls one anyway. 0 by user call
+        /// (2026-11-15): poetic phrases only on Rare and up.</summary>
+        public double PoeticSuffixChance { get; set; } = 0.0;
 
         public static Dictionary<string, List<string>> DefaultSuffixKinds() => new(StringComparer.OrdinalIgnoreCase)
         {

@@ -220,7 +220,7 @@ namespace RPGGame.Tests.Unit.Data
             {
                 cfg.PoolWeights = new Dictionary<string, double> { ["material"] = 1, ["stat"] = 0, ["mechanic"] = 0, ["action"] = 0 };
                 int material = 0, other = 0;
-                foreach (var (_, spec) in Roll(new ItemRollRequest { ItemLevel = 60, Rarity = "Common", AllowRollUps = false }, 200))
+                foreach (var (_, spec) in Roll(new ItemRollRequest { ItemLevel = 60, Rarity = "Rare", AllowRollUps = false }, 200))
                 {
                     material += spec.Lines.Count(l => l.Pool == ModPools.Material);
                     // Suffixes roll by kind, not by pool weight; count only the weighted (prefix) lines.
@@ -449,8 +449,18 @@ namespace RPGGame.Tests.Unit.Data
                 .Count(x => x.Item.Modifications.Concat<object>(x.Item.StatBonuses).Any(o =>
                     (o is Modification m ? m.ModLine : ((StatBonus)o).ModLine)?.SuffixKind == SuffixKinds.Rare));
             double share = poeticCommons / 1500.0;
-            TestBase.AssertTrue(share > 0 && share < 3 * cfg.PoeticSuffixChance + 0.01,
-                $"commons roll a poetic phrase now and then ({share:P1}, chance {cfg.PoeticSuffixChance:P0})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(cfg.PoeticSuffixChance > 0 ? share > 0 && share < 3 * cfg.PoeticSuffixChance + 0.01 : share == 0,
+                $"commons get a poetic phrase only at the configured chance ({share:P1}, chance {cfg.PoeticSuffixChance:P0})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // A Common item is exactly one action plus one descriptor suffix (beyond any action minimum its base sets).
+            bool plain = Roll(new ItemRollRequest { ItemLevel = 60, Rarity = "Common", AllowRollUps = false }, 400).All(x =>
+            {
+                var mods = x.Item.Modifications.Where(m => m.ModLine != null).Select(m => m.ModLine!)
+                    .Concat(x.Item.StatBonuses.Where(s => s.ModLine != null).Select(s => s.ModLine!)).ToList();
+                return mods.Count == 1 && mods[0].SuffixKind == SuffixKinds.Common
+                    && x.Item.ActionBonuses.Count == Math.Max(1, x.Item.MinGeneratedActionBonuses);
+            });
+            TestBase.AssertTrue(plain, "a Common item is one descriptor suffix plus its action", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var named = new HeadItem("Cap", 1, 5) { BaseName = "Cap", Material = "Iron" };
             named.Modifications.Add(new Modification { Name = "Bathed in Blood", ModLine = new ItemModLineInfo { Pool = "mechanic", Affix = "suffix", Tier = 1, Keyword = "Bathed in Blood", Family = "Vampiric", SuffixKind = "rare" } });

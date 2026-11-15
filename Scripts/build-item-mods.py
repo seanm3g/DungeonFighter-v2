@@ -124,7 +124,7 @@ IMPLICITS = {
 RARITY_COLUMNS = {
     # MinLevel, MinLines, MaxLines, Explode. Each line picks its pool by lootSystem.itemGeneration.poolWeights
     # (the first is the guaranteed action), so rarity only says how many lines an item gets.
-    "Common": (1, 2, 3, 0.25),
+    "Common": (1, 2, 2, 0.0),  # exactly one action + one descriptor suffix (user 2026-11-15)
     "Uncommon": (1, 2, 4, 0.30),
     "Rare": (1, 4, 6, 0.35),
     "Epic": (1, 5, 7, 0.40),

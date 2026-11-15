@@ -239,3 +239,9 @@ each). Roughly **80 names instead of 508**.
 - 10k roll (before the poetic chance): every Common has a descriptor; Uncommon 75% animal only, 25% descriptor + animal; Rare+ have a poetic
   phrase except at very low item levels; 18 items with all three.
 - With `poeticSuffixChance` 0.03: 516 of 10k items carry a poetic phrase (was ~250), 294 of them Common or Uncommon.
+- User 2026-11-15 (later): a **Common item is exactly one descriptor suffix plus its action** (RarityTable Common:
+  MinLines 2, MaxLines 2, Explode 0; no prefixes, no material lines, no poetic phrase). Head bases still add their
+  catalog action minimum. `poeticSuffixChance` back to 0: poetic phrases only on Rare and up. Commons can no longer
+  reach the Uncanny tiers of prefix families (only descriptors carry reachable Uncanny tiers now).
+- `Scripts/item-stats.py` writes a pool of 1,000 sample items; the dashboard shows 100 and its Shuffle button draws
+  another 100 from the pool (filters apply to the whole pool).

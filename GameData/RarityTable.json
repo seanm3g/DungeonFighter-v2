@@ -1,5 +1,5 @@
 [
-  {"Name": "Common", "Weight": 90000, "MinLevel": 1, "MinLines": 2, "MaxLines": 3, "Explode": 0.25},
+  {"Name": "Common", "Weight": 90000, "MinLevel": 1, "MinLines": 2, "MaxLines": 2, "Explode": 0.0},
   {"Name": "Uncommon", "Weight": 8500, "MinLevel": 1, "MinLines": 2, "MaxLines": 4, "Explode": 0.3},
   {"Name": "Rare", "Weight": 1200, "MinLevel": 1, "MinLines": 4, "MaxLines": 6, "Explode": 0.35},
   {"Name": "Epic", "Weight": 250, "MinLevel": 1, "MinLines": 5, "MaxLines": 7, "Explode": 0.4},

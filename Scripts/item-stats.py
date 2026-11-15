@@ -253,7 +253,9 @@ def main():
     tables["powerByBand"] = [{"band": b, "kind": k, "avg": round(sum(v) / len(v), 1), "min": min(v), "max": max(v), "items": len(v)}
                              for (b, k), v in sorted(pw.items(), key=lambda kv: (int(kv[0][0].split("-")[0]), kv[0][1]))]
 
-    # 100 sample items picked at random (fixed seed) from the dump, shown whole, lowest item level first.
+    # A pool of sample items picked at random (fixed seed) from the dump, shown whole, lowest item level first. The
+    # dashboard shows 100 of them at a time and its Shuffle button draws another 100 from the pool.
+    SAMPLE_POOL = 1000
     def describe(l):
         if l["pool"] == "action":
             return f'action: {l["keyword"]}'
@@ -261,7 +263,7 @@ def main():
         moved = f' (from {l["from"]})' if l.get("from") else ""
         return f'{l["pool"]}: {l["keyword"]} = {l["value"]:g} [{l["family"]} T{l["tier"]}]{up}{moved}'
 
-    picks = sorted(random.Random(7).sample(items, min(100, n)), key=lambda i: (i["itemLevel"], i["name"]))
+    picks = sorted(random.Random(7).sample(items, min(SAMPLE_POOL, n)), key=lambda i: (i["itemLevel"], i["name"]))
     tables["samples"] = [{
         "id": k + 1,
         "item": i["name"],
