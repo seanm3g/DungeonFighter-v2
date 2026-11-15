@@ -300,6 +300,28 @@
     "RolledValue": 0
   },
   {
+    "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
+    "Name": "Wood",
+    "Description": "Wood-tagged",
+    "Effect": "PRIMARY",
+    "DiceResult": 0,
+    "MinValue": 2,
+    "MaxValue": 2,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "MATERIAL",
+    "Name": "Cloth",
+    "Description": "Cloth-tagged",
+    "Effect": "PRIMARY",
+    "DiceResult": 0,
+    "MinValue": 2,
+    "MaxValue": 2,
+    "RolledValue": 0
+  },
+  {
     "ItemRank": "Uncommon",
     "prefixCategory": "MATERIAL",
     "Name": "Unknown",

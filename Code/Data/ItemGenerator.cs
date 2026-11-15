@@ -279,9 +279,14 @@ namespace RPGGame
             return result.Trim();
         }
 
+        /// <summary>Common-only tiers carry this word in their keyword ("Lucky Sharp", "of the Lucky Ox").</summary>
+        internal const string LuckyWord = "Lucky";
+
         /// <summary>
-        /// Name of an item built by the item roller: <c>[Material] [best prefix keyword] Base [best suffix keyword]</c>.
-        /// "Best" = highest tier among that affix's lines (first rolled wins ties); every line still shows on the tooltip.
+        /// Name of an item built by the item roller: <c>[Lucky] [best prefix keyword] [Material] Base [best suffix keyword]</c>
+        /// ("Lucky Wicked Iron Cuirass of the Ox"). "Best" = highest tier among that affix's lines (first rolled wins
+        /// ties); every line still shows on the tooltip. A common-only ("Lucky") line moves its "Lucky" to the front of
+        /// the name, once.
         /// </summary>
         internal static string ComposeRolledItemName(Item item)
         {
@@ -295,14 +300,24 @@ namespace RPGGame
                 .OrderByDescending(l => l.Tier)
                 .FirstOrDefault();
 
+            bool lucky = false;
+            string Keyword(ItemModLineInfo line)
+            {
+                string k = System.Text.RegularExpressions.Regex.Replace(line.Keyword.Trim(), @"\b" + LuckyWord + @"\s+", "");
+                lucky |= k.Length != line.Keyword.Trim().Length;
+                return k;
+            }
+
             var parts = new List<string>();
+            if (Best("prefix") is { } prefix)
+                parts.Add(Keyword(prefix));
             if (!string.IsNullOrWhiteSpace(item.Material))
                 parts.Add(item.Material.Trim());
-            if (Best("prefix") is { } prefix)
-                parts.Add(prefix.Keyword.Trim());
             parts.Add(item.BaseName.Trim());
             if (Best("suffix") is { } suffix)
-                parts.Add(suffix.Keyword.Trim());
+                parts.Add(Keyword(suffix));
+            if (lucky)
+                parts.Insert(0, LuckyWord);
             return System.Text.RegularExpressions.Regex.Replace(string.Join(" ", parts), @"\s+", " ").Trim();
         }
 

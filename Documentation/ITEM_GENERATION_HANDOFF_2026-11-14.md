@@ -49,6 +49,25 @@ Where the item generation work stands, for picking it up in a new chat. Design a
 - **Material lines:** about half come from pool roll-ups (stat → material), not from rarity minimums.
 - **Material share differences** (e.g. Willow on top) are seed noise: across 3 seeds the leader changed every time.
 
+## Done after the handoff (2026-11-15)
+
+- **Implicits scale with item level** (`ItemImplicitScaling`): percent mechanics (next-action / this-swing damage,
+  amp, speed) × (1 + `ImplicitPercentPerItemLevel` 0.01 × (ilvl − 1)); flat ones (heal, armor, weapon damage) by
+  `ImplicitFlatPerItemLevel` 0.02. Discrete values (thresholds, faces, multihit, +1 attribute, statuses, strip moves)
+  and `scaleFrom` implicits stay as cataloged. The scaled value is saved on the bundle and written into its
+  description; `ITEMSTATS --dump` records `implicitValue`. Both knobs are balance-pass placeholders.
+- **Naming:** `[Lucky] [prefix] [Material] Base [suffix]` ("Lucky Wicked Iron Cuirass of the Ox"). A common-only
+  line's "Lucky" moves to the front once. Rule / listener families keep one keyword for every tier (tooltip shows the
+  tier). Bases renamed so none contains a material word: Crystal Stiletto → Faceted Stiletto, Shadow Dagger → Umbral
+  Dagger, Silver Stiletto → Moonlit Stiletto, Crystal (wand) → Lodestone, Mithril Chestplate → Knight's Chestplate;
+  typos Curiass → Cuirass, Chopoper → Chopper, lowercase legs bases capitalized. `ItemArt/index.json` renamed to
+  match. Old saved items keep their old names (and may lose their icon).
+- **Wood and Cloth drop:** class-less Common-rank material rows (PRIMARY 2, the low rung, like Stone) in
+  `PrefixMaterialQuality.json`. They already had a set build, a synthesis store (KINDLING / FRAY) and convert actions
+  (KINDLE / UNRAVEL); Cloth got two more piece triggers (Moth, Silkworm) to reach 6.
+- **Rarity by level:** user call: rarity stays static the whole game. Epic / Legendary / Mythic `MinLevel` (5 / 15 /
+  15) set to 1, so every rarity can drop at any item level with the same weights.
+
 ## Open work, roughly in order
 
 1. **Balance pass.** Every gear number moved and night-v45i was measured on the old loot. Placeholder values to tune:

@@ -3044,14 +3044,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Listening",
+          "keyword": "Listening",
           "min": 1,
           "max": 1,
           "level": 25,
           "weight": 140
         },
         {
-          "keyword": "Grand Listening",
+          "keyword": "Listening",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3080,14 +3080,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Attuned",
+          "keyword": "Attuned",
           "min": 1,
           "max": 1,
           "level": 25,
           "weight": 140
         },
         {
-          "keyword": "Grand Attuned",
+          "keyword": "Attuned",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3116,14 +3116,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Charged-Up",
+          "keyword": "Charged-Up",
           "min": 11,
           "max": 17,
           "level": 25,
           "weight": 140
         },
         {
-          "keyword": "Grand Charged-Up",
+          "keyword": "Charged-Up",
           "min": 14,
           "max": 22,
           "level": 55,
@@ -3152,14 +3152,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Doubled",
+          "keyword": "Doubled",
           "min": 1,
           "max": 1,
           "level": 25,
           "weight": 140
         },
         {
-          "keyword": "Grand Doubled",
+          "keyword": "Doubled",
           "min": 2,
           "max": 2,
           "level": 55,
@@ -3188,14 +3188,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Opening",
+          "keyword": "Opening",
           "min": 14,
           "max": 21,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Opening",
+          "keyword": "Opening",
           "min": 18,
           "max": 27,
           "level": 60,
@@ -3224,14 +3224,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Closing",
+          "keyword": "Closing",
           "min": 14,
           "max": 21,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Closing",
+          "keyword": "Closing",
           "min": 18,
           "max": 27,
           "level": 60,
@@ -3260,14 +3260,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Bloodbound",
+          "keyword": "Bloodbound",
           "min": 17,
           "max": 25,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Bloodbound",
+          "keyword": "Bloodbound",
           "min": 22,
           "max": 32,
           "level": 60,
@@ -3296,14 +3296,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Spiteful",
+          "keyword": "Spiteful",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Spiteful",
+          "keyword": "Spiteful",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -3332,14 +3332,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Resonant",
+          "keyword": "Resonant",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Resonant",
+          "keyword": "Resonant",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -3368,14 +3368,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Measured",
+          "keyword": "Measured",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Measured",
+          "keyword": "Measured",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -3404,14 +3404,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Syncopated",
+          "keyword": "Syncopated",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Syncopated",
+          "keyword": "Syncopated",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -3440,14 +3440,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Headhunter's",
+          "keyword": "Headhunter's",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Headhunter's",
+          "keyword": "Headhunter's",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -3476,14 +3476,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Frayed",
+          "keyword": "Frayed",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Frayed",
+          "keyword": "Frayed",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -3514,14 +3514,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Smouldering",
+          "keyword": "Smouldering",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Smouldering",
+          "keyword": "Smouldering",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -3550,14 +3550,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Gritted",
+          "keyword": "Gritted",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Gritted",
+          "keyword": "Gritted",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -3587,14 +3587,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Vampiric",
+          "keyword": "Vampiric",
           "min": 6,
           "max": 11,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Vampiric",
+          "keyword": "Vampiric",
           "min": 7,
           "max": 14,
           "level": 60,
@@ -3624,14 +3624,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Thorned",
+          "keyword": "Thorned",
           "min": 21,
           "max": 42,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Thorned",
+          "keyword": "Thorned",
           "min": 27,
           "max": 54,
           "level": 60,
@@ -3660,14 +3660,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Butcher's",
+          "keyword": "Butcher's",
           "min": 3,
           "max": 4,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Butcher's",
+          "keyword": "Butcher's",
           "min": 4,
           "max": 5,
           "level": 60,
@@ -3695,14 +3695,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Leaden",
+          "keyword": "Leaden",
           "min": 14,
           "max": 21,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Leaden",
+          "keyword": "Leaden",
           "min": 18,
           "max": 27,
           "level": 60,
@@ -3730,14 +3730,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Bloodied",
+          "keyword": "Bloodied",
           "min": 1,
           "max": 3,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Bloodied",
+          "keyword": "Bloodied",
           "min": 2,
           "max": 4,
           "level": 60,
@@ -3765,14 +3765,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Towering",
+          "keyword": "Towering",
           "min": 42,
           "max": 70,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Towering",
+          "keyword": "Towering",
           "min": 54,
           "max": 90,
           "level": 60,
@@ -3800,14 +3800,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Ponderous",
+          "keyword": "Ponderous",
           "min": 14,
           "max": 21,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Ponderous",
+          "keyword": "Ponderous",
           "min": 18,
           "max": 27,
           "level": 60,
@@ -3835,14 +3835,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Headsman's",
+          "keyword": "Headsman's",
           "min": 28,
           "max": 42,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Headsman's",
+          "keyword": "Headsman's",
           "min": 36,
           "max": 54,
           "level": 60,
@@ -3873,14 +3873,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Concussive",
+          "keyword": "Concussive",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Concussive",
+          "keyword": "Concussive",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -3911,14 +3911,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Prying",
+          "keyword": "Prying",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Prying",
+          "keyword": "Prying",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -3949,14 +3949,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Sapping",
+          "keyword": "Sapping",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Sapping",
+          "keyword": "Sapping",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -3986,14 +3986,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Envenomed",
+          "keyword": "Envenomed",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Envenomed",
+          "keyword": "Envenomed",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4023,14 +4023,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Jester's",
+          "keyword": "Jester's",
           "min": 1,
           "max": 3,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Jester's",
+          "keyword": "Jester's",
           "min": 2,
           "max": 4,
           "level": 60,
@@ -4058,14 +4058,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Silvered",
+          "keyword": "Silvered",
           "min": 28,
           "max": 42,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Silvered",
+          "keyword": "Silvered",
           "min": 36,
           "max": 54,
           "level": 60,
@@ -4093,14 +4093,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Giantslaying",
+          "keyword": "Giantslaying",
           "min": 28,
           "max": 42,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Giantslaying",
+          "keyword": "Giantslaying",
           "min": 36,
           "max": 54,
           "level": 60,
@@ -4130,14 +4130,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Hourglass",
+          "keyword": "Hourglass",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Hourglass",
+          "keyword": "Hourglass",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4168,14 +4168,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Ember-Woven",
+          "keyword": "Ember-Woven",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Ember-Woven",
+          "keyword": "Ember-Woven",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4203,14 +4203,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Ledgered",
+          "keyword": "Ledgered",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Ledgered",
+          "keyword": "Ledgered",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4238,14 +4238,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Mismatched",
+          "keyword": "Mismatched",
           "min": 11,
           "max": 17,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Mismatched",
+          "keyword": "Mismatched",
           "min": 14,
           "max": 22,
           "level": 60,
@@ -4273,14 +4273,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Linked",
+          "keyword": "Linked",
           "min": 8,
           "max": 14,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Linked",
+          "keyword": "Linked",
           "min": 11,
           "max": 18,
           "level": 60,
@@ -4308,14 +4308,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Winged",
+          "keyword": "Winged",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Winged",
+          "keyword": "Winged",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4345,14 +4345,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Feasting",
+          "keyword": "Feasting",
           "min": 11,
           "max": 17,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Feasting",
+          "keyword": "Feasting",
           "min": 14,
           "max": 22,
           "level": 60,
@@ -4380,14 +4380,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Hunter's",
+          "keyword": "Hunter's",
           "min": 21,
           "max": 35,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Hunter's",
+          "keyword": "Hunter's",
           "min": 27,
           "max": 45,
           "level": 60,
@@ -4418,14 +4418,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Trophy-Strung",
+          "keyword": "Trophy-Strung",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Trophy-Strung",
+          "keyword": "Trophy-Strung",
           "min": 2,
           "max": 2,
           "level": 60,
@@ -4455,14 +4455,14 @@
           "weight": 100
         },
         {
-          "keyword": "Greater Bountied",
+          "keyword": "Bountied",
           "min": 1,
           "max": 1,
           "level": 30,
           "weight": 140
         },
         {
-          "keyword": "Grand Bountied",
+          "keyword": "Bountied",
           "min": 2,
           "max": 2,
           "level": 60,

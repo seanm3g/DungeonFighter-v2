@@ -82,6 +82,9 @@ namespace RPGGame.Data.ItemGeneration
         public string Rarity { get; set; } = "";
         public string Material { get; set; } = "";
         public string Implicit { get; set; } = "";
+
+        /// <summary>The implicit's magnitude after item-level scaling (null when it has none).</summary>
+        public double? ImplicitValue { get; set; }
         public Dictionary<string, int> PlannedLines { get; } = new();
         public List<ItemRollLine> Lines { get; } = new();
         public List<string> RollUps { get; } = new();

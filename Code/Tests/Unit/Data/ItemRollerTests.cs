@@ -42,7 +42,9 @@ namespace RPGGame.Tests.Unit.Data
             TestDefenseIsRolledOnce();
             TestDamageScalesWithItemLevel();
             TestImplicitSurvivesTriggerCleanUp();
+            TestImplicitScalesWithItemLevel();
             TestNameComposition();
+            TestWoodAndClothDrop();
             TestWeaponsLeanToClassMaterials();
             TestActionsComeFromGearPool();
             TestRarerActionsWeighLess();
@@ -280,6 +282,30 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(Has(withImplicit), "the implicit survives material trigger clean-ups (save load)", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        private static void TestImplicitScalesWithItemLevel()
+        {
+            var cfg = new ItemGenerationConfig();
+            RPGGame.Data.ActionTriggerBundle Amp() => new RPGGame.Data.ActionTriggerBundle
+            {
+                When = "ONCRITICAL", Count = "1", Scope = "ACTION", Mechanics = "hero_next_action_amp", Value = 10,
+                Description = "On crit, your next action gains +10% amp."
+            };
+            var low = Amp();
+            var high = Amp();
+            ItemImplicitScaling.Apply(low, 1, cfg);
+            ItemImplicitScaling.Apply(high, 60, cfg);
+            TestBase.AssertEqual(10.0, low.Value ?? 0, "implicit at item level 1 keeps its catalog value", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue((high.Value ?? 0) > 10, $"percent implicit grows with item level (ilvl 60: {high.Value})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(high.Description!.Contains($"+{high.Value:0}%"), $"description shows the scaled value ({high.Description})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var face = new RPGGame.Data.ActionTriggerBundle { When = "ONCONNECT", Count = "1", Mechanics = "crit_face_min:19", Value = 19 };
+            var perStr = new RPGGame.Data.ActionTriggerBundle { When = "WHILE_EQUIPPED", Count = "1", Mechanics = "hero_action_damage", Value = 1, ScaleFrom = "STR" };
+            ItemImplicitScaling.Apply(face, 90, cfg);
+            ItemImplicitScaling.Apply(perStr, 90, cfg);
+            TestBase.AssertEqual(19.0, face.Value ?? 0, "discrete implicits (crit face) do not scale", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1.0, perStr.Value ?? 0, "implicits that already scale with the hero (scaleFrom) do not scale", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestNameComposition()
         {
             bool ok = true;
@@ -287,13 +313,30 @@ namespace RPGGame.Tests.Unit.Data
             foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = 50, Rarity = "Rare" }, 60))
             {
                 sample = item.Name;
-                if (!item.Name.StartsWith(item.Material, StringComparison.Ordinal) || !item.Name.Contains(item.BaseName, StringComparison.Ordinal))
+                int material = item.Name.IndexOf(item.Material, StringComparison.Ordinal);
+                int baseAt = item.Name.IndexOf(item.BaseName, StringComparison.Ordinal);
+                if (material < 0 || baseAt < material)
                     ok = false;
                 // Rebuilding the name must not stack keywords.
                 if (ItemGenerator.GenerateItemNameWithBonuses(item) != item.Name)
                     ok = false;
             }
-            TestBase.AssertTrue(ok, $"name = material + keyword + base + keyword, stable (e.g. {sample})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ok, $"name = prefix + material + base + suffix, stable (e.g. {sample})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            // A common-only ("Lucky") line puts one "Lucky" at the front; the keyword itself drops it.
+            var lucky = new HeadItem("Cap", 1, 5) { BaseName = "Cap", Material = "Iron" };
+            lucky.StatBonuses.Add(new StatBonus { Name = "of the Lucky Ox", StatType = "STR", ModLine = new ItemModLineInfo { Pool = "stat", Affix = "suffix", Tier = 2, Keyword = "of the Lucky Ox" } });
+            lucky.Modifications.Add(new Modification { Name = "Sharp", ModLine = new ItemModLineInfo { Pool = "stat", Affix = "prefix", Tier = 1, Keyword = "Sharp" } });
+            TestBase.AssertEqual("Lucky Sharp Iron Cap of the Ox", ItemGenerator.ComposeRolledItemName(lucky), "Lucky moves to the front of the name",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestWoodAndClothDrop()
+        {
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = 10, Weapon = false }, 800))
+                seen.Add(item.Material ?? "");
+            TestBase.AssertTrue(seen.Contains("Wood") && seen.Contains("Cloth"), "Wood and Cloth drop on armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestWeaponsLeanToClassMaterials()

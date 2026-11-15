@@ -30,7 +30,7 @@ EXCEPTIONAL_LOW, EXCEPTIONAL_HIGH, EXCEPTIONAL_WEIGHT = 1.05, 1.5, 0.25
 STATUS_LADDER = [(3, 0.6, 1.0, 100), (12, 1.0, 1.4, 140), (25, 1.4, 1.9, 180), (45, 1.9, 2.5, 220), (70, 2.5, 3.2, 260)]
 RULE_LADDER = [(8, 1.0, 1.0, 100), (30, 1.4, 1.4, 140), (60, 1.8, 1.8, 180)]
 MATERIAL_LADDER = [(1, 1.0, 1.0, 100), (25, 1.4, 1.4, 140), (55, 1.8, 1.8, 180)]
-RULE_WORDS = ["", "Greater", "Grand"]
+RULE_WORDS = ["", "", ""]  # one keyword per rule family; the tier shows on the tooltip
 
 SUFFIX_STATS = {
     # StatType: (family, keyword ladder (7), "of the" or "of", description, tags, integer)
@@ -98,9 +98,9 @@ RARITY_COLUMNS = {
     "Common": (1, {"material": [0, 1], "stat": [1, 2], "mechanic": [0, 1], "action": [1, 1]}, 3, 0.25),
     "Uncommon": (1, {"material": [0, 1], "stat": [1, 2], "mechanic": [0, 1], "action": [1, 2]}, 4, 0.30),
     "Rare": (1, {"material": [1, 1], "stat": [2, 3], "mechanic": [0, 2], "action": [1, 2]}, 6, 0.35),
-    "Epic": (5, {"material": [1, 2], "stat": [2, 3], "mechanic": [1, 2], "action": [1, 2]}, 7, 0.40),
-    "Legendary": (15, {"material": [1, 2], "stat": [3, 4], "mechanic": [1, 2], "action": [1, 3]}, 8, 0.45),
-    "Mythic": (15, {"material": [1, 2], "stat": [3, 4], "mechanic": [1, 3], "action": [1, 3]}, 10, 0.50),
+    "Epic": (1, {"material": [1, 2], "stat": [2, 3], "mechanic": [1, 2], "action": [1, 2]}, 7, 0.40),
+    "Legendary": (1, {"material": [1, 2], "stat": [3, 4], "mechanic": [1, 2], "action": [1, 3]}, 8, 0.45),
+    "Mythic": (1, {"material": [1, 2], "stat": [3, 4], "mechanic": [1, 3], "action": [1, 3]}, 10, 0.50),
 }
 
 

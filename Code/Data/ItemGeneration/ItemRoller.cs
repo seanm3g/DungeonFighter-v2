@@ -430,6 +430,11 @@ namespace RPGGame.Data.ItemGeneration
                     _item.Implicit = "";
                     return;
                 }
+                foreach (var b in combat.Concat(equip))
+                {
+                    ItemImplicitScaling.Apply(b, _ilvl, Cfg);
+                    _spec.ImplicitValue ??= b.Value;
+                }
                 _item.TriggerBundles ??= new List<ActionTriggerBundle>();
                 _item.EquipEffects ??= new List<ActionTriggerBundle>();
                 _item.TriggerBundles.AddRange(combat);

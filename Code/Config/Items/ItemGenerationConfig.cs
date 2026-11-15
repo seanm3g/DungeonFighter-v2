@@ -86,6 +86,13 @@ namespace RPGGame
         /// <summary>Catalog attributes on armor (STR / AGI / TEC / INT) × (1 + this × (item level − 1)).</summary>
         public double AttributePerItemLevel { get; set; } = 0.02;
 
+        /// <summary>Percent magnitudes on a base item's implicit (next-action / this-swing damage, amp, speed)
+        /// × (1 + this × (item level − 1)). Implicits that already scale (scaleFrom) or are discrete never scale.</summary>
+        public double ImplicitPercentPerItemLevel { get; set; } = 0.01;
+
+        /// <summary>Flat magnitudes on a base item's implicit (heal, armor, weapon damage) × (1 + this × (item level − 1)).</summary>
+        public double ImplicitFlatPerItemLevel { get; set; } = 0.02;
+
         public void EnsureSensibleDefaults()
         {
             SlotWeights ??= new Dictionary<string, double>();

@@ -1541,7 +1541,7 @@
   },
   {
     "slot": "chest",
-    "name": "Curiass",
+    "name": "Cuirass",
     "armor": 1,
     "tier": 1,
     "attributeRequirements": {
@@ -2493,7 +2493,7 @@
   },
   {
     "slot": "chest",
-    "name": "Mithril Chestplate",
+    "name": "Knight's Chestplate",
     "armor": 25,
     "tier": 4,
     "attributeRequirements": {
@@ -3025,7 +3025,7 @@
   },
   {
     "slot": "legs",
-    "name": "breeches",
+    "name": "Breeches",
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
@@ -3081,7 +3081,7 @@
   },
   {
     "slot": "legs",
-    "name": "leggings",
+    "name": "Leggings",
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
@@ -3109,7 +3109,7 @@
   },
   {
     "slot": "legs",
-    "name": "shinguards",
+    "name": "Shinguards",
     "armor": 3,
     "tier": 1,
     "attributeRequirements": {
@@ -3165,7 +3165,7 @@
   },
   {
     "slot": "legs",
-    "name": "tassets",
+    "name": "Tassets",
     "armor": 2,
     "tier": 1,
     "attributeRequirements": {
@@ -3221,7 +3221,7 @@
   },
   {
     "slot": "legs",
-    "name": "trousers",
+    "name": "Trousers",
     "armor": 0,
     "tier": 1,
     "attributeRequirements": {
@@ -3277,7 +3277,7 @@
   },
   {
     "slot": "legs",
-    "name": "wraps",
+    "name": "Wraps",
     "armor": 2,
     "tier": 1,
     "attributeRequirements": {

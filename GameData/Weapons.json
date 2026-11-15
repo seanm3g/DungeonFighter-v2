@@ -1130,7 +1130,7 @@
   },
   {
     "type": "Sword",
-    "name": "Chopoper",
+    "name": "Chopper",
     "baseDamage": 3,
     "attackSpeed": 1.1,
     "damageBonusMin": 1,
@@ -2004,7 +2004,7 @@
   },
   {
     "type": "Sword",
-    "name": "Crystal Stiletto",
+    "name": "Faceted Stiletto",
     "baseDamage": 23,
     "attackSpeed": 0.81,
     "damageBonusMin": 5,
@@ -2963,7 +2963,7 @@
   },
   {
     "type": "Dagger",
-    "name": "Shadow Dagger",
+    "name": "Umbral Dagger",
     "baseDamage": 5,
     "attackSpeed": 0.88,
     "damageBonusMin": 3,
@@ -2988,7 +2988,7 @@
   },
   {
     "type": "Dagger",
-    "name": "Silver Stiletto",
+    "name": "Moonlit Stiletto",
     "baseDamage": 5,
     "attackSpeed": 0.64,
     "damageBonusMin": 3,
@@ -3997,7 +3997,7 @@
   },
   {
     "type": "Wand",
-    "name": "Crystal",
+    "name": "Lodestone",
     "baseDamage": 8,
     "attackSpeed": 1.16,
     "damageBonusMin": 3,

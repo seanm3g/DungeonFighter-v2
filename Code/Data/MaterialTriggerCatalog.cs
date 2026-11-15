@@ -213,6 +213,8 @@ namespace RPGGame
                 D("Cloth", "Shrike", "On crit, apply Pierce.", "ONCRITICAL", "pierce", 1),
                 D("Cloth", "Hawk", "On crit, next action +10% damage.", "ONCRITICAL", "hero_next_action_damage", 10, scope: "ACTION"),
                 D("Cloth", "Raven", "On crit, pick a random next strip action.", "ONCRITICAL", "strip_random", 1, scope: ""),
+                D("Cloth", "Moth", "On take hit, foe hit threshold +1 this turn.", "ONTAKEHIT", "enemy_hit_threshold", 1),
+                D("Cloth", "Silkworm", "On take hit, next action +10% speed.", "ONTAKEHIT", "hero_next_action_speed", 10, scope: "ACTION"),
                 // Unknown
                 D("Unknown", "Squid", "On miss, next action +10% speed.", "ONMISS", "hero_next_action_speed", 10, scope: "ACTION"),
                 D("Unknown", "Cuttlefish", "On miss, tax foe accuracy by 1 this turn.", "ONMISS", "enemy_accuracy", -1),
