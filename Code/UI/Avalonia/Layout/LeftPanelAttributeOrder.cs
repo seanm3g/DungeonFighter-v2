@@ -20,10 +20,10 @@ namespace RPGGame.UI.Avalonia.Layout
         {
             var rows = new List<Row>
             {
-                new Row("STR", HoverIds[0], "Strength", character.GetEffectiveStrength()),
-                new Row("AGI", HoverIds[1], "Agility", character.GetEffectiveAgility()),
-                new Row("TECH", HoverIds[2], "Technique", character.GetEffectiveTechnique()),
-                new Row("INT", HoverIds[3], "Intelligence", character.GetEffectiveIntelligence()),
+                new Row("STR", HoverIds[0], "Strength", character.GetEffectiveStrength() + Queued(character, "STR")),
+                new Row("AGI", HoverIds[1], "Agility", character.GetEffectiveAgility() + Queued(character, "AGI")),
+                new Row("TECH", HoverIds[2], "Technique", character.GetEffectiveTechnique() + Queued(character, "TEC")),
+                new Row("INT", HoverIds[3], "Intelligence", character.GetEffectiveIntelligence() + Queued(character, "INT")),
             };
 
             if (sortByValue)
@@ -38,6 +38,10 @@ namespace RPGGame.UI.Avalonia.Layout
 
             return rows;
         }
+
+        /// <summary>Queued TURN stat bonus (e.g. EXTRA EFFORT +5 STR) shown as soon as it is granted.</summary>
+        private static int Queued(Character character, string code) =>
+            CharacterEffectsState.PeekQueuedTurnStatBonus(character, code);
 
         /// <summary>Hover id of a hybrid attribute row, e.g. <c>stat:will</c>.</summary>
         public static string HybridHoverId(HybridInfo h) => "stat:" + h.Attribute.ToLowerInvariant();

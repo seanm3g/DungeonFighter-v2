@@ -584,6 +584,28 @@ namespace RPGGame
             return sum;
         }
 
+        /// <summary>
+        /// HUD: queued TURN stat bonuses (e.g. EXTRA EFFORT's +5 STR) that apply on the hero's next roll.
+        /// Shown on the stats panel from the moment the action grants them; on the roll itself they are
+        /// consumed into the temp stat bonus, so they are never counted twice.
+        /// <paramref name="code"/> is STR / AGI / TEC (or TECH) / INT.
+        /// </summary>
+        public static int PeekQueuedTurnStatBonus(Character character, string code)
+        {
+            if (character == null || character is Enemy) return 0;
+            string want = code == "TEC" ? DynamicAttributeCategoryResolver.CodeTechnique : code;
+            int sum = 0;
+            foreach (var b in character.Effects.PeekTurnBonuses())
+            {
+                string type = (b.Type ?? "").ToUpperInvariant();
+                if (!DynamicAttributeCategoryResolver.IsStatOrDynamicCategoryType(type)) continue;
+                string concrete = DynamicAttributeCategoryResolver.ResolveStatBonusTypeToConcreteCode(character, type);
+                if (string.Equals(concrete, want, StringComparison.OrdinalIgnoreCase))
+                    sum += (int)b.Value;
+            }
+            return sum;
+        }
+
         /// <summary>HUD: DAMAGE_MOD (percent points) on the enemy's next attack-roll FIFO head.</summary>
         public static double PeekSheetDamageModPercentQueuedForNextEnemyAttack(Enemy enemy) =>
             SumBonusValuesOfType(enemy.Effects.PeekPendingActionBonusesNextHeroRoll(), "DAMAGE_MOD");

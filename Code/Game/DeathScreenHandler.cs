@@ -76,8 +76,7 @@ namespace RPGGame
                 // Add prompt to continue
                 var promptBuilder = new ColoredTextBuilder();
                 promptBuilder.Add("\n\n", ColorPalette.White);
-                promptBuilder.Add("1 - Clone this hero (equipped gear is lost)\n", ColorPalette.Warning);
-                promptBuilder.Add("2 - Resurrect with no penalty [Dev]\n", ColorPalette.Warning);
+                promptBuilder.Add("1 - Clone this hero (keeps level and gear)\n", ColorPalette.Warning);
                 promptBuilder.Add("0 - Return to main menu", ColorPalette.Warning);
                 UIManager.WriteLineColoredTextBuilder(promptBuilder, UIMessageType.System);
             }
@@ -96,51 +95,7 @@ namespace RPGGame
                 return;
             }
 
-            if (string.Equals(choice, "2", StringComparison.OrdinalIgnoreCase))
-            {
-                await ResurrectDevAndReturnToGameLoopAsync().ConfigureAwait(true);
-                return;
-            }
-
             await ReturnToMainMenuAsDeadAsync().ConfigureAwait(true);
-        }
-
-        private async Task ResurrectDevAndReturnToGameLoopAsync()
-        {
-            var player = stateManager.CurrentPlayer ?? stateManager.GetActiveCharacter();
-            if (player == null)
-            {
-                await ReturnToMainMenuAsDeadAsync().ConfigureAwait(true);
-                return;
-            }
-
-            stateManager.SetCurrentDungeon(null);
-            stateManager.SetCurrentRoom(null);
-            ClearCurrentEnemy();
-
-            CharacterResurrectionService.ResurrectDevNoPenalty(player);
-            stateManager.SetCurrentPlayer(player);
-
-            try
-            {
-                var characterId = stateManager.GetCharacterId(player);
-                await CharacterSaveManager.SaveCharacterAsync(player, characterId).ConfigureAwait(true);
-            }
-            catch (Exception ex)
-            {
-                DebugLogger.Log("DeathScreenHandler", $"Save resurrected character failed: {ex.Message}");
-                // Continue into game loop; shutdown best-effort save may retry.
-            }
-
-            ClearDisplayIfNeeded();
-            if (ShowGameLoopEvent != null)
-            {
-                ShowGameLoopEvent.Invoke();
-            }
-            else
-            {
-                new GameScreenCoordinator(stateManager).ShowGameLoop();
-            }
         }
 
         private async Task CloneAndReturnToGameLoopAsync()

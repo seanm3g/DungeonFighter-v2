@@ -139,19 +139,19 @@ namespace RPGGame
                 Go(fighter);
         }
 
-        /// <summary>Dev: brings a dead fighter back at full health with no penalty and re-saves it as living.</summary>
-        public async Task<bool> ResurrectAsync(StableFighter fighter)
+        /// <summary>Brings a dead fighter back as their clone (next generation name, gear kept) and re-saves it as living.</summary>
+        public async Task<bool> CloneAsync(StableFighter fighter)
         {
             if (fighter.Status != StableFighterStatus.Dead || fighter.Game == null)
                 return false;
             var state = fighter.Game.StateManager;
             state.SetCurrentDungeon(null);
             state.SetCurrentRoom(null);
-            CharacterResurrectionService.ResurrectDevNoPenalty(fighter.Character);
+            CharacterCloneService.CloneAfterDeath(fighter.Character);
             state.SetCurrentPlayer(fighter.Character);
             await SaveAsync(fighter);
             fighter.Status = StableFighterStatus.AtHub;
-            fighter.LastResult = "Resurrected [Dev].";
+            fighter.LastResult = $"Cloned as {fighter.Character.Name}.";
             fighter.AddLog(fighter.LastResult);
             PrepareHub(fighter);
             RaiseChanged();

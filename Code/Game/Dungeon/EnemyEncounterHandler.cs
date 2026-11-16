@@ -167,7 +167,7 @@ namespace RPGGame
             if (!playerWon)
             {
                 // Player died - tombstone the active per-character save immediately so a force-quit
-                // on the death screen cannot reload a healthy live save. Clone/resurrect recreate live.
+                // on the death screen cannot reload a healthy live save. Clone recreates live.
                 if (stateManager.CurrentPlayer != null)
                 {
                     FighterHistory.RecordDeath(stateManager.CurrentPlayer, enemy, stateManager.CurrentDungeon?.Name, room?.Name);

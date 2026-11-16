@@ -20,7 +20,7 @@ namespace RPGGame.Tests.Unit.Game
             _testsFailed = 0;
 
             TestCloneNameProgression();
-            TestCloneAfterDeathStripsEquippedGearAndRevives();
+            TestCloneAfterDeathKeepsGearAndRevives();
             TestCloneAfterDeathPreservesLevelAndXp();
 
             TestBase.PrintSummary("CharacterCloneService Tests", _testsRun, _testsPassed, _testsFailed);
@@ -47,28 +47,19 @@ namespace RPGGame.Tests.Unit.Game
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestCloneAfterDeathStripsEquippedGearAndRevives()
+        private static void TestCloneAfterDeathKeepsGearAndRevives()
         {
-            Console.WriteLine("\n--- Testing Clone Gear Loss And Revival ---");
+            Console.WriteLine("\n--- Testing Clone Keeps Gear And Revives ---");
 
             var character = new Character("Alden", 3);
             var bagItem = new Item(ItemType.Head, "Spare Cap", 1, 0);
             character.Equipment.Inventory.Add(bagItem);
-            character.Equipment.Head = new Item(ItemType.Head, "Lost Helm", 1, 0);
-            character.Equipment.Body = new Item(ItemType.Chest, "Lost Mail", 1, 0);
-            character.Equipment.Legs = new Item(ItemType.Legs, "Lost Greaves", 1, 0);
-            character.Equipment.Weapon = new WeaponItem("Lost Sword", 1) { WeaponType = WeaponType.Sword };
-            character.Equipment.Feet = new Item(ItemType.Feet, "Lost Boots", 1, 0);
-            character.Progression.BarbarianPoints = 20;
+            var helm = new Item(ItemType.Head, "Kept Helm", 1, 0);
+            var sword = new WeaponItem("Kept Sword", 1) { WeaponType = WeaponType.Sword };
+            character.Equipment.Head = helm;
+            character.Equipment.Weapon = sword;
             CharacterSerializer.RebuildCharacterActions(character);
-            // Any action the rebuilt pool actually has (class unlocks follow the sheet, so no hard-coded name).
-            string preDeathAction = character.ActionPool.Select(p => p.action.Name).FirstOrDefault(n => !string.IsNullOrWhiteSpace(n)
-                && !string.Equals(n, GameConstants.TrainingGroundTutorialActionName, StringComparison.OrdinalIgnoreCase)) ?? "WARCRY";
-            bool restoredPreDeathSlot = character.RestoreComboFromActionNames(new[] { preDeathAction });
-            TestBase.AssertTrue(restoredPreDeathSlot && character.GetComboActions().Exists(a =>
-                    string.Equals(a.Name, preDeathAction, StringComparison.OrdinalIgnoreCase)),
-                "Test setup should put a pre-death action in the combo",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var comboBefore = character.GetComboActions().Select(a => a.Name).ToList();
 
             character.CurrentHealth = 0;
             character.ApplyBurn(5);
@@ -81,8 +72,8 @@ namespace RPGGame.Tests.Unit.Game
             TestBase.AssertTrue(character.IsAlive && character.CurrentHealth == character.GetEffectiveMaxHealth(),
                 "Clone should revive at full effective health",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(character.Head == null && character.Body == null && character.Legs == null && character.Weapon == null && character.Feet == null,
-                "Clone should lose every equipped gear slot",
+            TestBase.AssertTrue(ReferenceEquals(helm, character.Head) && ReferenceEquals(sword, character.Weapon),
+                "Clone should keep equipped gear",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(character.Inventory.Count == 1 && ReferenceEquals(bagItem, character.Inventory[0]),
                 "Clone should keep bag inventory",
@@ -90,15 +81,8 @@ namespace RPGGame.Tests.Unit.Game
             TestBase.AssertTrue(character.BurnIntensity == 0 && character.PendingBurnFromHits == 0,
                 "Clone should clear combat status effects",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(character.GetComboActions().Count > 0,
-                "Clone should rebuild an unarmed combo",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(character.GetComboActions()[0].Name == GameConstants.TrainingGroundTutorialActionName,
-                "Clone should reset action slots to the unarmed opener",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(!character.GetComboActions().Exists(a =>
-                    string.Equals(a.Name, preDeathAction, StringComparison.OrdinalIgnoreCase)),
-                "Clone should not preserve pre-death action slots",
+            TestBase.AssertTrue(character.GetComboActions().Select(a => a.Name).SequenceEqual(comboBefore),
+                "Clone should keep the combo strip",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

@@ -17,7 +17,7 @@ namespace RPGGame
     ///
     /// Grid: 1-9 select, Enter open fighter, Tab next fighter waiting, Space does the obvious thing (continue / go) and moves on,
     /// G go (repeat or best dungeon), D pick a dungeon (then 1-9), C continue, L leave, U auto-continue, K keep going,
-    /// T take in hand, R resurrect [Dev], X remove / lay to rest (Y confirms), A add a saved hero, N new hero,
+    /// T take in hand, R clone, X remove / lay to rest (Y confirms), A add a saved hero, N new hero,
     /// Esc/0 cancel or main menu. Add list: 1-9 add, N/P page, D delete (Y confirms), Esc/0 back.
     /// </summary>
     public class StableHandler
@@ -337,7 +337,7 @@ namespace RPGGame
                     else if (f.Status == StableFighterStatus.AtHub)
                         Decide(() => stable.Go(f));
                     else
-                        Invalid(f.Status == StableFighterStatus.Dead ? "R resurrects [Dev]; X lays them to rest." : "Nothing to decide right now.");
+                        Invalid(f.Status == StableFighterStatus.Dead ? "R clones them; X lays them to rest." : "Nothing to decide right now.");
                     return;
                 case "u":
                     if (f.Status == StableFighterStatus.Dead)
@@ -389,9 +389,9 @@ namespace RPGGame
                 case StableFighterStatus.Dead:
                     if (key == "r")
                     {
-                        await stable.ResurrectAsync(f);
+                        await stable.CloneAsync(f);
                         AudioCues.Trigger(AudioCue.Menu_Confirm);
-                        Notify($"{f.Character.Name} is back on their feet [Dev].");
+                        Notify($"{f.Character.Name} steps out of the vat.");
                         Render();
                         return;
                     }
@@ -822,7 +822,7 @@ namespace RPGGame
                         AddToggles();
                         break;
                     case StableFighterStatus.Dead:
-                        actions.Add(new StableLine("[R] Resurrect [Dev]", StableLineTone.Alert, Key("r")));
+                        actions.Add(new StableLine("[R] Clone", StableLineTone.Alert, Key("r")));
                         actions.Add(new StableLine("[X] Lay to rest", StableLineTone.Option, Key("x")));
                         break;
                     case StableFighterStatus.InHand:

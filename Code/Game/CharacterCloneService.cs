@@ -7,23 +7,18 @@ using RPGGame.UI.ColorSystem;
 namespace RPGGame
 {
     /// <summary>
-    /// Applies the death-screen clone rules to an existing character.
+    /// Brings a dead hero back as their clone: the next generation name (Jr., III, IV...),
+    /// full health, and everything else kept — level, XP, equipped gear, bag and combo.
+    /// Used by the death screen and the stable.
     /// </summary>
     public static class CharacterCloneService
     {
-        private static readonly string[] EquipmentSlots = { "head", "body", "legs", "weapon", "feet", "charm" };
-
         public static void CloneAfterDeath(Character character)
         {
             if (character == null)
                 throw new ArgumentNullException(nameof(character));
 
-            // Preserve lifetime progression: gear strip / action rebuild must not alter level or bar XP.
-            int preservedLevel = character.Progression.Level;
-            int preservedXp = character.Progression.XP;
-
             character.Name = GetNextCloneName(character.Name);
-            DiscardEquippedGear(character);
 
             character.ClearAllTempEffects();
             character.ClearDungeonSearchBuffs();
@@ -31,10 +26,6 @@ namespace RPGGame
             character.CurrentHealth = character.GetEffectiveMaxHealth();
             character.ResetCombo();
             StandingBlock.Reset(character);
-            CharacterSerializer.RebuildCharacterActions(character, preserveComboSequence: false);
-
-            character.Progression.Level = preservedLevel;
-            character.Progression.XP = preservedXp;
 
             character.ResetSessionStatistics();
 
@@ -59,12 +50,6 @@ namespace RPGGame
             }
 
             return $"{name} Jr.";
-        }
-
-        private static void DiscardEquippedGear(Character character)
-        {
-            foreach (string slot in EquipmentSlots)
-                character.Equipment.UnequipItem(slot);
         }
 
         private static bool TryParseGenerationSuffix(string token, out int generation)

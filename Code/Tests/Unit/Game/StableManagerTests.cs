@@ -37,7 +37,7 @@ namespace RPGGame.Tests.Unit.Game
                 TestRemoveRefusedMidDungeon();
                 TestRosterSyncCloseReopen();
                 TestClickInDungeonOpensFighterView();
-                TestResurrectDeadFighter();
+                TestCloneDeadFighter();
                 TestKeepGoingStartsNextRun();
                 TestPacedScopeKeepsActionDelay();
             }
@@ -172,9 +172,9 @@ namespace RPGGame.Tests.Unit.Game
             WaitFor(() => !fighter.IsBusy);
         }
 
-        private static void TestResurrectDeadFighter()
+        private static void TestCloneDeadFighter()
         {
-            Console.WriteLine("\n--- Resurrect [Dev] ---");
+            Console.WriteLine("\n--- Clone dead fighter ---");
             var stable = NewStable();
             var fighter = stable.Add(NewHero("StableDead"), NewId());
             // Throw a level-1 hero at 1 HP into the hardest dungeon until it dies.
@@ -187,13 +187,13 @@ namespace RPGGame.Tests.Unit.Game
             }
             if (fighter.Status != StableFighterStatus.Dead)
             {
-                TestBase.AssertTrue(true, "(hero would not die; resurrect not exercised)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(true, "(hero would not die; clone not exercised)", ref _testsRun, ref _testsPassed, ref _testsFailed);
                 return;
             }
 
             TestBase.AssertTrue(fighter.NeedsDecision, "dead fighter waits on the player", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            bool back = Task.Run(() => stable.ResurrectAsync(fighter)).Result;
-            TestBase.AssertTrue(back && fighter.Status == StableFighterStatus.AtHub, "resurrect returns the fighter to the hub", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            bool back = Task.Run(() => stable.CloneAsync(fighter)).Result;
+            TestBase.AssertTrue(back && fighter.Status == StableFighterStatus.AtHub, "clone returns the fighter to the hub", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(fighter.Character.GetEffectiveMaxHealth(), fighter.Character.CurrentHealth, "at full health", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(File.Exists(CharacterSaveManager.GetCharacterSaveFilename(fighter.CharacterId)), "living save written again", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(stable.Go(fighter), "can head out again", ref _testsRun, ref _testsPassed, ref _testsFailed);

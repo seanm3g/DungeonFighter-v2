@@ -514,6 +514,9 @@ namespace RPGGame
                 "INT" => stats.TempIntelligenceBonus,
                 _ => 0
             };
+            // Queued TURN bonuses (EXTRA EFFORT) show from the moment they are granted.
+            int queued = CharacterEffectsState.PeekQueuedTurnStatBonus(c, code);
+            temp += queued;
             int god = code == "STR" ? c.GetModificationGodlikeBonus() : 0;
             int skill = SkillEffectRouter.Instance.GetSkillAttributeBonus(c, code);
             int gearFlat = c.Equipment.GetFlatEquipmentStatExcludingSuffixes(code);
@@ -527,7 +530,7 @@ namespace RPGGame
                 "TEC" => c.GetEffectiveTechnique(),
                 "INT" => c.GetEffectiveIntelligence(),
                 _ => attributeModified + gearTotal
-            };
+            } + queued;
 
             return new AttributeBreakdown(baseVal, temp, god, skill, attributeModified, gearFlat, gearSuffix, gearTotal, effective);
         }

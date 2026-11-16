@@ -182,8 +182,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         {
             int footerTextY = y + height - FooterReservedRows;
             int cloneButtonY = footerTextY + 1;
-            int resurrectButtonY = footerTextY + 2;
-            int returnButtonY = footerTextY + 3;
+            int returnButtonY = footerTextY + 2;
 
             string footerText = "Choose your fate:";
             int footerX = x + (width / 2) - (footerText.Length / 2);
@@ -208,25 +207,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             clickableElements.Add(cloneButton);
             canvas.AddText(cloneButtonX, cloneButtonY, cloneButtonText, AsciiArtAssets.Colors.Green);
 
-            string resurrectText = "Resurrect (Dev — no penalty)";
-            string resurrectDisplayText = MenuOptionFormatter.Format(2, resurrectText);
-            string resurrectButtonText = $"[ {resurrectDisplayText} ]";
-            int resurrectButtonX = x + (width / 2) - (resurrectButtonText.Length / 2);
-
-            var resurrectButton = new ClickableElement
-            {
-                X = resurrectButtonX,
-                Y = resurrectButtonY,
-                Width = resurrectButtonText.Length,
-                Height = 1,
-                Type = ElementType.MenuOption,
-                Value = "2",
-                DisplayText = resurrectDisplayText
-            };
-
-            clickableElements.Add(resurrectButton);
-            canvas.AddText(resurrectButtonX, resurrectButtonY, resurrectButtonText, AsciiArtAssets.Colors.Cyan);
-
             string continueText = UIConstants.MenuOptions.ReturnToMainMenu;
             string continueDisplayText = MenuOptionFormatter.Format(0, continueText);
             string returnButtonText = $"[ {continueDisplayText} ]";
@@ -246,11 +226,11 @@ namespace RPGGame.UI.Avalonia.Renderers
             clickableElements.Add(returnButton);
             canvas.AddText(returnButtonX, returnButtonY, returnButtonText, AsciiArtAssets.Colors.Yellow);
 
-            string cloneNote = "Clone keeps progress and bag, but loses equipped gear.";
+            string cloneNote = "Your clone keeps level, gear and bag under a new name.";
             int noteX = x + (width / 2) - (cloneNote.Length / 2);
             canvas.AddText(noteX, returnButtonY + 1, cloneNote, AsciiArtAssets.Colors.Gray);
 
-            string promptText = "Press 1 to clone, 2 to resurrect [Dev], or 0 to leave a tombstone.";
+            string promptText = "Press 1 to clone, or 0 to leave a tombstone.";
             int promptX = x + (width / 2) - (promptText.Length / 2);
             canvas.AddText(promptX, returnButtonY + 2, promptText, AsciiArtAssets.Colors.Gray);
         }
