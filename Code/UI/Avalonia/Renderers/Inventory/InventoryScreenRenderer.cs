@@ -632,7 +632,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (item.Modifications.Count > 0)
             {
                 rows += WrappedLineCount(
-                    ItemComparisonRenderer.BuildModsLineSegments(item.Modifications, ColorPalette.Cyan.GetColor(), AsciiArtAssets.Colors.White),
+                    ItemComparisonRenderer.BuildModsLineSegments(item.Modifications, ColorPalette.Cyan.GetColor(), AsciiArtAssets.Colors.White, item),
                     width);
             }
 
@@ -1139,7 +1139,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (item.Modifications.Count > 0 && y < bottomY)
             {
                 written = textWriter.WriteLineColoredWrapped(
-                    ItemComparisonRenderer.BuildModsLineSegments(item.Modifications, ColorPalette.Cyan.GetColor(), AsciiArtAssets.Colors.White),
+                    ItemComparisonRenderer.BuildModsLineSegments(item.Modifications, ColorPalette.Cyan.GetColor(), AsciiArtAssets.Colors.White, item),
                     x, y, width);
                 y += written;
                 currentLineCount += written;

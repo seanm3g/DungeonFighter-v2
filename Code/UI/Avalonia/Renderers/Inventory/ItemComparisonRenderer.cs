@@ -274,7 +274,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (item.Modifications.Count > 0)
             {
                 RenderWrappedColoredLine(
-                    BuildModsLineSegments(item.Modifications, labelColor, valueColor),
+                    BuildModsLineSegments(item.Modifications, labelColor, valueColor, item),
                     x,
                     maxWidth,
                     ref currentY,
@@ -299,12 +299,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         internal static List<ColoredText> BuildModsLineSegments(
             IEnumerable<Modification> modifications,
             Color labelColor,
-            Color valueColor)
+            Color valueColor,
+            Item? item = null)
         {
             var modsBuilder = new ColoredTextBuilder();
             modsBuilder.Add("Mods: ", labelColor);
             modsBuilder.Add(
-                string.Join(", ", modifications.Select(ItemDisplayFormatter.GetModificationDisplayText)),
+                string.Join(", ", modifications.Select(m => ItemDisplayFormatter.GetModificationDisplayText(m, item))),
                 valueColor);
             return modsBuilder.Build();
         }

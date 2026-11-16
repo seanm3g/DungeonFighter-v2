@@ -57,6 +57,9 @@ namespace RPGGame.Tests.Unit
             hero.Equipment.Weapon!.Modifications.Add(Mod(AffixTemplates.CountsDouble, 1));
             TestBase.AssertEqual(2, MaterialSetController.CountEquipped(hero, "Bone"), "doubled Bone weapon forms the set alone", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(1, MaterialSetController.CountEquipped(hero, "Glass"), "other materials unchanged", ref _run, ref _passed, ref _failed);
+            hero.Equipment.Weapon!.Modifications.RemoveAll(m => AffixTemplates.Is(m, AffixTemplates.CountsDouble));
+            hero.Equipment.Weapon!.Modifications.Add(Mod(AffixTemplates.CountsDouble, 2));
+            TestBase.AssertEqual(3, MaterialSetController.CountEquipped(hero, "Bone"), "Redoubled (2) counts the piece three times", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestStoreCondition()

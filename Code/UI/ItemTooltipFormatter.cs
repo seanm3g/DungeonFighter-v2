@@ -362,7 +362,7 @@ namespace RPGGame
             b.Add("  ", Colors.Gray);
             b.AddRange(ItemStatsFormatter.FormatModification(mod, item.Rarity ?? "Common"));
             b.Add(" — ", Colors.DarkGray);
-            string effect = ItemDisplayFormatter.GetModificationEffectDescription(mod);
+            string effect = ItemDisplayFormatter.GetModificationEffectDescription(mod, item);
             bool debuff = string.Equals(mod.Effect, "gearPrimaryStatMultiplier", StringComparison.OrdinalIgnoreCase) &&
                             mod.RolledValue > 0 && mod.RolledValue < 1.0;
             ItemBuffHighlightFormatting.AppendHighlightedDescription(b, effect, debuff);

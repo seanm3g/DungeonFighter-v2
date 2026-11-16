@@ -104,6 +104,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 {
                     if (mod == null)
                         continue;
+                    if (AffixTemplates.TryStatLine(mod, item, out string templateLabel, out string templateValue))
+                    {
+                        list.Add(new ItemStatContribution(templateLabel, templateValue, mod.Name));
+                        continue;
+                    }
                     TryAddModification(list, mod);
                 }
             }

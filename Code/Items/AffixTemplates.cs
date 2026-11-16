@@ -62,9 +62,12 @@ namespace RPGGame
                 .Sum(e => Value(e.Mod));
         }
 
-        /// <summary>COUNTSDOUBLE: extra set count for <paramref name="material"/> (each such piece counts once more).</summary>
+        /// <summary>COUNTSDOUBLE: extra set count for <paramref name="material"/> (each such piece counts its rolled value more:
+        /// Paired / Doubled +1, Redoubled +2).</summary>
         public static int ExtraSetCount(Character hero, string material) =>
-            Equipped(hero, CountsDouble).Count(e => string.Equals(MaterialOf(e.Item), material, StringComparison.OrdinalIgnoreCase));
+            Equipped(hero, CountsDouble)
+                .Where(e => string.Equals(MaterialOf(e.Item), material, StringComparison.OrdinalIgnoreCase))
+                .Sum(e => Value(e.Mod));
 
         /// <summary>STORECOND + OPENER + FINISHER + BLOODPRICE: outgoing damage percent for this action.</summary>
         /// <param name="target">The defender, for passive rule conditions (TARGET / PREFIX); default the current target.</param>
@@ -113,6 +116,48 @@ namespace RPGGame
             return hp;
         }
 
+        /// <summary>
+        /// Stat-list row (label + signed value) for TUNE / STORECOND / COUNTSDOUBLE / OPENER / FINISHER / BLOODPRICE, so
+        /// tooltips read "Charged — Damage while Celestial 5+: +9%" instead of the raw template id. False for other mods.
+        /// </summary>
+        public static bool TryStatLine(Modification mod, Item? item, out string label, out string value)
+        {
+            label = "";
+            value = "";
+            string effect = mod.Effect?.Trim().ToUpperInvariant() ?? "";
+            string n = Value(mod).ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string material = item != null && !string.IsNullOrWhiteSpace(item.Material) ? MaterialOf(item) : "material";
+            switch (effect)
+            {
+                case Tune:
+                    label = $"{material} mint bonus";
+                    value = $"+{n}";
+                    return true;
+                case StoreCondition:
+                    label = $"Damage while {material} currency {GameConfiguration.Instance.Combat.AffixConditionStoreThreshold}+";
+                    value = $"+{n}%";
+                    return true;
+                case CountsDouble:
+                    label = $"{material} set count";
+                    value = $"+{n}";
+                    return true;
+                case Opener:
+                    label = "Opener damage";
+                    value = $"+{n}%";
+                    return true;
+                case Finisher:
+                    label = "Finisher damage";
+                    value = $"+{n}%";
+                    return true;
+                case BloodPrice:
+                    label = $"Damage (each action costs {GameConfiguration.Instance.Combat.AffixBloodPriceHpPercent}% max HP)";
+                    value = $"+{n}%";
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         /// <summary>Player-facing line for a template prefix; null for other prefixes.</summary>
         public static string? Describe(Modification mod, Item? item = null)
         {
@@ -124,7 +169,9 @@ namespace RPGGame
             {
                 Tune => $"+{n} to each {material} mint",
                 StoreCondition => $"+{n}% damage while {material}'s currency is {GameConfiguration.Instance.Combat.AffixConditionStoreThreshold}+",
-                CountsDouble => $"Counts twice toward the {material} set",
+                CountsDouble => Value(mod) <= 1
+                    ? $"Counts twice toward the {material} set"
+                    : $"Counts as {Value(mod) + 1} pieces toward the {material} set",
                 Opener => $"+{n}% damage on your strip's opener",
                 Finisher => $"+{n}% damage on your strip's finisher",
                 BloodPrice => $"Each action costs {GameConfiguration.Instance.Combat.AffixBloodPriceHpPercent}% max HP, +{n}% damage",

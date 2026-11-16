@@ -51,10 +51,14 @@ namespace RPGGame
         /// <summary>
         /// Plain-language effect for a rolled modification (no affix name).
         /// </summary>
-        public static string GetModificationEffectDescription(Modification modification)
+        public static string GetModificationEffectDescription(Modification modification, Item? item = null)
         {
             if (modification == null)
                 return "";
+
+            // Affix templates (STORECOND, COUNTSDOUBLE, TUNE, …) and rule prefixes have their own wording.
+            if (AffixTemplates.Describe(modification, item) is { Length: > 0 } templateText)
+                return templateText;
 
             string effect = (modification.Effect ?? "").Trim();
             if (effect.Length == 0)
@@ -120,12 +124,12 @@ namespace RPGGame
         /// <summary>
         /// Gets a descriptive text for a modification showing what the value does
         /// </summary>
-        public static string GetModificationDisplayText(Modification modification)
+        public static string GetModificationDisplayText(Modification modification, Item? item = null)
         {
             if (modification == null)
                 return "";
             string name = string.IsNullOrEmpty(modification.Name) ? "Modifier" : modification.Name;
-            return $"{name} — {GetModificationEffectDescription(modification)}";
+            return $"{name} — {GetModificationEffectDescription(modification, item)}";
         }
 
         /// <summary>
@@ -228,7 +232,7 @@ namespace RPGGame
             // Show modifications with clear articulation
             if (item.Modifications.Count > 0)
             {
-                var modificationTexts = item.Modifications.Select(m => GetModificationDisplayText(m));
+                var modificationTexts = item.Modifications.Select(m => GetModificationDisplayText(m, item));
                 writeLine($"    Modifications: {string.Join(", ", modificationTexts)}");
             }
         }
@@ -317,7 +321,7 @@ namespace RPGGame
                 {
                     var coloredNameList = ItemColorSystem.FormatModification(m);
                     string coloredName = ColoredTextRenderer.RenderAsPlainText(coloredNameList);
-                    string details = GetModificationDisplayText(m);
+                    string details = GetModificationDisplayText(m, item);
                     var modBuilder = new ColoredTextBuilder();
                     modBuilder.AddRange(coloredNameList);
                     modBuilder.Add(" (", Colors.White);
