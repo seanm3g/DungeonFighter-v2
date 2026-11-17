@@ -82,34 +82,6 @@ namespace RPGGame.Items.ItemTriggerScenario
             };
         }
 
-        public static ItemTriggerScenarioReport RunByRequest(ItemTriggerScenarioRequest request)
-        {
-            ArgumentNullException.ThrowIfNull(request);
-            var identity = ResolveIdentity(request);
-            return Run(identity);
-        }
-
-        public static ItemTriggerIdentityCatalog.Identity ResolveIdentity(ItemTriggerScenarioRequest request)
-        {
-            ArgumentNullException.ThrowIfNull(request);
-            if (!string.IsNullOrWhiteSpace(request.IdentityName))
-            {
-                var all = ItemTriggerIdentityCatalog.Identities;
-                var exact = all.FirstOrDefault(i =>
-                    string.Equals(i.Name, request.IdentityName, StringComparison.OrdinalIgnoreCase));
-                if (exact != null) return exact;
-                var partial = all.FirstOrDefault(i =>
-                    i.Name.Contains(request.IdentityName!, StringComparison.OrdinalIgnoreCase));
-                if (partial != null) return partial;
-                throw new ArgumentException($"No trigger identity matching name '{request.IdentityName}'.");
-            }
-
-            if (request.IdentityIndex is int idx)
-                return ItemTriggerIdentityCatalog.Get(idx);
-
-            throw new ArgumentException("Request needs IdentityIndex or IdentityName.");
-        }
-
         public static bool MatchesFilter(ItemTriggerIdentityCatalog.Identity identity, string? filter)
         {
             if (string.IsNullOrWhiteSpace(filter))

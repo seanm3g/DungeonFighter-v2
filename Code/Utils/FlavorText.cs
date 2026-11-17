@@ -284,12 +284,6 @@ namespace RPGGame
             return $"{GetRandomName(data.Names.CharacterFirstNames)} {GetRandomName(data.Names.CharacterLastNames)}";
         }
 
-        public static string GenerateLocationName()
-        {
-            var data = GetData();
-            return GetRandomName(data.Environments.LocationNames);
-        }
-
         public static string GenerateLocationDescription()
         {
             var data = GetData();
@@ -315,7 +309,6 @@ namespace RPGGame
 
             return "A mysterious location.";
         }
-
 
         public static string GetClassQualifier(WeaponType? primaryPath, int classPoints, string? legacyClassTitle = null)
         {

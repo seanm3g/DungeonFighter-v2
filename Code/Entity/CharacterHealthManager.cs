@@ -105,9 +105,6 @@ namespace RPGGame
         /// </summary>
         public void RefreshRoomArmor() { }
 
-        /// <summary>No-op retained for call-site compatibility (armor is not a stored pool).</summary>
-        public void EnsureCurrentArmorWithinMax() { }
-
         /// <summary>
         /// Makes the character take damage with shield and damage reduction calculations
         /// </summary>

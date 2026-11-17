@@ -446,17 +446,7 @@ namespace RPGGame
             
             return null;
         }
-        
-        /// <summary>
-        /// Gets a file path for a save file
-        /// </summary>
-        /// <param name="fileName">The save file name</param>
-        /// <returns>The full path to the file</returns>
-        public static string GetSaveFilePath(string fileName)
-        {
-            return Path.Combine(SaveDirectory, fileName);
-        }
-        
+
         /// <summary>
         /// Returns the first absolute path where <paramref name="fileName"/> exists under a candidate GameData folder
         /// (project root, cwd, executable-relative, etc.). Use for optional files like SheetsPushConfig.json so pushes work

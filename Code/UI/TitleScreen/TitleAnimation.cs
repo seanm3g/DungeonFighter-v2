@@ -177,15 +177,5 @@ namespace RPGGame.UI.TitleScreen
             return (frameCount * frameDuration) + _config.FinalHoldDuration;
         }
 
-        public int GetFrameCount()
-        {
-            return Math.Max(1, _config.BlackScreenFrames) +
-                   Math.Max(1, _config.FadeInFrames) +
-                   1 +
-                   Math.Max(0, _config.WhiteLightHoldFrames) +
-                   Math.Max(1, _config.PopFrames) +
-                   (Math.Max(1, _config.EffectiveSettleFrames) + 1) +
-                   1; // Final hold
-        }
     }
 }

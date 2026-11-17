@@ -69,29 +69,6 @@ namespace RPGGame.World.Tags
             return tags.ToList();
         }
 
-        /// <summary>
-        /// Aggregates tags from an action
-        /// </summary>
-        public static List<string> AggregateActionTags(Action action)
-        {
-            return action.Tags?.ToList() ?? new List<string>();
-        }
-
-        /// <summary>
-        /// Aggregates tags from multiple sources
-        /// </summary>
-        public static List<string> AggregateTags(params IEnumerable<string>[] tagSources)
-        {
-            var tags = new HashSet<string>(System.StringComparer.OrdinalIgnoreCase);
-            foreach (var source in tagSources)
-            {
-                foreach (var tag in source)
-                {
-                    tags.Add(tag);
-                }
-            }
-            return tags.ToList();
-        }
     }
 }
 

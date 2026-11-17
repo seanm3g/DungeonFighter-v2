@@ -70,25 +70,6 @@ namespace DungeonFighter.Game.Menu.Core
                 message: errorMessage);
         }
 
-        /// <summary>
-        /// Factory method for results with just a state transition (no error/message).
-        /// </summary>
-        public static MenuInputResult StateTransition(GameState nextState)
-        {
-            return new MenuInputResult(
-                success: true,
-                nextState: nextState);
-        }
-
-        /// <summary>
-        /// Factory method for results with command execution.
-        /// </summary>
-        public static MenuInputResult WithCommand(IMenuCommand command)
-        {
-            return new MenuInputResult(
-                success: true,
-                command: command);
-        }
     }
 }
 

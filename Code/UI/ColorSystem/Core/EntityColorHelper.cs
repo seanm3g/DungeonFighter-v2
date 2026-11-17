@@ -115,16 +115,6 @@ namespace RPGGame.UI.ColorSystem
             builder.AddRange(BuildEnemyNameDisplaySegments(enemy));
         }
 
-        /// <summary>Creature shading when the string matches keywords; otherwise solid enemy color.</summary>
-        public static void AppendEnemyNameByString(ColoredTextBuilder builder, string enemyName)
-        {
-            var shaded = AnimalEnemyNameColoredText.TryBuildSegments(enemyName);
-            if (shaded != null)
-                builder.AddRange(shaded);
-            else
-                builder.Add(enemyName, GetEnemyColorByName(enemyName));
-        }
-
         /// <summary>Uses shaded creature names for enemies; hero <see cref="Character"/> uses the
         /// same per-glyph palette as the left HERO panel (<see cref="HeroNamePanelColoredText"/>) so the
         /// combat log name matches the HUD; other actors fall back to <see cref="GetActorColor"/>.</summary>
@@ -243,50 +233,6 @@ namespace RPGGame.UI.ColorSystem
             _ => ColorPalette.White.GetColor()
         };
 
-        
-        /// <summary>
-        /// Gets the color for a class name (public method for use in UI rendering).
-        /// Default Fighter display uses gold; leveled classes use weapon-path colors.
-        /// </summary>
-        public static Color GetClassColorForDisplay(Character character)
-        {
-            if (character == null)
-                return ColorPalette.White.GetColor();
-
-            var cfg = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
-            string currentClass = character.GetCurrentClass();
-            if (string.Equals(currentClass, cfg.DefaultNoPointsClassName, StringComparison.OrdinalIgnoreCase))
-                return ColorPalette.Gold.GetColor();
-
-            var wt = character.Progression.GetPrimaryClassWeaponType();
-            if (wt == null)
-                return ColorPalette.Gold.GetColor();
-            return GetWeaponPathColor(wt.Value);
-        }
-        
-        /// <summary>
-        /// Gets the color for a dungeon, checking for color override first, then falling back to theme color
-        /// </summary>
-        public static Color GetDungeonColor(Dungeon dungeon)
-        {
-            if (dungeon == null)
-                return ColorPalette.White.GetColor();
-            
-            // Check for color override
-            var colorOverride = GetDungeonColorOverride(dungeon);
-            if (colorOverride != null)
-            {
-                var overrideColor = ResolveColorOverride(colorOverride);
-                if (overrideColor.HasValue)
-                {
-                    return overrideColor.Value;
-                }
-            }
-            
-            // Fallback to theme color
-            return DungeonThemeColors.GetThemeColor(dungeon.Theme);
-        }
-        
         /// <summary>
         /// Gets the color override from an enemy using reflection
         /// </summary>
@@ -300,15 +246,7 @@ namespace RPGGame.UI.ColorSystem
             }
             return null;
         }
-        
-        /// <summary>
-        /// Gets the color override from a dungeon
-        /// </summary>
-        private static ColorOverride? GetDungeonColorOverride(Dungeon dungeon)
-        {
-            return dungeon.ColorOverride;
-        }
-        
+
         /// <summary>
         /// Resolves a color override to an actual Color value
         /// </summary>

@@ -35,37 +35,7 @@ namespace RPGGame.Utils
             var process = Process.GetCurrentProcess();
             return DateTime.UtcNow - process.StartTime.ToUniversalTime();
         }
-        
-        /// <summary>
-        /// Time elapsed since the executing assembly file was last written.
-        /// This reflects filesystem timestamp age, not MSBuild/compiler duration.
-        /// Returns null if the file is missing or the timestamp is older than 10 minutes.
-        /// </summary>
-        public static TimeSpan? GetTimeSinceAssemblyFileWrite()
-        {
-            try
-            {
-                var assembly = Assembly.GetExecutingAssembly();
-                var assemblyPath = assembly.Location;
-                
-                if (string.IsNullOrEmpty(assemblyPath) || !File.Exists(assemblyPath))
-                    return null;
-                
-                var lastWriteUtc = File.GetLastWriteTimeUtc(assemblyPath);
-                var now = DateTime.UtcNow;
-                var age = now - lastWriteUtc;
-                
-                if (age.TotalMinutes > 10)
-                    return null;
-                
-                return age;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-        
+
         /// <summary>
         /// Records and outputs launch time (process start through application ready).
         /// For GUI mode, call when the main window is first shown.
@@ -111,33 +81,6 @@ namespace RPGGame.Utils
                 Console.WriteLine($"  Mode: {mode}");
                 Console.WriteLine($"═══════════════════════════════════════════════════════\n");
             }
-        }
-
-        /// <summary>
-        /// Records a build time metric
-        /// </summary>
-        /// <param name="buildType">Type of build (Debug, Release, etc.)</param>
-        /// <param name="buildTimeMs">Build time in milliseconds</param>
-        /// <param name="buildTimeSeconds">Build time in seconds</param>
-        /// <param name="success">Whether the build succeeded</param>
-        public static void RecordBuildMetric(string buildType, long buildTimeMs, double buildTimeSeconds, bool success)
-        {
-            var metric = new BuildMetric
-            {
-                Timestamp = DateTime.UtcNow,
-                BuildType = buildType,
-                BuildTimeMs = buildTimeMs,
-                BuildTimeSeconds = buildTimeSeconds,
-                Success = success
-            };
-
-            SaveMetric(metric);
-            
-            Console.WriteLine($"\n═══════════════════════════════════════════════════════");
-            Console.WriteLine($"  Build Time: {buildTimeSeconds:F2} seconds ({buildTimeMs} ms)");
-            Console.WriteLine($"  Build Type: {buildType}");
-            Console.WriteLine($"  Status: {(success ? "SUCCESS" : "FAILED")}");
-            Console.WriteLine($"═══════════════════════════════════════════════════════\n");
         }
 
         /// <summary>

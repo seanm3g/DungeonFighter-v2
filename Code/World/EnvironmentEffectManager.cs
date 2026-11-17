@@ -54,15 +54,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Clears all passive effects.
-        /// </summary>
-        public void ClearPassiveEffect()
-        {
-            PassiveEffectType = PassiveEffectType.None;
-            PassiveEffectValue = 1.0;
-        }
-
-        /// <summary>
         /// Sets up an active effect action.
         /// </summary>
         public void SetActiveEffectAction(Action action)
@@ -70,13 +61,6 @@ namespace RPGGame
             ActiveEffectAction = action;
         }
 
-        /// <summary>
-        /// Clears the active effect action.
-        /// </summary>
-        public void ClearActiveEffect()
-        {
-            ActiveEffectAction = null;
-        }
     }
 }
 

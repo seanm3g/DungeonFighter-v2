@@ -55,22 +55,6 @@ namespace RPGGame.MCP.Tools.Utilities
             return await RunTestWithCapture(() => TestAssembly.Run("Unit.CombatSystemTests", "RunAllTests"));
         }
         
-        /// <summary>
-        /// Runs multiple test actions and combines their output
-        /// </summary>
-        public static async Task<string> RunMultipleTests(params System.Action[] testActions)
-        {
-            var output = new StringBuilder();
-            
-            foreach (var testAction in testActions)
-            {
-                string result = await RunTestWithCapture(testAction);
-                output.AppendLine(result);
-                output.AppendLine();
-            }
-            
-            return output.ToString();
-        }
     }
 }
 

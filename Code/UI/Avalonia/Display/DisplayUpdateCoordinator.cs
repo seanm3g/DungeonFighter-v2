@@ -103,34 +103,7 @@ namespace RPGGame.UI.Avalonia.Display
         {
             canvas.Refresh();
         }
-        
-        /// <summary>
-        /// Clears the display and then refreshes the canvas
-        /// </summary>
-        public void ClearAndRefresh(ClearOperation operation)
-        {
-            Clear(operation);
-            Refresh();
-        }
-        
-        /// <summary>
-        /// Convenience method to clear the canvas only.
-        /// This is the most common clearing operation.
-        /// </summary>
-        public void ClearCanvas()
-        {
-            Clear(ClearOperation.Canvas);
-        }
-        
-        /// <summary>
-        /// Convenience method to clear the canvas and immediately refresh.
-        /// Useful when you need to clear and show the cleared state immediately.
-        /// </summary>
-        public void ClearCanvasAndRefresh()
-        {
-            Clear(ClearOperation.Canvas);
-            Refresh();
-        }
+
     }
 }
 

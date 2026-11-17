@@ -120,8 +120,7 @@ namespace RPGGame.UI.ColorSystem
             
             return merged;
         }
-        
-        
+
         /// <summary>
         /// Creates a template with a single color
         /// </summary>
@@ -129,15 +128,7 @@ namespace RPGGame.UI.ColorSystem
         {
             return new List<ColoredText> { new ColoredText(text, color, sourceTemplate) };
         }
-        
-        /// <summary>
-        /// Creates a template with a color from the palette
-        /// </summary>
-        public static List<ColoredText> PaletteColor(string text, ColorPalette palette)
-        {
-            return new List<ColoredText> { new ColoredText(text, palette.GetColor()) };
-        }
-        
+
         /// <summary>
         /// Converts color code strings to Color array
         /// </summary>

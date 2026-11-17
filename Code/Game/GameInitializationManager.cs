@@ -83,30 +83,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Initializes game data for an existing character.
-        /// Generates dungeons, sets up inventory, applies configurations.
-        /// </summary>
-        /// <param name="character">The character to initialize for.</param>
-        /// <param name="dungeons">List to populate with generated dungeons.</param>
-        public void InitializeGameData(Character character, List<Dungeon> dungeons)
-        {
-            try
-            {
-                if (character == null)
-                {
-                    UIManager.WriteSystemLine("Cannot initialize game data: character is null");
-                    return;
-                }
-
-                gameInitializer.InitializeExistingGame(character, dungeons);
-            }
-            catch (Exception ex)
-            {
-                UIManager.WriteSystemLine($"Error initializing game data: {ex.Message}");
-            }
-        }
-
-        /// <summary>
         /// Applies health multiplier from game settings to character.
         /// This allows adjusting game difficulty through settings.
         /// </summary>
@@ -207,41 +183,6 @@ namespace RPGGame
                 ["Dimensional"] = new List<string> { "Dimension Rift", "Reality Chamber", "Multiverse Hall", "Space-Time Vault", "Quantum Room", "Dimensional Sanctum", "Rift Chamber" },
                 ["Divine"] = new List<string> { "Heavenly Chamber", "Divine Hall", "Sacred Vault", "Celestial Sanctum", "Holy Chamber", "Divine Temple", "Eternal Hall" }
             };
-        }
-
-        /// <summary>
-        /// Validates that a character is properly initialized for gameplay.
-        /// Checks for required fields and valid state.
-        /// </summary>
-        /// <param name="character">The character to validate.</param>
-        /// <returns>True if character is valid for gameplay.</returns>
-        public bool ValidateCharacter(Character character)
-        {
-            if (character == null)
-            {
-                UIManager.WriteSystemLine("Character validation failed: character is null");
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(character.Name))
-            {
-                UIManager.WriteSystemLine("Character validation failed: name is empty");
-                return false;
-            }
-
-            if (character.CurrentHealth <= 0)
-            {
-                UIManager.WriteSystemLine("Character validation failed: health is zero or negative");
-                return false;
-            }
-
-            if (character.Inventory == null)
-            {
-                UIManager.WriteSystemLine("Character validation failed: inventory is null");
-                return false;
-            }
-
-            return true;
         }
 
         /// <summary>

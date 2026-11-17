@@ -215,34 +215,6 @@ namespace RPGGame.UI.TitleScreen
             return new TitleFrame(BuildFrameLayout(dungeonTransitionLines, fighterTransitionLines));
         }
 
-        /// <summary>
-        /// Builds a frame with transition colors (legacy path using ColorScheme finals).
-        /// </summary>
-        public TitleFrame BuildTransitionFrame(float progress)
-        {
-            var scheme = _config.ColorScheme;
-
-            if (progress >= 1.0f)
-            {
-                return BuildTemplateFrame("title_dungeon_yellow_orange", "title_fighter_yellow_orange");
-            }
-
-            var dungeonTransitionLines = ColorizeTransitionLines(
-                TitleArtAssets.DungeonLines,
-                scheme.TransitionFromColor,
-                scheme.DungeonFinalColor,
-                progress);
-
-            var fighterTransitionLines = ColorizeTransitionLines(
-                TitleArtAssets.FighterLines,
-                scheme.TransitionFromColor,
-                scheme.FighterFinalColor,
-                progress);
-
-            var frameLines = BuildFrameLayout(dungeonTransitionLines, fighterTransitionLines);
-            return new TitleFrame(frameLines);
-        }
-
         private static List<ColoredText>[] ComposeLines(
             List<ColoredText>[] baseLines,
             int lineOffsetBase,

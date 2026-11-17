@@ -193,13 +193,5 @@ namespace RPGGame
             }
         }
 
-        /// <summary>
-        /// Gets the shared Random instance for advanced usage
-        /// </summary>
-        /// <returns>The shared Random instance</returns>
-        public static Random GetSharedRandom()
-        {
-            return Current;
-        }
     }
 }

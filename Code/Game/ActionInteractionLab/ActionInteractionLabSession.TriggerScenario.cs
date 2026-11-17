@@ -127,17 +127,6 @@ namespace RPGGame.ActionInteractionLab
             return report;
         }
 
-        /// <summary>Runs all filtered identities; returns batch report text.</summary>
-        public ItemTriggerScenarioBatchResult RunAllFilteredTriggerScenarios()
-        {
-            string? filter = string.IsNullOrWhiteSpace(TriggerListFilter) ? null : TriggerListFilter;
-            var batch = ItemTriggerScenarioRunner.RunAll(filter);
-            LastTriggerScenarioReport = batch.Reports.LastOrDefault();
-            TriggerStatusMessage = $"Batch {batch.Passed}/{batch.Total} passed";
-            _refreshCombatUi();
-            return batch;
-        }
-
         private void ApplyTriggerScenarioSetup(ItemTriggerScenarioSetup setup)
         {
             _labPlayer = setup.Hero;

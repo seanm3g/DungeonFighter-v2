@@ -195,35 +195,6 @@ namespace RPGGame
                 spawnRegionId: player.CurrentRegionId));
         }
 
-
-        /// <summary>
-        /// Allows player to choose a dungeon from available options
-        /// </summary>
-        /// <param name="availableDungeons">List of available dungeons</param>
-        /// <returns>The selected dungeon</returns>
-        public Dungeon ChooseDungeon(List<Dungeon> availableDungeons)
-        {
-            UIManager.WriteMenuLine("\nAvailable Dungeons:");
-            UIManager.WriteMenuLine(GameConstants.SubMenuSeparator);
-            for (int i = 0; i < availableDungeons.Count; i++)
-            {
-                var d = availableDungeons[i];
-                UIManager.WriteMenuLine($"{i + 1}. {d.Name} (lvl {d.MinLevel})");
-            }
-
-            int choice = -1;
-            while (choice < 1 || choice > availableDungeons.Count)
-            {
-                Console.Write($"\nChoose a dungeon (1-{availableDungeons.Count}): ");
-                string? input = Console.ReadLine();
-                if (!int.TryParse(input, out choice) || choice < 1 || choice > availableDungeons.Count)
-                {
-                    UIManager.WriteLine("Invalid choice. Please enter a valid dungeon number.");
-                }
-            }
-            return availableDungeons[choice - 1];
-        }
-
         /// <summary>
         /// Awards loot and XP for dungeon completion (delegates to RewardManager)
         /// </summary>
@@ -291,5 +262,4 @@ namespace RPGGame
         }
     }
 }
-
 

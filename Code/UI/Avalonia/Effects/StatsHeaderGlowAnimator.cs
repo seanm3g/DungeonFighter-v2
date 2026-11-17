@@ -69,45 +69,12 @@ namespace RPGGame.UI.Avalonia.Effects
                 }
             }
         }
-        
-        /// <summary>
-        /// Gets the current glow color (interpolated between yellow and white)
-        /// </summary>
-        public Color GetCurrentGlowColor()
-        {
-            lock (lockObject)
-            {
-                return currentGlowColor;
-            }
-        }
-        
-        /// <summary>
-        /// Gets the current glow intensity
-        /// </summary>
-        public double GetCurrentGlowIntensity()
-        {
-            lock (lockObject)
-            {
-                return currentGlowIntensity;
-            }
-        }
-        
+
         /// <summary>
         /// Gets the glow radius
         /// </summary>
         public int GetGlowRadius() => GlowRadius;
-        
-        /// <summary>
-        /// Sets a callback to be invoked when the animation updates
-        /// </summary>
-        public void SetUpdateCallback(System.Action? callback)
-        {
-            lock (lockObject)
-            {
-                onUpdateCallback = callback;
-            }
-        }
-        
+
         /// <summary>
         /// Updates the animation state (called by timer)
         /// </summary>

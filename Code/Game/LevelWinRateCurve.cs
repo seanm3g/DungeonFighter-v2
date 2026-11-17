@@ -19,20 +19,6 @@ namespace RPGGame
         public static IReadOnlyList<int> GetDefaultAnchorLevels() =>
             new[] { 1, 5, 10, 25, 50, 75, 100 };
 
-        /// <summary>Configured curve anchor levels only (sorted).</summary>
-        public static IReadOnlyList<int> GetCurveAnchorLevels()
-        {
-            var anchors = Config?.Anchors;
-            if (anchors == null || anchors.Count == 0)
-                return GetDefaultAnchorLevels();
-
-            return anchors
-                .Select(a => a.Level)
-                .Distinct()
-                .OrderBy(l => l)
-                .ToList();
-        }
-
         public static double GetTolerance(int level)
         {
             _ = level;

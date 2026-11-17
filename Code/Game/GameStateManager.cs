@@ -309,16 +309,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Resets only the dungeon-related state.
-        /// Used when completing a dungeon or returning to game loop.
-        /// </summary>
-        public void ResetDungeonState()
-        {
-            CurrentDungeon = null;
-            CurrentRoom = null;
-        }
-
-        /// <summary>
         /// Gets a string representation of the current game state for debugging.
         /// </summary>
         /// <returns>Formatted string showing current state information.</returns>

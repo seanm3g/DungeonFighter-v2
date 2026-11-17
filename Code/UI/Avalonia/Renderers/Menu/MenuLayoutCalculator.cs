@@ -83,13 +83,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             return new string('-', len);
         }
         
-        /// <summary>
-        /// Calculates panel division for multi-panel layouts
-        /// </summary>
-        public static int CalculatePanelHeight(int totalHeight, int panelCount, int spacing = 1)
-        {
-            return (totalHeight - (spacing * (panelCount - 1))) / panelCount;
-        }
     }
 }
 

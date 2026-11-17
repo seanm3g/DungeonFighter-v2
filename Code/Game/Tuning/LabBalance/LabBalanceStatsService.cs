@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Tuning.Profiles;
 
-
 namespace RPGGame.Tuning.LabBalance
 {
     public sealed class LabBalanceStatsRunResult
@@ -157,39 +156,6 @@ namespace RPGGame.Tuning.LabBalance
             }
 
             return sb.ToString().TrimEnd();
-        }
-
-        internal static string FormatKnobDelta(
-            IReadOnlyDictionary<string, double> start,
-            IReadOnlyDictionary<string, double> end)
-        {
-            var sb = new StringBuilder();
-            foreach (var key in start.Keys.OrderBy(k => k, StringComparer.OrdinalIgnoreCase))
-            {
-                if (!end.TryGetValue(key, out double endVal))
-                    continue;
-                double startVal = start[key];
-                if (Math.Abs(startVal - endVal) < 1e-9)
-                    continue;
-                sb.AppendLine($"  {key}: {startVal:F3} → {endVal:F3}");
-            }
-
-            foreach (var key in end.Keys.OrderBy(k => k, StringComparer.OrdinalIgnoreCase))
-            {
-                if (start.ContainsKey(key))
-                    continue;
-                sb.AppendLine($"  {key}: (new) → {end[key]:F3}");
-            }
-
-            return sb.ToString().TrimEnd();
-        }
-
-        private static Dictionary<string, double> SnapshotLayerKnobValues(LabBalanceProcessLayer layer)
-        {
-            var dict = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
-            foreach (var knobs in LabBalanceScenarioApplicator.GetKnobsForLayer(layer))
-                dict[knobs.Id] = knobs.GetValue();
-            return dict;
         }
 
         private static async Task<LabBalanceStatsRunResult> RunSingleEncounterAsync(
@@ -383,42 +349,5 @@ namespace RPGGame.Tuning.LabBalance
             return "Sword";
         }
 
-        private static FundamentalsSimulationResult CloneWithSnapshots(
-            FundamentalsSimulationResult source,
-            IReadOnlyList<FundamentalsLevelSnapshot> snaps) =>
-            new()
-            {
-                TimestampUtc = source.TimestampUtc,
-                EncounterCount = source.EncounterCount,
-                SuccessfulEncounters = source.SuccessfulEncounters,
-                ErroredEncounters = source.ErroredEncounters,
-                AverageActionsPerEncounter = source.AverageActionsPerEncounter,
-                MedianActionsPerEncounter = source.MedianActionsPerEncounter,
-                AveragePlayerTurnsPerEncounter = source.AveragePlayerTurnsPerEncounter,
-                MedianPlayerTurnsPerEncounter = source.MedianPlayerTurnsPerEncounter,
-                AverageEnemyTurnsPerEncounter = source.AverageEnemyTurnsPerEncounter,
-                MedianEnemyTurnsPerEncounter = source.MedianEnemyTurnsPerEncounter,
-                MinActions = source.MinActions,
-                MaxActions = source.MaxActions,
-                AverageComboPlusEventsPerEncounter = source.AverageComboPlusEventsPerEncounter,
-                AverageComboStreakRuns2PlusPerEncounter = source.AverageComboStreakRuns2PlusPerEncounter,
-                AverageMaxComboStreak = source.AverageMaxComboStreak,
-                ComboStreakRunTotals = source.ComboStreakRunTotals,
-                ForcedCatalogAction = source.ForcedCatalogAction,
-                ComboStripCount = source.ComboStripCount,
-                EnemyType = source.EnemyType,
-                PlayerLevel = source.PlayerLevel,
-                EnemyLevel = source.EnemyLevel,
-                WeaponType = source.WeaponType,
-                AverageSimAdvanceCalls = source.AverageSimAdvanceCalls,
-                WinRate = source.WinRate,
-                TurnDurationStdDev = source.TurnDurationStdDev,
-                AverageMissRate = source.AverageMissRate,
-                AverageCritRate = source.AverageCritRate,
-                AverageLossSeverity = source.AverageLossSeverity,
-                AverageTurnsBelowZero = source.AverageTurnsBelowZero,
-                ContinuePastZeroHp = source.ContinuePastZeroHp,
-                LevelSnapshots = snaps
-            };
     }
 }

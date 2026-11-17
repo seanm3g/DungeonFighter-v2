@@ -65,12 +65,6 @@ namespace RPGGame.Data
             return new ClassPresentationConfig().EnsureNormalized();
         }
 
-        public static string CsvToClassActionsJsonText(string csvContent, ClassPresentationConfig? presentation = null)
-        {
-            var cfg = ParseCsvToConfig(csvContent, presentation ?? LoadClassPresentationForImport());
-            return JsonSerializer.Serialize(cfg, JsonWrite);
-        }
-
         public static ClassActionsUnlockConfig ParseCsvToConfig(string csvContent, ClassPresentationConfig? presentation = null)
         {
             presentation ??= LoadClassPresentationForImport();

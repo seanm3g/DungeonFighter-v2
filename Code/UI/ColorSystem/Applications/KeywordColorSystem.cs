@@ -198,25 +198,7 @@ namespace RPGGame.UI.ColorSystem
             var colorToUse = color ?? ColorPalette.Player.GetColor();
             _characterNames[characterName] = colorToUse;
         }
-        
-        /// <summary>
-        /// Registers multiple character names for automatic coloring
-        /// </summary>
-        public static void RegisterCharacterNames(IEnumerable<string> characterNames, Color? color = null)
-        {
-            if (characterNames == null)
-                return;
-            
-            var colorToUse = color ?? ColorPalette.Player.GetColor();
-            foreach (var name in characterNames)
-            {
-                if (!string.IsNullOrEmpty(name))
-                {
-                    _characterNames[name] = colorToUse;
-                }
-            }
-        }
-        
+
         /// <summary>
         /// Unregisters a character name
         /// </summary>
@@ -235,16 +217,7 @@ namespace RPGGame.UI.ColorSystem
         {
             _characterNames.Clear();
         }
-        
-        /// <summary>
-        /// Colors text using keyword coloring (alias for Colorize)
-        /// </summary>
-        public static List<ColoredText> ColorText(string text)
-        {
-            return Colorize(text);
-        }
-        
-        
+
         private static Color GetColorForWord(string word)
         {
             // Exclude common glue words from being colored (incl. short tokens that used to

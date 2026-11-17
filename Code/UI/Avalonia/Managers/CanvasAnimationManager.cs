@@ -308,8 +308,7 @@ namespace RPGGame.UI.Avalonia.Managers
             // Also trigger re-render for display buffer (for "ENTERING DUNGEON" lines)
             // This is handled by crit line animation manager
         }
-        
-        
+
         /// <summary>
         /// Pauses all animations
         /// </summary>
@@ -329,23 +328,7 @@ namespace RPGGame.UI.Avalonia.Managers
             brightnessMaskTimer?.Change(brightnessMaskInterval, brightnessMaskInterval);
             critLineAnimationManager.ResumeAnimations();
         }
-        
-        /// <summary>
-        /// Updates animation configuration
-        /// </summary>
-        /// <param name="newUndulationInterval">New undulation interval in milliseconds</param>
-        /// <param name="newBrightnessMaskInterval">New brightness mask interval in milliseconds</param>
-        public void UpdateAnimationConfiguration(int newUndulationInterval, int newBrightnessMaskInterval)
-        {
-            // Stop current timers
-            undulationTimer?.Dispose();
-            brightnessMaskTimer?.Dispose();
-            
-            // Create new timers with updated intervals
-            undulationTimer = new Timer(UpdateUndulation, null, newUndulationInterval, newUndulationInterval);
-            brightnessMaskTimer = new Timer(UpdateBrightnessMask, null, newBrightnessMaskInterval, newBrightnessMaskInterval);
-        }
-        
+
         /// <summary>
         /// Gets the current animation configuration
         /// </summary>

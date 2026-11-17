@@ -507,14 +507,6 @@ namespace RPGGame.Data
             catch { return null; }
         }
 
-        private static double ParsePositiveDoubleStatusMagnitude(string? cell, double defaultVal)
-        {
-            if (string.IsNullOrWhiteSpace(cell)) return defaultVal;
-            if (double.TryParse(cell.Trim(), System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double v) && v > 0)
-                return v;
-            return defaultVal;
-        }
-
         private static int ParsePositiveIntStatusMagnitude(string? cell, int defaultVal)
         {
             if (string.IsNullOrWhiteSpace(cell)) return defaultVal;

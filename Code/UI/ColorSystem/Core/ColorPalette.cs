@@ -111,14 +111,6 @@ namespace RPGGame.UI.ColorSystem
             return ColorPaletteLoader.GetAllColors();
         }
         
-        /// <summary>
-        /// Checks if a color exists in the palette
-        /// </summary>
-        public static bool IsValidColor(ColorPalette palette)
-        {
-            return ColorPaletteLoader.HasColor(palette);
-        }
     }
 }
-
 

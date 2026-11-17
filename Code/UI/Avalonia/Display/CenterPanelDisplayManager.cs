@@ -284,17 +284,6 @@ namespace RPGGame.UI.Avalonia.Display
         }
 
         /// <summary>
-        /// Replaces the last combat-log line in place (setup telegraph → punchline).
-        /// </summary>
-        public void ReplaceLastMessage(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
-        {
-            if (bufferOperations.TryReplaceLast(segments, messageType))
-            {
-                TriggerRender();
-            }
-        }
-
-        /// <summary>
         /// Replaces a reserved combat-log line counted from the end (0 = last) so follow-ups fill in place.
         /// </summary>
         public void ReplaceMessageFromEnd(

@@ -245,25 +245,6 @@ namespace RPGGame.UI.Avalonia
             }
         }
 
-        private void RefreshCurrentPanelFromSettings()
-        {
-            if (CategoryListBox.SelectedItem is not ListBoxItem selectedItem || selectedItem.Tag is not string categoryTag)
-                return;
-            var handler = panelHandlerRegistry?.GetHandler(categoryTag);
-            if (handler == null) return;
-            // Apply to the panel actually visible so file values show on what the user sees
-            UserControl? target = ContentScrollViewer.IsVisible ? ContentArea.Content as UserControl
-                : TestingContentArea.IsVisible ? TestingContentArea.Content as UserControl
-                : ActionsContentArea.IsVisible ? ActionsContentArea.Content as UserControl
-                : TextAnimationContentArea.IsVisible ? TextAnimationContentArea.Content as UserControl
-                : ItemGenerationContentArea.IsVisible ? ItemGenerationContentArea.Content as UserControl
-                : null;
-            if (target == null && loadedPanels.TryGetValue(categoryTag, out var cached))
-                target = cached;
-            if (target != null)
-                handler.LoadSettings(target);
-        }
-        
         /// <summary>Selects a sidebar category and loads its panel (used for deep links from Balance Workbench).</summary>
         public void NavigateToCategory(string categoryTag)
         {

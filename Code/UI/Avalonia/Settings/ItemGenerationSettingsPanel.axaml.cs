@@ -454,11 +454,6 @@ namespace RPGGame.UI.Avalonia.Settings
             return 1;
         }
 
-        private int ReadDungeonLevel()
-        {
-            return DungeonLevelMath.ResolveEffectiveDungeonLevel(ReadHeroLevel(), ReadDungeonDelta());
-        }
-
         private int ReadDungeonDelta()
         {
             var tb = this.FindControl<TextBox>("DungeonDeltaTextBox");

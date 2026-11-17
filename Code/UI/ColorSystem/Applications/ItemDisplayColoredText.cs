@@ -77,94 +77,7 @@ namespace RPGGame.UI.ColorSystem.Applications
         {
             return ItemStatsFormatter.FormatModification(mod);
         }
-        
-        /// <summary>
-        /// Formats an inventory list item
-        /// </summary>
-        public static List<ColoredText> FormatInventoryItem(int index, Item item)
-        {
-            var builder = new ColoredTextBuilder();
-            
-            // Index
-            builder.Add($"{index}. ", Colors.Gray);
-            
-            // Item name with colors
-            var nameSegments = FormatFullItemName(item);
-            builder.Add(nameSegments);
-            
-            // Type and tier in brackets
-            builder.Add("[ ", Colors.DarkGray);
-            builder.Add(item.Type.ToString(), ColorPalette.Info);
-            builder.Add(" T", Colors.Gray);
-            builder.Add(item.Tier.ToString(), ColorPalette.Warning);
-            builder.Add("]", Colors.DarkGray);
-            
-            return builder.Build();
-        }
-        
-        /// <summary>
-        /// Formats equipped item display
-        /// </summary>
-        public static List<ColoredText> FormatEquippedItem(string slotName, Item? item)
-        {
-            var builder = new ColoredTextBuilder();
-            
-            // Slot name
-            builder.Add(slotName, ColorPalette.Info);
-            builder.Add(": ", Colors.White);
-            
-            if (item != null)
-            {
-                // Equipped item
-                var itemSegments = FormatFullItemName(item);
-                builder.Add(itemSegments);
-                
-                // Quick stats
-                if (item is WeaponItem weaponItem)
-                {
-                    builder.Add(" (", Colors.Gray);
-                    builder.Add(weaponItem.BaseDamage.ToString(), ColorPalette.Damage);
-                    builder.Add(" dmg", Colors.Gray);
-                    builder.Add(")", Colors.Gray);
-                }
-                else if (item is HeadItem headItem)
-                {
-                    builder.Add(" (", Colors.Gray);
-                    builder.Add(headItem.GetBaseArmor().ToString(), ColorPalette.Success);
-                    builder.Add(" armor", Colors.Gray);
-                    builder.Add(")", Colors.Gray);
-                }
-                else if (item is ChestItem bodyItem)
-                {
-                    builder.Add(" (", Colors.Gray);
-                    builder.Add(bodyItem.GetBaseArmor().ToString(), ColorPalette.Success);
-                    builder.Add(" armor", Colors.Gray);
-                    builder.Add(")", Colors.Gray);
-                }
-                else if (item is LegsItem legsItem)
-                {
-                    builder.Add(" (", Colors.Gray);
-                    builder.Add(legsItem.GetBaseArmor().ToString(), ColorPalette.Success);
-                    builder.Add(" armor", Colors.Gray);
-                    builder.Add(")", Colors.Gray);
-                }
-                else if (item is FeetItem feetItem)
-                {
-                    builder.Add(" (", Colors.Gray);
-                    builder.Add(feetItem.GetBaseArmor().ToString(), ColorPalette.Success);
-                    builder.Add(" armor", Colors.Gray);
-                    builder.Add(")", Colors.Gray);
-                }
-            }
-            else
-            {
-                // Empty slot
-                builder.Add("(empty)", Colors.DarkGray);
-            }
-            
-            return builder.Build();
-        }
-        
+
         /// <summary>
         /// Formats item comparison for equip decisions
         /// </summary>
@@ -172,22 +85,7 @@ namespace RPGGame.UI.ColorSystem.Applications
         {
             return ItemComparisonFormatter.FormatItemComparison(newItem, currentItem);
         }
-        
-        /// <summary>
-        /// Formats loot drop message
-        /// </summary>
-        public static List<ColoredText> FormatLootDrop(Item item)
-        {
-            var builder = new ColoredTextBuilder();
-            
-            builder.Add("Found: ", ColorPalette.Success);
-            var itemSegments = FormatItemWithRarity(item);
-            builder.Add(itemSegments);
-            builder.Add("!", Colors.White);
-            
-            return builder.Build();
-        }
-        
+
         /// <summary>
         /// Formats loot for dungeon completion screen with rarity in brackets
         /// Format: [Rarity] ItemName (with each element colored)

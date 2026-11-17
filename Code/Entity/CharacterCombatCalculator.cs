@@ -137,15 +137,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Calculates total roll bonus from all sources
-        /// </summary>
-        /// <returns>Total roll bonus</returns>
-        public int GetTotalRollBonus()
-        {
-            return GetIntelligenceRollBonus() + character.Equipment.GetModificationRollBonus() + character.Equipment.GetEquipmentRollBonus(character);
-        }
-
-        /// <summary>
         /// Calculates total armor from all sources
         /// </summary>
         /// <returns>Total armor value</returns>
@@ -200,31 +191,5 @@ namespace RPGGame
             return $"Level {character.Level} (Health: {character.CurrentHealth}/{character.MaxHealth}) (STR: {character.Strength}, AGI: {character.Agility}, TEC: {character.Technique}, INT: {character.Intelligence})";
         }
 
-        /// <summary>
-        /// Gets detailed combat stats for display
-        /// </summary>
-        /// <returns>Detailed combat stats string</returns>
-        public string GetDetailedCombatStats()
-        {
-            int weaponDamage = (character.Weapon is WeaponItem w) ? w.GetTotalDamage() : 0;
-            int equipmentDamageBonus = character.Equipment.GetEquipmentDamageBonus(character);
-            int modificationDamageBonus = character.Equipment.GetModificationDamageBonus();
-            int damage = GetTotalDamage();
-            double attackSpeed = GetTotalAttackSpeed();
-            int armor = GetTotalArmor();
-            int totalRollBonus = GetTotalRollBonus();
-            double ampBasePerStep = GetComboAmplifier();
-            int magicFind = GetMagicFind();
-
-            int primaryAttr = character.GetEffectivePrimaryAttributeValue();
-            string stats = $"Damage: {damage} (STR: {character.GetEffectiveStrength()} + Primary: {primaryAttr} + Weapon: {weaponDamage} + Equipment: {equipmentDamageBonus} + Mods: {modificationDamageBonus})  Attack Time: {attackSpeed:0.00}s  AMP (per step): {ampBasePerStep:F2}x  Roll Bonus: +{totalRollBonus}  Defense: {armor}";
-
-            if (magicFind > 0)
-            {
-                stats += $"  Magic Find: +{magicFind} (better prefix/suffix/action rolls; not base rarity)";
-            }
-
-            return stats;
-        }
     }
 }

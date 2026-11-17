@@ -45,16 +45,7 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             clickableElements.Add(element);
         }
-        
-        /// <summary>
-        /// Adds multiple clickable elements
-        /// </summary>
-        /// <param name="elements">The clickable elements to add</param>
-        public void AddClickableElements(IEnumerable<ClickableElement> elements)
-        {
-            clickableElements.AddRange(elements);
-        }
-        
+
         /// <summary>
         /// Creates a clickable menu option
         /// </summary>
@@ -100,30 +91,7 @@ namespace RPGGame.UI.Avalonia.Managers
                 DisplayText = displayText
             };
         }
-        
-        /// <summary>
-        /// Creates a clickable item
-        /// </summary>
-        /// <param name="x">X position</param>
-        /// <param name="y">Y position</param>
-        /// <param name="width">Width of the element</param>
-        /// <param name="value">Value associated with the element</param>
-        /// <param name="displayText">Text to display</param>
-        /// <returns>The created clickable element</returns>
-        public ClickableElement CreateItem(int x, int y, int width, string value, string displayText)
-        {
-            return new ClickableElement
-            {
-                X = x,
-                Y = y,
-                Width = width,
-                Height = 1,
-                Type = ElementType.Item,
-                Value = value,
-                DisplayText = displayText
-            };
-        }
-        
+
         /// <summary>
         /// Gets the element at the specified coordinates
         /// </summary>
@@ -181,51 +149,7 @@ namespace RPGGame.UI.Avalonia.Managers
             var element = GetElementAt(x, y);
             return element;
         }
-        
-        /// <summary>
-        /// Gets all elements of a specific type
-        /// </summary>
-        /// <param name="type">The element type to filter by</param>
-        /// <returns>List of elements of the specified type</returns>
-        public List<ClickableElement> GetElementsByType(ElementType type)
-        {
-            return clickableElements.Where(e => e.Type == type).ToList();
-        }
-        
-        /// <summary>
-        /// Gets all elements with a specific value
-        /// </summary>
-        /// <param name="value">The value to filter by</param>
-        /// <returns>List of elements with the specified value</returns>
-        public List<ClickableElement> GetElementsByValue(string value)
-        {
-            return clickableElements.Where(e => e.Value == value).ToList();
-        }
-        
-        /// <summary>
-        /// Removes elements of a specific type
-        /// </summary>
-        /// <param name="type">The element type to remove</param>
-        /// <returns>Number of elements removed</returns>
-        public int RemoveElementsByType(ElementType type)
-        {
-            int removedCount = clickableElements.Count(e => e.Type == type);
-            clickableElements.RemoveAll(e => e.Type == type);
-            return removedCount;
-        }
-        
-        /// <summary>
-        /// Removes elements with a specific value
-        /// </summary>
-        /// <param name="value">The value to remove by</param>
-        /// <returns>Number of elements removed</returns>
-        public int RemoveElementsByValue(string value)
-        {
-            int removedCount = clickableElements.Count(e => e.Value == value);
-            clickableElements.RemoveAll(e => e.Value == value);
-            return removedCount;
-        }
-        
+
         /// <summary>
         /// Gets the count of clickable elements
         /// </summary>
@@ -235,16 +159,7 @@ namespace RPGGame.UI.Avalonia.Managers
         /// Checks if there are any clickable elements
         /// </summary>
         public bool HasElements => clickableElements.Count > 0;
-        
-        /// <summary>
-        /// Gets all currently hovered elements
-        /// </summary>
-        /// <returns>List of currently hovered elements</returns>
-        public List<ClickableElement> GetHoveredElements()
-        {
-            return clickableElements.Where(e => e.IsHovered).ToList();
-        }
-        
+
         /// <summary>
         /// Clears all hover states
         /// </summary>

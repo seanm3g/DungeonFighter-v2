@@ -66,24 +66,6 @@ namespace RPGGame
             return this;
         }
 
-        public EnemyBuilder WithPrimaryAttribute(PrimaryAttribute primaryAttribute)
-        {
-            _primaryAttribute = primaryAttribute;
-            return this;
-        }
-
-        public EnemyBuilder WithLivingStatus(bool isLiving)
-        {
-            _isLiving = isLiving;
-            return this;
-        }
-
-        public EnemyBuilder WithArchetype(EnemyArchetype archetype)
-        {
-            _archetype = archetype;
-            return this;
-        }
-
         public Enemy Build()
         {
             if (_useDirectStats)

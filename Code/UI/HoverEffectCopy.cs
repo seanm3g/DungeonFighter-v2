@@ -433,17 +433,6 @@ namespace RPGGame
             lines.Add("Active for the time shown on this row.");
         }
 
-        public static string FormatSourceLabel(string? raw)
-        {
-            if (string.IsNullOrWhiteSpace(raw))
-                return "";
-            const string prefix = "ItemProc:";
-            string trimmed = raw.Trim();
-            if (trimmed.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                return trimmed.Substring(prefix.Length).Trim();
-            return trimmed;
-        }
-
         public static string PresentDescription(string? raw)
         {
             string text = (raw ?? "").Trim();

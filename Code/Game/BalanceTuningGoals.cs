@@ -91,31 +91,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Calculate balance quality without win-rate weighting (duration + weapon + enemy spread).
-        /// </summary>
-        public static double CalculateQualityScoreWithoutWinRate(
-            double averageCombatDuration,
-            double weaponVariance,
-            double enemyVariance)
-        {
-            var weights = QualityWeights;
-            double durationScore = ScoreCombatDuration(averageCombatDuration);
-            double weaponScore = ScoreWeaponVariance(weaponVariance);
-            double enemyScore = ScoreEnemyVariance(enemyVariance);
-
-            double totalWeight = weights.DurationWeight + weights.WeaponBalanceWeight + weights.EnemyDiffWeight;
-            if (totalWeight <= 0)
-                return Math.Round((durationScore + weaponScore + enemyScore) / 3.0, 1);
-
-            double totalScore =
-                durationScore * weights.DurationWeight +
-                weaponScore * weights.WeaponBalanceWeight +
-                enemyScore * weights.EnemyDiffWeight;
-
-            return Math.Round(totalScore / totalWeight, 1);
-        }
-
-        /// <summary>
         /// Calculate overall balance quality score (0-100)
         /// </summary>
         public static double CalculateQualityScore(
@@ -177,52 +152,6 @@ namespace RPGGame
             Low = 4          // Fine-tune for optimization
         }
 
-        /// <summary>
-        /// Determine priority level for a matchup issue
-        /// </summary>
-        public static TuningPriority GetMatchupPriority(double winRate, double averageTurns)
-        {
-            var winRateTargets = WinRateTargets;
-            var durationTargets = CombatDurationTargets;
-
-            // Critical: Win rate way off or duration way off
-            if (winRate < winRateTargets.CriticalLow || winRate > winRateTargets.CriticalHigh ||
-                averageTurns < durationTargets.CriticalShort || averageTurns > durationTargets.CriticalLong)
-            {
-                return TuningPriority.Critical;
-            }
-
-            // High: Outside optimal range
-            if (winRate < winRateTargets.OptimalMin || winRate > winRateTargets.OptimalMax ||
-                averageTurns < durationTargets.OptimalMin || averageTurns > durationTargets.OptimalMax)
-            {
-                return TuningPriority.High;
-            }
-
-            // Medium: In warning range
-            if (winRate < winRateTargets.WarningLow || winRate > winRateTargets.WarningHigh ||
-                averageTurns < durationTargets.WarningShort || averageTurns > durationTargets.WarningLong)
-            {
-                return TuningPriority.Medium;
-            }
-
-            // Low: In target range, fine-tuning
-            return TuningPriority.Low;
-        }
-
-        /// <summary>
-        /// Get target adjustment magnitude based on how far off target we are
-        /// </summary>
-        public static double GetAdjustmentMagnitude(double currentValue, double targetValue, double minAdjustment = 0.05, double maxAdjustment = 0.50)
-        {
-            double difference = Math.Abs(currentValue - targetValue);
-            double targetRange = WinRateTargets.MaxTarget - WinRateTargets.MinTarget;
-            double percentageOff = difference / targetRange;
-
-            // Scale adjustment: 5% for small differences, up to 50% for large differences
-            double magnitude = minAdjustment + (percentageOff * (maxAdjustment - minAdjustment));
-            return Math.Clamp(magnitude, minAdjustment, maxAdjustment);
-        }
     }
 }
 

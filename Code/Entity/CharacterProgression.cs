@@ -489,22 +489,5 @@ namespace RPGGame
             return sorted[0].Path == WeaponType.Wand;
         }
 
-        public void DisplayProgressionInfo(string characterName)
-        {
-            var cfg = Pres;
-            Console.WriteLine($"=== CHARACTER INFORMATION ===");
-            Console.WriteLine($"Name: {characterName}");
-            Console.WriteLine($"Weapon-path class (action unlocks): {GetWeaponPointsClassTitle()}");
-            Console.WriteLine($"Level: {Level}");
-            Console.WriteLine($"XP: {XP}");
-            Console.WriteLine();
-            Console.WriteLine("=== CLASS POINTS ===");
-            Console.WriteLine($"{cfg.GetDisplayName(WeaponType.Mace)} (Mace): {BarbarianPoints}");
-            Console.WriteLine($"{cfg.GetDisplayName(WeaponType.Sword)} (Sword): {WarriorPoints}");
-            Console.WriteLine($"{cfg.GetDisplayName(WeaponType.Dagger)} (Dagger): {RoguePoints}");
-            Console.WriteLine($"{cfg.GetDisplayName(WeaponType.Wand)} (Wand): {WizardPoints}");
-            Console.WriteLine();
-        }
-
     }
 }

@@ -23,31 +23,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Text
         public static Color AdjustColorBrightness(Color color, double factor)
             => ColorValidator.ScaleBrightnessHsv(color, factor);
 
-        /// <summary>
-        /// Expands plain text into per-character segments with undulation (no template = always undulate).
-        /// </summary>
-        public static List<ColoredText> ApplyUndulationToPlainText(string text, Color baseColor, int lineY)
-        {
-            var list = new List<ColoredText>();
-            int pos = 0;
-            AppendAnimatedChars(text ?? "", baseColor, list, ref pos, lineY, sourceTemplate: null);
-            return list;
-        }
-
-        /// <summary>
-        /// Applies the same animation as the level-up banner in <see cref="DisplayRenderer"/> to a full segment line.
-        /// </summary>
-        public static List<ColoredText> ApplyUndulationToSegmentLine(List<ColoredText> segments, int lineY)
-        {
-            var animated = new List<ColoredText>();
-            int charPos = 0;
-            if (segments == null)
-                return animated;
-
-            AppendComposedFromSegments(DisplayLogShimmerPreset, segments, animated, ref charPos, lineY);
-            return animated;
-        }
-
         public static void AppendAnimatedChars(
             string text,
             Color baseColor,

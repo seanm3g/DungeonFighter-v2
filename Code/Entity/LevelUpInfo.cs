@@ -21,66 +21,10 @@ namespace RPGGame
         public int SkillPointsAvailable { get; set; }
         public bool AwardedSkillPoint { get; set; }
 
-        
         /// <summary>
         /// Returns true if this represents a valid level-up (has level information)
         /// </summary>
         public bool IsValid => NewLevel > 0;
         
-        /// <summary>
-        /// Gets formatted level-up messages for display
-        /// </summary>
-        public List<string> GetDisplayMessages()
-        {
-            var messages = new List<string>();
-            
-            if (!IsValid) return messages;
-            
-            messages.Add("*** LEVEL UP! ***");
-            messages.Add($"You reached level {NewLevel}!");
-            
-            if (HasWeapon && !string.IsNullOrEmpty(ClassName))
-            {
-                if (AwardedSkillPoint)
-                    messages.Add($"Gained +1 Skill Point ({SkillPointsAvailable} available)!");
-                else
-                    messages.Add($"Gained +1 {ClassName} class point!");
-                if (!string.IsNullOrEmpty(StatIncreaseMessage))
-                {
-                    messages.Add($"Stats increased: {StatIncreaseMessage}");
-                }
-                if (!string.IsNullOrEmpty(CurrentClass))
-                {
-                    messages.Add($"Current class: {CurrentClass}");
-                }
-                if (!string.IsNullOrEmpty(FullNameWithQualifier))
-                {
-                    messages.Add($"You are now known as: {FullNameWithQualifier}");
-                }
-                if (!string.IsNullOrEmpty(ClassPointsInfo))
-                {
-                    messages.Add($"Class Points: {ClassPointsInfo}");
-                }
-                if (AwardedSkillPoint && SkillPointsAvailable > 0)
-                {
-                    messages.Add("Unspent Skill Points — open Skill Tree from the game menu to learn nodes.");
-                }
-                if (ActionSlotIncrease > 0)
-                {
-                    string slotWord = ActionSlotIncrease == 1 ? "slot" : "slots";
-                    messages.Add($"Gained +{ActionSlotIncrease} action {slotWord}!");
-                }
-                if (!string.IsNullOrEmpty(ClassUpgradeInfo))
-                {
-                    messages.Add($"Next Upgrades: {ClassUpgradeInfo}");
-                }
-            }
-            else
-            {
-                messages.Add("No weapon equipped - equal stat increases (+2 all stats)");
-            }
-            
-            return messages;
-        }
     }
 }

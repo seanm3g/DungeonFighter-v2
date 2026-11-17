@@ -36,12 +36,6 @@ namespace RPGGame.Data
             DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull
         };
 
-        public static string CsvToSkillTreesJsonText(string csvContent, SkillTreesConfig? preserveIdentityFrom = null)
-        {
-            var cfg = ParseCsvToConfig(csvContent, preserveIdentityFrom);
-            return ToJsonText(cfg);
-        }
-
         public static string ToJsonText(SkillTreesConfig cfg) =>
             JsonSerializer.Serialize(cfg ?? SkillTreesConfig.CreateEmpty(), JsonWrite);
 

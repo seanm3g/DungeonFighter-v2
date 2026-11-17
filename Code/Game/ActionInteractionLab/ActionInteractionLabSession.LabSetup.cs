@@ -64,16 +64,6 @@ namespace RPGGame.ActionInteractionLab
         }
 
         /// <summary>
-        /// Equips a new weapon on the lab hero (from <see cref="ActionLabWeaponFactory"/>), clears step history, and re-bases undo snapshot.
-        /// </summary>
-        public void ApplyLabWeapon(WeaponItem weapon)
-        {
-            if (weapon == null)
-                throw new ArgumentNullException(nameof(weapon));
-            ApplyLabGear(weapon, "weapon");
-        }
-
-        /// <summary>
         /// Equips lab gear for <paramref name="slot"/> (<c>weapon</c>, <c>head</c>, <c>body</c>, <c>legs</c>, <c>feet</c>), clears step history, and re-bases undo snapshot.
         /// </summary>
         /// <returns><c>true</c> if gear was applied; <c>false</c> if attribute requirements block equip (no lab state change).</returns>

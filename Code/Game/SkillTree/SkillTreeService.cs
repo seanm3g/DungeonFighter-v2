@@ -80,13 +80,6 @@ namespace RPGGame
             }
         }
 
-        public static SkillTreeDefinition? GetPrimaryTree(CharacterProgression progression)
-        {
-            var primary = progression.GetPrimaryClassWeaponType();
-            if (primary == null) return null;
-            return Trees.GetTreeForWeapon(primary.Value);
-        }
-
         public static SkillTreeDefinition? GetSecondaryTree(CharacterProgression progression)
         {
             var secondary = progression.GetSecondaryClassWeaponType();

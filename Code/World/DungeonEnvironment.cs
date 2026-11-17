@@ -135,7 +135,6 @@ namespace RPGGame
             }
         }
 
-
         /// <summary>
         /// Generates enemies for this environment. Delegates to EnemyGenerationManager.
         /// </summary>
@@ -247,35 +246,11 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the passive effect type.
-        /// </summary>
-        public PassiveEffectType GetPassiveEffectType()
-        {
-            return effectManager.PassiveEffectType;
-        }
-
-        /// <summary>
-        /// Gets the passive effect value.
-        /// </summary>
-        public double GetPassiveEffectValue()
-        {
-            return effectManager.PassiveEffectValue;
-        }
-
-        /// <summary>
         /// Sets a passive effect on this environment.
         /// </summary>
         public void SetPassiveEffect(PassiveEffectType type, double value)
         {
             effectManager.SetPassiveEffect(type, value);
-        }
-
-        /// <summary>
-        /// Gets the active effect action.
-        /// </summary>
-        public Action? GetActiveEffectAction()
-        {
-            return effectManager.ActiveEffectAction;
         }
 
         /// <summary>
@@ -288,5 +263,4 @@ namespace RPGGame
     }
 
 } 
-
 

@@ -18,16 +18,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         }
 
         /// <summary>
-        /// Loads main settings into UI controls using DTO. Delegates to SettingsManager.LoadSettings(controls).
-        /// </summary>
-        public void LoadMainSettings(MainSettingsControls controls)
-        {
-            if (settingsManager == null || controls == null) return;
-            if (AreMainSettingsControlsValid(controls))
-                settingsManager.LoadSettings(controls);
-        }
-
-        /// <summary>
         /// Loads text delay settings into UI controls using DTO
         /// </summary>
         public void LoadTextDelaySettings(TextDelaySettingsControls controls, Action<Slider, TextBox>? wireUpActionDelaySlider = null, Action<Slider, TextBox>? wireUpMessageDelaySlider = null)

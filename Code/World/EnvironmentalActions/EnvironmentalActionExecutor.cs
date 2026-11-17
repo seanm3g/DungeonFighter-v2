@@ -273,35 +273,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets the environmental effect message for area-of-effect actions as ColoredText
-        /// </summary>
-        /// <param name="action">The action being applied</param>
-        /// <param name="duration">Duration of the effect</param>
-        /// <returns>Effect message as ColoredText</returns>
-        private static List<ColoredText> GetEnvironmentalEffectMessageColored(Action action, int duration)
-        {
-            var builder = new ColoredTextBuilder();
-            
-            string? effectName = GetStatusEffectName(action);
-            if (effectName != null)
-            {
-                // Use themed color template for status effect
-                var coloredEffect = StatusEffectColorHelper.GetColoredStatusEffect(effectName);
-                builder.AddRange(coloredEffect);
-            }
-            else
-            {
-                // Generic environmental effect
-                var coloredEffect = StatusEffectColorHelper.GetColoredStatusEffect("EFFECT");
-                builder.AddRange(coloredEffect);
-            }
-            
-            AddForAmountUnit(builder, duration.ToString(), ColorPalette.White, duration == 1 ? "turn" : "turns", ColorPalette.White);
-            
-            return builder.Build();
-        }
-        
-        /// <summary>
         /// Gets the status effect name for an action based on its properties
         /// </summary>
         /// <param name="action">The action to check</param>

@@ -66,21 +66,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Logs multiple event messages in sequence.
-        /// Ignores null or empty messages.
-        /// </summary>
-        /// <param name="messages">Collection of messages to log.</param>
-        public void LogDungeonEvents(IEnumerable<string> messages)
-        {
-            if (messages == null) return;
-
-            foreach (var message in messages)
-            {
-                LogDungeonEvent(message);
-            }
-        }
-
-        /// <summary>
         /// Sets the dungeon header information (e.g., dungeon name, level, theme).
         /// This typically shows at the beginning of a dungeon run.
         /// </summary>
@@ -91,18 +76,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Adds a single line of header information.
-        /// </summary>
-        /// <param name="info">The header information line to add.</param>
-        public void AddDungeonHeaderInfo(string info)
-        {
-            if (!string.IsNullOrEmpty(info))
-            {
-                dungeonHeaderInfo.Add(info);
-            }
-        }
-
-        /// <summary>
         /// Sets the current room information (e.g., room name, enemies, environment).
         /// This typically shows when entering a new room.
         /// </summary>
@@ -110,18 +83,6 @@ namespace RPGGame
         public void SetRoomInfo(List<string> info)
         {
             currentRoomInfo = new List<string>(info ?? new List<string>());
-        }
-
-        /// <summary>
-        /// Adds a single line of room information.
-        /// </summary>
-        /// <param name="info">The room information line to add.</param>
-        public void AddRoomInfo(string info)
-        {
-            if (!string.IsNullOrEmpty(info))
-            {
-                currentRoomInfo.Add(info);
-            }
         }
 
         /// <summary>
@@ -172,36 +133,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets all room information formatted as a single string.
-        /// Each line is separated by newline.
-        /// </summary>
-        /// <returns>Formatted room info string, or empty string if none.</returns>
-        public string GetFormattedRoomInfo()
-        {
-            if (currentRoomInfo.Count == 0)
-            {
-                return string.Empty;
-            }
-
-            return string.Join("\n", currentRoomInfo);
-        }
-
-        /// <summary>
-        /// Gets all dungeon header information formatted as a single string.
-        /// Each line is separated by newline.
-        /// </summary>
-        /// <returns>Formatted header info string, or empty string if none.</returns>
-        public string GetFormattedHeaderInfo()
-        {
-            if (dungeonHeaderInfo.Count == 0)
-            {
-                return string.Empty;
-            }
-
-            return string.Join("\n", dungeonHeaderInfo);
-        }
-
-        /// <summary>
         /// Resets all narrative state (log, header, room info).
         /// Used when starting a new dungeon or new game.
         /// </summary>
@@ -210,16 +141,6 @@ namespace RPGGame
             ClearDungeonLog();
             ClearRoomInfo();
             ClearDungeonHeaderInfo();
-        }
-
-        /// <summary>
-        /// Resets only the dungeon-specific narrative (log and room info).
-        /// Keeps the header for reference. Used when completing a room.
-        /// </summary>
-        public void ResetRoomNarrative()
-        {
-            ClearDungeonLog();
-            ClearRoomInfo();
         }
 
         /// <summary>

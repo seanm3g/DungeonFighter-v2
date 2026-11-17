@@ -54,38 +54,6 @@ namespace RPGGame.Actions.RollModification
         }
 
         /// <summary>
-        /// Applies all registered modifiers to a roll
-        /// </summary>
-        public int ApplyModifiers(int baseRoll, RollModificationContext context)
-        {
-            int modifiedRoll = baseRoll;
-            
-            foreach (var modifier in _modifiers)
-            {
-                modifiedRoll = modifier.ModifyRoll(modifiedRoll, context);
-            }
-            
-            return modifiedRoll;
-        }
-
-        /// <summary>
-        /// Gets a modifier by name
-        /// </summary>
-        public IRollModifier? GetModifier(string name)
-        {
-            _modifiersByName.TryGetValue(name, out var modifier);
-            return modifier;
-        }
-
-        /// <summary>
-        /// Gets all registered modifiers
-        /// </summary>
-        public IEnumerable<IRollModifier> GetAllModifiers()
-        {
-            return _modifiers.ToList();
-        }
-
-        /// <summary>
         /// Clears all registered modifiers
         /// </summary>
         public void Clear()

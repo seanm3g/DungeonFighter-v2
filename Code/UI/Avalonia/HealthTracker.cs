@@ -77,18 +77,7 @@ namespace RPGGame.UI.Avalonia
             previousHealthValues[entityId] = currentHealth;
             return previousHealth;
         }
-        
-        /// <summary>
-        /// Clears health tracking for a specific entity
-        /// </summary>
-        public void ClearHealth(string entityId)
-        {
-            previousHealthValues.Remove(entityId);
-            healthAtDamageTime.Remove(entityId);
-            damageDeltaStartTimes.Remove(entityId);
-            damageDeltaDotParts.Remove(entityId);
-        }
-        
+
         /// <summary>
         /// Clears all health tracking
         /// </summary>

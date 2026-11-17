@@ -148,68 +148,6 @@ namespace RPGGame.UI.Avalonia.Helpers
                 edgeMarginPixels);
         }
 
-        /// <summary>
-        /// Logical working-area size for the window's current screen (scaling applied).
-        /// </summary>
-        public static bool TryGetWorkingAreaLogicalSize(Window window, out double logicalWidth, out double logicalHeight)
-        {
-            logicalWidth = 0;
-            logicalHeight = 0;
-
-            var screens = window.Screens;
-            if (screens == null)
-                return false;
-
-            Screen? screen = screens.ScreenFromWindow(window) ?? screens.Primary;
-            if (screen == null)
-                return false;
-
-            double scaling = ResolveScreenScaling(screen, window);
-            PixelRect workArea = screen.WorkingArea;
-            logicalWidth = workArea.Width / scaling;
-            logicalHeight = workArea.Height / scaling;
-            return logicalWidth > 0 && logicalHeight > 0;
-        }
-
-        /// <summary>
-        /// Clamps the window position so its frame stays inside the current screen working area.
-        /// </summary>
-        public static void ClampWindowToWorkingArea(Window window)
-        {
-            if (window.Screens == null)
-                return;
-
-            Screen? screen = window.Screens.ScreenFromWindow(window) ?? window.Screens.Primary;
-            if (screen == null)
-                return;
-
-            double scaling = ResolveScreenScaling(screen, window);
-            int edgeMarginPixels = (int)Math.Ceiling(MacEdgeMarginLogical * scaling);
-            PixelRect workArea = screen.WorkingArea;
-            int windowPixelWidth = ActionLabWindowPlacement.GetWindowPixelWidth(window);
-            int windowPixelHeight = ActionLabWindowPlacement.GetWindowPixelHeight(window);
-
-            int minX = workArea.X + edgeMarginPixels;
-            int minY = workArea.Y + edgeMarginPixels;
-            int maxX = workArea.X + workArea.Width - windowPixelWidth - edgeMarginPixels;
-            int maxY = workArea.Y + workArea.Height - windowPixelHeight - edgeMarginPixels;
-
-            int x = window.Position.X;
-            int y = window.Position.Y;
-
-            if (maxX < minX)
-                x = workArea.X;
-            else
-                x = Math.Clamp(x, minX, maxX);
-
-            if (maxY < minY)
-                y = workArea.Y;
-            else
-                y = Math.Clamp(y, minY, maxY);
-
-            window.Position = new PixelPoint(x, y);
-        }
-
         public static (double Width, double Height, double MinWidth, double MinHeight) ComputeScaledOverlayDimensions(
             double designWidth,
             double designHeight,

@@ -258,17 +258,6 @@ namespace RPGGame.Combat.Narrative
             });
         }
 
-        /// <summary>
-        /// Fire-and-forget helper: generates then invokes <paramref name="onReady"/> with display lines.
-        /// Prefer <see cref="DeliverPrefetchOrRequest"/> on the live victory path.
-        /// </summary>
-        public void RequestAndDeliver(
-            BattleLimerickPacket packet,
-            System.Action<string> onReady)
-        {
-            DeliverPrefetchOrRequest(packet, onReady);
-        }
-
         public static string? TryFlavorTextFallback(BattleLimerickPacket packet)
         {
             try

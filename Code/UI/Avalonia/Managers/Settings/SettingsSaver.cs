@@ -20,16 +20,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
         }
 
         /// <summary>
-        /// Saves main settings from UI controls using DTO. Delegates to SettingsManager.SaveSettings(controls, saveGameVariables).
-        /// </summary>
-        public void SaveMainSettings(MainSettingsControls controls)
-        {
-            if (settingsManager == null || controls == null) return;
-            if (AreMainSettingsControlsValid(controls))
-                settingsManager.SaveSettings(controls, () => gameVariablesTabManager?.SaveGameVariables());
-        }
-
-        /// <summary>
         /// Saves text delay settings from UI controls using DTO
         /// </summary>
         public void SaveTextDelaySettings(TextDelaySettingsControls controls)

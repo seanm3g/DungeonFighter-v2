@@ -404,55 +404,6 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
         }
 
-        /// <summary>
-        /// <see cref="AddGrowingLine"/> with the stretches that cross <paramref name="under"/> left out. Lines draw above
-        /// every box, so this is how a line reads as passing beneath the panels it crosses.
-        /// </summary>
-        private void AddGrowingLineUnder((double X, double Y) a, (double X, double Y) b, double t, Color color, double thickness,
-            IEnumerable<BoardRect> under)
-        {
-            if (t <= 0.0)
-                return;
-            double dx = (b.X - a.X) * t, dy = (b.Y - a.Y) * t;
-            var hidden = new List<(double From, double To)>();
-            foreach (var r in under)
-            {
-                // Liang-Barsky: the part of the segment (in 0..1) that lies inside r.
-                double lo = 0.0, hi = 1.0;
-                if (!Clip(-dx, a.X - r.X, ref lo, ref hi) || !Clip(dx, r.Right - a.X, ref lo, ref hi)
-                    || !Clip(-dy, a.Y - r.Y, ref lo, ref hi) || !Clip(dy, r.Bottom - a.Y, ref lo, ref hi))
-                    continue;
-                if (hi > lo)
-                    hidden.Add((lo, hi));
-            }
-            hidden.Sort((p, q) => p.From.CompareTo(q.From));
-            double at = 0.0;
-            foreach (var (from, to) in hidden.Append((1.0, 1.0)))
-            {
-                if (from > at)
-                    canvas.AddLine(a.X + dx * at, a.Y + dy * at, a.X + dx * from, a.Y + dy * from, color, thickness);
-                at = Math.Max(at, to);
-            }
-
-            static bool Clip(double p, double q, ref double lo, ref double hi)
-            {
-                if (p == 0.0)
-                    return q >= 0.0;
-                double r = q / p;
-                if (p < 0.0)
-                {
-                    if (r > hi) return false;
-                    lo = Math.Max(lo, r);
-                }
-                else
-                {
-                    if (r < lo) return false;
-                    hi = Math.Min(hi, r);
-                }
-                return true;
-            }
-        }
-
         /// <summary>Where the segment from <paramref name="a"/> to the center of <paramref name="r"/> crosses its border
         /// (<paramref name="a"/> itself when it is already inside).</summary>
         private static (double X, double Y) EntryPoint((double X, double Y) a, BoardRect r)

@@ -188,16 +188,6 @@ namespace RPGGame.UI.ColorSystem
             return HsvToColor(H, S, v2);
         }
 
-        /// <summary>Rotates hue by <paramref name="deltaDegrees"/> (scaled 0–1 via mask in compositor).</summary>
-        public static Color AdjustHueHsv(Color color, double deltaDegrees)
-        {
-            var (H, S, V) = RgbToHsv(color.R, color.G, color.B);
-            double h2 = H + deltaDegrees;
-            while (h2 < 0) h2 += 360;
-            while (h2 >= 360) h2 -= 360;
-            return HsvToColor(h2, S, V);
-        }
-
         /// <summary>
         /// Hue shift for accent layers: raises saturation when the base is near-grayscale so the shift
         /// is visible on pale path-intro text (pure HSV hue rotation is invisible at S≈0).
@@ -240,17 +230,6 @@ namespace RPGGame.UI.ColorSystem
             double s2 = Math.Clamp(Math.Max(S, 0.85) * saturationScale, 0, 1);
             double v2 = Math.Clamp(value, 0, 1);
             return HsvToColor(h2, s2, v2);
-        }
-
-        /// <summary>
-        /// Dark complementary fill (legacy). Prefer <see cref="ComplementaryVibrantBackground"/> for title idle.
-        /// </summary>
-        public static Color ComplementaryDarkBackground(
-            Color accent,
-            double value = 0.16,
-            double saturationScale = 0.825)
-        {
-            return ComplementaryVibrantBackground(accent, value, saturationScale);
         }
 
         /// <summary>Linear RGB blend; <paramref name="t"/> in [0,1].</summary>

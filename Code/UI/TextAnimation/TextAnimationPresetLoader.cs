@@ -29,14 +29,6 @@ namespace RPGGame.UI.TextAnimation
             throw new InvalidOperationException($"Text animation preset '{presetName}' was not found.");
         }
 
-        public static bool TryGetPreset(string presetName, out TextAnimationPresetConfig preset)
-        {
-            EnsureLoaded();
-            if (_cachedPresets != null && _cachedPresets.TryGetValue(presetName, out preset!))
-                return true;
-            return BuiltInDefaults.TryGetValue(presetName, out preset!);
-        }
-
         private static void EnsureLoaded()
         {
             if (_cachedPresets != null)

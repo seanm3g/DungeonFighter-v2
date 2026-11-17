@@ -264,14 +264,6 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
-        /// Gets the number of lines in the display buffer.
-        /// </summary>
-        public int GetDisplayBufferCount()
-        {
-            return textManager.BufferLineCount;
-        }
-
-        /// <summary>
         /// Renders the display buffer to the specified area.
         /// </summary>
         public void RenderDisplayBuffer(int x, int y, int width, int height)

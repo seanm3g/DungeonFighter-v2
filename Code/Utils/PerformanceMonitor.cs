@@ -96,26 +96,6 @@ namespace RPGGame.Utils
         }
 
         /// <summary>
-        /// Gets all performance statistics
-        /// </summary>
-        public static List<PerformanceStats> GetAllStats()
-        {
-            lock (_lockObject)
-            {
-                return _counters.Values
-                    .Select(c => new PerformanceStats(
-                        c.OperationName,
-                        c.Count,
-                        c.AverageMs,
-                        c.MinMs,
-                        c.MaxMs
-                    ))
-                    .OrderBy(s => s.OperationName)
-                    .ToList();
-            }
-        }
-
-        /// <summary>
         /// Checks for performance regressions by comparing current performance to historical average
         /// </summary>
         /// <param name="operationName">Name of the operation to check</param>
@@ -143,40 +123,6 @@ namespace RPGGame.Utils
                 // Check if current is significantly worse than baseline
                 return current > baseline * thresholdMultiplier;
             }
-        }
-
-        /// <summary>
-        /// Gets performance report as formatted string
-        /// </summary>
-        public static string GetReport()
-        {
-            var stats = GetAllStats();
-            if (stats.Count == 0)
-            {
-                return "No performance data collected.";
-            }
-
-            var report = new System.Text.StringBuilder();
-            report.AppendLine("=== PERFORMANCE REPORT ===");
-            report.AppendLine();
-
-            foreach (var stat in stats)
-            {
-                report.AppendLine($"{stat.OperationName}:");
-                report.AppendLine($"  Count: {stat.Count}");
-                report.AppendLine($"  Average: {stat.AverageMs:F2}ms");
-                report.AppendLine($"  Min: {stat.MinMs}ms");
-                report.AppendLine($"  Max: {stat.MaxMs}ms");
-                
-                if (CheckRegression(stat.OperationName))
-                {
-                    report.AppendLine("  ⚠️  REGRESSION DETECTED");
-                }
-                
-                report.AppendLine();
-            }
-
-            return report.ToString();
         }
 
         /// <summary>

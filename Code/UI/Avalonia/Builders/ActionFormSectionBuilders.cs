@@ -109,103 +109,6 @@ namespace RPGGame.UI.Avalonia.Builders
             }, description: "e.g. melee, physical, starter");
         }
 
-        public void BuildSpreadsheetTypeSection(Panel parent, ActionData action)
-        {
-            var (section, stack) = _ctx.Factory.CreateFormSection("Type (Spreadsheet)");
-            parent.Children.Add(section);
-            var cadenceOptions = new List<string> { ActionFormOptions.NoneOption };
-            cadenceOptions.AddRange(ActionFormOptions.CanonicalCadences);
-            string cadenceDisplay = string.IsNullOrWhiteSpace(action.Cadence) ? ActionFormOptions.NoneOption : ActionFormOptions.NormalizeCadence(action.Cadence);
-            if (!string.IsNullOrWhiteSpace(cadenceDisplay) && !cadenceOptions.Any(c => string.Equals(c, cadenceDisplay, StringComparison.OrdinalIgnoreCase)))
-                cadenceOptions.Add(cadenceDisplay);
-            _ctx.Factory.AddFormField(stack, "Cadence", cadenceDisplay, (value) => action.Cadence = (value == ActionFormOptions.NoneOption || string.IsNullOrWhiteSpace(value)) ? "" : value, cadenceOptions.ToArray());
-            _ctx.Factory.AddFormField(stack, "Duration", action.ComboBonusDuration.ToString(), (value) => { if (int.TryParse(value, out int v) && v >= 0) { action.ComboBonusDuration = v; ActionCadenceDurationResolver.SyncBonusGroupCountsFromDuration(action); } }, description: "Cadence duration (sheet column K): how many TURN/ACTION applications, e.g. 2 for ACTION x2");
-
-            var cadenceDesignNote = new TextBlock
-            {
-                FontSize = 12,
-                Foreground = SettingsThemeBrushes.TextMuted,
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 2, 0, 0)
-            };
-
-            void SyncCadenceDesignNote()
-            {
-                var normalized = ActionFormOptions.NormalizeCadence(action.Cadence);
-                cadenceDesignNote.Text = GetCadenceDesignNote(normalized);
-                cadenceDesignNote.IsVisible = !string.IsNullOrWhiteSpace(cadenceDesignNote.Text);
-            }
-
-            SyncCadenceDesignNote();
-            if (_ctx.ActionFormControls.TryGetValue("Cadence", out var cadenceControl) && cadenceControl is ComboBox cadenceCombo)
-            {
-                cadenceCombo.SelectionChanged += (_, _) => SyncCadenceDesignNote();
-            }
-
-            stack.Children.Add(cadenceDesignNote);
-        }
-
-        /// <summary>Short in-editor explanation of cadence semantics (matches spreadsheet / combat design).</summary>
-        private static string GetCadenceDesignNote(string normalizedCadence)
-        {
-            if (string.Equals(normalizedCadence, "Fight", StringComparison.OrdinalIgnoreCase))
-            {
-                return "Fight: benefits accumulate while you are engaged with this enemy — each time the action succeeds, its combo-style bonuses can apply again (e.g. Tension Hold adding its combo modifier on every trigger). Intended to last for that enemy and reset when it dies; temporary hero effects are also cleared when entering a new room.";
-            }
-            if (string.Equals(normalizedCadence, "Dungeon", StringComparison.OrdinalIgnoreCase))
-            {
-                return "Dungeon: long-lived bonuses meant to persist across fights in the same run until you leave the dungeon or temp effects are cleared at room boundaries.";
-            }
-            return "";
-        }
-
-        public void BuildModifiersSection(Panel parent, ActionData action)
-        {
-            // Editor UX: hero mods first (used more often); sheet columns AD–AG enemy / AJ–AM hero.
-            BuildHeroModifiersSection(parent, action);
-            BuildEnemyModifiersSection(parent, action);
-        }
-
-        private void BuildHeroModifiersSection(Panel parent, ActionData action)
-        {
-            var (section, stack) = _ctx.Factory.CreateFormSection("Hero base stats");
-            parent.Children.Add(section);
-            stack.Children.Add(new TextBlock
-            {
-                Text = "Spreadsheet row 1 block \"HERO BASE STATS\", columns AJ–AM: ACTION SPEED, ACTION DAMAGE, MULTIHIT MOD, AMP_MOD. Applies to the hero's next action or ability. Speed / damage / amp are %; multi-hit is a raw value.",
-                FontSize = 12,
-                Foreground = SettingsThemeBrushes.TextMuted,
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 0, 0, 8)
-            });
-            _ctx.Factory.AddFormField(stack, "ACTION SPEED [hero] (%)", action.SpeedMod ?? "", (value) => action.SpeedMod = value ?? "", description: "Column AJ. e.g. 10 = 10% faster next hero action");
-            _ctx.Factory.AddFormField(stack, "ACTION DAMAGE [hero] (%)", action.DamageMod ?? "", (value) => action.DamageMod = value ?? "", description: "Column AK. e.g. 10 for 10% more damage on next");
-            _ctx.Factory.AddFormField(stack, "MULTIHIT MOD [hero]", action.MultiHitMod ?? "", (value) => action.MultiHitMod = value ?? "", description: "Column AL. e.g. 2 extra hits on next");
-            _ctx.Factory.AddFormField(stack, "AMP_MOD [hero] (%)", action.AmpMod ?? "", (value) => action.AmpMod = value ?? "", description: "Column AM. e.g. 10 for 10% combo amp on next");
-            _ctx.Factory.AddFormField(stack, "WEAPON SPEED [hero]", action.WeaponSpeedMod ?? "", (value) => action.WeaponSpeedMod = value ?? "", description: "HERO BASE → WEAPON SPEED. Flat points (each ≈ −0.1 weapon time). Cadence-scoped.");
-            _ctx.Factory.AddFormField(stack, "WEAPON DAMAGE [hero]", action.WeaponDamageMod ?? "", (value) => action.WeaponDamageMod = value ?? "", description: "HERO BASE → WEAPON DAMAGE. Flat damage added to weapon, × weapon tier. Cadence-scoped.");
-        }
-
-        private void BuildEnemyModifiersSection(Panel parent, ActionData action)
-        {
-            var (section, stack) = _ctx.Factory.CreateFormSection("Enemy base stats");
-            parent.Children.Add(section);
-            stack.Children.Add(new TextBlock
-            {
-                Text = "Spreadsheet row 1 block \"ENEMY BASE STATS\", columns AD–AG: ACTION SPEED, DAMAGE MOD, MULTIHIT MOD, AMP_MOD. Same units as hero (speed/damage/amp %, multi-hit raw).",
-                FontSize = 12,
-                Foreground = SettingsThemeBrushes.TextMuted,
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 0, 0, 8)
-            });
-            _ctx.Factory.AddFormField(stack, "ACTION SPEED [enemy] (%)", action.EnemySpeedMod ?? "", (value) => action.EnemySpeedMod = value ?? "", description: "Column AD. e.g. 10 = 10% faster next enemy action");
-            _ctx.Factory.AddFormField(stack, "DAMAGE MOD [enemy] (%)", action.EnemyDamageMod ?? "", (value) => action.EnemyDamageMod = value ?? "", description: "Column AE. e.g. 10 for 10% more damage on enemy next");
-            _ctx.Factory.AddFormField(stack, "MULTIHIT MOD [enemy]", action.EnemyMultiHitMod ?? "", (value) => action.EnemyMultiHitMod = value ?? "", description: "Column AF. e.g. 2 extra hits on enemy next");
-            _ctx.Factory.AddFormField(stack, "AMP_MOD [enemy] (%)", action.EnemyAmpMod ?? "", (value) => action.EnemyAmpMod = value ?? "", description: "Column AG. e.g. 10 for 10% combo amp on enemy next");
-            _ctx.Factory.AddFormField(stack, "WEAPON SPEED [enemy]", action.EnemyWeaponSpeedMod ?? "", (value) => action.EnemyWeaponSpeedMod = value ?? "", description: "ENEMY BASE → WEAPON SPEED. Flat points; cadence-scoped.");
-            _ctx.Factory.AddFormField(stack, "WEAPON DAMAGE [enemy]", action.EnemyWeaponDamageMod ?? "", (value) => action.EnemyWeaponDamageMod = value ?? "", description: "ENEMY BASE → WEAPON DAMAGE. Flat damage × weapon tier; cadence-scoped.");
-        }
-
         public void BuildComboAndPositionSection(Panel parent, ActionData action)
         {
             var (section, stack) = _ctx.Factory.CreateFormSection("Combo & Position Modifications");
@@ -246,30 +149,6 @@ namespace RPGGame.UI.Avalonia.Builders
                 action.IsReservePool = value;
                 ActionTagSyncHelper.SyncCanonicalTags(action);
             });
-        }
-
-        public void BuildRollBonusesSection(Panel parent, ActionData action)
-        {
-            var (section, stack) = _ctx.Factory.CreateFormSection("Roll Bonuses — Hero (including Accuracy)");
-            parent.Children.Add(section);
-            _ctx.Factory.AddFormField(stack, "Roll bonus: Crit Miss", action.CriticalMissThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.CriticalMissThresholdAdjustment = v; }, description: "e.g. -2 (integer threshold adjustment)");
-            _ctx.Factory.AddFormField(stack, "Roll bonus: Hit", action.HitThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.HitThresholdAdjustment = v; }, description: "e.g. 0 (integer)");
-            _ctx.Factory.AddFormField(stack, "Roll bonus: Action", action.ComboThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.ComboThresholdAdjustment = v; }, description: "e.g. 0 (integer)");
-            _ctx.Factory.AddFormField(stack, "Roll bonus: Crit", action.CriticalHitThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.CriticalHitThresholdAdjustment = v; }, description: "e.g. 2 (integer)");
-            void SetRollBonus(string value) { action.RollBonus = string.IsNullOrWhiteSpace(value) ? 0 : (int.TryParse(value, out int v) ? v : action.RollBonus); }
-            _ctx.Factory.AddFormField(stack, "Accuracy", action.RollBonus.ToString(), SetRollBonus, description: "e.g. 0 (integer)", onTextChanged: SetRollBonus);
-        }
-
-        public void BuildEnemyRollBonusesSection(Panel parent, ActionData action)
-        {
-            var (section, stack) = _ctx.Factory.CreateFormSection("Roll Bonuses — Enemy (including Accuracy)");
-            parent.Children.Add(section);
-            _ctx.Factory.AddFormField(stack, "Enemy roll bonus: Crit Miss", action.EnemyCriticalMissThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.EnemyCriticalMissThresholdAdjustment = v; }, description: "e.g. -2 (integer threshold adjustment)");
-            _ctx.Factory.AddFormField(stack, "Enemy roll bonus: Hit", action.EnemyHitThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.EnemyHitThresholdAdjustment = v; }, description: "e.g. 0 (integer)");
-            _ctx.Factory.AddFormField(stack, "Enemy roll bonus: Action", action.EnemyComboThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.EnemyComboThresholdAdjustment = v; }, description: "e.g. 0 (integer)");
-            _ctx.Factory.AddFormField(stack, "Enemy roll bonus: Crit", action.EnemyCriticalHitThresholdAdjustment.ToString(), (value) => { if (int.TryParse(value, out int v)) action.EnemyCriticalHitThresholdAdjustment = v; }, description: "e.g. 2 (integer)");
-            void SetEnemyRollBonus(string value) { action.EnemyRollBonus = string.IsNullOrWhiteSpace(value) ? 0 : (int.TryParse(value, out int v) ? v : action.EnemyRollBonus); }
-            _ctx.Factory.AddFormField(stack, "Enemy Accuracy", action.EnemyRollBonus.ToString(), SetEnemyRollBonus, description: "e.g. 0 (integer)", onTextChanged: SetEnemyRollBonus);
         }
 
         private static bool HasTrigger(ActionData action, string condition)
@@ -400,34 +279,6 @@ namespace RPGGame.UI.Avalonia.Builders
                 v => SetPrefixedTrigger("IFSOURCEHEALTHBELOW", v),
                 description: "e.g. 0.25 or 25 for clutch-style gating (in addition to Clutch checkbox).",
                 onTextChanged: v => SetPrefixedTrigger("IFSOURCEHEALTHBELOW", v));
-        }
-
-        public void BuildStatusSection(Panel parent, ActionData action)
-        {
-            var (section, stack) = _ctx.Factory.CreateFormSection("Status Effects");
-            parent.Children.Add(section);
-            stack.Children.Add(new TextBlock
-            {
-                Text = "This action adds the selected status component(s). Effect strength and duration are determined by the item granting the action.",
-                FontSize = 12,
-                Foreground = SettingsThemeBrushes.TextMuted,
-                TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(0, 0, 0, 8)
-            });
-            _ctx.Factory.AddBooleanField(stack, "CausesStun", action.CausesStun, (value) => action.CausesStun = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesPoison", action.CausesPoison, (value) => action.CausesPoison = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesBurn", action.CausesBurn, (value) => action.CausesBurn = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesAcid", action.CausesAcid, (value) => action.CausesAcid = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesBleed", action.CausesBleed, (value) => action.CausesBleed = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesWeaken", action.CausesWeaken, (value) => action.CausesWeaken = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesExpose", action.CausesExpose, (value) => action.CausesExpose = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesSlow", action.CausesSlow, (value) => action.CausesSlow = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesVulnerability", action.CausesVulnerability, (value) => action.CausesVulnerability = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesHarden", action.CausesHarden, (value) => action.CausesHarden = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesSilence", action.CausesSilence, (value) => action.CausesSilence = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesPierce", action.CausesPierce, (value) => action.CausesPierce = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesStatDrain", action.CausesStatDrain, (value) => action.CausesStatDrain = value);
-            _ctx.Factory.AddBooleanField(stack, "CausesFocus", action.CausesFocus, (value) => action.CausesFocus = value);
         }
 
         private void AddActionAssignmentToStack(StackPanel stack, ActionData action)

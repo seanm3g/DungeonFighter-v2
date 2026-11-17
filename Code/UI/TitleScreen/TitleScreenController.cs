@@ -31,23 +31,6 @@ namespace RPGGame.UI.TitleScreen
         public TitleIdlePalette Palette => _animation.Palette;
 
         /// <summary>
-        /// Plays the intro animation sequence only.
-        /// </summary>
-        public async Task PlayAnimationAsync()
-        {
-            foreach (var step in _animation.GenerateAnimationSequence())
-            {
-                _renderer.RenderFrame(step.Frame);
-
-                if (step.DurationMs <= 0)
-                    continue;
-
-                int delayMs = Math.Max(step.DurationMs, 16);
-                await Task.Delay(delayMs).ConfigureAwait(false);
-            }
-        }
-
-        /// <summary>
         /// Skips the intro sequence and runs idle gradient with press-key until cancelled.
         /// </summary>
         /// <param name="onReadyForKey">Invoked after the first idle frame (with press-key) is shown.</param>
@@ -276,10 +259,6 @@ namespace RPGGame.UI.TitleScreen
             }
         }
 
-        public int GetAnimationDuration()
-        {
-            return _animation.GetTotalDurationMs();
-        }
     }
 
     /// <summary>
@@ -402,19 +381,6 @@ namespace RPGGame.UI.TitleScreen
                     "No renderer available, skipping title screen");
                 onReadyForKey?.Invoke();
                 onIntroComplete?.Invoke();
-            }
-        }
-
-        public static async Task AnimateTitleScreenAsync()
-        {
-            var config = GetConfig();
-            var renderer = CreateRenderer();
-            var palette = TitleIdlePalettePicker.PickRandom();
-
-            if (renderer != null)
-            {
-                var controller = new TitleScreenController(config, renderer, palette);
-                await controller.PlayAnimationAsync().ConfigureAwait(false);
             }
         }
 

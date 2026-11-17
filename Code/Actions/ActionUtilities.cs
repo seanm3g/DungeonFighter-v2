@@ -145,24 +145,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Action used for roll-bonus HUD preview: last executed action, else current combo-slot action, else first attack/spell in pool.
-        /// </summary>
-        public static Action? GetPreviewActionForRollBonus(Character c)
-        {
-            if (c.Effects.LastAction != null)
-                return c.Effects.LastAction;
-            var comboActions = GetComboActions(c);
-            if (comboActions.Count > 0)
-                return comboActions[GetComboStep(c) % comboActions.Count];
-            foreach (var entry in c.ActionPool)
-            {
-                if (entry.action.Type == ActionType.Attack || entry.action.Type == ActionType.Spell)
-                    return entry.action;
-            }
-            return null;
-        }
-
-        /// <summary>
         /// 0-based index of <paramref name="action"/> in <paramref name="comboActions"/> (reference match, then name).
         /// Returns -1 when not found.
         /// </summary>

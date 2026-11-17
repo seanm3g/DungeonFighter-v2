@@ -145,22 +145,5 @@ namespace RPGGame
             return null;
         }
 
-        /// <summary>
-        /// Gets a random action from any table (for cross-contamination)
-        /// </summary>
-        public ActionTableEntry? GetRandomActionFromAnyTable(Random random)
-        {
-            var allActions = new List<ActionTableEntry>();
-
-            foreach (var classTable in ClassTables.Values)
-            {
-                allActions.AddRange(classTable.Actions);
-            }
-
-            if (allActions.Count == 0)
-                return null;
-
-            return allActions[random.Next(allActions.Count)];
-        }
     }
 }

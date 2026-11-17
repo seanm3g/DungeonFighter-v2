@@ -482,16 +482,6 @@ namespace RPGGame
             public int Effective { get; }
         }
 
-        /// <summary>Plain-text one-liner for speed/amp tooltips that still use string lines.</summary>
-        public static string FormatAttributeInputSummary(Character c, string code, string label, string? afterEffective = null)
-        {
-            var b = BuildAttributeBreakdown(c, code);
-            string effectivePart = afterEffective == null
-                ? $"effective {b.Effective}"
-                : $"effective {b.Effective}, {afterEffective}";
-            return $"{label}: base {b.BaseValue}; after character mods {b.AttributeModifiedValue}; gear {FormatSigned(b.GearTotalBonus)} => {effectivePart}.";
-        }
-
         public static int GetEffectiveAttribute(Character c, string code) =>
             BuildAttributeBreakdown(c, code).Effective;
 

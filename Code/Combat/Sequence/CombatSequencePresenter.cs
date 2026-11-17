@@ -66,20 +66,6 @@ namespace RPGGame.Combat.Sequence
         }
 
         /// <summary>
-        /// Snap the reserved sequence bar to a finished swing (all columns complete).
-        /// Prefer <see cref="BeginNarrativeSyncedReveal"/> + <see cref="RevealNarrativeColumn"/> for F7.
-        /// </summary>
-        public static void ShowFinishedSnapshot(IReadOnlyList<CombatSequenceStep>? steps)
-        {
-            if (steps == null || steps.Count == 0)
-                return;
-
-            CombatSequenceHudState.Begin(steps);
-            CombatSequenceHudState.FinishSequence();
-            Invalidate();
-        }
-
-        /// <summary>
         /// F7: reserve this swing's columns empty, then reveal each kind when its prose line plays.
         /// </summary>
         public static void BeginNarrativeSyncedReveal(IReadOnlyList<CombatSequenceStep>? steps)

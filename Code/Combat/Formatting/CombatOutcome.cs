@@ -69,38 +69,7 @@ namespace RPGGame.Combat.Formatting
                 NaturalRoll = naturalRoll
             };
         }
-        
-        /// <summary>
-        /// Creates a CombatOutcome for a block
-        /// </summary>
-        public static CombatOutcome CreateBlock()
-        {
-            return new CombatOutcome
-            {
-                IsCritical = false,
-                IsMiss = false,
-                IsBlock = true,
-                IsDodge = false,
-                IsComboAction = false,
-                IsCriticalMiss = false
-            };
-        }
-        
-        /// <summary>
-        /// Creates a CombatOutcome for a dodge
-        /// </summary>
-        public static CombatOutcome CreateDodge()
-        {
-            return new CombatOutcome
-            {
-                IsCritical = false,
-                IsMiss = false,
-                IsBlock = false,
-                IsDodge = true,
-                IsComboAction = false,
-                IsCriticalMiss = false
-            };
-        }
+
     }
 }
 

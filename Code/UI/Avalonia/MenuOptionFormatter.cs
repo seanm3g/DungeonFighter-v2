@@ -25,15 +25,6 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
-        /// Formats a menu option with selected indicator
-        /// </summary>
-        public static string FormatSelected(int number, string text, bool selected = false)
-        {
-            string prefix = selected ? "► " : "  ";
-            return $"{prefix}[{number}] {text}";
-        }
-
-        /// <summary>
         /// Formats a menu option for display text (used in ClickableElement)
         /// </summary>
         public static string FormatDisplayText(int number, string text, string? suffix = null)
@@ -60,13 +51,6 @@ namespace RPGGame.UI.Avalonia
             return Format(number, itemName);
         }
 
-        /// <summary>
-        /// Formats a slot option with item name
-        /// </summary>
-        public static string FormatSlot(int number, string slotName, string itemName)
-        {
-            return $"[{number}] {slotName}: {itemName}";
-        }
     }
 }
 

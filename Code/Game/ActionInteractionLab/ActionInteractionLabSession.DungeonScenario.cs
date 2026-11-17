@@ -97,14 +97,6 @@ namespace RPGGame.ActionInteractionLab
             LabDungeonLevelDelta = Math.Clamp(LabDungeonLevelDelta + delta, -20, 20);
         }
 
-        public void NudgeLabDungeonSeed(int delta)
-        {
-            unchecked
-            {
-                LabDungeonSeed += delta == 0 ? 1 : delta;
-            }
-        }
-
         /// <summary>Sets the dungeon generation seed shown in the tools UI (used by Gen / dungeon sim).</summary>
         public void SetLabDungeonSeed(int seed) => LabDungeonSeed = seed;
 

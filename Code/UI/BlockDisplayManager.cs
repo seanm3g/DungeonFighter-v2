@@ -385,15 +385,7 @@ namespace RPGGame
             // Record that this block was displayed
             TextSpacingSystem.RecordBlockDisplayed(blockType);
         }
-        
-        /// <summary>
-        /// Displays a NARRATIVE BLOCK using ColoredText
-        /// </summary>
-        public static void DisplayNarrativeBlock(List<ColoredText> narrativeText)
-        {
-            DisplayBlockCore(TextSpacingSystem.BlockType.Narrative, narrativeText, UIMessageType.System);
-        }
-        
+
         /// <summary>
         /// Displays a SYSTEM BLOCK using ColoredText
         /// </summary>
@@ -448,39 +440,7 @@ namespace RPGGame
             // Apply block delay
             BlockDelayManager.ApplyBlockDelay();
         }
-        
-        /// <summary>
-        /// Applies a delay specifically for environmental action lines
-        /// Uses configurable delay from TextDelayConfiguration (default: 500ms)
-        /// Works for both GUI and console by using synchronous blocking delay
-        /// </summary>
-        private static void ApplyEnvironmentalLineDelay()
-        {
-            // Skip delays if combat UI output is disabled (e.g., during statistics runs)
-            if (CombatManager.DisableCombatUIOutput) return;
 
-            if (DeveloperModeState.IsCombatLogInstant) return;
-            
-            if (!UIManager.EnableDelays) return;
-            
-            // Get delay from configuration (default: 500ms)
-            int delayMs = DeveloperModeState.ScaleDelayMs(Config.TextDelayConfiguration.GetEnvironmentalLineDelay());
-            if (delayMs <= 0) return;
-            
-            // Apply delay for environmental action lines
-            // Use Task.Delay().Wait() to block synchronously while using async delay internally
-            // This works for both GUI and console, though it will block the thread briefly
-            // Environmental actions are infrequent, so this is acceptable
-            try
-            {
-                Task.Delay(delayMs).Wait();
-            }
-            catch (AggregateException)
-            {
-                // Ignore cancellation exceptions - delays are best-effort
-            }
-        }
-        
         /// <summary>
         /// Displays an ENVIRONMENTAL BLOCK using ColoredText
         /// [Obsolete] This method is deprecated. Use DisplayActionBlock() instead.
@@ -510,6 +470,4 @@ namespace RPGGame
         
     }
 }
-
-
 

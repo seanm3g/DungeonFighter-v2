@@ -838,20 +838,6 @@ namespace RPGGame.UI.Avalonia.Effects
         }
 
         /// <summary>
-        /// Test helper: pretends the pointer has been still past the idle grace, then applies idle rest.
-        /// </summary>
-        public void ForceIdleRestForTests()
-        {
-            lock (_lock)
-            {
-                double now = _clock.Elapsed.TotalSeconds;
-                _lastMeaningfulMotionSeconds = now - IdleGraceSeconds - 0.05;
-                DecayUnlocked(now);
-                PruneTrailUnlocked(now);
-            }
-        }
-
-        /// <summary>
         /// Test helper: sets stillness duration without sleeping. Does not force hard-zero unless
         /// <paramref name="idleSeconds"/> reaches <see cref="IdleGraceSeconds"/>.
         /// </summary>

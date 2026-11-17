@@ -292,58 +292,6 @@ namespace RPGGame
             TextBoxBorderColor = "#555555";
             TextBoxFocusBorderColor = "#0078D4";
         }
-        
-        public string GetNarrativeBalanceDescription()
-        {
-            if (NarrativeBalance <= 0.2)
-                return "Event-Driven (Minimal narrative, focus on facts)";
-            else if (NarrativeBalance <= 0.4)
-                return "Mostly Event-Driven (Some narrative for significant events)";
-            else if (NarrativeBalance <= 0.6)
-                return "Balanced (Equal mix of events and narrative)";
-            else if (NarrativeBalance <= 0.8)
-                return "Mostly Poetic (Rich narrative with some events)";
-            else
-                return "Poetic (Full narrative experience)";
-        }
-        
-        public string GetCombatSpeedDescription()
-        {
-            if (CombatSpeed <= 0.5)
-                return "Very Slow";
-            else if (CombatSpeed <= 0.8)
-                return "Slow";
-            else if (CombatSpeed <= 1.2)
-                return "Normal";
-            else if (CombatSpeed <= 1.5)
-                return "Fast";
-            else
-                return "Very Fast";
-        }
-        
-        public string GetDifficultyDescription()
-        {
-            double avgMultiplier = (EnemyHealthMultiplier + EnemyDamageMultiplier) / 2.0;
-            if (avgMultiplier <= 0.7)
-                return "Easy";
-            else if (avgMultiplier <= 0.9)
-                return "Below Normal";
-            else if (avgMultiplier <= 1.1)
-                return "Normal";
-            else if (avgMultiplier <= 1.3)
-                return "Above Normal";
-            else
-                return "Hard";
-        }
-        
-        public string GetTextDisplayDelayDescription()
-        {
-            return EnableTextDisplayDelays ? "Enabled (Delays match action length)" : "Disabled (Fast background calculations)";
-        }
-        
-        public string GetFastCombatDescription()
-        {
-            return FastCombat ? "Enabled (Zero combat delays)" : "Disabled (Normal combat delays)";
-        }
+
     }
 } 

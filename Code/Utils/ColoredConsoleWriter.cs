@@ -153,33 +153,6 @@ namespace RPGGame.Utils
         }
 
         /// <summary>
-        /// Resets console colors to default
-        /// </summary>
-        public static void ResetColors()
-        {
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.BackgroundColor = ConsoleColor.Black;
-            currentForeground = ConsoleColor.Gray;
-            currentBackground = ConsoleColor.Black;
-        }
-
-        /// <summary>
-        /// Gets the current foreground color
-        /// </summary>
-        public static ConsoleColor GetCurrentForegroundColor()
-        {
-            return currentForeground;
-        }
-
-        /// <summary>
-        /// Gets the current background color
-        /// </summary>
-        public static ConsoleColor GetCurrentBackgroundColor()
-        {
-            return currentBackground;
-        }
-
-        /// <summary>
         /// Converts Avalonia color to console color
         /// </summary>
         private static ConsoleColor ConvertToConsoleColor(Color color)

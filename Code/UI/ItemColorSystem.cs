@@ -19,16 +19,7 @@ namespace RPGGame.UI
         /// </summary>
         public static Color GetRarityColor(string rarity) =>
             ItemThemeProvider.GetRarityColor(rarity);
-        
-        /// <summary>
-        /// Gets colored text for an item name based on rarity
-        /// </summary>
-        public static List<ColoredText> ColorItemName(string itemName, string rarity)
-        {
-            var color = GetRarityColor(rarity);
-            return new List<ColoredText> { new ColoredText(itemName, color) };
-        }
-        
+
         /// <summary>
         /// Gets the color for item stats
         /// </summary>
@@ -60,31 +51,7 @@ namespace RPGGame.UI
             
             return result;
         }
-        
-        /// <summary>
-        /// Formats an item's full display with stats
-        /// </summary>
-        public static List<List<ColoredText>> FormatItemDetailed(Item item)
-        {
-            var lines = new List<List<ColoredText>>();
-            
-            // Item name line
-            var nameLine = new List<ColoredText>
-            {
-                new ColoredText(item.Name, GetRarityColor(item.Rarity))
-            };
-            lines.Add(nameLine);
-            
-            // Type and tier line
-            var typeLine = new List<ColoredText>
-            {
-                new ColoredText($"{item.Type} | Tier {item.Tier}", ColorPalette.Gray.GetColor())
-            };
-            lines.Add(typeLine);
-            
-            return lines;
-        }
-        
+
         /// <summary>
         /// Formats a simple item display (name with rarity color)
         /// Uses the new multi-theme system

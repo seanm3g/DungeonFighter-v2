@@ -29,17 +29,6 @@ namespace RPGGame.Combat.Turn
         }
 
         /// <summary>
-        /// Processes damage over time effects for an entity
-        /// </summary>
-        /// <param name="entity">The entity to process effects for</param>
-        /// <param name="results">Output list for effect messages</param>
-        /// <returns>Total damage dealt</returns>
-        public static int ProcessEntityStatusEffects(Actor entity, List<string> results)
-        {
-            return CombatEffectsSimplified.ProcessStatusEffects(entity, results);
-        }
-
-        /// <summary>
         /// Processes damage over time effects for both player and enemy
         /// </summary>
         /// <param name="player">The player character</param>

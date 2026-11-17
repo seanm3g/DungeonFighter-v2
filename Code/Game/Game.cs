@@ -732,25 +732,10 @@ namespace RPGGame
                 stateManager.TransitionToState(GameState.TuningParameters);
             }
         }
-        
-        public TuningParametersHandler? GetTuningParametersHandler()
-        {
-            return tuningParametersHandler;
-        }
 
         public void ShowActionEditor()
         {
             actionEditorHandler?.ShowActionEditor();
-        }
-        
-        public void ShowBattleStatistics()
-        {
-            battleStatisticsHandler?.ShowBattleStatisticsMenu();
-        }
-
-        public void UpdateActionFormInput(string input)
-        {
-            actionEditorHandler?.UpdateFormInput(input);
         }
 
         public void ShowDungeonCompletion(int xpGained, Item? lootReceived, List<LevelUpInfo> levelUpInfos, List<Item> itemsFoundDuringRun)

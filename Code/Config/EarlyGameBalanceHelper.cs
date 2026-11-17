@@ -103,50 +103,6 @@ namespace RPGGame
             return GetStartingActionDamageMultiplier(weapon.WeaponType, earlyGame);
         }
 
-        public static bool TryParseWeaponType(string? token, out WeaponType weaponType)
-        {
-            weaponType = default;
-            if (string.IsNullOrWhiteSpace(token))
-                return false;
-
-            return Enum.TryParse(token.Trim(), ignoreCase: true, out weaponType);
-        }
-
-        public static bool TryParseClassBalanceKey(string? token, out WeaponType weaponType, out string classKey)
-        {
-            classKey = "";
-            weaponType = default;
-            if (string.IsNullOrWhiteSpace(token))
-                return false;
-
-            string normalized = token.Trim().ToLowerInvariant();
-            switch (normalized)
-            {
-                case "barbarian":
-                case "mace":
-                    weaponType = WeaponType.Mace;
-                    classKey = "barbarian";
-                    return true;
-                case "warrior":
-                case "sword":
-                    weaponType = WeaponType.Sword;
-                    classKey = "warrior";
-                    return true;
-                case "rogue":
-                case "dagger":
-                    weaponType = WeaponType.Dagger;
-                    classKey = "rogue";
-                    return true;
-                case "wizard":
-                case "wand":
-                    weaponType = WeaponType.Wand;
-                    classKey = "wizard";
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
         public static string GetClassBalanceKey(WeaponType weaponType) =>
             weaponType switch
             {

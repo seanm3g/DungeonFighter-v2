@@ -74,24 +74,7 @@ namespace RPGGame.UI.Avalonia.Display
             return !string.IsNullOrEmpty(charId) && !string.IsNullOrEmpty(activeId) &&
                    string.Equals(charId, activeId, System.StringComparison.Ordinal);
         }
-        
-        /// <summary>
-        /// Determines the appropriate display mode based on the current game state.
-        /// </summary>
-        public static DisplayMode DetermineDisplayMode(GameState? state)
-        {
-            if (state == null)
-                return new StandardDisplayMode();
-            
-            if (state == GameState.Combat || state == GameState.ActionInteractionLab)
-                return new CombatDisplayMode();
-            
-            if (IsMenuState(state))
-                return new MenuDisplayMode();
-            
-            return new StandardDisplayMode();
-        }
-        
+
         /// <summary>
         /// Determines if display buffer rendering should be suppressed.
         /// Suppresses rendering when in menu states or when state manager is null (title screen).

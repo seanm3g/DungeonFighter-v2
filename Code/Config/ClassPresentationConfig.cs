@@ -132,14 +132,6 @@ namespace RPGGame
             return s.Length > 0 ? s : DefaultAttributeSoloTrioTierPrefixes[i];
         }
 
-        public string GetAttributeQuadTierName(int slot1To4)
-        {
-            var c = EnsureNormalized();
-            int i = Math.Clamp(slot1To4, 1, TierSlotCount) - 1;
-            string s = c.AttributeQuadTierNames[i]?.Trim() ?? "";
-            return s.Length > 0 ? s : DefaultAttributeQuadTierNames[i];
-        }
-
         /// <summary>Suffix phrase for <paramref name="path"/>; for the HUD shown title with 3+ active paths, used for the third-highest path by class points.</summary>
         public string GetAttributeDisciplineModifier(WeaponType path) =>
             path switch

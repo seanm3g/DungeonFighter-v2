@@ -160,58 +160,7 @@ namespace RPGGame.UI.ColorSystem
             // Merge adjacent segments with the same color to prevent extra spacing
             return ColoredTextMerger.MergeAdjacentSegments(segments);
         }
-        
-        /// <summary>
-        /// Parses text with simple pattern-based coloring
-        /// Preserves original spacing in the text
-        /// </summary>
-        public static List<ColoredText> ParseWithPatterns(string text, string? characterName = null)
-        {
-            if (string.IsNullOrEmpty(text))
-                return new List<ColoredText>();
-            
-            var segments = new List<ColoredText>();
-            var words = text.Split(new[] { ' ' }, StringSplitOptions.None);
-            
-            for (int i = 0; i < words.Length; i++)
-            {
-                var word = words[i];
-                
-                // Skip empty words (they represent spaces between words)
-                if (string.IsNullOrEmpty(word))
-                {
-                    // Only add space if this isn't the last empty segment (which would be trailing)
-                    if (i < words.Length - 1)
-                    {
-                        segments.Add(new ColoredText(" ", Colors.White));
-                    }
-                    continue;
-                }
-                
-                // Check if this word matches any patterns
-                var color = GetColorForWord(word, characterName);
-                segments.Add(new ColoredText(word, color));
-                
-                // Add space after word if not the last word
-                if (i < words.Length - 1)
-                {
-                    segments.Add(new ColoredText(" ", Colors.White));
-                }
-            }
-            
-            // Merge adjacent segments with the same color to prevent extra spacing
-            return ColoredTextMerger.MergeAdjacentSegments(segments);
-        }
-        
-        /// <summary>
-        /// Creates a simple colored text from a pattern
-        /// </summary>
-        public static List<ColoredText> CreateFromPattern(string text, string pattern, string? characterName = null)
-        {
-            var color = GetColorForPattern(pattern, characterName);
-            return new List<ColoredText> { new ColoredText(text, color) };
-        }
-        
+
         private static Color GetColorForMatch(ColorMatch match, string? characterName)
         {
             switch (match.Type)

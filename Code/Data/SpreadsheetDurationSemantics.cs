@@ -100,21 +100,6 @@ namespace RPGGame.Data
             return false;
         }
 
-        public static bool RowHasCadenceKeyword(SpreadsheetActionData? row)
-        {
-            if (row == null || string.IsNullOrWhiteSpace(row.Cadence)) return false;
-            var c = row.Cadence.Trim();
-            return CadenceKeywords.IsKeywordCadence(c)
-                || c.Equals("ATTACK", StringComparison.OrdinalIgnoreCase)
-                || c.Equals("ATTACKS", StringComparison.OrdinalIgnoreCase)
-                || c.Equals("ABILITY", StringComparison.OrdinalIgnoreCase)
-                || c.Equals("ABILITIES", StringComparison.OrdinalIgnoreCase)
-                || c.Equals("FIGHT", StringComparison.OrdinalIgnoreCase)
-                || c.Equals("DUNGEON", StringComparison.OrdinalIgnoreCase)
-                || c.Equals("CHAIN", StringComparison.OrdinalIgnoreCase)
-                || c.Equals("COMBO", StringComparison.OrdinalIgnoreCase);
-        }
-
         /// <summary>STATUS EFFECT / DURATION → cadence application count (<see cref="ActionData.ComboBonusDuration"/>).</summary>
         public static int ResolveCadenceDuration(SpreadsheetActionData? row)
         {

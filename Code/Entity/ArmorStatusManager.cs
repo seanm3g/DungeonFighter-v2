@@ -61,48 +61,6 @@ namespace RPGGame
             return allStatuses;
         }
 
-        /// <summary>
-        /// Gets armor statuses of a specific effect type.
-        /// </summary>
-        /// <param name="effectType">The effect type to filter by</param>
-        /// <returns>List of matching armor statuses</returns>
-        public List<ArmorStatus> GetStatusesByEffect(string effectType)
-        {
-            return GetAllArmorStatuses()
-                .Where(s => s.Effect == effectType)
-                .ToList();
-        }
-
-        /// <summary>
-        /// Gets the total value of a specific armor status effect.
-        /// </summary>
-        /// <param name="effectType">The effect type</param>
-        /// <returns>The total value of that effect</returns>
-        public double GetStatusEffectValue(string effectType)
-        {
-            return GetStatusesByEffect(effectType)
-                .Sum(s => s.Value);
-        }
-
-        /// <summary>
-        /// Gets a count of a specific armor status effect.
-        /// </summary>
-        /// <param name="effectType">The effect type</param>
-        /// <returns>The count of that effect</returns>
-        public int GetStatusEffectCount(string effectType)
-        {
-            return GetStatusesByEffect(effectType).Count;
-        }
-
-        /// <summary>
-        /// Checks if a specific armor status effect is active.
-        /// </summary>
-        /// <param name="effectType">The effect type to check</param>
-        /// <returns>True if at least one of this effect is active</returns>
-        public bool HasArmorStatus(string effectType)
-        {
-            return GetStatusesByEffect(effectType).Count > 0;
-        }
     }
 }
 

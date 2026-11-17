@@ -274,16 +274,6 @@ namespace RPGGame.Data
             data.TriggerBundlesJson = list.Count > 0 ? JsonSerializer.Serialize(list) : "";
         }
 
-        public static IReadOnlyList<object> BuildHeaderContextRow(SpreadsheetHeader header)
-        {
-            return header.ContextByIndex.Select(c => (object)(c ?? "")).ToList();
-        }
-
-        public static IReadOnlyList<object> BuildHeaderLabelRow(SpreadsheetHeader header)
-        {
-            return header.LabelByIndex.Select(l => (object)(l ?? "")).ToList();
-        }
-
         private static List<ActionTriggerBundle> BuildBundlesFromLegacyCountFields(SpreadsheetActionData data)
         {
             var list = new List<ActionTriggerBundle>();

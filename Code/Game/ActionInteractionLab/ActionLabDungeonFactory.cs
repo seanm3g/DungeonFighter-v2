@@ -40,20 +40,6 @@ namespace RPGGame.ActionInteractionLab
         }
 
         /// <summary>
-        /// Lists distinct themes from the dungeon catalog (sorted).
-        /// </summary>
-        public static IReadOnlyList<string> ListCatalogThemes()
-        {
-            var manager = new DungeonManagerWithRegistry();
-            var all = manager.LoadAllDungeons();
-            return all.Select(d => d.theme)
-                .Where(t => !string.IsNullOrWhiteSpace(t))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .OrderBy(t => t, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-        }
-
-        /// <summary>
         /// Generates a dungeon for the lab. When <paramref name="seed"/> is null, a random seed is chosen and returned.
         /// <paramref name="dungeonLevel"/> is both min and max level for room/enemy scaling.
         /// </summary>

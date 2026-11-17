@@ -249,16 +249,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Shows the custom test configuration menu
-        /// </summary>
-        private void ShowCustomTestMenu()
-        {
-            // For now, just run with default config
-            // In the future, this could show a form to input custom stats
-            StartBackgroundTask(RunBattleTest(100), "Custom test menu battle test");
-        }
-
-        /// <summary>
         /// Runs comprehensive weapon-enemy tests (every weapon vs every enemy)
         /// </summary>
         private async Task RunComprehensiveWeaponEnemyTests()

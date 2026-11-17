@@ -364,35 +364,6 @@ namespace RPGGame
             UIManager.WriteSystemLine("Select a character number, or press 0 to return.");
         }
 
-        /// <summary>
-        /// Deletes a character by ID
-        /// </summary>
-        public bool DeleteCharacter(string characterId)
-        {
-            if (string.IsNullOrEmpty(characterId)) return false;
-            
-            var character = stateManager.GetCharacter(characterId);
-            if (character == null) return false;
-            
-            // Don't allow deleting if it's the only character
-            if (stateManager.GetAllCharacters().Count <= 1)
-            {
-                ShowMessageEvent?.Invoke("Cannot delete the last character.");
-                return false;
-            }
-            
-            // Delete save file
-            CharacterSaveManager.DeleteSaveFile(CharacterSaveManager.GetCharacterSaveFilename(characterId));
-            
-            // Remove from registry
-            if (stateManager.RemoveCharacter(characterId))
-            {
-                ShowMessageEvent?.Invoke($"Deleted character: {character.Name}");
-                return true;
-            }
-            
-            return false;
-        }
     }
 }
 

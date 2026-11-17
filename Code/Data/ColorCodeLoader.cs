@@ -198,20 +198,7 @@ namespace RPGGame.Data
             
             return _colorCodeCache?.ContainsKey(colorCode) ?? false;
         }
-        
-        /// <summary>
-        /// Gets all available color codes
-        /// </summary>
-        public static IEnumerable<string> GetAllColorCodes()
-        {
-            LoadColorCodes(); // Ensure codes are loaded
-            
-            if (_colorCodeCache == null)
-                return new List<string>();
-            
-            return _colorCodeCache.Keys;
-        }
-        
+
         /// <summary>
         /// Reloads the color code configuration from disk
         /// </summary>

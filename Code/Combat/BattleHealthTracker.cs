@@ -104,17 +104,7 @@ namespace RPGGame
             
             return notifications;
         }
-        
-        /// <summary>
-        /// Get and clear pending notifications
-        /// </summary>
-        public List<string> GetAndClearPendingNotifications()
-        {
-            var notifications = new List<string>(pendingNotifications);
-            pendingNotifications.Clear();
-            return notifications;
-        }
-        
+
         /// <summary>
         /// Get the current leader (Actor with most health)
         /// </summary>
@@ -223,13 +213,6 @@ namespace RPGGame
             return false;
         }
         
-        /// <summary>
-        /// Get current battle leader
-        /// </summary>
-        public Actor? GetCurrentBattleLeader()
-        {
-            return currentLeader;
-        }
     }
     
     /// <summary>
@@ -242,6 +225,4 @@ namespace RPGGame
         public bool Reached5Percent { get; set; } = false;
     }
 }
-
-
 

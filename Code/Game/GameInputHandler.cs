@@ -143,33 +143,6 @@ namespace RPGGame
             }
         }
 
-        /// <summary>
-        /// Validates that input is appropriate for current state.
-        /// </summary>
-        public bool ValidateInputForState(string input, GameState state)
-        {
-            if (string.IsNullOrEmpty(input)) return false;
-
-            // Can add state-specific validation here
-            return true;
-        }
-
-        /// <summary>
-        /// Gets a description of valid input for current state.
-        /// </summary>
-        public string GetInputHelpText(GameState state)
-        {
-            return state switch
-            {
-                GameState.MainMenu => "1-9=Load fighter, N=New Game, A=All saved, F=Stable mode, R=History, S=Settings, Q/0=Quit",
-                GameState.Inventory => "1-4=Action, 0/ESC=Return to game menu",
-                GameState.Settings => "Adjust settings or press ESC to back",
-                GameState.GameLoop => "1=Dungeon, 2=Inventory, 3=Travel, C=Characters, 0=Quit",
-                GameState.RegionTravel => "Number=Travel destination, 0/ESC=Return to game menu",
-                _ => "Enter input"
-            };
-        }
-
         // Private helper methods to raise events
 
         private async Task RaiseMainMenuInput(string input)

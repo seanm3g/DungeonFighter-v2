@@ -203,22 +203,7 @@ namespace RPGGame
             => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => OutputManager.WriteBlankLine());
         public static void WriteChunked(string message, ChunkedTextReveal.RevealConfig? config = null) 
             => UIMethodHelper.ExecuteIfEnabled(IsOutputDisabled, () => OutputManager.WriteChunked(message, config));
-        
-        /// <summary>
-        /// Writes dungeon exploration text with chunked reveal (optimized for dungeon content)
-        /// </summary>
-        /// <param name="message">The dungeon text to reveal</param>
-        public static void WriteDungeonChunked(string message)
-        {
-            WriteChunked(message, new ChunkedTextReveal.RevealConfig
-            {
-                Strategy = ChunkedTextReveal.ChunkStrategy.Semantic,
-                BaseDelayPerCharMs = 25,
-                MinDelayMs = 800,
-                MaxDelayMs = 3000
-            });
-        }
-        
+
         /// <summary>
         /// Writes room description text with chunked reveal
         /// Loads configuration from TextDelayConfig.json
@@ -302,5 +287,4 @@ namespace RPGGame
         }
     }
 }
-
 

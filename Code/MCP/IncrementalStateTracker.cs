@@ -34,17 +34,6 @@ namespace RPGGame.MCP
         }
 
         /// <summary>
-        /// Marks player stats as changed
-        /// </summary>
-        public void MarkPlayerStatsChanged(int strength, int agility, int technique, int intelligence)
-        {
-            MarkDirty("Player.Strength", strength);
-            MarkDirty("Player.Agility", agility);
-            MarkDirty("Player.Technique", technique);
-            MarkDirty("Player.Intelligence", intelligence);
-        }
-
-        /// <summary>
         /// Marks enemy health as changed
         /// </summary>
         public void MarkEnemyHealthChanged(int currentHealth, int maxHealth, double healthPercentage)

@@ -250,36 +250,6 @@ namespace RPGGame.UI.Avalonia.Managers
             }
         }
 
-        /// <summary>Save game variables to file. Optionally pass the currently displayed panel (when category is GameVariables) so the orchestrator can pass the visible panel for future flush/validation.</summary>
-        public void SaveGameVariables(UserControl? displayedPanel = null)
-        {
-            if (variableEditor == null) return;
-            
-            try
-            {
-                FlushPendingEdits();
-                
-                // Save all changes to file and reload GameConfiguration singleton
-                bool saved = variableEditor.SaveChanges();
-                if (saved)
-                {
-                    if (!string.IsNullOrEmpty(selectedGameVariableCategory))
-                    {
-                        RefreshGameVariableValues();
-                    }
-                    showStatusMessage?.Invoke("Game variables saved successfully", true);
-                }
-                else
-                {
-                    showStatusMessage?.Invoke("Failed to save game variables", false);
-                }
-            }
-            catch (Exception ex)
-            {
-                showStatusMessage?.Invoke($"Error saving game variables: {ex.Message}", false);
-            }
-        }
-
         private void RefreshGameVariableValues()
         {
             if (variableEditor == null || string.IsNullOrEmpty(selectedGameVariableCategory)) return;

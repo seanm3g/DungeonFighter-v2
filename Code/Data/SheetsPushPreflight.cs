@@ -81,20 +81,6 @@ namespace RPGGame.Data
             return true;
         }
 
-        /// <summary>
-        /// Fetches tab titles for <paramref name="spreadsheetId"/>; throws <see cref="InvalidOperationException"/>
-        /// with guidance when the spreadsheet is missing or inaccessible (often HTTP 404).
-        /// </summary>
-        public static async Task<IReadOnlyList<string>> FetchTabTitlesOrThrowAsync(
-            SheetsService service,
-            string spreadsheetId,
-            CancellationToken cancellationToken)
-        {
-            var map = await FetchTabTitleToSheetIdOrThrowAsync(service, spreadsheetId, cancellationToken)
-                .ConfigureAwait(false);
-            return map.Keys.ToList();
-        }
-
         /// <summary>Browser edit URL for one tab (<c>…/edit?gid=…</c>).</summary>
         public static string BuildTabEditUrl(string spreadsheetId, int sheetId) =>
             "https://docs.google.com/spreadsheets/d/" + spreadsheetId.Trim() + "/edit?gid=" + sheetId;

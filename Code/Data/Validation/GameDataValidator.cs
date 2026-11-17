@@ -54,17 +54,6 @@ namespace RPGGame.Data.Validation
         }
 
         /// <summary>
-        /// Registers a validator to be run during validation
-        /// </summary>
-        public void RegisterValidator(IDataValidator validator)
-        {
-            if (validator != null)
-            {
-                _validators.Add(validator);
-            }
-        }
-
-        /// <summary>
         /// Ensures all data loaders have loaded their data
         /// </summary>
         private void EnsureDataLoaded()

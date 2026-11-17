@@ -297,20 +297,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
         }
 
         /// <summary>
-        /// Usual click/number hint along the bottom of the menu.
-        /// </summary>
-        private void RenderMenuFooter(int x, int y, int width, int height)
-        {
-            string instructionText = UIConstants.Messages.ClickOrPressNumber;
-            int instructionY = y + height - 3;
-            int textWidth = Math.Min(instructionText.Length, Math.Max(1, width));
-            int instructionX = instructionText.Length >= width
-                ? x
-                : MenuLayoutCalculator.CalculateCenteredTextX(x, width, textWidth);
-            canvas.AddText(instructionX, instructionY, instructionText, AsciiArtAssets.Colors.Gray);
-        }
-        
-        /// <summary>
         /// Renders the main menu with saved game info if available (legacy method)
         /// NOTE: This method is legacy and may not be used. Canvas clearing should be handled by the caller.
         /// </summary>

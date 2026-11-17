@@ -72,13 +72,6 @@ namespace RPGGame
         /// <summary>Demon only: true once the second phase began.</summary>
         public bool InSecondPhase { get; set; }
 
-        /// <summary>Appends a title to the display name ("Demon Vigil Alpha, Demon of the Den").</summary>
-        public void AppendTitle(string? title)
-        {
-            if (!string.IsNullOrWhiteSpace(title) && !Name.EndsWith(title.Trim(), StringComparison.OrdinalIgnoreCase))
-                Name = $"{Name}, {title.Trim()}";
-        }
-
         /// <summary>HP multiplier the affixes have applied so far (rebuilding affixes rescales by the ratio).</summary>
         public double AppliedAffixHealthMultiplier { get; set; } = 1.0;
 
@@ -672,24 +665,6 @@ namespace RPGGame
         public double GetArchetypeDamageMultiplier()
         {
             return ArchetypeManager.GetArchetypeDamageMultiplier(AttackProfile);
-        }
-        
-        /// <summary>
-        /// Sets target DPS values for the DPS-based system
-        /// </summary>
-        public void SetTargetDPS(double targetDPS)
-        {
-            TargetDPS = targetDPS;
-        }
-        
-        public void SetTargetDamage(double targetDamage)
-        {
-            TargetDamage = targetDamage;
-        }
-        
-        public void SetTargetAttackSpeed(double targetAttackSpeed)
-        {
-            TargetAttackSpeed = targetAttackSpeed;
         }
 
         /// <summary>

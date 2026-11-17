@@ -69,15 +69,7 @@ namespace RPGGame.UI.ColorSystem
         /// Returns the text content (without color information).
         /// </summary>
         public override string ToString() => Text;
-        
-        /// <summary>
-        /// Gets the segments of this colored text (returns itself as a single segment).
-        /// </summary>
-        public List<ColoredText> GetSegments()
-        {
-            return new List<ColoredText> { this };
-        }
-        
+
         /// <summary>
         /// Creates a ColoredText from a template name and text.
         /// </summary>

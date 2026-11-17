@@ -140,17 +140,6 @@ namespace RPGGame
             return $"Type {action.Type} | Target {FormatTarget(action.Target)} | {comboText}";
         }
 
-        private static string FormatKeywordCadenceLabel(ActionAttackBonusGroup group, int displayCount)
-        {
-            string cad = CadenceKeywords.NormalizeCadenceType(
-                string.IsNullOrWhiteSpace(group.CadenceType)
-                    ? (string.IsNullOrWhiteSpace(group.Keyword) ? CadenceKeywords.Turn : group.Keyword)
-                    : group.CadenceType);
-            if (ActionCadenceDurationResolver.IsKeywordCadenceGroup(group))
-                return CadenceKeywords.GetDisplayLabel(cad, Math.Max(1, displayCount));
-            return displayCount > 1 ? $"{cad} x{displayCount}" : cad;
-        }
-
         /// <summary>
         /// Sheet-defined hero/enemy accuracy lines (timing differs from <see cref="CombatCalculator.CalculateRollBonus"/> when cadence defers packages).
         /// </summary>

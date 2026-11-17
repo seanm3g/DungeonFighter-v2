@@ -129,27 +129,6 @@ namespace RPGGame.UI.Avalonia
             };
         }
 
-        /// <summary>
-        /// Gets combat icon by action type
-        /// </summary>
-        public static string GetCombatIcon(string actionType)
-        {
-            return actionType.ToLower() switch
-            {
-                "damage" => Damage,
-                "critical" => Critical,
-                "miss" => Miss,
-                "block" => Block,
-                "dodge" => Dodge,
-                "parry" => Parry,
-                "combo" => Combo,
-                "heal" => Heal,
-                "magic" => Magic,
-                "victory" => Victory,
-                "defeat" => Defeat,
-                _ => "?"
-            };
-        }
     }
 }
 

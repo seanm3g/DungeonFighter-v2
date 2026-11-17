@@ -12,18 +12,6 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
     /// </summary>
     public static class ButtonEventHandler
     {
-        /// <summary>
-        /// Wires up a button to invoke an action when clicked.
-        /// </summary>
-        /// <param name="button">The button control</param>
-        /// <param name="action">The action to invoke</param>
-        public static void WireAction(Button? button, ActionDelegate? action)
-        {
-            if (button == null || action == null)
-                return;
-
-            button.Click += (s, e) => action();
-        }
 
         /// <summary>
         /// Wires up a button to invoke an async function when clicked.

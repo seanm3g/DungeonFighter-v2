@@ -274,32 +274,6 @@ namespace RPGGame
             TraversalState = DungeonMapGenerator.Generate(Rooms, random, trainingGround);
         }
 
-        private string GetRoomTheme(int roomIndex, int totalRooms)
-        {
-            var dungeonConfig = GameCoordinator.GetDungeonGenerationConfig();
-            
-            if (roomIndex == totalRooms - 1) return dungeonConfig.bossRoomName;
-
-            // The RoomGenerator will now handle theme-specific room selection
-            // This method is kept for backward compatibility but the actual room generation
-            // is now handled by RoomGenerator.GenerateRoom() which uses the JSON data
-            return "Generated"; // Placeholder - actual room selection happens in RoomGenerator
-        }
-
-        private string? GetRoomDescription(string roomTheme, bool isHostile)
-        {
-            // Get theme-specific description from FlavorText
-            string baseDescription = FlavorText.GenerateLocationDescription(Theme);
-            
-            // Add room-specific context based on both dungeon theme and room type
-            string roomContext = FlavorText.GenerateRoomContext(Theme, roomTheme);
-            
-            // Add hostility context
-            string hostilityContext = isHostile ? " Danger lurks in the shadows." : "\nIt seems safe... for now.";
-            
-            return baseDescription + roomContext + hostilityContext;
-        }
-
         /// <summary>
         /// Scales the dungeon level up by the specified amount
         /// Used for dynamic difficulty adjustment (e.g., when player one-shots enemies)

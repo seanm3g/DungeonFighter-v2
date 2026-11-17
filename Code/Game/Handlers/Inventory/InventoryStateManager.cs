@@ -134,19 +134,7 @@ namespace RPGGame.Handlers.Inventory
             SelectedTradeUpRarity = null;
             PreviewTradeUpItem = null;
         }
-        
-        /// <summary>
-        /// Resets all combo management states
-        /// </summary>
-        public void ResetComboStates()
-        {
-            InComboManagement = false;
-            WaitingForComboActionSelection = false;
-            WaitingForComboRemoveSelection = false;
-            WaitingForComboReorderInput = false;
-            ReorderInputSequence = "";
-        }
-        
+
         /// <summary>
         /// Checks if any selection state is active
         /// </summary>

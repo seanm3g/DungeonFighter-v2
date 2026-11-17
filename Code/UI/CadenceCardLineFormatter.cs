@@ -68,16 +68,6 @@ namespace RPGGame.UI
             return FormatQuantityLine(label, item.Value, isPercent);
         }
 
-        public static List<string> FormatBlockLines(string? cadence, int duration, IEnumerable<ActionAttackBonusItem>? bonuses)
-        {
-            var lines = new List<string>();
-            if (bonuses == null)
-                return lines;
-            foreach (var b in bonuses)
-                AddLingering(lines, cadence, duration, FormatMechanicLineFromBonusItem(b));
-            return lines;
-        }
-
         public static List<string> FormatBlockLinesFromEditor(CadenceEditorBlock block)
         {
             var lines = new List<string>();

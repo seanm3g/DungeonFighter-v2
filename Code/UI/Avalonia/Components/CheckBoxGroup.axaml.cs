@@ -21,33 +21,6 @@ namespace RPGGame.UI.Avalonia.Components
         }
 
         /// <summary>
-        /// Adds a checkbox to the group
-        /// </summary>
-        public CheckBox AddCheckBox(string content, bool isChecked = false)
-        {
-            var checkBox = new CheckBox
-            {
-                Content = content,
-                IsChecked = isChecked,
-                FontSize = 15
-            };
-            SettingsInputApplier.ApplyCheckBox(checkBox);
-            
-            checkBoxes.Add(checkBox);
-            CheckBoxContainer.Children.Add(checkBox);
-            
-            return checkBox;
-        }
-
-        /// <summary>
-        /// Gets all checkboxes in the group
-        /// </summary>
-        public IEnumerable<CheckBox> GetCheckBoxes()
-        {
-            return checkBoxes;
-        }
-
-        /// <summary>
         /// Clears all checkboxes from the group
         /// </summary>
         public void Clear()

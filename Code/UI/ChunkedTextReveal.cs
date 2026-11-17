@@ -16,33 +16,7 @@ namespace RPGGame.UI
     /// </summary>
     public static class ChunkedTextReveal
     {
-        /// <summary>
-        /// Converts a string strategy name to ChunkStrategy enum
-        /// </summary>
-        private static ChunkStrategy ParseStrategy(string strategyName)
-        {
-            if (Enum.TryParse<ChunkStrategy>(strategyName, true, out var strategy))
-            {
-                return strategy;
-            }
-            return ChunkStrategy.Sentence; // Default fallback
-        }
 
-        /// <summary>
-        /// Creates a RevealConfig from a preset configuration
-        /// </summary>
-        private static RevealConfig CreateConfigFromPreset(ChunkedTextRevealPreset preset)
-        {
-            return new RevealConfig
-            {
-                BaseDelayPerCharMs = preset.BaseDelayPerCharMs,
-                MinDelayMs = preset.MinDelayMs,
-                MaxDelayMs = preset.MaxDelayMs,
-                Strategy = ParseStrategy(preset.Strategy),
-                AddBlankLineBetweenChunks = false,
-                Enabled = true
-            };
-        }
         /// <summary>
         /// Configuration for chunked text reveal
         /// </summary>
@@ -191,112 +165,7 @@ namespace RPGGame.UI
             
             return DeveloperModeState.ScaleDelayMs(delay);
         }
-        
-        /// <summary>
-        /// Quick method: Reveal text by sentences with default settings
-        /// </summary>
-        public static async Task RevealBySentencesAsync(string text)
-        {
-            await RevealTextAsync(text, new RevealConfig { Strategy = ChunkStrategy.Sentence });
-        }
-        
-        public static void RevealBySentences(string text)
-        {
-            // Fire and forget
-            _ = RevealBySentencesAsync(text);
-        }
-        
-        /// <summary>
-        /// Quick method: Reveal text by paragraphs with default settings
-        /// </summary>
-        public static async Task RevealByParagraphsAsync(string text)
-        {
-            await RevealTextAsync(text, new RevealConfig { Strategy = ChunkStrategy.Paragraph });
-        }
-        
-        public static void RevealByParagraphs(string text)
-        {
-            // Fire and forget
-            _ = RevealByParagraphsAsync(text);
-        }
-        
-        /// <summary>
-        /// Quick method: Reveal text by lines with default settings
-        /// </summary>
-        public static async Task RevealByLinesAsync(string text)
-        {
-            await RevealTextAsync(text, new RevealConfig { Strategy = ChunkStrategy.Line });
-        }
-        
-        public static void RevealByLines(string text)
-        {
-            // Fire and forget
-            _ = RevealByLinesAsync(text);
-        }
-        
-        /// <summary>
-        /// Quick method: Reveal text by semantic sections with default settings
-        /// </summary>
-        public static async Task RevealBySemanticAsync(string text)
-        {
-            await RevealTextAsync(text, new RevealConfig { Strategy = ChunkStrategy.Semantic });
-        }
-        
-        public static void RevealBySemantic(string text)
-        {
-            // Fire and forget
-            _ = RevealBySemanticAsync(text);
-        }
-        
-        /// <summary>
-        /// Quick method: Reveal dungeon exploration text (uses semantic chunking)
-        /// Optimized for dungeon room descriptions, encounters, etc.
-        /// Loads configuration from TextDelayConfig.json
-        /// </summary>
-        public static async Task RevealDungeonTextAsync(string text)
-        {
-            var preset = TextDelayConfiguration.GetChunkedTextRevealPreset("Dungeon");
-            var config = preset != null ? CreateConfigFromPreset(preset) : new RevealConfig 
-            { 
-                Strategy = ChunkStrategy.Semantic,
-                BaseDelayPerCharMs = 25,
-                MinDelayMs = 800,
-                MaxDelayMs = 3000,
-                AddBlankLineBetweenChunks = false
-            };
-            await RevealTextAsync(text, config);
-        }
-        
-        public static void RevealDungeonText(string text)
-        {
-            // Fire and forget
-            _ = RevealDungeonTextAsync(text);
-        }
-        
-        /// <summary>
-        /// Quick method: Reveal combat text (uses sentence chunking)
-        /// Optimized for combat messages
-        /// Loads configuration from TextDelayConfig.json
-        /// </summary>
-        public static async Task RevealCombatTextAsync(string text)
-        {
-            var preset = TextDelayConfiguration.GetChunkedTextRevealPreset("Combat");
-            var config = preset != null ? CreateConfigFromPreset(preset) : new RevealConfig 
-            { 
-                Strategy = ChunkStrategy.Sentence,
-                BaseDelayPerCharMs = 20,
-                MinDelayMs = 500,
-                MaxDelayMs = 2000,
-                AddBlankLineBetweenChunks = false
-            };
-            await RevealTextAsync(text, config);
-        }
-        
-        public static void RevealCombatText(string text)
-        {
-            // Fire and forget
-            _ = RevealCombatTextAsync(text);
-        }
+
     }
 }
 

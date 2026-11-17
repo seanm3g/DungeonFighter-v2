@@ -178,52 +178,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Handles quoted text with optional name highlighting after the quote.
-        /// </summary>
-        public NarrativeTextBuilder AddQuotedText(
-            string fullText,
-            string quoteColor,
-            string nameToHighlight,
-            ColorPalette afterQuoteColor,
-            ColorPalette nameColor)
-        {
-            if (fullText.StartsWith("\""))
-            {
-                int quoteEnd = fullText.IndexOf("\"", 1);
-                if (quoteEnd > 0)
-                {
-                    // Add the quoted part
-                    builder.Add(fullText.Substring(0, quoteEnd + 1), ColorPalette.Cyan);
-                    
-                    // Add the remaining text with name highlighting
-                    string remaining = fullText.Substring(quoteEnd + 1);
-                    if (remaining.Contains(nameToHighlight))
-                    {
-                        int nameIndex = remaining.IndexOf(nameToHighlight);
-                        builder.Add(remaining.Substring(0, nameIndex), afterQuoteColor);
-                        builder.Add(nameToHighlight, nameColor);
-                        builder.Add(remaining.Substring(nameIndex + nameToHighlight.Length), afterQuoteColor);
-                    }
-                    else
-                    {
-                        builder.Add(remaining, afterQuoteColor);
-                    }
-                }
-                else
-                {
-                    builder.Add(fullText, ColorPalette.Cyan);
-                }
-            }
-            else
-            {
-                // No quote, just highlight the name
-                AddTextWithHighlight(fullText, nameToHighlight, afterQuoteColor, nameColor, afterQuoteColor);
-            }
-
-            return this;
-        }
-
-        /// <summary>
         /// Builds and returns the colored text list.
         /// </summary>
         public List<ColoredText> Build()

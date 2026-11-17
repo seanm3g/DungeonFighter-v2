@@ -57,18 +57,6 @@ namespace RPGGame.Combat.Sequence
             return latest >= 0 ? latest : first;
         }
 
-        public static int FindStepIndex(IReadOnlyList<CombatSequenceStep> steps, int columnIndex)
-        {
-            if (steps == null)
-                return -1;
-            for (int i = 0; i < steps.Count; i++)
-            {
-                if (ColumnIndexFor(steps[i].Kind) == columnIndex)
-                    return i;
-            }
-            return -1;
-        }
-
         public enum Phase
         {
             Pending,

@@ -111,35 +111,6 @@ namespace RPGGame.Simulation
             return batch;
         }
 
-        /// <summary>
-        /// Compares two simulation batches to show the impact of changes
-        /// </summary>
-        public static string CompareBatches(SimulationBatch before, SimulationBatch after)
-        {
-            var sb = new System.Text.StringBuilder();
-            sb.AppendLine($"Comparison: {before.Name} → {after.Name}");
-            sb.AppendLine(new string('=', 60));
-            
-            CompareMetric(sb, "Win Rate", $"{(double)before.PlayerWins / before.TotalSimulations:P0}", 
-                $"{(double)after.PlayerWins / after.TotalSimulations:P0}");
-            CompareMetric(sb, "Average Turns", $"{before.AverageTurns:F1}", $"{after.AverageTurns:F1}");
-            CompareMetric(sb, "Phase 1 Avg Turns", $"{before.AveragePhase1Turns:F1}", $"{after.AveragePhase1Turns:F1}");
-            CompareMetric(sb, "Phase 2 Avg Turns", $"{before.AveragePhase2Turns:F1}", $"{after.AveragePhase2Turns:F1}");
-            CompareMetric(sb, "Phase 3 Avg Turns", $"{before.AveragePhase3Turns:F1}", $"{after.AveragePhase3Turns:F1}");
-            CompareMetric(sb, "Damage/Turn", $"{before.AveragePlayerDamagePerTurn:F1}", 
-                $"{after.AveragePlayerDamagePerTurn:F1}");
-            CompareMetric(sb, "Good Builds (≤6)", $"{before.WinsIn6OrFewer}", $"{after.WinsIn6OrFewer}");
-            CompareMetric(sb, "Target Range (6-14)", $"{before.WinsInTargetRange}", $"{after.WinsInTargetRange}");
-            CompareMetric(sb, "Struggling (≥14)", $"{before.WinsIn14OrMore}", $"{after.WinsIn14OrMore}");
-
-            return sb.ToString();
-        }
-
-        private static void CompareMetric(System.Text.StringBuilder sb, string name, string before, string after)
-        {
-            sb.AppendLine($"{name,-25} {before,15} → {after,15}");
-        }
-
         private static double CalculateStandardDeviation(IEnumerable<double> values)
         {
             var list = values.ToList();

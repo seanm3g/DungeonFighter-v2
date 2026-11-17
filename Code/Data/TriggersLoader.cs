@@ -38,16 +38,6 @@ namespace RPGGame.Data
             }
         }
 
-        public static TriggerIdentityData GetByIndex(int index)
-        {
-            EnsureLoaded();
-            if (_cache!.Count == 0)
-                throw new InvalidOperationException("Triggers.json has no identities.");
-            if (index < 0)
-                index = 0;
-            return _cache[index % _cache.Count];
-        }
-
         public static bool TryGetByName(string? name, out TriggerIdentityData identity)
         {
             EnsureLoaded();
@@ -91,33 +81,6 @@ namespace RPGGame.Data
         {
             ClearCache();
             EnsureLoaded();
-        }
-
-        /// <summary>
-        /// Writes seed identities to <c>Triggers.json</c> when the file is missing or <paramref name="forceOverwrite"/> is true.
-        /// </summary>
-        public static string EnsureTriggersJsonFromSeed(bool forceOverwrite = false, string? gameDataDirectory = null)
-        {
-            string dir = gameDataDirectory
-                ?? Path.GetDirectoryName(JsonLoader.FindGameDataFile(GameConstants.WeaponsJson)!)
-                ?? Path.GetDirectoryName(GameConstants.GetGameDataFilePath(GameConstants.TriggersJson))
-                ?? throw new InvalidOperationException("GameData directory not found.");
-
-            string path = Path.Combine(dir, GameConstants.TriggersJson);
-            if (File.Exists(path) && !forceOverwrite)
-                return path;
-
-            var rows = ItemTriggerIdentityCatalog.BuildSeedRows();
-            var writeOpts = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
-                Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
-            };
-            string json = JsonSerializer.Serialize(rows, writeOpts) + System.Environment.NewLine;
-            File.WriteAllText(path, json);
-            ClearCache();
-            return path;
         }
 
         private static void EnsureLoaded()

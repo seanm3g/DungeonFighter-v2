@@ -118,18 +118,6 @@ namespace RPGGame.Audio
             _engine.SetBusMute(AudioBusKind.Sfx, !cfg.SfxEnabled);
         }
 
-        /// <summary>Forces a music re-evaluation for the current game state (used by the Audio settings tab after the user remaps a state).</summary>
-        public static void RefreshMusicForCurrentState()
-        {
-            if (_musicController == null) return;
-            _musicController.OnStateChanged(GetCurrentStateOrMainMenu());
-        }
-
-        private static GameState GetCurrentStateOrMainMenu()
-        {
-            return GameState.MainMenu;
-        }
-
         /// <summary>Releases backend resources. Called on app shutdown.</summary>
         public static void Shutdown()
         {

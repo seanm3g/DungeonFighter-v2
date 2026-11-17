@@ -112,31 +112,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Armor + weapon slots only (excludes charm). Used by material sets and animal tag counts.
-        /// </summary>
-        public Item?[] GetGearEquippedItems()
-        {
-            return new[] { Head, Body, Legs, Weapon, Feet };
-        }
-
-        /// <summary>
-        /// Checks if a specific slot is occupied.
-        /// </summary>
-        public bool IsSlotEquipped(string slot)
-        {
-            return (slot.ToLower()) switch
-            {
-                "head" => Head != null,
-                "body" => Body != null,
-                "legs" => Legs != null,
-                "weapon" => Weapon != null,
-                "feet" => Feet != null,
-                "charm" => Charm != null,
-                _ => false
-            };
-        }
-
-        /// <summary>
         /// Gets the item in a specific slot.
         /// </summary>
         public Item? GetSlotItem(string slot)
@@ -153,17 +128,5 @@ namespace RPGGame
             };
         }
 
-        /// <summary>
-        /// Unequips all items from all slots.
-        /// </summary>
-        public void UnequipAll()
-        {
-            Head = null;
-            Body = null;
-            Legs = null;
-            Weapon = null;
-            Feet = null;
-            Charm = null;
-        }
     }
 }

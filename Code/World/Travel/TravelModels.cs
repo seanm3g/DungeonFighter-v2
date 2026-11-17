@@ -237,15 +237,6 @@ namespace RPGGame
                 string.Equals(region.Id, id, StringComparison.OrdinalIgnoreCase));
         }
 
-        public TravelRegion? GetByTheme(string? theme)
-        {
-            if (string.IsNullOrWhiteSpace(theme))
-                return null;
-
-            return GetAllRegions().FirstOrDefault(region =>
-                string.Equals(region.Theme, theme, StringComparison.OrdinalIgnoreCase));
-        }
-
         public IReadOnlyList<TravelRegion> GetDestinationRegions(Character character)
         {
             string currentId = GetRegionForCharacter(character).Id;

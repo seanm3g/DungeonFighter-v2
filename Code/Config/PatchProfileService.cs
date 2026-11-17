@@ -348,17 +348,6 @@ namespace RPGGame.Config
             }
         }
 
-        public static void InvalidateAllRuntimeCaches()
-        {
-            GeneralSettingsStore.InvalidateCache();
-            GameSettings.InvalidatePatchPathCache();
-            AudioConfig.InvalidatePatchPathCache();
-            GameConfiguration.ResetInstance();
-            GameSettings.ReloadFromFile();
-            AudioConfig.ReloadFromFile();
-            _ = GameConfiguration.Instance;
-        }
-
         /// <summary>Test hook: redirect patch root and reset bootstrap state.</summary>
         internal static void SetGameDataRootForTests(string root)
         {

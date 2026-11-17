@@ -866,29 +866,5 @@ namespace RPGGame.Combat.Sequence
             _ => false
         };
 
-        /// <summary>
-        /// HUD-facing outcome labels (math strip). Narrative prose uses <see cref="InterpretOutcome"/>.
-        /// </summary>
-        internal static string ResolveOutcomeLabel(ActionExecutionResult result)
-        {
-            if (result.IsCriticalMiss)
-                return "CRIT MISS";
-            if (!result.Hit)
-                return "MISS";
-            if (result.IsCritical && result.IsCombo)
-                return "CRIT ACTION";
-            if (result.IsCritical)
-                return "CRIT";
-            if (result.IsCombo)
-                return "ACTION";
-            return "HIT";
-        }
-
-        public static string PlainFromColored(IReadOnlyList<ColoredText>? segments)
-        {
-            if (segments == null || segments.Count == 0)
-                return string.Empty;
-            return ColoredTextRenderer.RenderAsPlainText(segments.ToList());
-        }
     }
 }

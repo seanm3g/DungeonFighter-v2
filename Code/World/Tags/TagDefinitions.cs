@@ -89,36 +89,6 @@ namespace RPGGame.World.Tags
             return trimmed;
         }
 
-        public static TagLayer? GetLayer(string? tag)
-        {
-            if (string.IsNullOrWhiteSpace(tag))
-                return null;
-            string key = NormalizeKey(tag);
-            if (Catalog.TryGetValue(key, out var def))
-                return def.Layer;
-            lock (DynamicLock)
-            {
-                if (DynamicItemMatchTags.TryGetValue(key, out var dyn))
-                    return dyn.Layer;
-            }
-            return null;
-        }
-
-        public static TagEntityScope GetScope(string? tag)
-        {
-            if (string.IsNullOrWhiteSpace(tag))
-                return TagEntityScope.None;
-            string key = NormalizeKey(tag);
-            if (Catalog.TryGetValue(key, out var def))
-                return def.Scope;
-            lock (DynamicLock)
-            {
-                if (DynamicItemMatchTags.TryGetValue(key, out var dyn))
-                    return dyn.Scope;
-            }
-            return TagEntityScope.None;
-        }
-
         public static bool IsAllowedOn(TagEntityScope scope, string? tag)
         {
             if (string.IsNullOrWhiteSpace(tag))

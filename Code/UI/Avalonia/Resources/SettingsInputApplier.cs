@@ -33,11 +33,5 @@ namespace RPGGame.UI.Avalonia.Resources
             comboBox.BorderBrush = SettingsThemeBrushes.InputBorder;
         }
 
-        public static void ApplyNumericUpDown(NumericUpDown numericUpDown)
-        {
-            numericUpDown.Background = SettingsThemeBrushes.InputBackground;
-            numericUpDown.Foreground = SettingsThemeBrushes.TextPrimary;
-            numericUpDown.BorderBrush = SettingsThemeBrushes.InputBorder;
-        }
     }
 }

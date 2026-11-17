@@ -59,34 +59,6 @@ namespace RPGGame.UI.Avalonia.Display
         }
 
         /// <summary>
-        /// Manually suppresses display buffer rendering.
-        /// Use this for edge cases where automatic management isn't sufficient.
-        /// </summary>
-        public void ManuallySuppress()
-        {
-            isManuallySuppressed = true;
-            canvasUI?.SuppressDisplayBufferRendering();
-        }
-
-        /// <summary>
-        /// Manually restores display buffer rendering.
-        /// Use this for edge cases where automatic management isn't sufficient.
-        /// </summary>
-        public void ManuallyRestore()
-        {
-            isManuallySuppressed = false;
-            canvasUI?.RestoreDisplayBufferRendering();
-        }
-
-        /// <summary>
-        /// Clears the display buffer without triggering a render.
-        /// </summary>
-        public void ClearBufferWithoutRender()
-        {
-            canvasUI?.ClearDisplayBufferWithoutRender();
-        }
-
-        /// <summary>
         /// Handles state change events from GameStateManager.
         /// </summary>
         private void OnStateChanged(object? sender, StateChangedEventArgs e)

@@ -13,56 +13,6 @@ namespace RPGGame.Data
     public static class ActionUpdateService
     {
         /// <summary>
-        /// Optimizes the existing Actions.json file by removing empty fields
-        /// Loads the current file, converts to SpreadsheetActionJson, and saves with optimization
-        /// </summary>
-        public static void OptimizeActionsJsonFile(string? filePath = null)
-        {
-            try
-            {
-                // Get file path
-                filePath ??= GameConstants.GetGameDataFilePath("Actions.json");
-                
-                if (!File.Exists(filePath))
-                {
-                    Console.WriteLine($"Actions.json not found at: {filePath}");
-                    return;
-                }
-                
-                Console.WriteLine($"Loading Actions.json from: {filePath}");
-                
-                // Load the current file
-                var spreadsheetActions = RPGGame.JsonLoader.LoadJson<List<SpreadsheetActionJson>>(
-                    filePath,
-                    useCache: false,
-                    fallbackValue: new List<SpreadsheetActionJson>()
-                );
-                
-                if (spreadsheetActions == null || spreadsheetActions.Count == 0)
-                {
-                    Console.WriteLine("No actions found in file. Nothing to optimize.");
-                    return;
-                }
-                
-                Console.WriteLine($"Loaded {spreadsheetActions.Count} actions");
-                Console.WriteLine("Optimizing file (removing empty fields)...");
-                
-                // Save using the generator which uses the converter to omit empty fields
-                SpreadsheetActionJsonGenerator.GenerateJsonFile(spreadsheetActions, filePath);
-                
-                // Get file size info
-                var fileInfo = new FileInfo(filePath);
-                Console.WriteLine($"✓ Optimized Actions.json saved to: {filePath}");
-                Console.WriteLine($"  File size: {fileInfo.Length / 1024.0:F2} KB");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error optimizing Actions.json: {ex.Message}");
-                Console.WriteLine(ex.StackTrace);
-                throw;
-            }
-        }
-        /// <summary>
         /// Updates Actions.json from Google Sheets URL
         /// </summary>
         /// <param name="googleSheetsUrl">URL to Google Sheets CSV export (optional, uses config if not provided)</param>
@@ -113,12 +63,5 @@ namespace RPGGame.Data
             }
         }
         
-        /// <summary>
-        /// Updates Actions.json from Google Sheets URL (synchronous wrapper)
-        /// </summary>
-        public static void UpdateFromGoogleSheets(string? googleSheetsUrl = null, string? outputPath = null)
-        {
-            UpdateFromGoogleSheetsAsync(googleSheetsUrl, outputPath).GetAwaiter().GetResult();
-        }
     }
 }

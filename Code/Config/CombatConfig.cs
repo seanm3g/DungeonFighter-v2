@@ -460,7 +460,6 @@ namespace RPGGame
         /// <summary>Hero damage % per strip slot index (slot k × this), independent of INT: a reason to run longer strips. 0 = off.</summary>
         public double ComboSlotDamagePercentPerStep { get; set; }
 
-
         /// <summary>Maximum base combo AMP multiplier at <see cref="ComboAmplifierMaxTech"/> effective INT (name kept for config compatibility).</summary>
         public double ComboAmplifierMax { get; set; }
 
@@ -687,14 +686,6 @@ namespace RPGGame
                    name.Equals("Poison", StringComparison.OrdinalIgnoreCase);
         }
         
-        /// <summary>
-        /// Get all status effect names
-        /// </summary>
-        public List<string> GetEffectNames()
-        {
-            InitializeDefaults();
-            return Effects.Keys.ToList();
-        }
     }
 
     /// <summary>

@@ -130,31 +130,7 @@ namespace RPGGame.UI.ColorSystem
             // Ensure color is visible on black background
             return ColorValidator.EnsureVisible(color2);
         }
-        
-        /// <summary>
-        /// Gets the color palette for a specific pattern
-        /// Loads from ColorConfiguration.json, falls back to hard-coded values
-        /// </summary>
-        public static ColorPalette GetPaletteForPattern(string pattern)
-        {
-            if (string.IsNullOrEmpty(pattern))
-                return ColorPalette.White;
-                
-            var normalizedPattern = pattern.ToLowerInvariant().Trim();
-            
-            // Try to load from unified configuration
-            var palette = ColorConfigurationLoader.GetColorPattern(normalizedPattern);
-            if (palette != ColorPalette.White)
-            {
-                return palette;
-            }
-            
-            // Fallback to hard-coded values
-            return _fallbackPatternColors.TryGetValue(normalizedPattern, out var fallbackPalette) 
-                ? fallbackPalette 
-                : ColorPalette.White;
-        }
-        
+
         /// <summary>
         /// Checks if a pattern exists
         /// </summary>
@@ -204,48 +180,7 @@ namespace RPGGame.UI.ColorSystem
             
             return patterns;
         }
-        
-        /// <summary>
-        /// Gets patterns by category
-        /// </summary>
-        public static IEnumerable<string> GetPatternsByCategory(string category)
-        {
-            if (string.IsNullOrEmpty(category))
-                return GetAllPatterns();
-                
-            var normalizedCategory = category.ToLowerInvariant().Trim();
-            var allPatterns = GetAllPatterns();
-            
-            return allPatterns
-                .Where(pattern => pattern.StartsWith(normalizedCategory, StringComparison.OrdinalIgnoreCase));
-        }
-        
-        /// <summary>
-        /// Adds a new pattern (runtime modification - not persisted)
-        /// Note: This only affects the fallback cache, not the JSON configuration
-        /// </summary>
-        public static void AddPattern(string pattern, ColorPalette color)
-        {
-            if (string.IsNullOrEmpty(pattern))
-                return;
-                
-            var normalizedPattern = pattern.ToLowerInvariant().Trim();
-            _fallbackPatternColors[normalizedPattern] = color;
-        }
-        
-        /// <summary>
-        /// Removes a pattern (runtime modification - not persisted)
-        /// Note: This only affects the fallback cache, not the JSON configuration
-        /// </summary>
-        public static bool RemovePattern(string pattern)
-        {
-            if (string.IsNullOrEmpty(pattern))
-                return false;
-                
-            var normalizedPattern = pattern.ToLowerInvariant().Trim();
-            return _fallbackPatternColors.Remove(normalizedPattern);
-        }
-        
+
         /// <summary>
         /// Gets pattern categories
         /// </summary>

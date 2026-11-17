@@ -18,16 +18,7 @@ namespace RPGGame.UI.ColorSystem
             var adjustedColor = AdjustColorForSignificance(baseColor, significance);
             return new List<ColoredText> { new ColoredText(text, adjustedColor) };
         }
-        
-        /// <summary>
-        /// Creates a colored text segment with depth-based white coloring
-        /// </summary>
-        public static List<ColoredText> CreateDepthWhiteSegment(string text, int depth, WhiteTemperature temperature = WhiteTemperature.Neutral)
-        {
-            var color = GetWhiteByDepth(depth, temperature);
-            return new List<ColoredText> { new ColoredText(text, color) };
-        }
-        
+
         /// <summary>
         /// Gets a white color with specified temperature
         /// </summary>
@@ -62,23 +53,7 @@ namespace RPGGame.UI.ColorSystem
             var depthFactor = Math.Max(0.3, 1.0 - (depth * 0.1)); // Minimum 30% brightness
             return AdjustBrightness(baseColor, depthFactor);
         }
-        
-        /// <summary>
-        /// Creates layered colored text with multiple significance levels
-        /// </summary>
-        public static List<ColoredText> CreateLayeredText(string text, Color baseColor, params EventSignificance[] layers)
-        {
-            var result = new List<ColoredText>();
-            
-            foreach (var layer in layers)
-            {
-                var adjustedColor = AdjustColorForSignificance(baseColor, layer);
-                result.Add(new ColoredText(text, adjustedColor));
-            }
-            
-            return result;
-        }
-        
+
         /// <summary>
         /// Adjusts color brightness and saturation based on event significance
         /// </summary>

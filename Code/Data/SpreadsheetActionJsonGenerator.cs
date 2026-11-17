@@ -28,45 +28,7 @@ namespace RPGGame.Data
             
             return JsonSerializer.Serialize(actions, options);
         }
-        
-        /// <summary>
-        /// Generates JSON and writes to file (spreadsheet-compatible format)
-        /// </summary>
-        public static void GenerateJsonFile(List<SpreadsheetActionJson> actions, string outputPath)
-        {
-            string json = GenerateJson(actions);
-            File.WriteAllText(outputPath, json);
-        }
-        
-        /// <summary>
-        /// Converts spreadsheet actions to SpreadsheetActionJson and generates JSON
-        /// This is the new primary method that outputs spreadsheet-compatible JSON
-        /// </summary>
-        public static string ConvertAndGenerateJson(List<SpreadsheetActionData> spreadsheetActions)
-        {
-            var jsonList = new List<SpreadsheetActionJson>();
-            
-            foreach (var spreadsheet in spreadsheetActions)
-            {
-                try
-                {
-                    if (!string.IsNullOrWhiteSpace(spreadsheet.Action))
-                    {
-                        ActionMechanicsSheetSync.SyncRow(spreadsheet);
-                        var json = SpreadsheetActionJson.FromSpreadsheetActionData(spreadsheet);
-                        jsonList.Add(json);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    // Log error but continue processing
-                    Console.WriteLine($"Error converting action {spreadsheet.Action}: {ex.Message}");
-                }
-            }
-            
-            return GenerateJson(jsonList);
-        }
-        
+
         /// <summary>
         /// Converts spreadsheet actions to SpreadsheetActionJson and writes JSON to file
         /// This is the new primary method that outputs spreadsheet-compatible JSON

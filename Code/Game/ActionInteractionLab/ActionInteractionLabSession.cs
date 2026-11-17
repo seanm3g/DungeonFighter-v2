@@ -234,32 +234,6 @@ namespace RPGGame.ActionInteractionLab
         }
 
         /// <summary>
-        /// Starts a session from an on-disk lab character snapshot (stats/gear JSON + combo strip).
-        /// </summary>
-        public static ActionInteractionLabSession BeginFromSnapshot(
-            CharacterLabSnapshotData snapshot,
-            CombatManager combatManager,
-            System.Action refreshCombatUi,
-            ICanvasContextManager? canvasContext = null,
-            System.Action? prepareLabHistoryReplay = null,
-            Func<LabCombatLogSnapshot?>? captureLabCombatLog = null,
-            Action<LabCombatLogSnapshot?>? restoreLabCombatLog = null)
-        {
-            if (snapshot == null)
-                throw new ArgumentNullException(nameof(snapshot));
-            var hero = CharacterLabSnapshotService.CreateCharacter(snapshot);
-            return Begin(
-                hero,
-                combatManager,
-                refreshCombatUi,
-                canvasContext,
-                prepareLabHistoryReplay,
-                captureLabCombatLog,
-                restoreLabCombatLog,
-                snapshot.ComboStripActionNames);
-        }
-
-        /// <summary>
         /// Aligns the catalog pick with the lab hero's combo strip and <see cref="Character.ComboStep"/> so the next Step
         /// uses the correct slot in the player's sequence (including after the enemy's turn when the enemy has its own strip).
         /// </summary>

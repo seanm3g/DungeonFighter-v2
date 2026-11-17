@@ -306,38 +306,5 @@ namespace RPGGame
             return $"Requires: {pred.Name}" + excl;
         }
 
-        public static IReadOnlyList<string> GetConnectorParentIds(SkillTreeNodeDefinition node)
-        {
-            if (node == null || node.Tier <= 0)
-                return Array.Empty<string>();
-
-            if (UsesExplicitRequires(node))
-                return (node.Requires ?? new List<string>())
-                    .Where(id => !string.IsNullOrWhiteSpace(id))
-                    .ToList();
-
-            var tree = FindOwnerTree(node);
-            if (tree?.Nodes == null)
-                return Array.Empty<string>();
-
-            if (IsCoreBranch(node.Branch))
-                return GetCorePredecessorOptions(tree, node).Select(o => o.Id).ToList();
-
-            if (UsesBands(tree))
-            {
-                var band = GetBandPredecessorOptions(tree, node);
-                if (band.Count > 0)
-                    return band.Select(o => o.Id).ToList();
-                var trunk = GetTrunkTip(tree);
-                return trunk != null ? new[] { trunk.Id } : Array.Empty<string>();
-            }
-
-            var pred = GetImmediatePredecessor(tree, node);
-            if (pred != null)
-                return new[] { pred.Id };
-
-            var baseNode = GetTrunkTip(tree);
-            return baseNode != null ? new[] { baseNode.Id } : Array.Empty<string>();
-        }
     }
 }

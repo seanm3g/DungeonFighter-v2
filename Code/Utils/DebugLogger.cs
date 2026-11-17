@@ -61,18 +61,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Writes a debug message only if LogOnlyOnErrors is enabled
-        /// </summary>
-        /// <param name="message">The debug message to write</param>
-        public static void WriteErrorDebug(string message)
-        {
-            if (!GameConfiguration.IsDebugEnabled || !GameConfiguration.Instance.Debug.LogOnlyOnErrors)
-                return;
-                
-            WriteDebugInternal(message);
-        }
-
-        /// <summary>
         /// Internal method that actually writes the debug message
         /// Uses AsyncEventLogger for non-blocking file I/O
         /// </summary>

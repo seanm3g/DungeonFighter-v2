@@ -224,19 +224,7 @@ namespace RPGGame.UI.Avalonia.Display
             var swapped = CombatLogDualView.Swap(current, currentlyShowingNarrative);
             storage.ReplaceAllDualViewLines(swapped, scrollManager);
         }
-        
-        /// <summary>
-        /// Gets the last N messages as strings (for backwards compatibility during migration)
-        /// </summary>
-        public List<string> GetLastAsStrings(int count)
-        {
-            return storage.Messages.TakeLast(count).Select(segments => 
-                segments == null || segments.Count == 0 
-                    ? "" 
-                    : ColoredTextRenderer.RenderAsPlainText(segments)
-            ).ToList();
-        }
-        
+
         /// <summary>
         /// Scrolls up (shows older content)
         /// </summary>

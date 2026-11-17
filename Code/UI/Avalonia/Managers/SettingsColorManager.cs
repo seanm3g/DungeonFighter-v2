@@ -57,7 +57,6 @@ namespace RPGGame.UI.Avalonia.Managers
             }
         }
 
-
         /// <summary>
         /// Parses a hex color string to an Avalonia Color
         /// Supports formats: #RRGGBB, #AARRGGBB, RRGGBB, AARRGGBB
@@ -114,21 +113,6 @@ namespace RPGGame.UI.Avalonia.Managers
             {
                 return false;
             }
-        }
-
-        /// <summary>
-        /// Picks a readable text color when configured foreground/background are too similar (e.g. black on black).
-        /// </summary>
-        public static Color EnsureContrastingTextColor(Color textColor, Color backgroundColor)
-        {
-            double textLuminance = GetRelativeLuminance(textColor);
-            double bgLuminance = GetRelativeLuminance(backgroundColor);
-            double contrast = (Math.Max(textLuminance, bgLuminance) + 0.05) / (Math.Min(textLuminance, bgLuminance) + 0.05);
-
-            if (contrast >= 4.5)
-                return textColor;
-
-            return bgLuminance < 0.35 ? Colors.White : Colors.Black;
         }
 
         private static double GetRelativeLuminance(Color color)

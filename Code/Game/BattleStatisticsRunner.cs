@@ -141,34 +141,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Runs multiple configurations in parallel for comparison
-        /// </summary>
-        public static async Task<List<StatisticsResult>> RunMultipleConfigurations(
-            List<BattleConfiguration> configurations,
-            int battlesPerConfig = 100,
-            IProgress<(int completed, int total, string status)>? progress = null)
-        {
-            var results = new List<StatisticsResult>();
-            
-            for (int i = 0; i < configurations.Count; i++)
-            {
-                var config = configurations[i];
-                progress?.Report((i, configurations.Count, $"Configuration {i + 1}/{configurations.Count}"));
-                
-                var result = await RunParallelBattles(config, battlesPerConfig, 
-                    new Progress<(int, int, string)>(p => 
-                    {
-                        progress?.Report((i * battlesPerConfig + p.Item1, configurations.Count * battlesPerConfig, 
-                            $"Config {i + 1}/{configurations.Count}: {p.Item3}"));
-                    }));
-                
-                results.Add(result);
-            }
-            
-            return results;
-        }
-
-        /// <summary>
         /// Runs battle tests for each weapon type against random enemies
         /// </summary>
         public static async Task<List<WeaponTestResult>> RunWeaponTypeTests(

@@ -47,11 +47,6 @@ namespace RPGGame.UI.Avalonia
             ResetToCategoryView();
         }
 
-        public void SetCurrentPlayerProvider(Func<Character?>? currentPlayerProvider)
-        {
-            getCurrentPlayer = currentPlayerProvider;
-        }
-        
         public void ResetToCategoryView()
         {
             VariablesPanel.Children.Clear();
@@ -274,31 +269,6 @@ namespace RPGGame.UI.Avalonia
             timer.Start();
         }
         
-        public void RefreshVariableValues()
-        {
-            if (variableEditor == null || string.IsNullOrEmpty(selectedCategory)) return;
-            
-            var variables = variableEditor.GetVariablesByCategory(selectedCategory);
-            foreach (var variable in variables)
-            {
-                if (variableTextBoxes.TryGetValue(variable.Name, out var textBox))
-                {
-                    var currentValue = variable.GetValue();
-                    textBox.Text = currentValue?.ToString() ?? "";
-                    textBox.Background = new SolidColorBrush(Color.FromRgb(40, 40, 40));
-                    
-                    // Update original value and refresh indicator
-                    if (currentValue != null)
-                    {
-                        changeIndicatorManager.UpdateOriginalValue(variable.Name, currentValue);
-                    }
-                    if (valueChangeIndicators.TryGetValue(variable.Name, out var indicator))
-                    {
-                        UpdateChangeIndicator(variable, textBox, indicator);
-                    }
-                }
-            }
-        }
     }
 }
 

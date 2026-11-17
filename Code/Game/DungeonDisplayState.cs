@@ -124,14 +124,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Clears the current enemy
-        /// </summary>
-        public void ClearEnemy()
-        {
-            currentEnemy = null;
-        }
-
-        /// <summary>
         /// Determines the character that owns a message
         /// If sourceCharacter is provided, use it directly (most reliable)
         /// Otherwise, prioritize dungeonOwners over currentPlayer because currentPlayer is the ACTIVE character,

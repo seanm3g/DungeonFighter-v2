@@ -76,25 +76,6 @@ namespace RPGGame.UI.Avalonia.Display
         }
 
         /// <summary>
-        /// Replaces the last buffered line in place.
-        /// </summary>
-        public bool TryReplaceLast(List<ColoredText> segments, UIMessageType messageType = UIMessageType.System)
-        {
-            bool shouldAddMessage = filterService.ShouldDisplayMessage(
-                null,
-                messageType,
-                stateManager,
-                contextManager,
-                performRaceConditionCheck: true);
-
-            if (!shouldAddMessage)
-                return false;
-
-            buffer.ReplaceLast(segments, messageType);
-            return true;
-        }
-
-        /// <summary>
         /// Replaces a line counted from the end (0 = last) without changing count.
         /// </summary>
         public bool TryReplaceAtFromEnd(

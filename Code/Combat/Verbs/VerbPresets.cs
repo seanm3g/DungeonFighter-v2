@@ -358,13 +358,6 @@ namespace RPGGame
             return paid;
         }
 
-        /// <summary>Drops unpaid investments (new run / reset).</summary>
-        public static void ClearInvestments(Character hero)
-        {
-            if (_investments.TryGetValue(hero, out var list))
-                list.Clear();
-        }
-
         private static int Cash(Character hero, Actor? target, string storeId, double share)
         {
             var holder = Holder(hero, target, storeId);

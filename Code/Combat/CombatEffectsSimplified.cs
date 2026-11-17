@@ -634,29 +634,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Checks and applies bleed chance for critical hits
-        /// </summary>
-        /// <param name="attacker">The attacking character</param>
-        /// <param name="target">The target Actor</param>
-        /// <param name="results">List to add effect messages to</param>
-        public static void CheckAndApplyBleedChance(Character attacker, Actor target, List<string> results)
-        {
-            // For now, use a simple bleed chance calculation
-            // This would need to be implemented based on equipment/modifications
-            double bleedChance = 0.1; // 10% base bleed chance
-            
-            if (bleedChance > 0.0)
-            {
-                double roll = Dice.Roll(1, 100) / 100.0;
-                if (roll < bleedChance)
-                {
-                    target.QueueBleedFromHit(1);
-                    results.Add($"[{target.Name}] starts bleeding from the wound!");
-                }
-            }
-        }
-
-        /// <summary>
         /// Gets the effect type description for an action using the registry
         /// </summary>
         /// <param name="action">The action to describe</param>
@@ -666,25 +643,6 @@ namespace RPGGame
             return _effectRegistry.GetEffectType(action);
         }
 
-        /// <summary>
-        /// Clears all temporary effects from an Actor
-        /// </summary>
-        /// <param name="Actor">The Actor to clear effects from</param>
-        /// <param name="results">List to add effect messages to</param>
-        public static void ClearAllTemporaryEffects(Actor Actor, List<string> results)
-        {
-            bool hadEffects = Actor.PoisonPercentOfMaxHealth > 0 || Actor.BurnIntensity > 0 || Actor.PendingBurnFromHits > 0
-                             || Actor.AcidIntensity > 0 || Actor.PendingAcidFromHits > 0 || Actor.AcidArmorReduction > 0
-                             || Actor.BleedIntensity > 0 || Actor.PendingBleedFromHits > 0
-                             || Actor.IsStunned || Actor.IsWeakened;
-            
-            if (hadEffects)
-            {
-                Actor.ClearAllTempEffects();
-                results.Add($"[{Actor.Name}]'s temporary effects are cleared!");
-            }
-        }
     }
 }
-
 

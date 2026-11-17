@@ -105,15 +105,6 @@ namespace RPGGame.Combat.Narrative
             PublishFromBinding();
         }
 
-        /// <summary>Clears the fight binding (feed stays at last snapshot until the next bind).</summary>
-        public static void UnbindFight()
-        {
-            lock (Gate)
-            {
-                _binding = null;
-            }
-        }
-
         /// <summary>Rebuilds and publishes from the bound fight when live combat is active.</summary>
         public static void NotifyChanged()
         {

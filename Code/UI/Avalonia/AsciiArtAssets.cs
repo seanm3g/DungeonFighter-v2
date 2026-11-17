@@ -204,47 +204,10 @@ namespace RPGGame.UI.Avalonia
         }
 
         // Create a box border
-        public static string[] CreateBox(int width, int height, string title = "")
-        {
-            var lines = new List<string>();
-            
-            // Top border
-            string topLine = UIElements.BorderTopLeft + new string(UIElements.BorderHorizontal[0], width - 2) + UIElements.BorderTopRight;
-            if (!string.IsNullOrEmpty(title) && title.Length <= width - 4)
-            {
-                int titleStart = (width - title.Length - 2) / 2;
-                topLine = topLine.Substring(0, titleStart) + $" {title} " + topLine.Substring(titleStart + title.Length + 2);
-            }
-            lines.Add(topLine);
-            
-            // Middle lines
-            for (int i = 1; i < height - 1; i++)
-            {
-                lines.Add(UIElements.BorderVertical + new string(' ', width - 2) + UIElements.BorderVertical);
-            }
-            
-            // Bottom border
-            lines.Add(UIElements.BorderBottomLeft + new string(UIElements.BorderHorizontal[0], width - 2) + UIElements.BorderBottomRight);
-            
-            return lines.ToArray();
-        }
 
         // Create a progress bar
-        public static string CreateProgressBar(int width, double progress, char fullChar = '█', char emptyChar = '░')
-        {
-            int filledWidth = (int)(width * progress);
-            int emptyWidth = width - filledWidth;
-            
-            return new string(fullChar, filledWidth) + new string(emptyChar, emptyWidth);
-        }
 
         // Create a health bar with text
-        public static string CreateHealthBar(int current, int max, int width = 20)
-        {
-            double progress = (double)current / max;
-            string bar = CreateProgressBar(width, progress);
-            return $"[{bar}] {current}/{max}";
-        }
 
         // Create a menu option
         public static string CreateMenuOption(int number, string text, bool selected = false)
@@ -254,13 +217,6 @@ namespace RPGGame.UI.Avalonia
         }
 
         // Create an item display
-        public static string CreateItemDisplay(int number, string name, string stats = "", string rarity = "")
-        {
-            // TrimEnd() to ensure no trailing spaces before the closing bracket
-            string rarityPrefix = string.IsNullOrEmpty(rarity) ? "" : $"[{rarity.TrimEnd().ToUpper()}] ";
-            string statsSuffix = string.IsNullOrEmpty(stats) ? "" : $" - {stats}";
-            return $"[{number}] {rarityPrefix}{name}{statsSuffix}";
-        }
 
         // UI Text Constants
         public static class UIText

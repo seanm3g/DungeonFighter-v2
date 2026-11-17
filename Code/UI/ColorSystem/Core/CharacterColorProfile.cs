@@ -55,38 +55,7 @@ namespace RPGGame.UI.ColorSystem
                 _ => ColorPatterns.GetColorForPattern(pattern)
             };
         }
-        
-        /// <summary>
-        /// Sets a custom pattern color for this character
-        /// </summary>
-        public void SetCustomPattern(string pattern, ColorPalette color)
-        {
-            _customPatterns[pattern.ToLowerInvariant()] = color;
-        }
-        
-        /// <summary>
-        /// Removes a custom pattern color
-        /// </summary>
-        public bool RemoveCustomPattern(string pattern)
-        {
-            return _customPatterns.Remove(pattern.ToLowerInvariant());
-        }
-        
-        /// <summary>
-        /// Gets all custom patterns for this character
-        /// </summary>
-        public IEnumerable<KeyValuePair<string, ColorPalette>> GetCustomPatterns()
-        {
-            return _customPatterns;
-        }
-        
-        /// <summary>
-        /// Clears all custom patterns
-        /// </summary>
-        public void ClearCustomPatterns()
-        {
-            _customPatterns.Clear();
-        }
+
     }
     
     /// <summary>
@@ -113,34 +82,7 @@ namespace RPGGame.UI.ColorSystem
             
             return profile;
         }
-        
-        /// <summary>
-        /// Sets a custom color profile for a character
-        /// </summary>
-        public static void SetProfile(string characterName, CharacterColorProfile profile)
-        {
-            if (string.IsNullOrEmpty(characterName) || profile == null)
-                return;
-                
-            _profiles[characterName] = profile;
-        }
-        
-        /// <summary>
-        /// Removes a character's color profile
-        /// </summary>
-        public static bool RemoveProfile(string characterName)
-        {
-            return _profiles.Remove(characterName);
-        }
-        
-        /// <summary>
-        /// Gets all character profiles
-        /// </summary>
-        public static IEnumerable<CharacterColorProfile> GetAllProfiles()
-        {
-            return _profiles.Values;
-        }
-        
+
         /// <summary>
         /// Gets the default color profile
         /// </summary>
@@ -152,15 +94,7 @@ namespace RPGGame.UI.ColorSystem
             }
             return _defaultProfile;
         }
-        
-        /// <summary>
-        /// Sets the default color profile
-        /// </summary>
-        public static void SetDefaultProfile(CharacterColorProfile profile)
-        {
-            _defaultProfile = profile;
-        }
-        
+
         /// <summary>
         /// Creates a default profile for a character
         /// </summary>
@@ -200,13 +134,5 @@ namespace RPGGame.UI.ColorSystem
             return profile;
         }
         
-        /// <summary>
-        /// Clears all profiles
-        /// </summary>
-        public static void ClearAllProfiles()
-        {
-            _profiles.Clear();
-            _defaultProfile = null;
-        }
     }
 }

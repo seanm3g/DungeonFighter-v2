@@ -107,19 +107,6 @@ namespace RPGGame.Data
         }
 
         /// <summary>
-        /// Gets actions for a specific theme
-        /// </summary>
-        public List<Action> GetThemeActions(string theme)
-        {
-            var allActions = LoadAllActions();
-            var themeActionData = allActions
-                .Where(a => a.Theme?.Equals(theme, StringComparison.OrdinalIgnoreCase) == true)
-                .ToList();
-
-            return ConvertToActions(themeActionData);
-        }
-
-        /// <summary>
         /// Gets actions for a specific room type
         /// </summary>
         public List<Action> GetRoomTypeActions(string roomType)
@@ -130,26 +117,6 @@ namespace RPGGame.Data
                 .ToList();
 
             return ConvertToActions(roomActionData);
-        }
-
-        /// <summary>
-        /// Gets combined actions for both theme and room type
-        /// Room-specific actions take priority
-        /// </summary>
-        public List<Action> GetCombinedActions(string theme, string roomType)
-        {
-            var roomActions = GetRoomTypeActions(roomType);
-            var themeActions = GetThemeActions(theme);
-
-            // Room-specific actions take priority
-            var combinedNames = new HashSet<string>(
-                roomActions.Select(a => a.Name)
-            );
-
-            var result = new List<Action>(roomActions);
-            result.AddRange(themeActions.Where(a => !combinedNames.Contains(a.Name)));
-
-            return result;
         }
 
         /// <summary>

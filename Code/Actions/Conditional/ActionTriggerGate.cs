@@ -323,16 +323,6 @@ namespace RPGGame.Actions.Conditional
         /// <summary>Canonical stored form, e.g. <c>ONWIELD:Sword</c>.</summary>
         public static string FormatWieldToken(WeaponType weaponType) => $"ONWIELD:{weaponType}";
 
-        public static bool TryParseWieldToken(string? raw, out WeaponType weaponType)
-        {
-            weaponType = default;
-            if (!ActionTriggerPredicates.TryClassifyFilter(raw ?? "", out string family, out string? arg))
-                return false;
-            if (family != "ONWIELD")
-                return false;
-            return TryParseWeaponTypeName(arg, out weaponType);
-        }
-
         public static bool TryParseWeaponTypeName(string? name, out WeaponType weaponType)
         {
             weaponType = default;

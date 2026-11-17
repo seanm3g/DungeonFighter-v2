@@ -299,26 +299,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Gets all active modifications from equipped items.
-        /// </summary>
-        /// <returns>List of all modifications</returns>
-        public List<Modification> GetAllModifications()
-        {
-            var allModifications = new List<Modification>();
-
-            var equippedItems = slots.GetEquippedItems();
-            foreach (var item in equippedItems)
-            {
-                if (item != null)
-                {
-                    allModifications.AddRange(item.Modifications);
-                }
-            }
-
-            return allModifications;
-        }
-
-        /// <summary>
         /// Gets all status effects from modifications that should be applied to Attack actions.
         /// Only weapons can provide status effects.
         /// </summary>
@@ -341,18 +321,6 @@ namespace RPGGame
             }
             
             return statusEffects;
-        }
-
-        /// <summary>
-        /// Gets modifications of a specific effect type.
-        /// </summary>
-        /// <param name="effectType">The effect type to filter by</param>
-        /// <returns>List of matching modifications</returns>
-        public List<Modification> GetModificationsByType(string effectType)
-        {
-            return GetAllModifications()
-                .Where(m => m.Effect == effectType)
-                .ToList();
         }
 
         /// <summary>

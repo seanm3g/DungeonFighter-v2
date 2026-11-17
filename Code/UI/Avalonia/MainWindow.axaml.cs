@@ -902,28 +902,6 @@ namespace RPGGame.UI.Avalonia
             initializationHandler.MouseHandler.HandlePointerWheelChanged(e);
         }
 
-        private async Task CopyCenterPanelToClipboard()
-        {
-            if (initializationHandler?.CanvasUIManager is CanvasUICoordinator canvasUI)
-                await ClipboardHelper.CopyDisplayBufferToClipboard(canvasUI, this);
-        }
-
-        /// <summary>
-        /// Shows the tuning menu panel with the specified variable editor
-        /// </summary>
-        public void ShowTuningMenuPanel(RPGGame.Editors.VariableEditor variableEditor)
-        {
-            Dispatcher.UIThread.Post(() =>
-            {
-                var panel = EnsureTuningMenuPanel();
-                if (panel != null && TuningPanelOverlay != null)
-                {
-                    panel.Initialize(variableEditor);
-                    TuningPanelOverlay.IsVisible = true;
-                }
-            });
-        }
-
         /// <summary>
         /// Hides the tuning menu panel
         /// </summary>
@@ -1019,33 +997,6 @@ namespace RPGGame.UI.Avalonia
             return settingsMenuPanel;
         }
 
-        private TuningMenuPanel? EnsureTuningMenuPanel()
-        {
-            if (tuningMenuPanel != null)
-                return tuningMenuPanel;
-            if (TuningPanelOverlay == null)
-                return null;
-
-            tuningMenuPanel = new TuningMenuPanel
-            {
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Width = 1000,
-                Height = 650,
-                MinWidth = 900,
-                MinHeight = 650
-            };
-            TuningPanelOverlay.Child = tuningMenuPanel;
-
-            if (OperatingSystem.IsMacOS() && Width > 0)
-            {
-                double sizeRatio = Width / MainWindowStartupSizing.DesignWidth;
-                MainWindowStartupSizing.ScaleOverlayPanel(tuningMenuPanel, 1000, 650, 900, 650, sizeRatio);
-            }
-
-            return tuningMenuPanel;
-        }
-        
         /// <summary>
         /// Hides the settings panel
         /// </summary>

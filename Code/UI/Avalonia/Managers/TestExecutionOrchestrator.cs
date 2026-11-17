@@ -153,22 +153,6 @@ namespace RPGGame.UI.Avalonia.Managers
             }
         }
 
-        /// <summary>
-        /// Appends text directly to the output TextBox (use after StopCapturingOutput)
-        /// </summary>
-        public void AppendTextDirectly(string text)
-        {
-            if (outputTextBox != null)
-            {
-                Dispatcher.UIThread.Post(() =>
-                {
-                    var currentText = outputTextBox.Text ?? string.Empty;
-                    outputTextBox.Text = currentText + text;
-                    outputTextBox.CaretIndex = outputTextBox.Text.Length;
-                });
-            }
-        }
-
         private void ClearOutput()
         {
             Dispatcher.UIThread.Post(() =>

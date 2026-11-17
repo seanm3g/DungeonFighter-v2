@@ -196,15 +196,5 @@ namespace RPGGame
             UIManager.WriteSystemLine($"Warning: {fullMessage}");
         }
 
-        /// <summary>
-        /// Logs an info message
-        /// </summary>
-        /// <param name="message">The info message</param>
-        /// <param name="context">The context where the info occurred</param>
-        public static void LogInfo(string message, string context = "")
-        {
-            string fullMessage = string.IsNullOrEmpty(context) ? message : $"{context}: {message}";
-            UIManager.WriteSystemLine($"Info: {fullMessage}");
-        }
     }
 }

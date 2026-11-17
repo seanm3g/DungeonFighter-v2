@@ -235,19 +235,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Re-render skill tree in-place (selection/learn refresh). Caller should already be in SkillTree state.
-        /// </summary>
-        public void RefreshSkillTree(int selectedIndex, int scrollOffset, string? statusMessage)
-        {
-            var canvasUI = TryGetCanvasUI();
-            var player = stateManager.CurrentPlayer;
-            if (canvasUI == null || player == null)
-                return;
-            canvasUI.Clear();
-            canvasUI.RenderSkillTree(player, selectedIndex, scrollOffset, statusMessage);
-        }
-
-        /// <summary>
         /// Show the main menu.
         /// Uses standardized ScreenTransitionProtocol for consistent behavior.
         /// </summary>
@@ -520,5 +507,4 @@ namespace RPGGame
         }
     }
 }
-
 

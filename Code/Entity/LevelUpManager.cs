@@ -184,29 +184,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Handles level up when a weapon is equipped
-        /// </summary>
-        private void HandleWeaponBasedLevelUp(WeaponItem equippedWeapon)
-        {
-            string className = GetClassName(equippedWeapon.WeaponType);
-            int actionSlotsBefore = _character.Progression.GetClassUpgradeActionSlotBonus();
-
-            _character.Progression.AwardClassPoint(equippedWeapon.WeaponType);
-            int actionSlotIncrease = Math.Max(0, _character.Progression.GetClassUpgradeActionSlotBonus() - actionSlotsBefore);
-            int available = _character.Progression.GetAvailableSkillPoints(equippedWeapon.WeaponType);
-            
-            DisplayLevelUpMessage(className, equippedWeapon, available);
-            if (actionSlotIncrease > 0)
-            {
-                string slotWord = actionSlotIncrease == 1 ? "slot" : "slots";
-                UIManager.WriteLine($"Gained +{actionSlotIncrease} action {slotWord}!");
-            }
-            DisplayClassPointsInfo();
-            if (available > 0)
-                UIManager.WriteLine("Unspent Skill Points — open Skill Tree from the game menu to learn nodes.");
-        }
-        
-        /// <summary>
         /// Handles level up when a weapon is equipped and returns level-up info
         /// </summary>
         private LevelUpInfo HandleWeaponBasedLevelUpWithInfo(WeaponItem equippedWeapon, int newLevel)
@@ -249,19 +226,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Handles level up when no weapon is equipped
-        /// </summary>
-        private void HandleNoWeaponLevelUp()
-        {
-            _character.Stats.LevelUpNoWeapon();
-            
-            UIManager.WriteLine($"\n*** LEVEL UP! ***");
-            UIManager.WriteLine($"You reached level {_character.Progression.Level}!");
-            UIManager.WriteLine("No weapon equipped - equal stat increases (+2 all stats)");
-            UIManager.WriteBlankLine();
-        }
-        
-        /// <summary>
         /// Handles level up when no weapon is equipped and returns level-up info
         /// </summary>
         private LevelUpInfo HandleNoWeaponLevelUpWithInfo(int newLevel)
@@ -281,40 +245,6 @@ namespace RPGGame
         private string GetClassName(WeaponType weaponType) =>
             GameConfiguration.Instance.ClassPresentation.EnsureNormalized().GetDisplayName(weaponType);
 
-        /// <summary>
-        /// Displays level up message
-        /// </summary>
-        private void DisplayLevelUpMessage(string className, WeaponItem equippedWeapon, int skillPointsAvailable)
-        {
-            UIManager.WriteLine($"\n*** LEVEL UP! ***");
-            UIManager.WriteLine($"You reached level {_character.Progression.Level}!");
-            UIManager.WriteLine($"Gained +1 Skill Point ({skillPointsAvailable} available)!");
-            UIManager.WriteLine($"Stats increased: {_character.Stats.GetStatIncreaseMessage(equippedWeapon.WeaponType)}");
-            UIManager.WriteLine($"Current class: {_character.GetCurrentClass()}");
-            UIManager.WriteLine($"You are now known as: {_character.Progression.GetFullNameWithQualifier(_character.Name, _character.Stats)}");
-        }
-
-        /// <summary>
-        /// Displays class points information
-        /// </summary>
-        private void DisplayClassPointsInfo()
-        {
-            // Show only classes with points > 0
-            var classPointsInfo = new List<string>();
-            var pres = GameConfiguration.Instance.ClassPresentation.EnsureNormalized();
-            if (_character.Progression.BarbarianPoints > 0) classPointsInfo.Add($"{pres.GetDisplayName(WeaponType.Mace)}({_character.Progression.BarbarianPoints})");
-            if (_character.Progression.WarriorPoints > 0) classPointsInfo.Add($"{pres.GetDisplayName(WeaponType.Sword)}({_character.Progression.WarriorPoints})");
-            if (_character.Progression.RoguePoints > 0) classPointsInfo.Add($"{pres.GetDisplayName(WeaponType.Dagger)}({_character.Progression.RoguePoints})");
-            if (_character.Progression.WizardPoints > 0) classPointsInfo.Add($"{pres.GetDisplayName(WeaponType.Wand)}({_character.Progression.WizardPoints})");
-            
-            if (classPointsInfo.Count > 0)
-            {
-                UIManager.WriteLine($"Class Points: {string.Join(" ", classPointsInfo)}");
-                UIManager.WriteLine($"Next Upgrades: {_character.Progression.GetClassUpgradeInfo()}");
-            }
-            UIManager.WriteBlankLine();
-        }
-        
         /// <summary>
         /// Displays level-up information (for backwards compatibility)
         /// </summary>

@@ -42,20 +42,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Weapon type for the new-game weapon menu index (1-based), from <see cref="StarterCatalogItems.ResolveStarterWeaponMenuCatalogRows"/> row order.
-        /// </summary>
-        public static WeaponType GetWeaponTypeForStarterMenuIndex(int weaponChoice1Based)
-        {
-            var rows = StarterCatalogItems.ResolveStarterWeaponMenuCatalogRows();
-            int idx = weaponChoice1Based - 1;
-            if (idx < 0 || idx >= rows.Count)
-                return WeaponType.Sword;
-            if (!Enum.TryParse(rows[idx].Type?.Trim(), ignoreCase: true, out WeaponType weaponType))
-                return WeaponType.Sword;
-            return weaponType;
-        }
-
-        /// <summary>
         /// One menu row per <see cref="StarterCatalogItems.ResolveStarterWeaponMenuCatalogRows"/> entry (starter-tagged weapons in class-path order,
         /// or legacy fallback: one tier-1 row per class path), with the same display damage scaling as <see cref="ApplyStartingWeaponTuning"/>.
         /// </summary>

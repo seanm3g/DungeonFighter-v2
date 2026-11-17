@@ -380,46 +380,7 @@ namespace RPGGame
         {
             return lastBlockType;
         }
-        
-        /// <summary>
-        /// Validates that all expected spacing rules are defined.
-        /// Returns a list of missing transitions that should have rules.
-        /// </summary>
-        public static List<string> ValidateSpacingRules()
-        {
-            var issues = new List<string>();
-            
-            // Get all block types
-            var allBlockTypes = Enum.GetValues(typeof(BlockType)).Cast<BlockType>().ToList();
-            
-            // Check for common transitions that might be missing
-            // We don't require ALL transitions, but check for important ones
-            var importantTransitions = new List<(BlockType? previous, BlockType current)>
-            {
-                (null, BlockType.DungeonHeader), // First block
-                (BlockType.DungeonHeader, BlockType.RoomHeader),
-                (BlockType.RoomHeader, BlockType.RoomInfo),
-                (BlockType.RoomInfo, BlockType.EnemyAppearance),
-                (BlockType.EnemyAppearance, BlockType.EnemyStats),
-                (BlockType.EnemyAppearance, BlockType.CombatAction),
-                (BlockType.EnemyStats, BlockType.HeroStats),
-                (BlockType.HeroStats, BlockType.CombatAction),
-                (BlockType.CombatAction, BlockType.CombatAction), // Consecutive actions
-                (BlockType.CombatAction, BlockType.RoomCleared),
-                (BlockType.RoomCleared, BlockType.RoomHeader), // Next room
-            };
-            
-            foreach (var transition in importantTransitions)
-            {
-                if (!SpacingRules.ContainsKey(transition))
-                {
-                    issues.Add($"Missing spacing rule for transition: {transition.previous} -> {transition.current}");
-                }
-            }
-            
-            return issues;
-        }
-        
+
         /// <summary>
         /// Gets all defined spacing rules (for debugging/validation)
         /// </summary>

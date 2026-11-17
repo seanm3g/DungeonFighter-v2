@@ -285,12 +285,6 @@ namespace RPGGame.Tuning.LabBalance
             }
         }
 
-        public void RefreshKnobValues()
-        {
-            foreach (var k in Knobs)
-                k.ReloadFromConfig();
-        }
-
         public void SaveKnobs()
         {
             foreach (var k in Knobs)

@@ -206,14 +206,6 @@ namespace RPGGame
                 .ToArray();
         }
 
-        public static IReadOnlyList<string> ListLocationThemes(FlavorTextData? data = null)
-        {
-            data ??= FlavorText.GetData();
-            return data.Environments.LocationDescriptions.Keys
-                .OrderBy(k => k, StringComparer.OrdinalIgnoreCase)
-                .ToList();
-        }
-
         public static IReadOnlyList<string> ListRoomTypes(FlavorTextData? data = null, string? theme = null)
         {
             data ??= FlavorText.GetData();
@@ -227,14 +219,6 @@ namespace RPGGame
                     types.Add(roomType);
             }
             return types.OrderBy(t => t, StringComparer.OrdinalIgnoreCase).ToList();
-        }
-
-        public static IReadOnlyList<string> ListCombatEventKeys(FlavorTextData? data = null)
-        {
-            data ??= FlavorText.GetData();
-            return data.CombatNarratives.Keys
-                .OrderBy(k => k, StringComparer.OrdinalIgnoreCase)
-                .ToList();
         }
 
         public static string GenerateSample(
@@ -259,27 +243,6 @@ namespace RPGGame
                 FlavorTextGenerateMode.CombatNarrative => GenerateCombatNarrativeSample(data, combatEventKey),
                 _ => ""
             };
-        }
-
-        public static string GenerateMany(
-            FlavorTextGenerateMode mode,
-            int count,
-            FlavorTextData? data = null,
-            string? bankPathId = null,
-            string? theme = null,
-            string? roomType = null,
-            string? combatEventKey = null,
-            WeaponType? classPath = null,
-            int classPoints = 0)
-        {
-            count = Math.Clamp(count, 1, 50);
-            var sb = new StringBuilder();
-            for (int i = 0; i < count; i++)
-            {
-                if (i > 0) sb.AppendLine();
-                sb.Append(GenerateSample(mode, data, bankPathId, theme, roomType, combatEventKey, classPath, classPoints));
-            }
-            return sb.ToString();
         }
 
         private static string BuildCharacterName(FlavorTextData data)

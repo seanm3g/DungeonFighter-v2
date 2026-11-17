@@ -53,23 +53,7 @@ namespace RPGGame.Combat.Formatting
             _ = outcome;
             return ColorPalette.White;
         }
-        
-        /// <summary>
-        /// Gets the color for block messages
-        /// </summary>
-        public static ColorPalette GetBlockColor()
-        {
-            return ColorPalette.Block;
-        }
-        
-        /// <summary>
-        /// Gets the color for dodge messages
-        /// </summary>
-        public static ColorPalette GetDodgeColor()
-        {
-            return ColorPalette.Dodge;
-        }
-        
+
         /// <summary>
         /// Determines if an action is a combo action based on its name
         /// All actions in the game are combo actions

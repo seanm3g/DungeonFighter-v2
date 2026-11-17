@@ -302,13 +302,6 @@ namespace RPGGame
             return variableEditor;
         }
 
-        /// <summary>
-        /// Get the selected category
-        /// </summary>
-        public string GetSelectedCategory()
-        {
-            return selectedCategory;
-        }
     }
 }
 

@@ -60,14 +60,6 @@ namespace RPGGame.Items.Helpers
             return $"      {string.Join(" | ", stats)}";
         }
 
-        /// <summary>
-        /// Formats action stats for display (legacy method for backward compatibility)
-        /// </summary>
-        public static string FormatActionStats(Action action, int timesInCombo, int timesAvailable)
-        {
-            // Return description and stats on separate lines for text-based UI
-            return $"{GetActionDescription(action)}\n{GetActionStats(action)}";
-        }
     }
 }
 

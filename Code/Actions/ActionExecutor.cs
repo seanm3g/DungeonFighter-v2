@@ -423,8 +423,7 @@ namespace RPGGame
                 coloredStatusEffects.Add(PackCombat.FormatBodyFellLine(result.PackBodyFellText));
             return formatted;
         }
-        
-        
+
         /// <summary>
         /// Executes a single action with all its effects
         /// </summary>
@@ -440,7 +439,6 @@ namespace RPGGame
             var result = ExecuteActionCore(source, target, environment, lastPlayerAction, forcedAction, battleNarrative);
             return FormatAsString(result, source, target);
         }
-
 
         /// <summary>Drops an actor's last-action entries once its fight is over.</summary>
         public static void ForgetActor(Actor? source)
@@ -469,47 +467,6 @@ namespace RPGGame
             return isCriticalMiss;
         }
 
-        /// <summary>
-        /// Executes multiple attacks per turn based on the source's attack speed
-        /// </summary>
-        /// <param name="source">The Actor performing the attacks</param>
-        /// <param name="target">The Actor receiving the attacks</param>
-        /// <param name="environment">The environment affecting the attacks</param>
-        /// <param name="battleNarrative">The battle narrative to add events to</param>
-        /// <returns>A string describing the results of all attacks</returns>
-        public static string ExecuteMultiAttack(Actor source, Actor target, Environment? environment = null, BattleNarrative? battleNarrative = null)
-        {
-            if (source is Character character)
-            {
-                int attacksPerTurn = character.GetAttacksPerTurn();
-                var results = new List<string>();
-                
-                for (int i = 0; i < attacksPerTurn; i++)
-                {
-                    // Check if target is alive
-                    bool isAlive = true;
-                    if (target is Character targetCharacter)
-                        isAlive = targetCharacter.CurrentHealth > 0;
-                    else if (target is Enemy targetEnemy)
-                        isAlive = targetEnemy.CurrentHealth > 0;
-                    
-                    if (!isAlive) break; // Stop if target is dead
-                    
-                    string result = ExecuteAction(source, target, environment, null, null, battleNarrative);
-                    if (!string.IsNullOrEmpty(result))
-                    {
-                        results.Add(result);
-                    }
-                }
-                
-                return string.Join("\n", results);
-            }
-            else
-            {
-                // For non-character entities, just execute one action
-                return ExecuteAction(source, target, environment, null, null, battleNarrative);
-            }
-        }
     }
 }
 

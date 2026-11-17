@@ -158,14 +158,6 @@ namespace RPGGame.Actions.Conditional
         }
 
         /// <summary>
-        /// Records that an action was used (for tracking previous actions)
-        /// </summary>
-        public void RecordActionUsed(Actor source, Action action)
-        {
-            _lastActions[source] = action;
-        }
-
-        /// <summary>
         /// Clears action history (useful for testing or resetting)
         /// </summary>
         public void ClearHistory()

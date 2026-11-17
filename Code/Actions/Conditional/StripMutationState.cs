@@ -57,18 +57,6 @@ namespace RPGGame.Actions.Conditional
         }
 
         /// <summary>
-        /// Maps a physical strip index through the shuffle overlay for display/order walks.
-        /// </summary>
-        public int MapPhysicalIndex(int physicalIndex, int stripLength)
-        {
-            if (ShufflePermutation == null || ShufflePermutation.Count != stripLength)
-                return physicalIndex;
-            if (physicalIndex < 0 || physicalIndex >= stripLength)
-                return physicalIndex;
-            return ShufflePermutation[physicalIndex];
-        }
-
-        /// <summary>
         /// Inverse: given a logical order position, which physical slot fires.
         /// </summary>
         public int LogicalToPhysical(int logicalIndex, int stripLength)

@@ -14,8 +14,6 @@ using RPGGame.Data;
 
 using RPGGame.World.Tags;
 
-
-
 namespace RPGGame
 
 {
@@ -34,8 +32,6 @@ namespace RPGGame
 
     }
 
-
-
     /// <summary>Weighted enemy template for a room / environment (<c>Rooms.json</c> <c>enemies</c> array).</summary>
 
     public class RoomEnemyData
@@ -51,8 +47,6 @@ namespace RPGGame
         public double Weight { get; set; }
 
     }
-
-
 
     /// <summary>Room / environment row from ENVIRONMENTS sheet → <c>Rooms.json</c>.</summary>
 
@@ -92,8 +86,6 @@ namespace RPGGame
 
         public List<RoomEnemyData> Enemies { get; set; } = new List<RoomEnemyData>();
 
-
-
         /// <summary>Legacy <c>name</c> key; kept for older JSON until re-pulled from sheet.</summary>
 
         [JsonPropertyName("name")]
@@ -110,8 +102,6 @@ namespace RPGGame
 
         public bool IsHostile { get; set; } = true;
 
-
-
         /// <summary>Display / lookup name: <c>location</c> from sheet, else legacy <c>name</c>.</summary>
 
         public string GetLocationKey() =>
@@ -121,8 +111,6 @@ namespace RPGGame
             : !string.IsNullOrWhiteSpace(Name) ? Name.Trim()
 
             : "";
-
-
 
         /// <summary>Biome used to match dungeon theme when picking catalog rooms.</summary>
 
@@ -134,13 +122,9 @@ namespace RPGGame
 
             : "";
 
-
-
         /// <summary>Empty biome means the room can appear in any dungeon theme.</summary>
 
         public bool HasUniversalBiome => string.IsNullOrWhiteSpace(GetBiomeForThemeMatch());
-
-
 
         /// <summary>True when biome is blank (anywhere) or matches <paramref name="dungeonTheme"/>.</summary>
 
@@ -165,8 +149,6 @@ namespace RPGGame
 
     }
 
-
-
     public static class RoomLoader
 
     {
@@ -184,8 +166,6 @@ namespace RPGGame
             Path.Combine("..", "..", "GameData", "Rooms.json")
 
         };
-
-
 
         public static void LoadRooms()
 
@@ -213,19 +193,13 @@ namespace RPGGame
 
                 }
 
-
-
                 if (foundPath != null)
 
                 {
 
                     string jsonContent = File.ReadAllText(foundPath);
 
-
-
                     var roomList = JsonSerializer.Deserialize<List<RoomData>>(jsonContent);
-
-
 
                     _rooms = new Dictionary<string, RoomData>(StringComparer.OrdinalIgnoreCase);
 
@@ -293,8 +267,6 @@ namespace RPGGame
 
         }
 
-
-
         internal static void NormalizeRoomAfterLoad(RoomData room)
 
         {
@@ -313,8 +285,6 @@ namespace RPGGame
 
         }
 
-
-
         public static RoomData? GetRoomData(string roomName)
 
         {
@@ -323,13 +293,9 @@ namespace RPGGame
 
                 LoadRooms();
 
-
-
             return _rooms?.GetValueOrDefault(roomName);
 
         }
-
-
 
         public static List<string> GetAllRoomNames()
 
@@ -339,13 +305,9 @@ namespace RPGGame
 
                 LoadRooms();
 
-
-
             return _rooms?.Keys.ToList() ?? new List<string>();
 
         }
-
-
 
         /// <summary>Catalog rooms for a theme: matching biome plus blank biome (any theme).</summary>
 
@@ -357,13 +319,9 @@ namespace RPGGame
 
                 LoadRooms();
 
-
-
             if (string.IsNullOrWhiteSpace(theme))
 
                 return new List<string>();
-
-
 
             return _rooms?
 
@@ -375,30 +333,6 @@ namespace RPGGame
 
         }
 
-
-
-        public static List<string> GetRoomsByHostility(bool isHostile)
-
-        {
-
-            if (_rooms == null)
-
-                LoadRooms();
-
-
-
-            return _rooms?
-
-                .Where(r => r.Value.IsHostile == isHostile)
-
-                .Select(r => r.Key)
-
-                .ToList() ?? new List<string>();
-
-        }
-
-
-
         public static List<RoomData> GetAllRoomData()
 
         {
@@ -407,13 +341,9 @@ namespace RPGGame
 
                 LoadRooms();
 
-
-
             return _rooms?.Values.ToList() ?? new List<RoomData>();
 
         }
-
-
 
         public static Environment CreateRoom(string roomName, string dungeonTheme, bool? overrideIsHostile = null, Random? random = null)
 
@@ -430,8 +360,6 @@ namespace RPGGame
                 IReadOnlyList<RoomEnemyData>? enemyPool = roomData.Enemies is { Count: > 0 } ? roomData.Enemies : null;
 
                 var displayName = roomData.GetLocationKey();
-
-
 
                 var room = new Environment(
 
@@ -451,8 +379,6 @@ namespace RPGGame
 
                 );
 
-
-
                 // Authored hazards replace the generic theme defaults so a Den never rolls lava splashes.
                 var authoredActions = new List<(Action action, double weight)>();
                 foreach (var actionData in roomData.Actions)
@@ -469,8 +395,6 @@ namespace RPGGame
                         room.AddAction(action, weight);
                 }
 
-
-
                 ApplyEnvironmentTags(room, roomData.Tags, dungeonTheme);
 
                 room.SetUnstableThresholdMod(roomData.UnstableThresholdMod);
@@ -481,8 +405,6 @@ namespace RPGGame
                 return room;
 
             }
-
-
 
             var fallback = new Environment(
 
@@ -501,8 +423,6 @@ namespace RPGGame
             return fallback;
 
         }
-
-
 
         internal static void ApplyEnvironmentTags(Environment room, IEnumerable<string>? authoredTags, string dungeonTheme)
 
@@ -523,5 +443,4 @@ namespace RPGGame
     }
 
 }
-
 

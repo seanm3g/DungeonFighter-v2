@@ -176,19 +176,7 @@ namespace RPGGame.UI.Avalonia.Managers
         {
             return (statsAreaX, statsAreaY, statsAreaWidth, statsAreaHeight);
         }
-        
-        /// <summary>
-        /// Checks if the given coordinates are within the stats area
-        /// </summary>
-        public bool IsInStatsArea(int x, int y)
-        {
-            if (statsAreaX < 0 || statsAreaY < 0 || statsAreaWidth < 0 || statsAreaHeight < 0)
-                return false;
-                
-            return x >= statsAreaX && x < statsAreaX + statsAreaWidth &&
-                   y >= statsAreaY && y < statsAreaY + statsAreaHeight;
-        }
-        
+
         /// <summary>
         /// Resets the stats area bounds (call when stats area is not visible)
         /// </summary>

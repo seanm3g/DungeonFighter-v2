@@ -326,17 +326,7 @@ namespace RPGGame.Data
 
             return _colorCache.TryGetValue(palette, out var color) ? color : Colors.White;
         }
-        
-        /// <summary>
-        /// Checks if a palette color exists in the loaded configuration
-        /// </summary>
-        public static bool HasColor(ColorPalette palette)
-        {
-            LoadColorPalette(); // Ensure palette is loaded
-            
-            return _colorCache?.ContainsKey(palette) ?? false;
-        }
-        
+
         /// <summary>
         /// Gets all available palette colors
         /// </summary>

@@ -79,53 +79,6 @@ namespace RPGGame.Data.Validation
             return sb.ToString();
         }
 
-        public void PrintReport()
-        {
-            Console.WriteLine("=== Data Validation Report ===");
-            Console.WriteLine();
-
-            if (IsValid && Warnings.Count == 0)
-            {
-                Console.WriteLine("✓ All data validated successfully!");
-                Console.WriteLine();
-                return;
-            }
-
-            if (Errors.Count > 0)
-            {
-                Console.WriteLine($"ERRORS ({Errors.Count}):");
-                Console.WriteLine(new string('-', 80));
-                foreach (var error in Errors)
-                {
-                    Console.WriteLine($"  [{error.File}] {error.Entity}");
-                    if (!string.IsNullOrEmpty(error.Field))
-                    {
-                        Console.WriteLine($"    Field: {error.Field}");
-                    }
-                    Console.WriteLine($"    {error.Message}");
-                    Console.WriteLine();
-                }
-            }
-
-            if (Warnings.Count > 0)
-            {
-                Console.WriteLine($"WARNINGS ({Warnings.Count}):");
-                Console.WriteLine(new string('-', 80));
-                foreach (var warning in Warnings)
-                {
-                    Console.WriteLine($"  [{warning.File}] {warning.Entity}");
-                    if (!string.IsNullOrEmpty(warning.Field))
-                    {
-                        Console.WriteLine($"    Field: {warning.Field}");
-                    }
-                    Console.WriteLine($"    {warning.Message}");
-                    Console.WriteLine();
-                }
-            }
-
-            Console.WriteLine(GetSummary());
-        }
-
         public void Merge(ValidationResult other)
         {
             if (other == null) return;

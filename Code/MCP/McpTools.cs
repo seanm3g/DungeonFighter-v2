@@ -31,46 +31,6 @@ namespace RPGGame.MCP
         }
 
         /// <summary>
-        /// Gets the game wrapper instance (for backward compatibility)
-        /// </summary>
-        internal static GameWrapper? GetGameWrapper()
-        {
-            return Tools.McpToolState.GameWrapper;
-        }
-
-        /// <summary>
-        /// Sets the last test result (for backward compatibility)
-        /// </summary>
-        internal static void SetLastTestResult(BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult? result)
-        {
-            Tools.McpToolState.LastTestResult = result;
-        }
-
-        /// <summary>
-        /// Gets the last test result (for backward compatibility)
-        /// </summary>
-        internal static BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult? GetLastTestResult()
-        {
-            return Tools.McpToolState.LastTestResult;
-        }
-
-        /// <summary>
-        /// Gets the baseline test result (for backward compatibility)
-        /// </summary>
-        internal static BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult? GetBaselineTestResult()
-        {
-            return Tools.McpToolState.BaselineTestResult;
-        }
-
-        /// <summary>
-        /// Sets the baseline test result (for backward compatibility)
-        /// </summary>
-        internal static void SetBaselineTestResult(BattleStatisticsRunner.ComprehensiveWeaponEnemyTestResult? result)
-        {
-            Tools.McpToolState.BaselineTestResult = result;
-        }
-
-        /// <summary>
         /// Gets the variable editor (for backward compatibility)
         /// </summary>
         internal static Editors.VariableEditor GetVariableEditor()

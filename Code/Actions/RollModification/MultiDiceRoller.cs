@@ -53,23 +53,6 @@ namespace RPGGame.Actions.RollModification
             };
         }
 
-        /// <summary>
-        /// Rolls multiple dice and returns all individual results
-        /// </summary>
-        public static List<int> RollMultipleDiceResults(int numberOfDice, int sides)
-        {
-            if (numberOfDice < 1)
-                throw new ArgumentException("Number of dice must be at least 1", nameof(numberOfDice));
-            if (sides < 2)
-                throw new ArgumentException("Dice must have at least 2 sides", nameof(sides));
-
-            var rolls = new List<int>();
-            for (int i = 0; i < numberOfDice; i++)
-            {
-                rolls.Add(Dice.Roll(sides));
-            }
-            return rolls;
-        }
     }
 }
 

@@ -193,22 +193,6 @@ namespace RPGGame
             return Math.Max(0, (int)Math.Round(BaseGeneralSpeedPct * mult));
         }
 
-        public static string? GetDominantTaxon(Character? hero)
-        {
-            string? best = null;
-            int bestCount = 0;
-            foreach (var taxon in AnimalTagHelper.TaxonTags)
-            {
-                int n = CountTag(hero, taxon);
-                if (n > bestCount)
-                {
-                    bestCount = n;
-                    best = taxon;
-                }
-            }
-            return bestCount >= TaxonThreshold ? best : null;
-        }
-
         public static bool HasTaxonSet(Character? hero, string taxon) =>
             CountTag(hero, taxon) >= TaxonThreshold;
 
@@ -253,13 +237,6 @@ namespace RPGGame
             if (HasSpecificHeighten(hero))
                 mult *= SpecificHeightenFactor;
             return mult;
-        }
-
-        public static int GetTaxonMechanicValue(Character? hero, string taxon, int baseValue)
-        {
-            if (!HasTaxonSet(hero, taxon))
-                return 0;
-            return Math.Max(0, (int)Math.Round(baseValue * GetTaxonMagnitudeMultiplier(hero)));
         }
 
         public static IReadOnlyList<(string Label, int Count)> GetFormingSets(Character? hero)

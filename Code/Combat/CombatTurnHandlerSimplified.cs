@@ -363,14 +363,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Synchronous wrapper kept for callers that cannot await. Prefer <see cref="ProcessEnvironmentTurnAsync"/>.
-        /// </summary>
-        public bool ProcessEnvironmentTurn(Character player, Enemy currentEnemy, Environment room)
-        {
-            return ProcessEnvironmentTurnAsync(player, currentEnemy, room).GetAwaiter().GetResult();
-        }
-
-        /// <summary>
         /// Processes a player action using the new ActionSelector system
         /// </summary>
         private async System.Threading.Tasks.Task ProcessPlayerActionAsync(

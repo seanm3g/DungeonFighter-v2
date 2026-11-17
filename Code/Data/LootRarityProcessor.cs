@@ -11,12 +11,6 @@ namespace RPGGame
     /// </summary>
     public static class LootRarityProcessor
     {
-        /// <summary>True when <paramref name="rarityName"/> can drop at <paramref name="itemLevel"/> (<c>RarityTable.json</c> MinLevel).</summary>
-        public static bool IsRarityUnlockedAtLevel(LootDataCache cache, string rarityName, int itemLevel)
-        {
-            var row = cache.RarityData?.FirstOrDefault(r => string.Equals(r.Name, rarityName?.Trim(), StringComparison.OrdinalIgnoreCase));
-            return row == null || row.MinLevel <= itemLevel;
-        }
 
         /// <summary>Base roll weight: the balance patch's rarity weights when set, else <c>RarityTable.json</c>.</summary>
         public static double RollWeight(RarityData rarity) =>

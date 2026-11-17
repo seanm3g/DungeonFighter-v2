@@ -16,18 +16,6 @@ namespace RPGGame
         private static bool _tablesLoaded = false;
 
         /// <summary>
-        /// Gets the modification tables, loading from JSON if needed
-        /// </summary>
-        public static ModificationTables GetModificationTables()
-        {
-            if (_modificationTables == null)
-            {
-                LoadTables();
-            }
-            return _modificationTables ?? new ModificationTables();
-        }
-
-        /// <summary>
         /// Gets the action tables, loading from JSON if needed
         /// </summary>
         public static ActionTables GetActionTables()

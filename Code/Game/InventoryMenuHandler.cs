@@ -967,20 +967,6 @@
         /// </summary>
         public bool IsWaitingForMenuMutatingActionConfirmation => stateTracker.WaitingForMenuMutatingActionConfirmation;
 
-        /// <summary>
-        /// Cancels the pending main-menu mutating action (equip/unequip/discard/trade-up) and refreshes inventory UI.
-        /// </summary>
-        public bool TryCancelMutatingInventoryMenuActionConfirmation()
-        {
-            if (!stateTracker.WaitingForMenuMutatingActionConfirmation)
-                return false;
-            stateTracker.WaitingForMenuMutatingActionConfirmation = false;
-            stateTracker.PendingMutatingMenuChoice = "";
-            ShowMessageEvent?.Invoke("Cancelled.");
-            ShowInventoryEvent?.Invoke();
-            return true;
-        }
-
         private static string GetMutatingMenuActionLabel(string choice) => choice switch
         {
             "1" => EquipItem,
