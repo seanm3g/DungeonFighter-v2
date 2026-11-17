@@ -36,12 +36,6 @@ namespace RPGGame
             return this;
         }
 
-        public EnemyBuilder WithMaxHealth(int maxHealth)
-        {
-            _maxHealth = maxHealth;
-            return this;
-        }
-
         public EnemyBuilder WithStats(int strength, int agility, int technique, int intelligence)
         {
             _strength = strength;
@@ -49,14 +43,6 @@ namespace RPGGame
             _technique = technique;
             _intelligence = intelligence;
             _useDirectStats = false;
-            return this;
-        }
-
-        public EnemyBuilder WithDirectStats(int damage, double attackSpeed)
-        {
-            _damage = damage;
-            _attackSpeed = attackSpeed;
-            _useDirectStats = true;
             return this;
         }
 
@@ -89,32 +75,5 @@ namespace RPGGame
                 .Build();
         }
 
-        /// <summary>
-        /// Creates an enemy with direct stats
-        /// </summary>
-        public static Enemy CreateWithDirectStats(string? name, int level, int maxHealth, int damage, double attackSpeed, int armor = 0)
-        {
-            return new EnemyBuilder()
-                .WithName(name)
-                .WithLevel(level)
-                .WithMaxHealth(maxHealth)
-                .WithDirectStats(damage, attackSpeed)
-                .WithArmor(armor)
-                .Build();
-        }
-
-        /// <summary>
-        /// Creates an enemy with traditional stats
-        /// </summary>
-        public static Enemy CreateWithStats(string? name, int level, int maxHealth, int strength, int agility, int technique, int intelligence, int armor = 0)
-        {
-            return new EnemyBuilder()
-                .WithName(name)
-                .WithLevel(level)
-                .WithMaxHealth(maxHealth)
-                .WithStats(strength, agility, technique, intelligence)
-                .WithArmor(armor)
-                .Build();
-        }
     }
 }
