@@ -18,6 +18,12 @@ namespace RPGGame
         private int selectedIndex;
         private int scrollOffset;
         private string? statusMessage;
+
+        /// <summary>MCP/agent: index into <see cref="SkillTreeDisplayModel.AllNodes"/> of the selected node.</summary>
+        public int SelectedIndex => selectedIndex;
+
+        /// <summary>MCP/agent: the status line under the tree (learn result, hints).</summary>
+        public string? StatusMessage => statusMessage;
         private int lastViewportHeight = 16;
 
         public delegate void OnShowGameLoop();

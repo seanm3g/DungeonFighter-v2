@@ -28,6 +28,36 @@ namespace RPGGame
         public double TreasureRoomChance { get; set; } = 0.15;
         public string Description { get; set; } = "";
 
+        /// <summary>
+        /// The two room counts a dungeon at <paramref name="level"/> can roll and the chance of the larger one.
+        /// Rooms grow by <see cref="RoomCountPerLevel"/> per level; the fraction is a chance of one more room, so the
+        /// average grows smoothly instead of stepping (0.5/level: L5 rolls 2 or 3 rooms, L6 always 3, L7 3 or 4).
+        /// Never below <see cref="RoomCountBase"/> (or 1), never above <see cref="MaxRoomCount"/> when set.
+        /// </summary>
+        public (int Low, int High, double HighChance) GetRoomCountRange(int level)
+        {
+            double exact = Math.Max(0, level) * RoomCountPerLevel;
+            int low = (int)Math.Floor(exact);
+            double frac = exact - low;
+            int floor = Math.Max(1, RoomCountBase);
+            int Clamp(int n)
+            {
+                n = Math.Max(floor, n);
+                return MaxRoomCount > 0 ? Math.Min(n, MaxRoomCount) : n;
+            }
+            int lo = Clamp(low), hi = Clamp(low + 1);
+            if (frac < 1e-9 || lo == hi)
+                return (lo, lo, 0);
+            return (lo, hi, frac);
+        }
+
+        /// <summary>Rolls a dungeon's room count from <see cref="GetRoomCountRange"/>.</summary>
+        public int RollRoomCount(int level, Random random)
+        {
+            var (low, high, chance) = GetRoomCountRange(level);
+            return chance > 0 && random.NextDouble() < chance ? high : low;
+        }
+
         public void EnsureSensibleDefaults()
         {
             if (RoomCountBase <= 0)

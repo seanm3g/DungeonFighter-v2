@@ -40,6 +40,11 @@ namespace RPGGame.UI.Avalonia.Layout
             int innerFullH = maxBottomInclusive - innerTop + 1;
             canvas.ClearOverlayTextInArea(innerLeft, innerTop, innerFullW, innerFullH);
             canvas.ClearOverlayBoxesInArea(innerLeft, innerTop, innerFullW, innerFullH);
+            // Center-panel tips use different bands (strip/stat tips start below the action strip, pool and editor
+            // tips at the panel top). Wipe frames from the other band too, or they stay stacked behind this one.
+            int centerTop = LayoutConstants.CENTER_PANEL_Y + 1;
+            if (innerLeft == LayoutConstants.CENTER_PANEL_X + 1 && innerTop > centerTop)
+                canvas.ClearOverlayBoxesInArea(innerLeft, centerTop, innerFullW, innerTop - centerTop);
 
             var (gx, gy, gw, gh) = GetPaddedClearRegion(
                 boxX, boxY, boxW, boxH, innerLeft, innerTop, innerRightInclusive, maxBottomInclusive, cellPad);

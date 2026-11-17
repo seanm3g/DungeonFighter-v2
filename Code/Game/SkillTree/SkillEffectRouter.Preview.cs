@@ -34,63 +34,13 @@ namespace RPGGame
             var list = new List<SkillActionCardBonus>();
             if (hero == null || hero is Enemy || action == null)
                 return list;
-
-            TryAddPercent(list, hero, "first_bronze_age", "dmg",
-                8.0 * CountEquippedMatchingTags(hero, BarbarianMaterialTags));
-            TryAddPercent(list, hero, "first_formation", "spd",
-                8.0 * CountEquippedMatchingTags(hero, WarriorMaterialTags));
-            TryAddPercent(list, hero, "first_cut", "dmg",
-                8.0 * CountEquippedMatchingTags(hero, RogueMaterialTags));
-            TryAddPercent(list, hero, "first_glyph", "amp",
-                8.0 * CountEquippedMatchingTags(hero, WizardMaterialTags));
-
-            TryAddPercent(list, hero, "scrap_prefer", "dmg",
-                10.0 * CountEquippedMatchingQualities(hero, ScrapPreferQualities));
-            TryAddPercent(list, hero, "parade_dress", "dmg",
-                10.0 * CountEquippedMatchingQualities(hero, ParadeDressQualities));
-            TryAddPercent(list, hero, "fragile_prefer", "dmg",
-                10.0 * CountEquippedMatchingQualities(hero, FragilePreferQualities));
-            TryAddPercent(list, hero, "pure_prefer", "amp",
-                10.0 * CountEquippedMatchingQualities(hero, PurePreferQualities));
-
-            int bronze = CountBronzeItems(hero);
-            if (comboSlotIndex == 1 && bronze >= 2)
-            {
-                int rank = GetRank(hero, "second_bronze_age");
-                if (rank > 0)
-                    list.Add(new SkillActionCardBonus(ResolveSkillName(hero, "second_bronze_age"), "multihit", (bronze / 2.0) * rank));
-            }
-
-            if (comboSlotIndex == 2 && bronze > 0)
-            {
-                int rank = GetRank(hero, "third_bronze_age");
-                if (rank > 0)
-                {
-                    double speedPct = 6.0 * bronze * rank;
-                    double appliedSpeed = Math.Min(30.0, speedPct);
-                    list.Add(new SkillActionCardBonus(ResolveSkillName(hero, "third_bronze_age"), "spd", appliedSpeed));
-                }
-            }
-
-            if (comboSlotIndex == 1)
-                TryAddPercent(list, hero, "metronome", "spd", 4.0);
-
-            if ((hero.HardenStacks ?? 0) > 0)
-                TryAddPercent(list, hero, "bronze_knuckle", "dmg", 3.0);
-            if ((hero.FortifyStacks ?? 0) > 0)
-                TryAddPercent(list, hero, "phalanx", "dmg", 2.0);
-
+            // Learned rule nodes' passive DAMAGE / SPEED / AMP / MULTIHIT that hold for this action now.
+            foreach (var (source, stat, value) in CrossWires.NodeCardBonuses(hero, action))
+                list.Add(new SkillActionCardBonus(source, stat, value));
             AddDataDrivenRankDamage(list, hero);
             return list;
         }
 
-        private void TryAddPercent(List<SkillActionCardBonus> list, Character hero, string customEffectId, string statKey, double perRankValue)
-        {
-            double power = GetPower(hero, customEffectId);
-            if (power <= 0 || perRankValue <= 0)
-                return;
-            list.Add(new SkillActionCardBonus(ResolveSkillName(hero, customEffectId), statKey, perRankValue * power));
-        }
 
         private void AddDataDrivenRankDamage(List<SkillActionCardBonus> list, Character hero)
         {
@@ -120,23 +70,5 @@ namespace RPGGame
             }
         }
 
-        private static string ResolveSkillName(Character hero, string customEffectId)
-        {
-            if (hero.Progression?.LearnedSkillRanks == null)
-                return customEffectId;
-            foreach (var kv in hero.Progression.LearnedSkillRanks)
-            {
-                if (kv.Value <= 0)
-                    continue;
-                var node = SkillTreeService.Trees.GetNode(kv.Key);
-                if (node != null
-                    && string.Equals(node.CustomEffectId, customEffectId, StringComparison.OrdinalIgnoreCase))
-                {
-                    return string.IsNullOrWhiteSpace(node.Name) ? customEffectId : node.Name;
-                }
-            }
-
-            return customEffectId;
-        }
     }
 }

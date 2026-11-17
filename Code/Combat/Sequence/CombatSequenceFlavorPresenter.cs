@@ -486,6 +486,8 @@ namespace RPGGame.Combat.Sequence
                 if (beat.Kind.HasValue)
                 {
                     var kind = beat.Kind.Value;
+                    if (kind == CombatSequenceStepKind.Outcome)
+                        AttributeDisplayHold.Release();
                     if (cueByKind.TryGetValue(kind, out var cue))
                         FireCue(cue);
                     else if (kind == CombatSequenceStepKind.Outcome)

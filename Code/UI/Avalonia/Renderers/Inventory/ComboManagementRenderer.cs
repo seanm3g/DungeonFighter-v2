@@ -10,6 +10,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
     using RPGGame.UI.Avalonia.Layout;
     using RPGGame.UI.Avalonia.Managers;
     using RPGGame.UI.Avalonia.Renderers.Helpers;
+    using RPGGame.UI.Avalonia.Renderers.Text;
     using RPGGame.UI.ColorSystem;
     using RPGGame.Items.Helpers;
     using RPGGame.Actions.RollModification;
@@ -87,10 +88,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int seqRows = Math.Max(1, (Math.Max(seqSlots, 1) + perRow - 1) / perRow);
             int seqBlockH = 2 + seqRows * (CardHeight + 2);
             int bottom = y + height - 2;
-            int libBlockH = Math.Max(2 + CardHeight + 1, bottom - top - seqBlockH - 1);
+            // Fixed details panel under both blocks: the hovered card's full description lives here, not over the cards.
+            int minLibBlockH = 2 + CardHeight + 1;
+            int infoH = Math.Min(MaxInfoPanelHeight, bottom - top - seqBlockH - 1 - minLibBlockH - 1);
+            if (infoH < MinInfoPanelHeight)
+                infoH = 0;
+            int libBlockH = Math.Max(minLibBlockH, bottom - top - seqBlockH - 1 - (infoH > 0 ? infoH + 1 : 0));
             bool seqBelow = ActionSequenceEditorLayout.SequenceBelow;
             int seqY = seqBelow ? top + libBlockH + 1 : top;
             int libY = seqBelow ? top : top + seqBlockH + 1;
+            int infoY = top + seqBlockH + 1 + libBlockH + 1;
 
             ActionSequenceEditorLayout.IsOpen = true;
             ActionSequenceEditorLayout.SequenceSlots.Clear();
@@ -99,6 +106,13 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             ActionSequenceEditorLayout.SequenceArea = (left - 2, seqY, blockW + 2, seqBlockH);
             ActionSequenceEditorLayout.LibraryArea = (left - 2, libY, blockW + 2, libBlockH);
             bool dragging = ActionSequenceDragState.IsActive;
+
+            // Hovered card (hover state comes from the previous paint's click targets) and what it synergizes with.
+            int hoverSeq = dragging ? -1 : RightPanelActionHoverState.HoveredSequenceIndex;
+            int hoverPool = dragging || RightPanelActionHoverState.HoveredInventoryPoolIndex >= 0 ? -1 : RightPanelActionHoverState.HoveredPoolIndex;
+            RPGGame.Action? hovered = hoverSeq >= 0 && hoverSeq < combo.Count ? combo[hoverSeq]
+                : hoverPool >= 0 && hoverPool < pool.Count ? pool[hoverPool] : null;
+            var synergy = BuildSynergyMap(hovered, combo, pool);
 
             // --- Sequence ---
             canvas.AddText(left, seqY, $"Action Sequence:  {combo.Count}/{cap} slots", gold);
@@ -119,7 +133,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     : "";
                 var border = i == nextStep ? AsciiArtAssets.Colors.White : AsciiArtAssets.Colors.Gray;
                 bool isDragSource = dragging && ActionSequenceDragState.FromSequenceIndex == i;
-                DrawActionCard(character, cx, cy, combo[i], swing, isDragSource ? AsciiArtAssets.Colors.DarkGray : border, $"{ComboPointerInput.Prefix}rm:{i}", dimmed: isDragSource);
+                DrawActionCard(character, cx, cy, combo[i], swing, isDragSource ? AsciiArtAssets.Colors.DarkGray : border, $"{ComboPointerInput.Prefix}rm:{i}", dimmed: isDragSource,
+                    synergy: synergy.TryGetValue(combo[i], out var seqLink) ? seqLink : null);
                 ActionSequenceEditorLayout.SequenceSlots.Add((cx, cy, CardWidth, CardHeight));
                 string number = (i + 1).ToString();
                 canvas.AddText(cx + (CardWidth - number.Length) / 2, cy + CardHeight, number, AsciiArtAssets.Colors.Green);
@@ -176,7 +191,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 var action = pool[i];
                 bool used = inSequence.Contains(action);
                 DrawActionCard(character, cx, cy, action, PoolSwingLine(character, action), used ? AsciiArtAssets.Colors.DarkGray : gold,
-                    $"{ComboPointerInput.Prefix}pool:{i}", dimmed: used);
+                    $"{ComboPointerInput.Prefix}pool:{i}", dimmed: used,
+                    synergy: synergy.TryGetValue(action, out var poolLink) ? poolLink : null);
                 ActionSequenceEditorLayout.LibrarySlots[i] = (cx, cy, CardWidth, CardHeight);
                 if (used)
                     canvas.AddText(cx + 2, cy + CardHeight - 2, "in sequence", AsciiArtAssets.Colors.DarkGray);
@@ -186,10 +202,197 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (libRows - scroll > libRowsFit)
                 canvas.AddText(left, libY + 2 + libRowsFit * (CardHeight + 1) - 1, $"v {pool.Count - (scroll + libRowsFit) * perRow} more below (Down)", AsciiArtAssets.Colors.Gray);
 
+            if (infoH > 0)
+                DrawInfoPanel(character, hovered, hoverSeq, combo, pool, synergy, left, infoY, blockW - CardGap, infoH);
+
             if (dragging)
                 DrawDragGhost(x, y, width, height);
 
             return pool.Count + combo.Count;
+        }
+
+        private const int MinInfoPanelHeight = 7;
+        private const int MaxInfoPanelHeight = 16;
+        private const int InfoColumnMinWidth = 46;
+        private const int InfoColumnGap = 3;
+
+        private static readonly global::Avalonia.Media.Color SynergyStrong = global::Avalonia.Media.Color.FromRgb(70, 220, 230);
+        private static readonly global::Avalonia.Media.Color SynergyWeak = global::Avalonia.Media.Color.FromRgb(40, 110, 120);
+
+        /// <summary>
+        /// Each sequence / library action (by reference) that shares a key with <paramref name="hovered"/>, with its best
+        /// link (mechanic keys before class keys). Empty when nothing is hovered.
+        /// </summary>
+        private static Dictionary<RPGGame.Action, ActionSynergy.Link> BuildSynergyMap(
+            RPGGame.Action? hovered, List<RPGGame.Action> combo, List<RPGGame.Action> pool)
+        {
+            var map = new Dictionary<RPGGame.Action, ActionSynergy.Link>(ReferenceEqualityComparer.Instance);
+            if (hovered == null)
+                return map;
+            var hoveredKeys = ActionSynergy.Keys(hovered);
+            if (hoveredKeys.Count == 0)
+                return map;
+            foreach (var other in combo.Concat(pool))
+            {
+                if (other == null || ReferenceEquals(other, hovered) || map.ContainsKey(other))
+                    continue;
+                var shared = ActionSynergy.Shared(hoveredKeys, ActionSynergy.Keys(other));
+                if (shared.Count > 0)
+                    map[other] = shared[0];
+            }
+            return map;
+        }
+
+        /// <summary>
+        /// The fixed details panel under the sequence and library: the hovered card's full tooltip (with a Synergy
+        /// section naming the cards and worn gear it works with), flowed into side-by-side columns. A hint when idle.
+        /// </summary>
+        private void DrawInfoPanel(
+            Character character, RPGGame.Action? hovered, int hoverSeq,
+            List<RPGGame.Action> combo, List<RPGGame.Action> pool,
+            Dictionary<RPGGame.Action, ActionSynergy.Link> synergy,
+            int px, int py, int pw, int ph)
+        {
+            var gold = ColorPalette.Gold.GetColor();
+            canvas.AddBox(px, py, pw, ph, hovered != null ? gold : AsciiArtAssets.Colors.DarkGray, global::Avalonia.Media.Colors.Black);
+            canvas.AddText(px + 2, py, " Action details ", hovered != null ? gold : AsciiArtAssets.Colors.Gray);
+
+            int textX = px + 2;
+            int textY = py + 1;
+            int textW = Math.Max(8, pw - 4);
+            int rowsPerCol = Math.Max(1, ph - 2);
+
+            if (hovered == null)
+            {
+                canvas.AddText(textX, textY, Truncate("Hover an action to read it here. Cards that work with it light up: bright = shared mechanic, dim = same class.", textW), AsciiArtAssets.Colors.DarkGray);
+                return;
+            }
+
+            int cols = Math.Clamp((textW + InfoColumnGap) / (InfoColumnMinWidth + InfoColumnGap), 1, 3);
+            int colW = (textW - (cols - 1) * InfoColumnGap) / cols;
+            int maxLines = cols * rowsPerCol + 8;
+            bool alt = HoverTooltipDetailState.IsAltDetailActive;
+            var lines = hoverSeq >= 0
+                ? CombatActionStripBuilder.BuildColoredActionTooltipLinesForSlot(character, hoverSeq, maxLines, ActionStripDamageLineMode.EffectiveWithComboAmp, alt)
+                : CombatActionStripBuilder.BuildColoredActionTooltipLines(character, hovered, maxLines, includeExtendedDetails: alt);
+
+            // Synergy section right after the title block, so it never falls off the end of the columns.
+            int insertAt = lines.FindIndex(l => l == null || l.Count == 0);
+            if (insertAt < 0)
+                insertAt = lines.Count;
+            lines.InsertRange(insertAt, BuildSynergyLines(character, hovered, combo, pool, synergy));
+
+            // Wrap to the column width, then flow down each column in turn (no column starts on a blank row).
+            var rows = new List<List<ColoredText>>();
+            foreach (var line in lines)
+            {
+                var wrapped = line == null || line.Count == 0 ? null : TextWrappingHelper.WrapColoredSegments(line, colW);
+                if (wrapped == null || wrapped.Count == 0)
+                    rows.Add(new List<ColoredText>());
+                else
+                    rows.AddRange(wrapped);
+            }
+
+            int col = 0, rowInCol = 0;
+            for (int ri = 0; ri < rows.Count; ri++)
+            {
+                var row = rows[ri];
+                if (row.Count == 0 && rowInCol == 0 && col > 0)
+                    continue;
+                // Keep a section heading with its first line: a heading on a column's last row moves to the next column.
+                bool isHeading = row.Count > 0 && ri > 0 && rows[ri - 1].Count == 0
+                    && ri + 1 < rows.Count && rows[ri + 1].Count > 0;
+                if (isHeading && rowInCol == rowsPerCol - 1 && rowsPerCol > 1)
+                    rowInCol = rowsPerCol;
+                if (rowInCol >= rowsPerCol)
+                {
+                    col++;
+                    rowInCol = 0;
+                    if (row.Count == 0)
+                        continue;
+                }
+                if (col >= cols)
+                {
+                    // Out of room: mark the cut on the last row.
+                    int lastColX = textX + (cols - 1) * (colW + InfoColumnGap);
+                    canvas.AddText(lastColX + Math.Max(0, colW - 3), textY + rowsPerCol - 1, "...", AsciiArtAssets.Colors.Gray);
+                    break;
+                }
+                int colX = textX + col * (colW + InfoColumnGap);
+                int cx = colX;
+                foreach (var seg in row)
+                {
+                    if (string.IsNullOrEmpty(seg.Text))
+                        continue;
+                    int room = colX + colW - cx;
+                    if (room <= 0)
+                        break;
+                    string text = seg.Text.Length > room ? seg.Text.Substring(0, room) : seg.Text;
+                    canvas.AddText(cx, textY + rowInCol, text, ColorConverter.ConvertSegmentToCanvasColor(seg));
+                    cx += text.Length;
+                }
+                rowInCol++;
+            }
+        }
+
+        /// <summary>"Synergy" lines: cards sharing a mechanic, cards sharing only the class, and worn gear whose rule names a key.</summary>
+        private static List<List<ColoredText>> BuildSynergyLines(
+            Character character, RPGGame.Action hovered,
+            List<RPGGame.Action> combo, List<RPGGame.Action> pool,
+            Dictionary<RPGGame.Action, ActionSynergy.Link> synergy)
+        {
+            var result = new List<List<ColoredText>>();
+            var gray = AsciiArtAssets.Colors.Gray;
+            var white = AsciiArtAssets.Colors.White;
+
+            // One entry per name (a library card and its sequence copy are the same action).
+            var strong = new List<(string Name, string Key)>();
+            var weak = new List<string>();
+            var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            foreach (var a in combo.Concat(pool))
+            {
+                if (a == null || !synergy.TryGetValue(a, out var link) || !seen.Add(a.Name ?? ""))
+                    continue;
+                if (link.Strong)
+                    strong.Add((a.Name ?? "", link.Key));
+                else
+                    weak.Add(a.Name ?? "");
+            }
+            var gear = ActionSynergy.GearLinks(character, ActionSynergy.Keys(hovered));
+
+            result.Add(new List<ColoredText>());
+            result.Add(new ColoredTextBuilder().Add("Synergy", AsciiArtAssets.Colors.Cyan).Build());
+            if (strong.Count == 0 && weak.Count == 0 && gear.Count == 0)
+            {
+                result.Add(new ColoredTextBuilder().Add("Nothing in your sequence, library or gear shares a tag with it.", gray).Build());
+                return result;
+            }
+            if (strong.Count > 0)
+            {
+                var b = new ColoredTextBuilder().Add("Works with: ", gray);
+                for (int i = 0; i < strong.Count; i++)
+                {
+                    if (i > 0)
+                        b.Add(", ", gray);
+                    b.Add(strong[i].Name.ToUpperInvariant(), white);
+                    b.Add($" ({strong[i].Key})", SynergyStrong);
+                }
+                result.Add(b.Build());
+            }
+            if (weak.Count > 0)
+                result.Add(new ColoredTextBuilder().Add("Same class: ", gray).Add(string.Join(", ", weak.Select(n => n.ToUpperInvariant())), SynergyWeak).Build());
+            // One line per modifier: "Gear: Warrior Knack (warrior) on Coat, Leggings, ..." instead of a line per piece.
+            foreach (var group in gear.GroupBy(g => (g.Modifier ?? "", g.Key)))
+            {
+                var (modifier, key) = group.Key;
+                var b = new ColoredTextBuilder().Add("Gear: ", gray);
+                if (!string.IsNullOrWhiteSpace(modifier))
+                    b.Add(modifier, white).Add(" ", gray);
+                b.Add($"({key})", ActionSynergy.IsClassKey(key) ? SynergyWeak : SynergyStrong);
+                b.Add(" on ", gray).Add(string.Join(", ", group.Select(g => g.Item)), gray);
+                result.Add(b.Build());
+            }
+            return result;
         }
 
         /// <summary>The dragged card follows the pointer (drawn on the overlay layer, above the cards).</summary>
@@ -206,7 +409,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         }
 
         /// <summary>One action card: name, damage | speed, then the description wrapped into what is left.</summary>
-        private void DrawActionCard(Character character, int cx, int cy, RPGGame.Action action, string swing, global::Avalonia.Media.Color border, string key, bool dimmed)
+        private void DrawActionCard(Character character, int cx, int cy, RPGGame.Action action, string swing, global::Avalonia.Media.Color border, string key, bool dimmed,
+            ActionSynergy.Link? synergy = null)
         {
             var element = new ClickableElement
             {
@@ -225,8 +429,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (compelled)
                 border = dimmed ? ActionInfoStripLayout.DarkenRgb(CompelledCrimson, 0.5)
                     : border == AsciiArtAssets.Colors.White ? CompelledCrimsonBright : CompelledCrimson;
+            // Synergy with the hovered card: bright frame for a shared mechanic, dim for the same class only.
+            if (synergy is { } link)
+            {
+                var tint = link.Strong ? SynergyStrong : SynergyWeak;
+                border = dimmed ? ActionInfoStripLayout.DarkenRgb(tint, 0.6) : tint;
+            }
             var frame = element.IsHovered ? ColorPalette.Yellow.GetColor() : border;
             canvas.AddBox(cx, cy, CardWidth, CardHeight, frame, global::Avalonia.Media.Colors.Black);
+            if (synergy is { Strong: true } && !element.IsHovered)
+                canvas.AddBorder(cx, cy, CardWidth, CardHeight, dimmed ? ActionInfoStripLayout.DarkenRgb(SynergyStrong, 0.6) : SynergyStrong, 2);
 
             int innerW = CardWidth - 4;
             int ty = cy + 1;
@@ -242,9 +454,17 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             if (!string.IsNullOrEmpty(swing))
                 canvas.AddText(cx + 2, ty++, Truncate(swing, innerW), dimmed ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Green);
-            int linesLeft = cy + CardHeight - 1 - ty;
+            // Tags stay off the card face: the hover tooltip lists them.
+            int linesLeft = cy + CardHeight - 1 - ty - (synergy.HasValue ? 1 : 0);
             foreach (var line in CombatActionStripBuilder.BuildActionStripDescriptionLines(action, innerW, Math.Max(0, linesLeft)))
                 canvas.AddText(cx + 2, ty++, Truncate(line, innerW), AsciiArtAssets.Colors.Gray);
+            // The shared key on the card's last row (right side when "in sequence" holds the left).
+            if (synergy is { } shown)
+            {
+                string label = Truncate("+ " + shown.Key, dimmed ? innerW - 12 : (compelled ? innerW - 9 : innerW));
+                int lx = dimmed ? cx + CardWidth - 2 - label.Length : cx + 2;
+                canvas.AddText(lx, cy + CardHeight - 2, label, border);
+            }
         }
 
         /// <summary>Damage | speed for a library card (no combo slot: base values plus gear bonuses).</summary>

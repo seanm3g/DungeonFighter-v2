@@ -105,8 +105,12 @@ namespace RPGGame.Combat.Sequence
             if (trace != null && trace.BaseDamage > 0)
             {
                 beats.Add(Plain($"base {trace.BaseDamage}", Colors.White));
-                if (Math.Abs(trace.ActionMultiplier - 1.0) > 0.001)
-                    beats.Add(Plain($"×{trace.ActionMultiplier:0.##}", ColorPalette.Success));
+                double actionMult = trace.ActionMultiplierWithoutNextActionMod;
+                if (Math.Abs(actionMult - 1.0) > 0.001)
+                    beats.Add(Plain($"×{actionMult:0.##}", ColorPalette.Success));
+                if (Math.Abs(trace.NextActionDamageModPercent) > 0.0001)
+                    beats.Add(Plain($"{trace.NextActionDamageModPercent:+0.#;-0.#}% banked",
+                        trace.NextActionDamageModPercent > 0 ? ColorPalette.Success : ColorPalette.Error));
                 if (Math.Abs(trace.Amp - 1.0) > 0.001)
                     beats.Add(Plain($"×{trace.Amp:0.##} amp", ColorPalette.Gold));
                 if (trace.CritDamage)

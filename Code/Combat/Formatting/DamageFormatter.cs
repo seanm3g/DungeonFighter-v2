@@ -466,14 +466,27 @@ namespace RPGGame.Combat.Formatting
             punchBuilder.AddSpace();
             punchBuilder.Add("and", Colors.White);
             punchBuilder.AddSpace();
-            if (outcome.IsCritical)
+            bool namesAction = hasDisplayableAction && isComboAction;
+            // CRITICAL sits directly before the action name ("hits with CRITICAL STRIKE");
+            // with no named action it leads the verb ("CRITICAL hits").
+            if (outcome.IsCritical && !namesAction)
             {
                 punchBuilder.Add("CRITICAL", ColorPalette.Critical);
                 punchBuilder.AddSpace();
             }
             punchBuilder.Add("hits", hitsColor);
-            if (hasDisplayableAction && isComboAction)
-                AddWithAction(punchBuilder, actionName, actionColor);
+            if (namesAction)
+            {
+                punchBuilder.AddSpace();
+                punchBuilder.Add("with", Colors.White);
+                punchBuilder.AddSpace();
+                if (outcome.IsCritical)
+                {
+                    punchBuilder.Add("CRITICAL", ColorPalette.Critical);
+                    punchBuilder.AddSpace();
+                }
+                punchBuilder.Add(actionName, actionColor);
+            }
             if (multiHitCount > 1)
             {
                 punchBuilder.AddSpace();

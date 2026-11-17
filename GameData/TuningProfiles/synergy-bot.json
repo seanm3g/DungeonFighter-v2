@@ -13,7 +13,7 @@
     "z-circle", "z-age1", "z-kin", "z-synth", "z-combo"
   ],
   "fillSlotNodes": ["b-empty", "z-chaos", "z-slotInt"],
-  "verbWeights": { "Cash": 1.2, "Scale": 1.2, "Invest": 1.2, "Distill": 1.2, "Liquidate": 1.2, "Transmute": 1.2, "Index": 1.2, "Detonate": 1.2, "Apply": 1.2, "Barrier": 1.2, "Palm": 1.2 },
+  "verbWeights": { "Cash": 1.2, "Scale": 1.2, "Invest": 1.2, "Distill": 1.2, "Liquidate": 1.2, "Transmute": 1.2, "Index": 1.2, "Detonate": 1.2, "Apply": 1.2, "Barrier": 1.2, "Palm": 1.2, "Release": 1.2 },
   "affixWeights": { "LISTEN": 1.0, "TUNE": 1.0, "STORECOND": 1.0, "COUNTSDOUBLE": 1.2, "OPENER": 1.0, "FINISHER": 1.0, "BLOODPRICE": 0.8, "CROSSWIRE": 1.2, "RULE": 1.0 },
   "crossWireNodeBonus": 0.3,
   "persistNodeBonus": 0.2,

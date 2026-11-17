@@ -119,9 +119,13 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                         {
                             character.Effects.AddActionAttackBonuses(new ActionAttackBonuses { BonusGroups = new List<ActionAttackBonusGroup> { group } });
                             int window = Math.Max(1, group.Count) + Math.Max(0, group.Timing.Delay);
+                            // ifTag grants wait for an action with the tag: roll one.
+                            var roller = string.IsNullOrWhiteSpace(group.Timing.IfTag)
+                                ? null
+                                : new Action { Name = "TAGGED", Tags = new List<string> { group.Timing.IfTag! } };
                             for (int roll = 0; roll < window && !ok; roll++)
                             {
-                                var got = character.Effects.GetAndConsumeTurnBonuses();
+                                var got = character.Effects.GetAndConsumeTurnBonuses(roller);
                                 ok = group.Bonuses != null && group.Bonuses.All(b => got.Any(p => p.Type == b.Type));
                             }
                         }

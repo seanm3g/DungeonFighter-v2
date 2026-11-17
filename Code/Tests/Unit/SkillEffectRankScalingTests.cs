@@ -7,7 +7,8 @@ using RPGGame.Tests;
 namespace RPGGame.Tests.Unit
 {
     /// <summary>
-    /// maxRank-5 skill nodes scale their combat bonuses by learned rank x the node's <c>power</c> from SkillTrees.json.
+    /// maxRank-5 skill nodes scale their combat bonuses by learned rank x the node's <c>power</c> from SkillTrees.json
+    /// (rule nodes since 2026-11-16: <see cref="CrossWires"/> scales a node's rule amounts by rank x power).
     /// Puberty adds a flat 10 x power to Strength. Commission / Initiation / Apprenticeship add 10 x power to AGI / TEC / INT.
     /// </summary>
     public static class SkillEffectRankScalingTests
@@ -97,73 +98,65 @@ namespace RPGGame.Tests.Unit
 
         private static void TestFirstBronzeAgeScalesWithRank()
         {
-            Console.WriteLine("--- First Bronze Age scales with rank ---");
+            Console.WriteLine("--- First Bronze Age (rule WHILE -> DAMAGE 8% PER WORN barbarian) scales with rank ---");
+            var swing = new Action { Name = "TEST_SWING", Type = ActionType.Attack };
             var r1 = MakeHero("AgeRank1", WeaponType.Mace);
+            double base1 = CrossWires.Passive(r1, "DAMAGE", null, swing);
             SetRank(r1, "b-age1", 1);
-            PublishHit(r1);
-            double dmg1 = r1.Effects.ConsumedDamageModPercent;
+            double dmg1 = CrossWires.Passive(r1, "DAMAGE", null, swing) - base1;
 
             var r3 = MakeHero("AgeRank3", WeaponType.Mace);
+            double base3 = CrossWires.Passive(r3, "DAMAGE", null, swing);
             SetRank(r3, "b-age1", 3);
-            PublishHit(r3);
-            double dmg3 = r3.Effects.ConsumedDamageModPercent;
+            double dmg3 = CrossWires.Passive(r3, "DAMAGE", null, swing) - base3;
 
-            TestBase.AssertTrue(dmg1 > 0, "rank 1 applies damage mod",
+            TestBase.AssertTrue(Math.Abs(dmg1 - 8.0 * Power("b-age1")) < 1e-6, "rank 1: 8% x power per Barbarian piece (one Bone weapon)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(dmg1 * 3, dmg3, "rank 3 triples age1 damage mod",
+            TestBase.AssertTrue(Math.Abs(dmg3 - dmg1 * 3) < 1e-6, "rank 3 triples it",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestSwordHitAgiScalesWithRank()
         {
-            Console.WriteLine("--- Sword Hit AGI scales with rank ---");
+            Console.WriteLine("--- Sword Hit AGI (rule ONCONNECT IF WEAPON sword -> NEXT AGI 5) scales with rank ---");
+            double Amount(Character hero) => CrossWires.LearnedNodeRules(hero)
+                .Where(x => x.Node.Id == "w-hitagi").Select(x => x.Rule.Amount).DefaultIfEmpty(0).Sum();
             var r1 = MakeHero("AgiRank1", WeaponType.Sword);
             SetRank(r1, "w-hitagi", 1);
-            PublishHit(r1);
-            int agi1 = r1.Stats.TempAgilityBonus;
-
             var r2 = MakeHero("AgiRank2", WeaponType.Sword);
             SetRank(r2, "w-hitagi", 2);
-            PublishHit(r2);
-            int agi2 = r2.Stats.TempAgilityBonus;
-
-            int step = (int)Math.Round(5 * Power("w-hitagi"));
-            TestBase.AssertTrue(step > 0, "w-hitagi power grants at least 1 AGI per rank",
+            TestBase.AssertTrue(Math.Abs(Amount(r1) - 5 * Power("w-hitagi")) < 1e-6, "rank 1 rule grants 5 x power AGI",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(step, agi1, "rank 1 grants 5 x power AGI",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual((int)Math.Round(10 * Power("w-hitagi")), agi2, "rank 2 grants 10 x power AGI",
+            TestBase.AssertTrue(Math.Abs(Amount(r2) - 10 * Power("w-hitagi")) < 1e-6, "rank 2 rule grants 10 x power AGI",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestEmptyFuryScalesWithRank()
         {
-            Console.WriteLine("--- Empty Fury scales with rank and filled strip slots ---");
+            Console.WriteLine("--- Empty Fury (rule WHILE -> STR 25 PER EXTRASLOTS) scales with rank and filled strip slots ---");
             var r1 = MakeHero("Fury1", WeaponType.Mace);
-            SetRank(r1, "b-empty", 2);
             int filled = FillStrip(r1);
-            PublishHit(r1);
-            int str1 = r1.Stats.TempStrengthBonus;
+            SetRank(r1, "b-empty", 2);
+            int str1 = SkillEffectRouter.Instance.GetSkillAttributeBonus(r1, "STR");
 
             var r2 = MakeHero("Fury2", WeaponType.Mace);
-            SetRank(r2, "b-empty", 4);
             FillStrip(r2);
-            PublishHit(r2);
-            int str2 = r2.Stats.TempStrengthBonus;
+            SetRank(r2, "b-empty", 4);
+            int str2 = SkillEffectRouter.Instance.GetSkillAttributeBonus(r2, "STR");
 
             var bare = MakeHero("Fury0", WeaponType.Mace);
             SetRank(bare, "b-empty", 2);
             while (bare.GetComboActions().Count > 1)
                 bare.RemoveFromCombo(bare.GetComboActions()[^1]);
-            PublishHit(bare);
 
             TestBase.AssertTrue(filled >= 2, $"test strip holds 2+ actions (got {filled})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(str1 > 0, "rank 2 Empty Fury grants STR for filled slots",
+            TestBase.AssertEqual((int)Math.Round(25 * (filled - 1) * 2 * Power("b-empty")), str1,
+                "rank 2 Empty Fury: 25 STR per extra slot x rank x power",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(str2 > str1, "rank 4 Empty Fury grants more STR than rank 2",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, bare.Stats.TempStrengthBonus, "a one-action strip grants no Fury STR",
+            TestBase.AssertEqual(0, SkillEffectRouter.Instance.GetSkillAttributeBonus(bare, "STR"), "a one-action strip grants no Fury STR",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -182,30 +175,19 @@ namespace RPGGame.Tests.Unit
 
         private static void TestScrapPreferScalesWithRank()
         {
-            Console.WriteLine("--- Scrap Prefer scales with rank ---");
-            var r1 = MakeHero("Scrap1", WeaponType.Mace);
-            r1.Equipment.Weapon!.Modifications.Add(new Modification
+            Console.WriteLine("--- Scrap Prefer (rule WHILE -> DAMAGE 10% PER QUALITY ...) scales with rank ---");
+            var swing = new Action { Name = "TEST_SWING", Type = ActionType.Attack };
+            double Dmg(int rank, string name)
             {
-                Name = "Masterwork",
-                PrefixCategory = "Quality"
-            });
-            SetRank(r1, "b-scar", 1);
-            PublishHit(r1);
-            double dmg1 = r1.Effects.ConsumedDamageModPercent;
-
-            var r2 = MakeHero("Scrap2", WeaponType.Mace);
-            r2.Equipment.Weapon!.Modifications.Add(new Modification
-            {
-                Name = "Masterwork",
-                PrefixCategory = "Quality"
-            });
-            SetRank(r2, "b-scar", 2);
-            PublishHit(r2);
-            double dmg2 = r2.Effects.ConsumedDamageModPercent;
-
-            TestBase.AssertEqual(10.0 * Power("b-scar"), dmg1, "rank 1 Scrap Prefer: 10% x power per piece",
+                var hero = MakeHero(name, WeaponType.Mace);
+                hero.Equipment.Weapon!.Modifications.Add(new Modification { Name = "Masterwork", PrefixCategory = "Quality" });
+                double before = CrossWires.Passive(hero, "DAMAGE", null, swing);
+                SetRank(hero, "b-scar", rank);
+                return CrossWires.Passive(hero, "DAMAGE", null, swing) - before;
+            }
+            TestBase.AssertTrue(Math.Abs(Dmg(1, "Scrap1") - 10.0 * Power("b-scar")) < 1e-6, "rank 1 Scrap Prefer: 10% x power per piece",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(20.0 * Power("b-scar"), dmg2, "rank 2 Scrap Prefer doubles it",
+            TestBase.AssertTrue(Math.Abs(Dmg(2, "Scrap2") - 20.0 * Power("b-scar")) < 1e-6, "rank 2 Scrap Prefer doubles it",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

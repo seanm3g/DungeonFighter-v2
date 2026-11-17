@@ -549,7 +549,9 @@ namespace RPGGame.Actions.Execution
             int sourceSlot = ActionUtilities.GetComboSlotForPendingBonuses(hero, selected, comboActions);
             if (timing != null && !timing.SlotIfHolds(sourceSlot, n))
                 return;
-            double perSlot = timing?.PerSlot == true ? sourceSlot + 1 : 1;
+            double perSlot = (timing?.PerSlot == true ? sourceSlot + 1 : 1) * (timing?.PerTagFactor(comboActions) ?? 1);
+            if (perSlot <= 0)
+                return;
 
             if (timing?.IsCharge == true)
             {

@@ -24,3 +24,9 @@ Examples:
   /playtest 1
   /playtest 3 Sword
   /playtest 5 Dagger
+
+How to play (MCP `dungeonfighter` server; guide: `.cursor/skills/mcp-gameplay/SKILL.md`):
+- `start_new_game`, then loop `get_agent_context` → `handle_input` with a choice's `Input`.
+- Read `Screen.Body` for what each screen shows (bag, item comparison, action sequence, skill nodes, regions) and `NewEvents` on each `handle_input` reply for what happened (a dungeon run returns its swing-by-swing combat log).
+- `get_item_details` / `get_action_details` give the full item tooltip and action card.
+- Make real player decisions between runs: compare and equip gear, shape the action sequence, spend skill points, travel when the level band is outgrown.

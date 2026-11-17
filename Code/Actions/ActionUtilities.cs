@@ -264,7 +264,9 @@ namespace RPGGame
                 return 0;
             if (action.Type != ActionType.Attack && action.Type != ActionType.Spell)
                 return 0;
-            return character.GetModificationMultiHitBonus() + character.GearMultiHitSwingExtra;
+            // Rule MULTIHIT (skills / items, e.g. Precision: Rogue actions +1 hit): whole hits.
+            int ruleHits = (int)Math.Floor(Math.Max(0, CrossWires.Passive(character, "MULTIHIT", null, action)) + 1e-9);
+            return character.GetModificationMultiHitBonus() + character.GearMultiHitSwingExtra + ruleHits;
         }
 
         /// <summary>

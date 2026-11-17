@@ -53,6 +53,8 @@ namespace RPGGame.MCP.Models
         public string? Head { get; set; }
         public string? Body { get; set; }
         public string? Feet { get; set; }
+        public string? Legs { get; set; }
+        public string? Charm { get; set; }
     }
 
     public class ItemSnapshot

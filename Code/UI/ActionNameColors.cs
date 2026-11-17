@@ -30,6 +30,35 @@ namespace RPGGame
             return null;
         }
 
+        /// <summary>Bookkeeping tags the player never matches against (sheet markers, rarity, starter flags).</summary>
+        private static readonly System.Collections.Generic.HashSet<string> HiddenTags = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "action", "class", "hybrid", "common", "uncommon", "rare", "epic", "legendary", "unique",
+            "required", "startingweapon", "weapon_basic", "enemy"
+        };
+
+        /// <summary>
+        /// The action's tags as the player reads them ("barbarian, ravager, status"): the ones item modifiers
+        /// (<c>IF TAG</c> / <c>IF CLASS</c>) and tag bonuses match, without sheet bookkeeping; lower case, no repeats.
+        /// </summary>
+        public static System.Collections.Generic.List<string> DisplayTags(Action? action)
+        {
+            var list = new System.Collections.Generic.List<string>();
+            if (action?.Tags == null)
+                return list;
+            foreach (var raw in action.Tags)
+            {
+                string t = (raw ?? "").Trim().ToLowerInvariant();
+                if (t.Length == 0 || HiddenTags.Contains(t) || list.Contains(t))
+                    continue;
+                list.Add(t);
+            }
+            return list;
+        }
+
+        /// <summary><see cref="DisplayTags"/> joined with ", ", or "" when none.</summary>
+        public static string DisplayTagsText(Action? action) => string.Join(", ", DisplayTags(action));
+
         public static string RarityLabel(Action? action)
         {
             if (action == null || string.IsNullOrWhiteSpace(action.Name))

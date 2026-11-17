@@ -22,6 +22,10 @@ namespace RPGGame.MCP
                 return;
             }
 
+            // stdout is the MCP protocol channel (the stdio transport writes to the raw stdout stream). Anything the
+            // game prints with Console.WriteLine would corrupt it, so console text goes to stderr instead.
+            Console.SetOut(Console.Error);
+
             var server = new DungeonFighterMCPServer();
 
             // Handle graceful shutdown

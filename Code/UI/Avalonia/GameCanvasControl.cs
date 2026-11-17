@@ -722,12 +722,28 @@ namespace RPGGame.UI.Avalonia
                 return;
             double charWidth = coordinateConverter.GetCharWidth();
             double charHeight = coordinateConverter.GetCharHeight();
-            foreach (var line in lines.ToList())
+            // Lines paint after the whole canvas pass, so keep them out of hover tooltip frames (overlay boxes):
+            // the combat board's stacked option borders otherwise struck through an enemy status tooltip.
+            Geometry? clip = null;
+            foreach (var box in elementManager.BoxElements)
             {
-                var pen = new Pen(new SolidColorBrush(line.Color), line.ThicknessPixels);
-                context.DrawLine(pen,
-                    new Point(line.X1 * charWidth, line.Y1 * charHeight),
-                    new Point(line.X2 * charWidth, line.Y2 * charHeight));
+                if (!box.IsOverlay || box.Width <= 0 || box.Height <= 0)
+                    continue;
+                var rect = new RectangleGeometry(new Rect(
+                    (box.X - box.OutsetLeftCells) * charWidth, box.Y * charHeight,
+                    (box.Width + box.OutsetLeftCells + box.OutsetRightCells) * charWidth, box.Height * charHeight));
+                clip = new CombinedGeometry(GeometryCombineMode.Exclude,
+                    clip ?? new RectangleGeometry(new Rect(0, 0, Math.Max(1, Bounds.Width), Math.Max(1, Bounds.Height))), rect);
+            }
+            using (clip != null ? context.PushGeometryClip(clip) : (IDisposable?)null)
+            {
+                foreach (var line in lines.ToList())
+                {
+                    var pen = new Pen(new SolidColorBrush(line.Color), line.ThicknessPixels);
+                    context.DrawLine(pen,
+                        new Point(line.X1 * charWidth, line.Y1 * charHeight),
+                        new Point(line.X2 * charWidth, line.Y2 * charHeight));
+                }
             }
         }
 

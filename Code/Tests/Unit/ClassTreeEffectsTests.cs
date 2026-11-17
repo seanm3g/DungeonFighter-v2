@@ -104,9 +104,11 @@ namespace RPGGame.Tests.Unit
         private static void TestPerfectAimAndArchmage()
         {
             var rogue = MakeHero("Aim", WeaponType.Dagger, 80);
+            double critBefore = CrossWires.Passive(rogue, "CRIT");
             rogue.Progression.LearnedSkillRanks["r-aim"] = 1;
-            int expected = (int)Math.Floor(rogue.GetEffectiveTechnique() / 25.0 * Power("r-aim"));
-            TestBase.AssertEqual(expected, SkillEffectRouter.PerfectAimCritSteps(rogue), "Perfect Aim crit steps from TEC",
+            double expected = Math.Floor(rogue.GetEffectiveTechnique() / 25.0) * Power("r-aim");
+            TestBase.AssertTrue(Math.Abs(CrossWires.Passive(rogue, "CRIT") - critBefore - expected) < 1e-6,
+                "Perfect Aim (rule WHILE -> CRIT 1 PER STAT TEC 25): crit bonus from TEC",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var wizard = MakeHero("Arch", WeaponType.Wand, 80);
@@ -134,12 +136,12 @@ namespace RPGGame.Tests.Unit
         private static void TestArcaneWeave()
         {
             var hero = MakeHero("Weave", WeaponType.Wand, 50);
+            var spell = new Action { Name = "TEST_SPELL", Type = ActionType.Attack };
+            double before = CrossWires.Passive(hero, "AMP", null, spell);
             hero.Progression.LearnedSkillRanks["z-weave"] = 5;
-            hero.Effects.ConsumedSkillAmpPercent = 0;
-            Publish(hero, new Action { Name = "TEST_SPELL", Type = ActionType.Attack }, TestDataBuilders.Enemy().WithName("Dummy").Build());
             double expected = Math.Floor(hero.GetEffectiveIntelligence() / 10.0) * 2.0 * 5 * Power("z-weave");
-            TestBase.AssertTrue(Math.Abs(hero.Effects.ConsumedSkillAmpPercent - expected) < 1e-6 || expected == 0,
-                "Arcane Weave: AMP from INT on Wand actions",
+            TestBase.AssertTrue(Math.Abs(CrossWires.Passive(hero, "AMP", null, spell) - before - expected) < 1e-6,
+                "Arcane Weave (rule): AMP from INT with a Wand",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -147,11 +149,11 @@ namespace RPGGame.Tests.Unit
         {
             var hero = MakeHero("Wrath", WeaponType.Mace, 80);
             hero.Progression.LearnedSkillRanks["b-wrath"] = 3;
-            hero.Effects.AddMaterialKeyword("RAGE", 10);
             hero.TakeDamage(hero.MaxHealth / 2);
             int before = hero.CurrentHealth;
-            Publish(hero, new Action { Name = "BONE WRATH", Type = ActionType.Attack }, TestDataBuilders.Enemy().WithName("Dummy").Build());
-            TestBase.AssertTrue(hero.CurrentHealth > before, "Wrath Unbound: BONE WRATH heals per RAGE",
+            // Rule ONCASH:RAGE -> HEAL 1 PER SPENT: any RAGE spend (BONE WRATH's convert raises ONCASH with the units spent).
+            HeroEventHub.OnCash(hero, "RAGE", 10);
+            TestBase.AssertTrue(hero.CurrentHealth > before, "Wrath Unbound: spending RAGE heals per RAGE spent",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

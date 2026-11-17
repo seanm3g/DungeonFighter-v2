@@ -20,6 +20,9 @@ namespace RPGGame.Data
     /// <item><c>slotIf</c>: grant only when this action sits in a matching slot: <c>3</c>, <c>&gt;=3</c>, <c>&lt;=2</c>,
     /// <c>first</c>, <c>last</c>, <c>odd</c>, <c>even</c>.</item>
     /// <item><c>untilMiss</c> (TURN): a miss ends the grant early.</item>
+    /// <item><c>ifTag</c> (TURN): the grant waits for an action with this tag: other actions neither get it nor spend it
+    /// (a setup that pays off on the right follow-up).</item>
+    /// <item><c>perTag</c>: values × the number of strip actions with this tag (strip composition).</item>
     /// </list>
     /// </summary>
     public sealed class CadenceTiming
@@ -52,10 +55,35 @@ namespace RPGGame.Data
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool UntilMiss { get; set; }
 
+        [JsonPropertyName("ifTag")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? IfTag { get; set; }
+
+        [JsonPropertyName("perTag")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public string? PerTag { get; set; }
+
         [JsonIgnore]
         public bool IsDefault =>
             string.IsNullOrWhiteSpace(Slot) && Delay <= 0 && string.IsNullOrWhiteSpace(Shape)
-            && Every <= 1 && !PerSlot && string.IsNullOrWhiteSpace(SlotIf) && !UntilMiss;
+            && Every <= 1 && !PerSlot && string.IsNullOrWhiteSpace(SlotIf) && !UntilMiss
+            && string.IsNullOrWhiteSpace(IfTag) && string.IsNullOrWhiteSpace(PerTag);
+
+        /// <summary>True when <paramref name="action"/> may take (and spend) a grant with <see cref="IfTag"/>; true with no IfTag.</summary>
+        public bool TagGateHolds(Action? action) =>
+            string.IsNullOrWhiteSpace(IfTag)
+            || (action?.Tags != null && action.Tags.Any(t => string.Equals(t?.Trim(), IfTag.Trim(), StringComparison.OrdinalIgnoreCase)));
+
+        /// <summary><see cref="PerTag"/> factor: strip actions with the tag (1 with no PerTag; 0 when none carry it).</summary>
+        public double PerTagFactor(IReadOnlyList<Action>? strip)
+        {
+            if (string.IsNullOrWhiteSpace(PerTag))
+                return 1;
+            if (strip == null)
+                return 0;
+            string tag = PerTag.Trim();
+            return strip.Count(a => a?.Tags != null && a.Tags.Any(t => string.Equals(t?.Trim(), tag, StringComparison.OrdinalIgnoreCase)));
+        }
 
         [JsonIgnore] public bool IsRamp => ShapeIs("ramp");
         [JsonIgnore] public bool IsDecay => ShapeIs("decay");
@@ -70,7 +98,7 @@ namespace RPGGame.Data
                 : new CadenceTiming
                 {
                     Slot = t.Slot, Delay = t.Delay, Shape = t.Shape, Every = t.Every,
-                    PerSlot = t.PerSlot, SlotIf = t.SlotIf, UntilMiss = t.UntilMiss
+                    PerSlot = t.PerSlot, SlotIf = t.SlotIf, UntilMiss = t.UntilMiss, IfTag = t.IfTag, PerTag = t.PerTag
                 };
 
         /// <summary>
@@ -161,6 +189,8 @@ namespace RPGGame.Data
             if (Every > 1) parts.Add($"every {Every}");
             if (PerSlot) parts.Add("x slot");
             if (UntilMiss) parts.Add("until a miss");
+            if (!string.IsNullOrWhiteSpace(IfTag)) parts.Add($"waits for a {IfTag.Trim()} action");
+            if (!string.IsNullOrWhiteSpace(PerTag)) parts.Add($"x {PerTag.Trim()} actions in strip");
             return string.Join(", ", parts);
         }
     }

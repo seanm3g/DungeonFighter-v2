@@ -41,11 +41,11 @@ namespace RPGGame
             bool isComboAction = hasDisplayableAction && (action != null && action.IsComboAction);
 
             string damageText = $"{attacker.Name} Attacks {target.Name}... and ";
-            if (isCritical)
+            if (isCritical && !isComboAction)
                 damageText += "CRITICAL ";
             damageText += "hits";
             if (isComboAction)
-                damageText += $" with {actionName}";
+                damageText += isCritical ? $" with CRITICAL {actionName}" : $" with {actionName}";
             damageText += $" for {actualDamage} damage";
             
             // Build the detailed roll and damage information

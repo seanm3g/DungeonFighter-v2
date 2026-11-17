@@ -73,6 +73,8 @@ namespace RPGGame.Tuning
             public double RuleBonusPer10Pct { get; set; } = 0.15;
             /// <summary>Verb weight share for APPLY &lt;status&gt; when nothing the hero has (set WHEN, node, conversion) uses that status.</summary>
             public double UnusedApplyShare { get; set; } = 0.5;
+            /// <summary>Skill score per unit of <see cref="RuleFit"/> (0..1) for rule nodes; decides between either-or partners.</summary>
+            public double RuleFitScale { get; set; } = 0.5;
         }
 
         private static SynergyData? _data;
@@ -355,7 +357,10 @@ namespace RPGGame.Tuning
                 && formed.Any(s => string.Equals(s.Material, attuned, StringComparison.OrdinalIgnoreCase));
             return spec.Kind switch
             {
+                // Status payoffs (TOPPLE: CASH stagger) need an owned applier of that status, not a formed set.
+                VerbKind.Cash or VerbKind.Scale when IsStatusStore(spec.Store) => OwnsApplierOf(hero, actionName, spec.Store) ? w : 0,
                 VerbKind.Cash or VerbKind.Scale or VerbKind.Invest or VerbKind.Distill => attunedFormed ? w : 0,
+                VerbKind.Release => OwnsTurnGrantSource(hero, actionName) ? w : 0,
                 VerbKind.Liquidate => formed.Count >= 2 ? w : 0,
                 VerbKind.Transmute => formed.Count >= 2 || ConversionTable.OwnsAny(hero) ? w : 0,
                 VerbKind.Index => w * Math.Max(0, Attunement.CountDistinctMaterials(hero) - 2),
@@ -366,6 +371,163 @@ namespace RPGGame.Tuning
         }
 
         private static readonly string[] DotStatuses = { "bleed", "burn", "poison", "acid" };
+
+        private static bool IsStatusStore(string store) =>
+            !string.Equals(store, Attunement.StoreToken, StringComparison.OrdinalIgnoreCase)
+            && Stores.TryGet(store, out var def) && def.Kind is StoreKind.Status or StoreKind.Resource;
+
+        /// <summary>True when another owned action applies <paramref name="status"/> (fx:&lt;status&gt;).</summary>
+        private static bool OwnsApplierOf(Character hero, string self, string status) =>
+            hero.GetActionPool().Any(a => !string.Equals(a.Name, self, StringComparison.OrdinalIgnoreCase)
+                && Features(a.Name).ContainsKey("fx:" + status.ToLowerInvariant()));
+
+        /// <summary>RELEASE needs something queued: an owned action with a TURN grant, or a learned / worn NEXT rule.</summary>
+        private static bool OwnsTurnGrantSource(Character hero, string self) =>
+            hero.GetActionPool().Any(a => !string.Equals(a.Name, self, StringComparison.OrdinalIgnoreCase) && HasGrant(a.Name))
+            || CrossWires.LearnedNodeRules(hero).Any(r => r.Rule.Verb == "NEXT");
+
+        private static bool HasGrant(string name)
+        {
+            var f = Features(name);
+            return f.ContainsKey("dmgGrant") || f.ContainsKey("ampGrant") || f.ContainsKey("speedGrant");
+        }
+
+        /// <summary>
+        /// How well a rule skill node fits this hero (0..1, 0.5 with nothing to check): the share of what its rules name that
+        /// the hero has. Tags (TAG / PREVTAG / NEXTTAG / IFTAG / PER TAGS) need a strip action with the tag; statuses
+        /// (ONSTATUSAPPLY:x, target conditions, PER TARGET x) a strip action applying them; ONCASH:store a worn set minting
+        /// it or a strip verb spending it; WEAPON the equipped type; PER WORN a worn piece. Picks between either-or nodes.
+        /// </summary>
+        public static double RuleFit(Character hero, SkillTreeNodeDefinition node, IReadOnlyList<string> strip)
+        {
+            if (string.IsNullOrWhiteSpace(node.CrossWire))
+                return 0.5;
+            var keywords = KeywordsOf(FormedSets(hero).Select(s => s.Material));
+            bool Applies(string status) => strip.Any(a =>
+            {
+                var f = Features(a);
+                return f.ContainsKey("fx:" + status.ToLowerInvariant()) || f.ContainsKey(status.ToLowerInvariant());
+            });
+            bool Tagged(string tag) => strip.Any(a => HasTag(a, tag));
+            bool Spends(string store) => keywords.Contains(store, StringComparer.OrdinalIgnoreCase)
+                || strip.Any(a => string.Equals(VerbSpec.Parse(ActionLoader.GetActionData(a)?.Verb)?.Store, store, StringComparison.OrdinalIgnoreCase));
+            int total = 0, met = 0;
+            void Need(bool ok) { total++; if (ok) met++; }
+            foreach (string text in RPGGame.Data.ItemGeneration.BaseModifierRoller.SplitRules(node.CrossWire))
+            {
+                var rule = CrossWireRule.Parse(text.Trim());
+                if (rule == null)
+                    continue;
+                int colon = rule.When.IndexOf(':');
+                if (colon > 0)
+                {
+                    string ev = rule.When[..colon].ToUpperInvariant(), arg = rule.When[(colon + 1)..];
+                    if (ev == "ONSTATUSAPPLY") Need(Applies(arg));
+                    else if (ev == "ONCASH" || ev == "ONSTOREFULL") Need(Spends(arg));
+                }
+                foreach (var c in rule.Conditions)
+                {
+                    switch (c.Subject)
+                    {
+                        case "tag" or "class" or "prevtag" or "nexttag": Need(Tagged(c.Key)); break;
+                        case "weapon": Need(hero.Weapon is WeaponItem w && string.Equals(w.WeaponType.ToString(), c.Key, StringComparison.OrdinalIgnoreCase)); break;
+                        case "target" when Stores.TryGet(c.Key, out _): Need(Applies(c.Key)); break;
+                    }
+                }
+                if (!string.IsNullOrWhiteSpace(rule.IfTag)) Need(Tagged(rule.IfTag));
+                if (!string.IsNullOrWhiteSpace(rule.PerTargetStatus)) Need(Applies(rule.PerTargetStatus));
+                switch (rule.Per?.Kind)
+                {
+                    case "target": Need(Applies(rule.Per.Arg)); break;
+                    case "tags": Need(Tagged(rule.Per.Arg)); break;
+                    case "worn": Need(CrossWires.WornCount(hero, rule.Per.Arg) > 0); break;
+                }
+            }
+            return total == 0 ? 0.5 : (double)met / total;
+        }
+
+        private static CadenceTiming? TimingOf(string name) =>
+            ActionLoader.GetAction(name)?.ActionAttackBonuses?.BonusGroups?.FirstOrDefault()?.Timing;
+
+        private static bool HasTag(string name, string tag) =>
+            ActionLoader.GetAction(name)?.Tags?.Any(t => string.Equals(t?.Trim(), tag.Trim(), StringComparison.OrdinalIgnoreCase)) == true;
+
+        /// <summary>
+        /// Strip-context correction to an action's score given the other picks (synergy pass 2026-11-16): an ifTag setup's
+        /// grant is worth nothing without another strip action carrying the tag; a perTag grant scales with the tagged
+        /// actions on the strip; a RELEASE needs another grant source on the strip and pays more per source; a status CASH
+        /// needs a strip action applying that status. Returns the change to add to the action's total.
+        /// </summary>
+        public static double StripContextAdjust(Character hero, string action, IReadOnlyCollection<string> others)
+        {
+            double grant = Dot(Data.GrantWeights, Features(action));
+            var timing = TimingOf(action);
+            double delta = 0;
+            if (timing != null && !string.IsNullOrWhiteSpace(timing.IfTag) && !others.Any(o => HasTag(o, timing.IfTag)))
+                delta -= grant;
+            if (timing != null && !string.IsNullOrWhiteSpace(timing.PerTag))
+            {
+                int n = others.Count(o => HasTag(o, timing.PerTag)) + (HasTag(action, timing.PerTag) ? 1 : 0);
+                delta += grant * (n - 1);
+            }
+            var spec = VerbSpec.Parse(ActionLoader.GetActionData(action)?.Verb);
+            if (spec != null && Data.VerbWeights.TryGetValue(spec.Kind.ToString(), out double w) && w != 0)
+            {
+                if (spec.Kind == VerbKind.Release)
+                {
+                    int sources = others.Count(HasGrant);
+                    delta += sources == 0 ? -VerbSynergy(hero, action) : w * 0.25 * (sources - 1);
+                }
+                else if (spec.Kind is VerbKind.Cash or VerbKind.Scale && IsStatusStore(spec.Store)
+                         && !others.Any(o => Features(o).ContainsKey("fx:" + spec.Store.ToLowerInvariant())))
+                    delta -= VerbSynergy(hero, action);
+            }
+            return delta;
+        }
+
+        /// <summary>
+        /// Sequence pass after <see cref="TimingPosition"/> ordering: status appliers go before the payoffs that cash their
+        /// status, an ifTag setup sits right before the first action carrying its tag, and RELEASE goes last (after every
+        /// grant source it pulls in).
+        /// </summary>
+        public static List<string> SequenceOrder(List<string> strip)
+        {
+            var s = new List<string>(strip);
+            void MoveBefore(string a, int index)
+            {
+                s.Remove(a);
+                s.Insert(Math.Clamp(index, 0, s.Count), a);
+            }
+            // Payoffs after their appliers.
+            foreach (string a in strip)
+            {
+                var spec = VerbSpec.Parse(ActionLoader.GetActionData(a)?.Verb);
+                if (spec is not { Kind: VerbKind.Cash or VerbKind.Scale } || !IsStatusStore(spec.Store))
+                    continue;
+                string fx = "fx:" + spec.Store.ToLowerInvariant();
+                int lastApplier = s.FindLastIndex(o => o != a && Features(o).ContainsKey(fx));
+                if (lastApplier > s.IndexOf(a))
+                    MoveBefore(a, lastApplier); // removing a (before it) shifts the applier down one: this lands just after it
+            }
+            // Setups right before the first action with their tag.
+            foreach (string a in strip)
+            {
+                string? tag = TimingOf(a)?.IfTag;
+                if (string.IsNullOrWhiteSpace(tag))
+                    continue;
+                s.Remove(a);
+                int target = s.FindIndex(o => HasTag(o, tag));
+                s.Insert(target < 0 ? s.Count : target, a);
+            }
+            // RELEASE last.
+            foreach (string a in strip)
+                if (VerbSpec.Parse(ActionLoader.GetActionData(a)?.Verb)?.Kind == VerbKind.Release)
+                {
+                    s.Remove(a);
+                    s.Add(a);
+                }
+            return s;
+        }
 
         /// <summary>True when an active source (set WHEN or learned node) weights the action's fx:&lt;status&gt;, or a conversion uses it.</summary>
         private static bool StatusUsed(Character hero, IReadOnlyDictionary<string, double> features)

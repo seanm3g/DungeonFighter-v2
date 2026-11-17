@@ -149,6 +149,12 @@ namespace RPGGame.UI.Avalonia.Layout
                 lines.Add($"Confused ({actor.ConfusionTurns} turn{(actor.ConfusionTurns != 1 ? "s" : "")})");
             if (actor.IsMarked && actor.MarkTurns > 0)
                 lines.Add($"Marked ({actor.MarkTurns} turn{(actor.MarkTurns != 1 ? "s" : "")})");
+            if (TempoStatuses.Brittle(actor) > 0)
+                lines.Add($"Brittle x{actor.BrittleStacks} ({actor.BrittleTurns}t)");
+            if (actor.StaggerStacks > 0)
+                lines.Add($"Stagger x{actor.StaggerStacks}");
+            if (actor.HasteStacks > 0)
+                lines.Add($"Haste x{actor.HasteStacks}");
             if (charHud != null)
             {
                 lines.AddRange(BuildTurnBonusStatusLines(charHud));

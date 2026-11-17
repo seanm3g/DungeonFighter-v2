@@ -246,6 +246,15 @@ namespace RPGGame
         /// <summary>MCP/agent: exit choice handler when between dungeon rooms.</summary>
         public DungeonExitChoiceHandler? GetExitChoiceHandler() => dungeonRunnerManager?.GetExitChoiceHandler();
 
+        /// <summary>MCP/agent: inventory hub handler (equip / compare / trade-up / action sequence prompts).</summary>
+        public InventoryMenuHandler? GetInventoryMenuHandler() => inventoryMenuHandler;
+
+        /// <summary>MCP/agent: skill tree handler (selected node, status line).</summary>
+        public SkillTreeMenuHandler? GetSkillTreeMenuHandler() => skillTreeMenuHandler;
+
+        /// <summary>MCP/agent: region travel handler (pending destination).</summary>
+        public RegionTravelHandler? GetRegionTravelHandler() => regionTravelHandler;
+
         // Main entry points
         public void ShowMainMenu()
         {
@@ -772,6 +781,10 @@ namespace RPGGame
             {
                 canvasUI.ShowMessage(message);
             }
+            else if (customUIManager is RPGGame.MCP.OutputCapture mcpOutput)
+            {
+                mcpOutput.WriteSystemLine(message);
+            }
         }
         
         /// <summary>
@@ -783,6 +796,10 @@ namespace RPGGame
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.ShowInvalidKeyMessage(message);
+            }
+            else if (customUIManager is RPGGame.MCP.OutputCapture mcpOutput)
+            {
+                mcpOutput.WriteSystemLine(message);
             }
         }
 

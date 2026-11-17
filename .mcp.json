@@ -1,8 +1,14 @@
 {
   "mcpServers": {
     "dungeonfighter": {
-      "command": "D:\\Code Projects\\github projects\\DungeonFighter-v2\\Code\\bin\\_agent_build\\DF.exe",
-      "args": ["MCP"],
+      "command": "powershell",
+      "args": [
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "D:\\Code Projects\\github projects\\DungeonFighter-v2\\Scripts\\mcp-server.ps1"
+      ],
       "cwd": "D:\\Code Projects\\github projects\\DungeonFighter-v2"
     }
   }

@@ -678,6 +678,11 @@ namespace RPGGame
                 AddWrapped(rarity);
             if (result.Count >= maxLines) return result;
 
+            string tagText = ActionNameColors.DisplayTagsText(action);
+            if (tagText.Length > 0)
+                AddWrapped("Tags: " + tagText);
+            if (result.Count >= maxLines) return result;
+
             var does = HoverEffectCopy.BuildActionDoesLines(character, action);
             if (does.Count > 0)
             {

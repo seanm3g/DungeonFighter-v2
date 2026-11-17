@@ -27,6 +27,9 @@
         
         // Specialized managers using composition pattern
         private readonly InventoryStateManager stateTracker;
+
+        /// <summary>MCP/agent: read-only view of which inventory prompt is open.</summary>
+        public InventoryStateManager StateTracker => stateTracker;
         private readonly InventoryItemActionHandler itemActionHandler;
         private readonly InventoryItemComparisonHandler itemComparisonHandler;
         private readonly InventoryComboManager comboManager;

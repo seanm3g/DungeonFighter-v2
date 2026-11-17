@@ -514,18 +514,19 @@ namespace RPGGame.UI.Avalonia.Renderers
                 canvas.AddText(r.X + 1, r.Y + 2, Truncate(room.StrikeThreshold > 20 ? "won't act" : $"strikes {room.StrikeThreshold}+", tw), AsciiArtAssets.Colors.Gray);
         }
 
-        /// <summary>A card ahead; <paramref name="lit"/> while the swap beat that changed it plays.</summary>
+        /// <summary>A card ahead: just who goes that turn, centered in the box; <paramref name="lit"/> while the swap beat that changed it plays.</summary>
         private void DrawTimelineAhead(BoardRect r, TimelineAheadCard card, Character player, bool lit)
         {
             var actor = card.Actor;
             Color actorColor = BoardActorColor(actor);
-            Color titleColor = actor is Environment ? BoardHazardColor
-                : card.Detail == "skips turn" ? BoardStunColor
-                : ReferenceEquals(actor, player) ? BoardComboBorder : AsciiArtAssets.Colors.White;
+            Color nameColor = card.Detail == "skips turn" ? BoardStunColor : actorColor;
             Color border = lit ? actorColor : LerpColor(actorColor, BoardDimBorder, 0.7);
-            Color label = LerpColor(actorColor, AsciiArtAssets.Colors.Gray, 0.3);
-            DrawTimelineCard(r, TimelineLabel(actor, player), label, border, lit ? 2 : 1,
-                lit ? titleColor : LerpColor(titleColor, AsciiArtAssets.Colors.Gray, 0.25), card.Title, card.Detail);
+            AddBoardBox(r.X, r.Y, r.W, r.H, border, BoardCardBackground, borderThicknessPixels: lit ? 2 : 1);
+            string name = Truncate(TimelineLabel(actor, player), r.W - 2);
+            int ty = r.Y + Math.Max(1, (r.H - 1) / 2);
+            if (ty < (int)r.Bottom - 1)
+                canvas.AddText(r.X + Math.Max(1, (r.W - name.Length) / 2), ty, name,
+                    lit ? nameColor : LerpColor(nameColor, AsciiArtAssets.Colors.Gray, 0.25));
         }
 
         /// <summary>A played turn's card: grayed in the past, in its outcome's colors in the current slot.</summary>

@@ -157,6 +157,10 @@ namespace RPGGame.Actions.Execution
             var sw = CombatHotPathMetrics.IsEnabled ? Stopwatch.StartNew() : null;
 
             var result = new ActionExecutionResult();
+            // Hold the painted attribute rows at their pre-swing values until the OUTCOME is shown.
+            if (source is Character holdHero && holdHero is not Enemy && RetriggerDepth == 0
+                && !RPGGame.Combat.CombatUiMuteScope.IsMuted && RPGGame.UIManager.GetCustomUIManager() != null)
+                RPGGame.Combat.UI.AttributeDisplayHold.Stage(holdHero, LeftPanelAttributeOrder.CaptureForHold(holdHero));
             if (source is Character heroTurn && heroTurn is not Enemy && RetriggerDepth == 0)
                 { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); MaterialSetController.NotifyHeroTurnStart(heroTurn); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.TurnStart", pf); }
             if (source is Enemy && RetriggerDepth == 0)

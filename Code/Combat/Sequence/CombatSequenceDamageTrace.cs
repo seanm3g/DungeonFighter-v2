@@ -1,3 +1,5 @@
+using System;
+
 namespace RPGGame.Combat.Sequence
 {
     /// <summary>
@@ -6,7 +8,17 @@ namespace RPGGame.Combat.Sequence
     public sealed class CombatSequenceDamageTrace
     {
         public int BaseDamage { get; set; }
+        /// <summary>Action multiplier including <see cref="NextActionDamageModPercent"/> (the product the damage used).</summary>
         public double ActionMultiplier { get; set; } = 1.0;
+
+        /// <summary>Banked "next action" DAMAGE_MOD % (e.g. WIND UP's +25%) folded into <see cref="ActionMultiplier"/>.</summary>
+        public double NextActionDamageModPercent { get; set; }
+
+        /// <summary><see cref="ActionMultiplier"/> without the next-action bonus.</summary>
+        public double ActionMultiplierWithoutNextActionMod =>
+            Math.Abs(NextActionDamageModPercent) > 0.0001 && 1.0 + NextActionDamageModPercent / 100.0 > 0
+                ? ActionMultiplier / (1.0 + NextActionDamageModPercent / 100.0)
+                : ActionMultiplier;
         public double Amp { get; set; } = 1.0;
         public int ConvertFlat { get; set; }
         public int Raw { get; set; }

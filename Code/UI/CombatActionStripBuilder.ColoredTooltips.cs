@@ -120,6 +120,16 @@ namespace RPGGame
                 AddColoredLine(lines, BuildActionRarityLine(rarity));
             if (lines.Count >= maxLines) return TrimColored(lines, maxLines);
 
+            string tagText = ActionNameColors.DisplayTagsText(action);
+            if (tagText.Length > 0)
+            {
+                var tb = new ColoredTextBuilder();
+                tb.Add("Tags: ", RPGGame.UI.Avalonia.AsciiArtAssets.Colors.Gray);
+                tb.Add(tagText, RPGGame.UI.Avalonia.AsciiArtAssets.Colors.Cyan);
+                AddColoredLine(lines, tb.Build());
+            }
+            if (lines.Count >= maxLines) return TrimColored(lines, maxLines);
+
             var does = HoverEffectCopy.BuildActionDoesLines(character, action);
             if (does.Count > 0 && lines.Count < maxLines)
             {

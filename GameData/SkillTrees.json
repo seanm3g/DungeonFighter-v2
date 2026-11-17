@@ -47,11 +47,12 @@
           "cost": 1,
           "maxRank": 5,
           "requires": [],
-          "effect": "+{8}% damage per equipped Barbarian item, per skill rank.",
+          "effect": "+{8}% damage per equipped Barbarian piece (Bone / Steel / Iron or Barbarian-tagged), per rank.",
           "payoff": "Material count becomes a build choice.",
-          "customEffectId": "first_bronze_age",
+          "customEffectId": "rule",
           "sharedWith": [],
-          "power": 0.02679
+          "power": 0.02679,
+          "crossWire": "WHILE -> DAMAGE 8% PER WORN barbarian"
         },
         {
           "id": "b-loot",
@@ -94,9 +95,10 @@
           "requires": [],
           "effect": "Rite of passage: +{10} Strength.",
           "payoff": "Marks the Mace path; a flat Strength boost.",
-          "customEffectId": "puberty",
+          "customEffectId": "rule",
           "power": 0.6,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> STR 10"
         },
         {
           "id": "b-bludgeon",
@@ -140,9 +142,10 @@
           "requires": [],
           "effect": "Crit with a Mace: 35% chance to Stun for 1 turn.",
           "payoff": "Crits buy control, not only damage.",
-          "customEffectId": "concussive_crit",
+          "customEffectId": "rule",
           "power": 0.5,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCRITICAL CHANCE 35% IF WEAPON mace -> APPLY stun 1"
         },
         {
           "id": "b-empty",
@@ -155,9 +158,10 @@
           "requires": [],
           "effect": "+{25} STR for each action slot filled beyond the first, per skill rank.",
           "payoff": "Long strips hit harder; every slot you fill feeds the fury.",
-          "customEffectId": "empty_fury",
+          "customEffectId": "rule",
           "power": 0.00857,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> STR 25 PER EXTRASLOTS"
         },
         {
           "id": "b-scar",
@@ -168,18 +172,19 @@
           "cost": 1,
           "maxRank": 5,
           "requires": [],
-          "effect": "Battle Scarred / New / Masterwork pieces: +{10}% Barbarian damage per matching piece, per skill rank.",
+          "effect": "Battle Scarred / New / Masterwork pieces: +{10}% damage per matching piece, per rank.",
           "payoff": "Quality fantasy becomes desirable loot.",
-          "customEffectId": "scrap_prefer",
+          "customEffectId": "rule",
           "power": 0.02974,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> DAMAGE 10% PER QUALITY Battle_Scarred|New|Masterwork"
         },
         {
           "name": "Bone Skin",
           "type": "Passive",
           "effect": "The first time you take damage each fight, gain 2 Harden.",
           "payoff": "Pain arms you.",
-          "customEffectId": "bronze_skin",
+          "customEffectId": "rule",
           "id": "b-skin",
           "branch": "Bone",
           "tier": 12,
@@ -187,14 +192,15 @@
           "cost": 1,
           "power": 1.0,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONTAKEHIT ONCE -> ADD harden 2"
         },
         {
           "name": "Blood Price",
           "type": "Passive",
           "effect": "Mace connects heal {0.5}% of max HP per rank.",
           "payoff": "Every Mace hit pays back.",
-          "customEffectId": "blood_price",
+          "customEffectId": "rule",
           "id": "b-blood",
           "branch": "Bone",
           "tier": 14,
@@ -202,7 +208,11 @@
           "cost": 1,
           "power": 0.2143,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCONNECT IF WEAPON mace -> HEAL 0.5",
+          "excludes": [
+            "b-trance"
+          ]
         },
         {
           "id": "b-wrath",
@@ -212,12 +222,13 @@
           "type": "Mastery",
           "maxRank": 3,
           "cost": 1,
-          "customEffectId": "wrath_unbound",
+          "customEffectId": "rule",
           "power": 0.10715,
-          "effect": "BONE WRATH also heals {1}% max HP per RAGE, per rank.",
+          "effect": "Spending RAGE (BONE WRATH, CASH IN, any verb) heals {1}% max HP per RAGE spent, per rank.",
           "payoff": "RAGE pays twice.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCASH:RAGE -> HEAL 1 PER SPENT"
         },
         {
           "id": "b-sink-bone",
@@ -248,7 +259,10 @@
           "cost": 1,
           "power": 1.0,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "excludes": [
+            "b-fault"
+          ]
         },
         {
           "id": "b-sink-iron",
@@ -274,19 +288,20 @@
           "type": "Passive",
           "maxRank": 5,
           "cost": 1,
-          "customEffectId": "tribal_kinship",
+          "customEffectId": "rule",
           "power": 0.08572,
           "effect": "Each equipped Bone / Steel / Iron piece adds +{1} STR per rank.",
           "payoff": "Your materials are your strength.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> STR 1 PER WORN barbarian"
         },
         {
           "name": "Gut Instinct",
           "type": "Mastery",
-          "effect": "Every 5 effective INT adds +{1} STR to Mace actions, per rank.",
+          "effect": "With a Mace: every 5 effective INT adds +{1} STR, per rank.",
           "payoff": "Instinct over study.",
-          "customEffectId": "gut_instinct",
+          "customEffectId": "rule",
           "id": "b-gut",
           "branch": "Rite",
           "tier": 15,
@@ -294,7 +309,12 @@
           "cost": 1,
           "power": 0.4286,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE IF WEAPON mace -> STR 1 PER STAT INT 5",
+          "excludes": [
+            "b-xr-rogue",
+            "b-xr-wizard"
+          ]
         },
         {
           "id": "b-synth",
@@ -331,7 +351,7 @@
           "type": "Passive",
           "effect": "While Harden is active, Mace hits gain +{3}% damage per rank.",
           "payoff": "Armor hits back.",
-          "customEffectId": "bronze_knuckle",
+          "customEffectId": "rule",
           "id": "b-knuckle",
           "branch": "Steel",
           "tier": 16,
@@ -339,7 +359,11 @@
           "cost": 1,
           "power": 0.4286,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE IF harden>=1 AND WEAPON mace -> DAMAGE 3%",
+          "excludes": [
+            "b-tremor"
+          ]
         },
         {
           "id": "b-sink-steel",
@@ -385,9 +409,13 @@
           "requires": [],
           "effect": "Each time you apply Bleed or Stun to an enemy, gain +{6} STR for the rest of the dungeon, per rank.",
           "payoff": "Wounds and concussions feed your strength.",
-          "customEffectId": "blood_frenzy",
+          "customEffectId": "rule",
           "sharedWith": [],
-          "power": 3.0
+          "power": 3.0,
+          "crossWire": "ONSTATUSAPPLY:bleed -> BUFF STR 6 FOR dungeon; ONSTATUSAPPLY:stun -> BUFF STR 6 FOR dungeon",
+          "excludes": [
+            "b-roar"
+          ]
         },
         {
           "id": "b-x-bone",
@@ -454,6 +482,46 @@
           "sharedWith": []
         },
         {
+          "id": "b-xr-rogue",
+          "name": "Borrowed Fury",
+          "branch": "Rite",
+          "tier": 15,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Spending GRAZE (Glass, Rogue) mints half as much RAGE.",
+          "payoff": "Crit Glass gear feeds Barbarian converts.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCASH:GRAZE -> MINT RAGE 50%",
+          "excludes": [
+            "b-gut",
+            "b-xr-wizard"
+          ]
+        },
+        {
+          "id": "b-xr-wizard",
+          "name": "Stormcaller's Pact",
+          "branch": "Rite",
+          "tier": 15,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Spending CHAIN (Willow, Wizard) grants 1 Harden.",
+          "payoff": "Combo-chain Willow gear becomes Barbarian armor.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCASH:CHAIN -> ADD harden 1",
+          "excludes": [
+            "b-gut",
+            "b-xr-rogue"
+          ]
+        },
+        {
           "id": "b-th-steel",
           "name": "Victory Lap",
           "branch": "Steel",
@@ -468,7 +536,48 @@
           "power": 1.0,
           "crossWire": "ONSTOREFULL:TRIUMPH -> HEAL 10",
           "family": "threshold",
-          "sharedWith": []
+          "sharedWith": [],
+          "excludes": [
+            "b-encore"
+          ]
+        },
+        {
+          "id": "b-tremor",
+          "name": "Tremor",
+          "branch": "Steel",
+          "tier": 16,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Ending a combo puts 2 Stagger on the target (its next action takes 15% longer per stack).",
+          "payoff": "Combo ends buy tempo.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCOMBOEND -> APPLY stagger 2",
+          "excludes": [
+            "b-knuckle"
+          ]
+        },
+        {
+          "id": "b-encore",
+          "name": "Encore of Iron",
+          "branch": "Steel",
+          "tier": 17,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 3,
+          "requires": [],
+          "effect": "Ending a combo: your next Bludgeon action +{25}% damage (it waits for one), per rank.",
+          "payoff": "Close a combo, open with a bludgeon.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCOMBOEND -> NEXT DAMAGE 25% IFTAG bludgeon",
+          "excludes": [
+            "b-th-steel"
+          ]
         },
         {
           "id": "b-al-bone",
@@ -488,6 +597,44 @@
           "sharedWith": []
         },
         {
+          "id": "b-trance",
+          "name": "Battle Trance",
+          "branch": "Bone",
+          "tier": 14,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 3,
+          "requires": [],
+          "effect": "Each hit you take: +{1} Haste (your actions are 10% faster per stack), per rank.",
+          "payoff": "Pain makes you faster instead of healthier.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONTAKEHIT -> ADD haste 1",
+          "excludes": [
+            "b-blood"
+          ]
+        },
+        {
+          "id": "b-roar",
+          "name": "Rattling Roar",
+          "branch": "Bone",
+          "tier": 15,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Every 2nd hit you take puts 1 Rattle on the attacker (-1 to its next attack roll).",
+          "payoff": "Defense through intimidation.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONTAKEHIT EVERY 2 -> APPLY rattle 1",
+          "excludes": [
+            "b-frenzy"
+          ]
+        },
+        {
           "id": "b-ex-iron",
           "name": "Unstoppable",
           "branch": "Iron",
@@ -502,7 +649,48 @@
           "power": 1.0,
           "crossWire": "WHILE IF HP<50 -> EXEMPT COMBO",
           "family": "exemption",
-          "sharedWith": []
+          "sharedWith": [],
+          "excludes": [
+            "b-headsman"
+          ]
+        },
+        {
+          "id": "b-fault",
+          "name": "Fault Lines",
+          "branch": "Iron",
+          "tier": 13,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Hits on an enemy below 50% HP add 1 Brittle (its next crit taken deals +25%).",
+          "payoff": "Crit-finisher Iron instead of poison Iron.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCONNECT IF TARGET HP<50 -> APPLY brittle 1",
+          "excludes": [
+            "b-venom"
+          ]
+        },
+        {
+          "id": "b-headsman",
+          "name": "Executioner's Rhythm",
+          "branch": "Iron",
+          "tier": 17,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 3,
+          "requires": [],
+          "effect": "Each kill: your next 2 actions +{40}%, then +{20}% damage (fading), per rank.",
+          "payoff": "Kills feed the next fight's opening.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONKILL -> NEXT DAMAGE 40% FOR 2 DECAY",
+          "excludes": [
+            "b-ex-iron"
+          ]
         }
       ]
     },
@@ -553,11 +741,12 @@
           "cost": 1,
           "maxRank": 5,
           "requires": [],
-          "effect": "+{8}% speed per equipped Warrior item, per skill rank.",
+          "effect": "+{8}% speed per equipped Warrior piece (Bronze / Gold / Mithril or Warrior-tagged), per rank.",
           "payoff": "Material count becomes tempo.",
-          "customEffectId": "first_formation",
+          "customEffectId": "rule",
           "sharedWith": [],
-          "power": 0.01774
+          "power": 0.01774,
+          "crossWire": "WHILE -> SPEED 8% PER WORN warrior"
         },
         {
           "id": "w-loot",
@@ -583,11 +772,12 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "Your natural dice roll x {1} becomes +% speed on your next action.",
+          "effect": "Each attack: +{1}% speed per point of its natural roll on your next action.",
           "payoff": "Clean rolls bank cadence.",
-          "customEffectId": "roll_speed",
+          "customEffectId": "rule",
           "power": 0.5677,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONATTACK -> NEXT SPEED 1% PER ROLL"
         },
         {
           "id": "w-puberty",
@@ -600,9 +790,10 @@
           "requires": [],
           "effect": "Rite of passage: +{10} Agility.",
           "payoff": "Marks the Sword path; baseline tempo before tag engines.",
-          "customEffectId": "commission",
+          "customEffectId": "rule",
           "power": 3.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> AGI 10"
         },
         {
           "id": "w-avenge",
@@ -644,11 +835,12 @@
           "cost": 1,
           "maxRank": 5,
           "requires": [],
-          "effect": "Hit with a Sword: +{5} Agility for the turn, per skill rank.",
+          "effect": "Connect with a Sword: +{5} Agility on your next action, per rank.",
           "payoff": "Connects convert into same-turn tempo.",
-          "customEffectId": "sword_hit_agi",
+          "customEffectId": "rule",
           "power": 0.11354,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCONNECT IF WEAPON sword -> NEXT AGI 5"
         },
         {
           "id": "w-streak",
@@ -659,11 +851,12 @@
           "cost": 1,
           "maxRank": 5,
           "requires": [],
-          "effect": "+{5} Agility for each consecutive attack (resets OnTakeHit), per skill rank.",
+          "effect": "+{5} Agility per hit in your current hit streak (a miss resets it), per rank.",
           "payoff": "Rewards unbroken offensive lines.",
-          "customEffectId": "consecutive_agi",
+          "customEffectId": "rule",
           "power": 0.11354,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> AGI 5 PER HITSTREAK"
         },
         {
           "id": "w-polish",
@@ -674,18 +867,19 @@
           "cost": 1,
           "maxRank": 5,
           "requires": [],
-          "effect": "Worn / Like New / Heirloom pieces: +{10}% Warrior damage per matching piece, per skill rank.",
+          "effect": "Worn / Like New / Heirloom pieces: +{10}% damage per matching piece, per rank.",
           "payoff": "Quality fantasy becomes desirable loot.",
-          "customEffectId": "parade_dress",
+          "customEffectId": "rule",
           "power": 0.02839,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> DAMAGE 10% PER QUALITY Worn|Like_New|Heirloom"
         },
         {
           "name": "Metronome",
           "type": "Passive",
           "effect": "Combo slot 2 Sword hits gain +{4}% action speed per rank.",
           "payoff": "Slot 2 keeps time.",
-          "customEffectId": "metronome",
+          "customEffectId": "rule",
           "id": "w-metronome",
           "branch": "Bronze",
           "tier": 14,
@@ -693,7 +887,11 @@
           "cost": 1,
           "power": 0.5677,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE IF SLOT=2 AND WEAPON sword -> SPEED 4%",
+          "excludes": [
+            "w-hands"
+          ]
         },
         {
           "name": "Cadence Keeper",
@@ -733,12 +931,16 @@
           "type": "Mastery",
           "maxRank": 3,
           "cost": 1,
-          "customEffectId": "war_drum",
+          "customEffectId": "rule",
           "power": 0.14192,
-          "effect": "DRUM CUT: +{2}% speed per BEAT, per rank.",
+          "effect": "Spending BEAT (DRUM CUT, CASH IN, any verb): +{2}% speed per BEAT spent on your next action, per rank.",
           "payoff": "BEAT becomes tempo.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCASH:BEAT -> NEXT SPEED 2% PER SPENT",
+          "excludes": [
+            "w-hymn"
+          ]
         },
         {
           "id": "w-sink-bronze",
@@ -761,7 +963,7 @@
           "type": "Passive",
           "effect": "While Fortify is active, Sword hits gain +{2}% damage per rank.",
           "payoff": "Fortify hits back.",
-          "customEffectId": "phalanx",
+          "customEffectId": "rule",
           "id": "w-phalanx",
           "branch": "Gold",
           "tier": 14,
@@ -769,7 +971,11 @@
           "cost": 1,
           "power": 0.5677,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE IF fortify>=1 AND WEAPON sword -> DAMAGE 2%",
+          "excludes": [
+            "w-shieldrattle"
+          ]
         },
         {
           "name": "Second Wind",
@@ -784,7 +990,10 @@
           "cost": 1,
           "power": 0.05322,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "excludes": [
+            "w-hamstrung"
+          ]
         },
         {
           "id": "w-sink-gold",
@@ -810,19 +1019,20 @@
           "type": "Passive",
           "maxRank": 5,
           "cost": 1,
-          "customEffectId": "martial_kinship",
+          "customEffectId": "rule",
           "power": 0.05677,
           "effect": "Each equipped Bronze / Gold / Mithril piece adds +{1} AGI per rank.",
           "payoff": "Your materials are your speed.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> AGI 1 PER WORN warrior"
         },
         {
           "name": "Steady March",
           "type": "Passive",
-          "effect": "Sword actions gain +{1} effective AGI per rank.",
+          "effect": "With a Sword: +{1} AGI, per rank.",
           "payoff": "Sword actions move faster.",
-          "customEffectId": "steady_march",
+          "customEffectId": "rule",
           "id": "w-march",
           "branch": "Rite",
           "tier": 14,
@@ -830,7 +1040,12 @@
           "cost": 1,
           "power": 0.83382,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE IF WEAPON sword -> AGI 1",
+          "excludes": [
+            "w-xr-rogue",
+            "w-xr-wizard"
+          ]
         },
         {
           "id": "w-synth",
@@ -855,12 +1070,16 @@
           "type": "Mastery",
           "maxRank": 3,
           "cost": 1,
-          "customEffectId": "mithril_flow",
+          "customEffectId": "rule",
           "power": 0.5677,
-          "effect": "MITHRIL FLOW grants {0.34} Focus per STREAK, per rank.",
+          "effect": "Spending STREAK (MITHRIL FLOW, CASH IN, any verb) grants {0.34} Focus per STREAK spent, per rank.",
           "payoff": "STREAK becomes power.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCASH:STREAK -> ADD focus 0.34 PER SPENT",
+          "excludes": [
+            "w-cutting"
+          ]
         },
         {
           "id": "w-sink-mithril",
@@ -889,9 +1108,10 @@
           "requires": [],
           "effect": "Each time you apply Slow or Weaken to an enemy, gain +{8} AGI for the rest of the dungeon, per rank.",
           "payoff": "Every hindered foe makes you faster.",
-          "customEffectId": "pinning_drill",
+          "customEffectId": "rule",
           "sharedWith": [],
-          "power": 4.0
+          "power": 4.0,
+          "crossWire": "ONSTATUSAPPLY:slow -> BUFF AGI 8 FOR dungeon; ONSTATUSAPPLY:weaken -> BUFF AGI 8 FOR dungeon"
         },
         {
           "id": "w-x-bronze",
@@ -958,6 +1178,46 @@
           "sharedWith": []
         },
         {
+          "id": "w-xr-rogue",
+          "name": "Borrowed Edge",
+          "branch": "Rite",
+          "tier": 14,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Spending SWING (Shadow, Rogue) mints half as much STREAK.",
+          "payoff": "Shadow gear feeds Mithril converts.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCASH:SWING -> MINT STREAK 50%",
+          "excludes": [
+            "w-march",
+            "w-xr-wizard"
+          ]
+        },
+        {
+          "id": "w-xr-wizard",
+          "name": "Arcane Drill",
+          "branch": "Rite",
+          "tier": 14,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Spending LENS (Silver, Wizard) grants 1 Haste.",
+          "payoff": "Silver focus gear becomes Warrior speed.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCASH:LENS -> ADD haste 1",
+          "excludes": [
+            "w-march",
+            "w-xr-rogue"
+          ]
+        },
+        {
           "id": "w-th-bronze",
           "name": "Crescendo",
           "branch": "Bronze",
@@ -973,6 +1233,44 @@
           "crossWire": "ONSTOREFULL:BEAT -> ADD focus 2",
           "family": "threshold",
           "sharedWith": []
+        },
+        {
+          "id": "w-hands",
+          "name": "Quick Hands",
+          "branch": "Bronze",
+          "tier": 14,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Every 2nd combo hit: +1 Haste (your actions are 10% faster per stack).",
+          "payoff": "Speed from combos instead of slot 2.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCOMBO EVERY 2 -> ADD haste 1",
+          "excludes": [
+            "w-metronome"
+          ]
+        },
+        {
+          "id": "w-hymn",
+          "name": "Battle Hymn",
+          "branch": "Bronze",
+          "tier": 17,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 3,
+          "requires": [],
+          "effect": "Every 4th turn: your next Swift action +{30}% damage (it waits for one), per rank.",
+          "payoff": "The beat cues the swift strike.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONBEAT -> NEXT DAMAGE 30% IFTAG swift",
+          "excludes": [
+            "w-drum"
+          ]
         },
         {
           "id": "w-al-gold",
@@ -992,6 +1290,44 @@
           "sharedWith": []
         },
         {
+          "id": "w-shieldrattle",
+          "name": "Shield Rattle",
+          "branch": "Gold",
+          "tier": 14,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Each hit you take puts 1 Rattle on the attacker (-1 to its next attack roll).",
+          "payoff": "Fortify-less defense: make them miss.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONTAKEHIT -> APPLY rattle 1",
+          "excludes": [
+            "w-phalanx"
+          ]
+        },
+        {
+          "id": "w-hamstrung",
+          "name": "Hamstrung",
+          "branch": "Gold",
+          "tier": 16,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Each time you Slow an enemy it also gains 1 Stagger.",
+          "payoff": "Slow and Stagger stack the tempo gap.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONSTATUSAPPLY:slow -> APPLY stagger 1",
+          "excludes": [
+            "w-wind"
+          ]
+        },
+        {
           "id": "w-ex-mithril",
           "name": "Unbroken Form",
           "branch": "Mithril",
@@ -1006,7 +1342,48 @@
           "power": 1.0,
           "crossWire": "WHILE IF focus>=1 -> EXEMPT STREAK",
           "family": "exemption",
-          "sharedWith": []
+          "sharedWith": [],
+          "excludes": [
+            "w-flowing"
+          ]
+        },
+        {
+          "id": "w-flowing",
+          "name": "Flowing Strikes",
+          "branch": "Mithril",
+          "tier": 15,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 3,
+          "requires": [],
+          "effect": "+{2}% speed per hit in your current hit streak (a miss resets it), per rank.",
+          "payoff": "Streaks turn into tempo.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "WHILE -> SPEED 2% PER HITSTREAK",
+          "excludes": [
+            "w-ex-mithril"
+          ]
+        },
+        {
+          "id": "w-cutting",
+          "name": "Cutting Rhythm",
+          "branch": "Mithril",
+          "tier": 17,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Every 3rd consecutive hit adds 1 Brittle (the next crit it takes deals +25%).",
+          "payoff": "Streaks set up crits.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCONSECUTIVEATTACK EVERY 3 -> APPLY brittle 1",
+          "excludes": [
+            "w-flowcrest"
+          ]
         }
       ]
     },
@@ -1057,11 +1434,12 @@
           "cost": 1,
           "maxRank": 5,
           "requires": [],
-          "effect": "+{8}% damage per equipped Rogue item, per skill rank.",
+          "effect": "+{8}% damage per equipped Rogue piece (Glass / Obsidian / Shadow or Rogue-tagged), per rank.",
           "payoff": "Material count becomes a build choice.",
-          "customEffectId": "first_cut",
+          "customEffectId": "rule",
           "sharedWith": [],
-          "power": 0.02014
+          "power": 0.02014,
+          "crossWire": "WHILE -> DAMAGE 8% PER WORN rogue"
         },
         {
           "id": "r-loot",
@@ -1087,11 +1465,12 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "Your natural dice roll x {1} becomes +% damage on your next action.",
+          "effect": "Each attack: +{1}% damage per point of its natural roll on your next action.",
           "payoff": "Rolls feed next-swing lethality.",
-          "customEffectId": "roll_damage",
+          "customEffectId": "rule",
           "power": 0.6445,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONATTACK -> NEXT DAMAGE 1% PER ROLL"
         },
         {
           "id": "r-puberty",
@@ -1104,9 +1483,10 @@
           "requires": [],
           "effect": "Rite of passage: +{10} Technique.",
           "payoff": "Marks the Dagger path; baseline precision before tag engines.",
-          "customEffectId": "initiation",
+          "customEffectId": "rule",
           "power": 2.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> TEC 10"
         },
         {
           "id": "r-precision",
@@ -1119,9 +1499,10 @@
           "requires": [],
           "effect": "Rogue-tagged actions gain +{1} Multihit.",
           "payoff": "Tag density becomes burst volume.",
-          "customEffectId": "precision_multihit",
+          "customEffectId": "rule",
           "power": 1.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE IF TAG rogue -> MULTIHIT 1"
         },
         {
           "id": "r-combo",
@@ -1162,11 +1543,12 @@
           "cost": 1,
           "maxRank": 5,
           "requires": [],
-          "effect": "+{5} Technique for each consecutive non-miss (resets OnTakeHit/miss), per skill rank.",
+          "effect": "+{5} Technique per hit in your current hit streak (a miss resets it), per rank.",
           "payoff": "Rewards clean connect streaks.",
-          "customEffectId": "consecutive_tec",
+          "customEffectId": "rule",
           "power": 0.1289,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> TEC 5 PER HITSTREAK"
         },
         {
           "id": "r-glass",
@@ -1177,11 +1559,12 @@
           "cost": 1,
           "maxRank": 5,
           "requires": [],
-          "effect": "Broken / Preowned / Perfect pieces: +{10}% Rogue damage per matching piece, per skill rank.",
+          "effect": "Broken / Preowned / Perfect pieces: +{10}% damage per matching piece, per rank.",
           "payoff": "Quality fantasy becomes desirable loot.",
-          "customEffectId": "fragile_prefer",
+          "customEffectId": "rule",
           "power": 0.03222,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> DAMAGE 10% PER QUALITY Broken|Preowned|Perfect"
         },
         {
           "name": "Snake Eyes",
@@ -1196,7 +1579,10 @@
           "cost": 1,
           "power": 1.0,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "excludes": [
+            "r-hairline"
+          ]
         },
         {
           "id": "r-shatter",
@@ -1206,12 +1592,16 @@
           "type": "Mastery",
           "maxRank": 3,
           "cost": 1,
-          "customEffectId": "glass_shatter",
+          "customEffectId": "rule",
           "power": 0.6445,
-          "effect": "GLASS NICK applies {0.34} Expose per GRAZE, per rank.",
+          "effect": "Spending GRAZE (GLASS NICK, CASH IN, any verb) applies {0.34} Expose per GRAZE spent, per rank.",
           "payoff": "GRAZE cracks armor.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCASH:GRAZE -> APPLY expose 0.34 PER SPENT",
+          "excludes": [
+            "r-cannon"
+          ]
         },
         {
           "id": "r-sink-glass",
@@ -1232,9 +1622,9 @@
         {
           "name": "Grease Palm",
           "type": "Passive",
-          "effect": "Connecting on a natural roll of 7 or lower grants +{1} temporary Technique per rank.",
+          "effect": "Connecting on a natural roll of 7 or lower: +{1} Technique on your next 2 actions, per rank.",
           "payoff": "Low rolls sharpen you.",
-          "customEffectId": "grease_palm",
+          "customEffectId": "rule",
           "id": "r-grease",
           "branch": "Shadow",
           "tier": 12,
@@ -1242,7 +1632,11 @@
           "cost": 1,
           "power": 0.6445,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCONNECT IF ROLL<=7 -> NEXT TEC 1 FOR 2",
+          "excludes": [
+            "r-feint"
+          ]
         },
         {
           "name": "Technical Debt",
@@ -1257,7 +1651,10 @@
           "cost": 1,
           "power": 0.25,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "excludes": [
+            "r-setup"
+          ]
         },
         {
           "id": "r-sink-shadow",
@@ -1283,12 +1680,13 @@
           "type": "Passive",
           "maxRank": 5,
           "cost": 1,
-          "customEffectId": "shadow_kinship",
+          "customEffectId": "rule",
           "power": 0.1289,
           "effect": "Each equipped Glass / Obsidian / Shadow piece adds +{1} TEC per rank.",
           "payoff": "Your materials are your precision.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> TEC 1 PER WORN rogue"
         },
         {
           "id": "r-synth",
@@ -1303,7 +1701,11 @@
           "effect": "Every 20 TEC adds +{1} to each GRAZE / SWING / TROPHY mint, per rank.",
           "payoff": "Technique feeds the materials.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "excludes": [
+            "r-xr-barbarian",
+            "r-xr-wizard"
+          ]
         },
         {
           "id": "r-aim",
@@ -1313,12 +1715,13 @@
           "type": "Mastery",
           "maxRank": 1,
           "cost": 1,
-          "customEffectId": "perfect_aim",
+          "customEffectId": "rule",
           "power": 0.08056,
           "effect": "Every 25 TEC also lowers your crit threshold by {1}.",
           "payoff": "Technique without a ceiling.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> CRIT 1 PER STAT TEC 25"
         },
         {
           "name": "Envenomed Edge",
@@ -1340,7 +1743,7 @@
           "type": "Passive",
           "effect": "Hits apply +{1} Bleed per rank (doubled on crit).",
           "payoff": "Every hit bleeds.",
-          "customEffectId": "deep_cut",
+          "customEffectId": "rule",
           "id": "r-cut",
           "branch": "Obsidian",
           "tier": 12,
@@ -1348,14 +1751,18 @@
           "cost": 1,
           "power": 0.6445,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCONNECT -> APPLY bleed 1; ONCRITICAL -> APPLY bleed 1",
+          "excludes": [
+            "r-pressure"
+          ]
         },
         {
           "name": "Blood Draught",
           "type": "Passive",
-          "effect": "Dagger connects against a Bleeding enemy heal {1}% of max HP per rank.",
+          "effect": "Dagger connects against a Bleeding enemy heal {0.5}% of max HP per rank.",
           "payoff": "Open wounds feed you.",
-          "customEffectId": "blood_draught",
+          "customEffectId": "rule",
           "id": "r-draught",
           "branch": "Obsidian",
           "tier": 14,
@@ -1363,14 +1770,18 @@
           "cost": 1,
           "power": 0.4286,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCONNECT IF WEAPON dagger AND TARGET bleed -> HEAL 0.5",
+          "excludes": [
+            "r-opportunist"
+          ]
         },
         {
           "name": "Toxin Pressure",
           "type": "Passive",
           "effect": "Hits against Poisoned enemies apply +{1} Bleed per rank.",
           "payoff": "Poison feeds Bleed.",
-          "customEffectId": "toxin_pressure",
+          "customEffectId": "rule",
           "id": "r-toxin",
           "branch": "Obsidian",
           "tier": 13,
@@ -1378,7 +1789,8 @@
           "cost": 1,
           "power": 0.6445,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCONNECT IF TARGET poison -> APPLY bleed 1"
         },
         {
           "name": "Hemorrhage",
@@ -1437,9 +1849,10 @@
           "requires": [],
           "effect": "Each time you apply Poison or Expose to an enemy, gain +{1} TEC for the rest of the dungeon, per rank.",
           "payoff": "Every opening you make sharpens the next.",
-          "customEffectId": "toxic_insight",
+          "customEffectId": "rule",
           "sharedWith": [],
-          "power": 3.0
+          "power": 3.0,
+          "crossWire": "ONSTATUSAPPLY:poison -> BUFF TEC 1 FOR dungeon; ONSTATUSAPPLY:expose -> BUFF TEC 1 FOR dungeon"
         },
         {
           "id": "r-x-glass",
@@ -1506,6 +1919,46 @@
           "sharedWith": []
         },
         {
+          "id": "r-xr-barbarian",
+          "name": "Borrowed Steel",
+          "branch": "Rite",
+          "tier": 16,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Spending TRIUMPH (Steel, Barbarian) mints half as much GRAZE.",
+          "payoff": "Steel combo gear feeds Glass converts.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCASH:TRIUMPH -> MINT GRAZE 50%",
+          "excludes": [
+            "r-synth",
+            "r-xr-wizard"
+          ]
+        },
+        {
+          "id": "r-xr-wizard",
+          "name": "Hex Thief",
+          "branch": "Rite",
+          "tier": 16,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Spending CONTACT (Crystal, Wizard) Marks the target (its next hit taken is a crit).",
+          "payoff": "Crystal gear sets up Rogue crits.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCASH:CONTACT -> APPLY mark 1",
+          "excludes": [
+            "r-synth",
+            "r-xr-barbarian"
+          ]
+        },
+        {
           "id": "r-th-shadow",
           "name": "Exposed Nerve",
           "branch": "Shadow",
@@ -1521,6 +1974,44 @@
           "crossWire": "ONSTOREFULL:expose -> APPLY bleed 3",
           "family": "threshold",
           "sharedWith": []
+        },
+        {
+          "id": "r-feint",
+          "name": "Feint Step",
+          "branch": "Shadow",
+          "tier": 12,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Each miss: +1 Haste (your actions are 10% faster per stack).",
+          "payoff": "Misses become tempo.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONMISS -> ADD haste 1",
+          "excludes": [
+            "r-grease"
+          ]
+        },
+        {
+          "id": "r-setup",
+          "name": "Setup Artist",
+          "branch": "Shadow",
+          "tier": 15,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 3,
+          "requires": [],
+          "effect": "Each time you apply Brittle: your next action +{20}% damage, per rank.",
+          "payoff": "Status setups pay off immediately.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONSTATUSAPPLY:brittle -> NEXT DAMAGE 20%",
+          "excludes": [
+            "r-debt"
+          ]
         },
         {
           "id": "r-al-glass",
@@ -1540,6 +2031,44 @@
           "sharedWith": []
         },
         {
+          "id": "r-hairline",
+          "name": "Hairline Fracture",
+          "branch": "Glass",
+          "tier": 16,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Each crit adds 1 Brittle (the next crit it takes deals +25%).",
+          "payoff": "Crits chain into bigger crits.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCRITICAL -> APPLY brittle 1",
+          "excludes": [
+            "r-snake"
+          ]
+        },
+        {
+          "id": "r-cannon",
+          "name": "Glass Cannon",
+          "branch": "Glass",
+          "tier": 17,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 3,
+          "requires": [],
+          "effect": "+{1} to crit per Brittle on the target, per rank.",
+          "payoff": "Brittle makes crits easier, not only bigger.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "WHILE -> CRIT 1 PER TARGET brittle",
+          "excludes": [
+            "r-shatter"
+          ]
+        },
+        {
           "id": "r-ex-obsidian",
           "name": "Fail Forward",
           "branch": "Obsidian",
@@ -1555,6 +2084,44 @@
           "crossWire": "WHILE IF TARGET mark -> EXEMPT COMBO",
           "family": "exemption",
           "sharedWith": []
+        },
+        {
+          "id": "r-pressure",
+          "name": "Pressure Points",
+          "branch": "Obsidian",
+          "tier": 12,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Every 3rd connect adds 1 Rattle (-1 to the enemy's next attack roll).",
+          "payoff": "Defensive Obsidian instead of bleed Obsidian.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCONNECT EVERY 3 -> APPLY rattle 1",
+          "excludes": [
+            "r-cut"
+          ]
+        },
+        {
+          "id": "r-opportunist",
+          "name": "Opportunist",
+          "branch": "Obsidian",
+          "tier": 14,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 3,
+          "requires": [],
+          "effect": "+{5}% damage against a Staggered enemy, per rank.",
+          "payoff": "Rewards tempo partners (Barbarian, Warrior gear).",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "WHILE IF TARGET stagger -> DAMAGE 5%",
+          "excludes": [
+            "r-draught"
+          ]
         }
       ]
     },
@@ -1605,11 +2172,12 @@
           "cost": 1,
           "maxRank": 5,
           "requires": [],
-          "effect": "+{8}% AMP per equipped Wizard item, per skill rank.",
+          "effect": "+{8}% AMP per equipped Wizard piece (Willow / Silver / Crystal or Wizard-tagged), per rank.",
           "payoff": "Material count becomes spell power.",
-          "customEffectId": "first_glyph",
+          "customEffectId": "rule",
           "sharedWith": [],
-          "power": 0.02587
+          "power": 0.02587,
+          "crossWire": "WHILE -> AMP 8% PER WORN wizard"
         },
         {
           "id": "z-loot",
@@ -1635,11 +2203,12 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "Your natural dice roll x {1} becomes +% AMP on your next hit.",
+          "effect": "Each attack: +{1}% AMP per point of its natural roll on your next action.",
           "payoff": "Rolls feed next-spell power.",
-          "customEffectId": "roll_amp",
+          "customEffectId": "rule",
           "power": 0.414,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONATTACK -> NEXT AMP 1% PER ROLL"
         },
         {
           "id": "z-puberty",
@@ -1652,9 +2221,10 @@
           "requires": [],
           "effect": "Rite of passage: +{10} Intelligence.",
           "payoff": "Marks the Wand path; baseline mind before tag engines.",
-          "customEffectId": "apprenticeship",
+          "customEffectId": "rule",
           "power": 1.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> INT 10"
         },
         {
           "id": "z-chaos",
@@ -1668,9 +2238,10 @@
           "effect": "Combo actions gain +{7}% AMP per strip slot filled beyond the first.",
           "payoff": "Routing mutations become a deliberate wind-up.",
           "unlockActionName": "CONCENTRATED CHAOS",
-          "customEffectId": "concentrated_chaos",
+          "customEffectId": "rule",
           "power": 0.47277,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> AMP 7% PER EXTRASLOTS"
         },
         {
           "id": "z-combo",
@@ -1696,11 +2267,12 @@
           "cost": 1,
           "maxRank": 5,
           "requires": [],
-          "effect": "Combo with a Wand: +{5} Intelligence for the turn, per skill rank.",
+          "effect": "Combo with a Wand: +{5} Intelligence on your next action, per rank.",
           "payoff": "Combo connects convert into same-turn mind.",
-          "customEffectId": "wand_combo_int",
+          "customEffectId": "rule",
           "power": 0.1656,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCOMBO IF WEAPON wand -> NEXT INT 5"
         },
         {
           "id": "z-slotInt",
@@ -1711,11 +2283,12 @@
           "cost": 1,
           "maxRank": 2,
           "requires": [],
-          "effect": "+{5} INT per current action slot (resets OnTakeHit), per skill rank.",
+          "effect": "+{5} INT per strip slot of the action you are on, per rank.",
           "payoff": "Deep strips amplify Intelligence until interrupted.",
-          "customEffectId": "slot_int",
+          "customEffectId": "rule",
           "power": 0.1656,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> INT 5 PER SLOT"
         },
         {
           "id": "z-pure",
@@ -1728,16 +2301,17 @@
           "requires": [],
           "effect": "Second Hand / Cosmic pieces: +{10}% Wizard AMP per matching piece, per skill rank.",
           "payoff": "Quality fantasy becomes desirable loot.",
-          "customEffectId": "pure_prefer",
+          "customEffectId": "rule",
           "power": 0.0414,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> AMP 10% PER QUALITY Second_Hand|Cosmic"
         },
         {
           "name": "Soft Echo",
           "type": "Passive",
-          "effect": "Spell hits bank +{2}% damage onto your next hero roll per rank.",
+          "effect": "Wand hits: +{2}% damage on your next action, per rank.",
           "payoff": "Spells echo into the next roll.",
-          "customEffectId": "soft_echo",
+          "customEffectId": "rule",
           "id": "z-soft",
           "branch": "Willow",
           "tier": 13,
@@ -1745,7 +2319,11 @@
           "cost": 1,
           "power": 0.828,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCONNECT IF WEAPON wand -> NEXT DAMAGE 2%",
+          "excludes": [
+            "z-tempo"
+          ]
         },
         {
           "name": "Spell Memory",
@@ -1760,7 +2338,10 @@
           "cost": 1,
           "power": 0.207,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "excludes": [
+            "z-charged"
+          ]
         },
         {
           "id": "z-lash",
@@ -1770,12 +2351,13 @@
           "type": "Mastery",
           "maxRank": 3,
           "cost": 1,
-          "customEffectId": "willow_lash",
+          "customEffectId": "rule",
           "power": 0.828,
           "effect": "WILLOW LASH: +{3}% AMP per CHAIN, per rank.",
           "payoff": "CHAIN becomes AMP.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE IF ACTION WILLOW_LASH -> AMP 3% PER CHAIN"
         },
         {
           "id": "z-sink-willow",
@@ -1796,9 +2378,9 @@
         {
           "name": "Focus Lens",
           "type": "Passive",
-          "effect": "Spell/Wand actions gain +{1} effective TEC per rank.",
+          "effect": "With a Wand: +{1} TEC, per rank.",
           "payoff": "Spells sharpen Technique.",
-          "customEffectId": "focus_lens",
+          "customEffectId": "rule",
           "id": "z-lens",
           "branch": "Silver",
           "tier": 13,
@@ -1806,14 +2388,18 @@
           "cost": 1,
           "power": 0.828,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE IF WEAPON wand -> TEC 1",
+          "excludes": [
+            "z-jinxlens"
+          ]
         },
         {
           "name": "Loaded Odds",
           "type": "Passive",
-          "effect": "Natural rolls of 15+ grant +{1} temporary Intelligence per rank.",
+          "effect": "Connecting on a natural roll of 15+: +{1} Intelligence on your next 2 actions, per rank.",
           "payoff": "High rolls feed the mind.",
-          "customEffectId": "loaded_odds",
+          "customEffectId": "rule",
           "id": "z-odds",
           "branch": "Silver",
           "tier": 14,
@@ -1821,7 +2407,11 @@
           "cost": 1,
           "power": 0.828,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCONNECT IF ROLL>=15 -> NEXT INT 1 FOR 2",
+          "excludes": [
+            "z-clarity"
+          ]
         },
         {
           "id": "z-refract",
@@ -1831,12 +2421,13 @@
           "type": "Mastery",
           "maxRank": 3,
           "cost": 1,
-          "customEffectId": "refraction",
+          "customEffectId": "rule",
           "power": 1.57853,
           "effect": "REFRACT gains +{3}% damage per LENS, per rank.",
           "payoff": "LENS becomes Focus.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE IF ACTION REFRACT -> DAMAGE 3% PER LENS"
         },
         {
           "id": "z-sink-silver",
@@ -1862,19 +2453,20 @@
           "type": "Passive",
           "maxRank": 5,
           "cost": 1,
-          "customEffectId": "arcane_kinship",
+          "customEffectId": "rule",
           "power": 0.1656,
           "effect": "Each equipped Willow / Silver / Crystal piece adds +{1} INT per rank.",
           "payoff": "Your materials are your mind.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> INT 1 PER WORN wizard"
         },
         {
           "name": "Arcane Weave",
           "type": "Mastery",
-          "effect": "Wand actions gain +{2}% AMP per 10 INT, per rank.",
+          "effect": "With a Wand: +{2}% AMP per 10 INT, per rank.",
           "payoff": "Intelligence becomes AMP.",
-          "customEffectId": "arcane_weave",
+          "customEffectId": "rule",
           "id": "z-weave",
           "branch": "Rite",
           "tier": 14,
@@ -1882,7 +2474,12 @@
           "cost": 1,
           "power": 0.02484,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE IF WEAPON wand -> AMP 2% PER STAT INT 10",
+          "excludes": [
+            "z-xr-barbarian",
+            "z-xr-warrior"
+          ]
         },
         {
           "id": "z-synth",
@@ -1917,9 +2514,9 @@
         {
           "name": "Mana Bleed",
           "type": "Passive",
-          "effect": "Spell/Wand connects restore {0.5}% of max HP per rank.",
+          "effect": "Wand connects restore {0.5}% of max HP per rank.",
           "payoff": "Spells restore you.",
-          "customEffectId": "mana_bleed",
+          "customEffectId": "rule",
           "id": "z-bleed",
           "branch": "Crystal",
           "tier": 11,
@@ -1927,14 +2524,15 @@
           "cost": 1,
           "power": 0.207,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCONNECT IF WEAPON wand -> HEAL 0.5"
         },
         {
           "name": "Sigil Burn",
           "type": "Passive",
           "effect": "Hits against Burning enemies gain +{3}% damage per rank.",
           "payoff": "Burning enemies take more.",
-          "customEffectId": "sigil_burn",
+          "customEffectId": "rule",
           "id": "z-sigil",
           "branch": "Crystal",
           "tier": 13,
@@ -1942,7 +2540,11 @@
           "cost": 1,
           "power": 0.207,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE IF TARGET burn -> DAMAGE 3%",
+          "excludes": [
+            "z-glyph"
+          ]
         },
         {
           "name": "Thermal Shock",
@@ -1967,12 +2569,13 @@
           "type": "Mastery",
           "maxRank": 3,
           "cost": 1,
-          "customEffectId": "resonance",
+          "customEffectId": "rule",
           "power": 0.207,
           "effect": "RESONATE: +{2}% damage per CONTACT, per rank.",
           "payoff": "CONTACT becomes force.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE IF ACTION RESONATE -> DAMAGE 2% PER CONTACT"
         },
         {
           "id": "z-sink-crystal",
@@ -2020,9 +2623,13 @@
           "requires": [],
           "effect": "Each time you apply Burn or Expose to an enemy, gain +{1} INT for the rest of the dungeon, per rank.",
           "payoff": "Every flame you set feeds the mind.",
-          "customEffectId": "kindled_mind",
+          "customEffectId": "rule",
           "sharedWith": [],
-          "power": 3.0
+          "power": 3.0,
+          "crossWire": "ONSTATUSAPPLY:burn -> BUFF INT 1 FOR dungeon; ONSTATUSAPPLY:expose -> BUFF INT 1 FOR dungeon",
+          "excludes": [
+            "z-dilation"
+          ]
         },
         {
           "id": "z-x-willow",
@@ -2089,6 +2696,46 @@
           "sharedWith": []
         },
         {
+          "id": "z-xr-barbarian",
+          "name": "Borrowed Rage",
+          "branch": "Rite",
+          "tier": 14,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Spending RAGE (Bone, Barbarian) mints half as much CHAIN.",
+          "payoff": "Bone gear feeds Willow converts.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCASH:RAGE -> MINT CHAIN 50%",
+          "excludes": [
+            "z-weave",
+            "z-xr-warrior"
+          ]
+        },
+        {
+          "id": "z-xr-warrior",
+          "name": "Drummer's Focus",
+          "branch": "Rite",
+          "tier": 14,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Spending BEAT (Bronze, Warrior) grants 1 Focus.",
+          "payoff": "Bronze gear feeds Silver's Focus.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCASH:BEAT -> ADD focus 1",
+          "excludes": [
+            "z-weave",
+            "z-xr-barbarian"
+          ]
+        },
+        {
           "id": "z-th-crystal",
           "name": "Overload",
           "branch": "Crystal",
@@ -2104,6 +2751,44 @@
           "crossWire": "ONSTOREFULL:CONTACT -> APPLY burn 3",
           "family": "threshold",
           "sharedWith": []
+        },
+        {
+          "id": "z-glyph",
+          "name": "Fracture Glyph",
+          "branch": "Crystal",
+          "tier": 13,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Each crit adds 2 Brittle (the next crit it takes deals +25% per stack).",
+          "payoff": "Crystal crits instead of burn.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCRITICAL -> APPLY brittle 2",
+          "excludes": [
+            "z-sigil"
+          ]
+        },
+        {
+          "id": "z-dilation",
+          "name": "Time Dilation",
+          "branch": "Crystal",
+          "tier": 15,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Each time you Weaken an enemy it also gains 1 Stagger.",
+          "payoff": "Hexes slow the clock.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONSTATUSAPPLY:weaken -> APPLY stagger 1",
+          "excludes": [
+            "z-kindle"
+          ]
         },
         {
           "id": "z-al-silver",
@@ -2123,6 +2808,44 @@
           "sharedWith": []
         },
         {
+          "id": "z-jinxlens",
+          "name": "Jinxed Lens",
+          "branch": "Silver",
+          "tier": 13,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "While Focused, each connect adds 1 Rattle (-1 to the enemy's next attack roll).",
+          "payoff": "Focus as defense.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCONNECT IF focus>=1 -> APPLY rattle 1",
+          "excludes": [
+            "z-lens"
+          ]
+        },
+        {
+          "id": "z-clarity",
+          "name": "Clarity",
+          "branch": "Silver",
+          "tier": 14,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 3,
+          "requires": [],
+          "effect": "+{5}% AMP per Rattle on the target, per rank.",
+          "payoff": "Rattle becomes a damage store.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "WHILE -> AMP 5% PER TARGET rattle",
+          "excludes": [
+            "z-odds"
+          ]
+        },
+        {
           "id": "z-ex-willow",
           "name": "Margin Notes",
           "branch": "Willow",
@@ -2138,6 +2861,44 @@
           "crossWire": "WHILE IF focus>=1 -> EXEMPT COMBO",
           "family": "exemption",
           "sharedWith": []
+        },
+        {
+          "id": "z-tempo",
+          "name": "Tempo Weave",
+          "branch": "Willow",
+          "tier": 13,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "Every 2nd combo hit: +1 Haste (your actions are 10% faster per stack).",
+          "payoff": "Willow for speed instead of echo.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCOMBO EVERY 2 -> ADD haste 1",
+          "excludes": [
+            "z-soft"
+          ]
+        },
+        {
+          "id": "z-charged",
+          "name": "Charged Hex",
+          "branch": "Willow",
+          "tier": 14,
+          "type": "Rule",
+          "cost": 1,
+          "maxRank": 3,
+          "requires": [],
+          "effect": "Combo with a Focus action: your next Status action +{40}% AMP (it waits for one), per rank.",
+          "payoff": "Focus primes the hex.",
+          "customEffectId": "rule",
+          "power": 1.0,
+          "sharedWith": [],
+          "crossWire": "ONCOMBO IF TAG focus -> NEXT AMP 40% IFTAG status",
+          "excludes": [
+            "z-memory"
+          ]
         }
       ]
     },

@@ -331,8 +331,9 @@ namespace RPGGame.Tests.Unit.Data
             var items = Roll(new ItemRollRequest { ItemLevel = 20, AllowRollUps = false }, 200).Select(x => x.Item).ToList();
             var withModifier = items.Where(i => !string.IsNullOrWhiteSpace(i.ImplicitRule)).ToList();
             TestBase.AssertTrue(withModifier.Count > 0, "bases carry a modifier", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(withModifier.All(i => CrossWireRule.Parse(i.ImplicitRule) is { IsPassive: true }),
-                "every modifier is a passive rule", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // Since the synergy pass (2026-11-16) high tiers are triggered rules too (APPLY / NEXT / ADD / MINT).
+            TestBase.AssertTrue(withModifier.All(i => BaseModifierRoller.SplitRules(i.ImplicitRule).All(r => CrossWireRule.Parse(r) != null)),
+                "every modifier parses as rules", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(items.All(i => (i.TriggerBundles?.Count ?? 0) == 0 && string.IsNullOrWhiteSpace(i.Implicit)),
                 "rolled items carry no base or material triggers", ref _testsRun, ref _testsPassed, ref _testsFailed);
 

@@ -965,16 +965,18 @@ namespace RPGGame.UI.Avalonia.Renderers
             // its setup ("Hero attacks the Goblin ...") as the branches reveal, then the whole block as the picked
             // action moves into NOW.
             bool blockShown = false;
+            // When the branch column reaches above NOW's label, the block must stay left of it (its label and boxes).
+            int logRight = slots > 0 && queueR[0].Y - 1 < nowR.Y - 1 ? nextX - 1 : x + w - 1;
             if (swing is { LogBlock: { Count: > 0 } liveBlock } && branchesDue)
             {
                 var shown = landed ? liveBlock : SetupOnlyBlock(liveBlock);
                 if (shown != null)
-                    blockShown = DrawBoardLogBlock(shown, swing.Source, nowR, x, w, enemyBandY, critical: landed && swing.IsCritical)
+                    blockShown = DrawBoardLogBlock(shown, swing.Source, nowR, x, logRight, enemyBandY, critical: landed && swing.IsCritical)
                         && ImpactLanded(swing, stage);
             }
             else if (!cardInFlight && nowAct?.Swing is { LogBlock: { Count: > 0 } block } nowSwing
                 && !ReferenceEquals(nowSwing, swing))
-                blockShown = DrawBoardLogBlock(block, nowAct.Actor, nowR, x, w, enemyBandY, critical: nowSwing.IsCritical);
+                blockShown = DrawBoardLogBlock(block, nowAct.Actor, nowR, x, logRight, enemyBandY, critical: nowSwing.IsCritical);
 
             // What the swing is doing to its target while it plays.
             if (swing != null && !cardInFlight && !blockShown)
@@ -1082,13 +1084,12 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// don't fit are dropped from the bottom. A <paramref name="critical"/> act leads with a gold CRITICAL HIT! row.
         /// Returns false when there is no room for it.
         /// </summary>
-        private bool DrawBoardLogBlock(List<List<ColoredText>> block, Actor actor, BoardRect nowR, int x, int w, int topY,
+        private bool DrawBoardLogBlock(List<List<ColoredText>> block, Actor actor, BoardRect nowR, int x, int right, int topY,
             bool critical = false)
         {
             const int idealGap = 2; // rows between the box and NOW's label, for the line
-            // Centered on NOW: as wide as the narrower side of the column allows on both sides.
-            int halfW = (int)Math.Floor(Math.Min(nowR.CenterX - (x + 1), x + w - 1 - nowR.CenterX));
-            int maxInner = halfW * 2 - 4;
+            // Centered on NOW when it fits; otherwise as wide as x+1..right allows, shifted to stay inside it.
+            int maxInner = right - (x + 1) - 4;
             int maxRows = nowR.Y - 3 - topY;
             if (maxInner < 12 || maxRows < 1)
                 return false;
@@ -1113,7 +1114,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             int inner = rows.Max(r => r.Count);
             int bw = inner + 4, bh = rows.Count + 2;
             int gap = Math.Min(idealGap, maxRows - rows.Count);
-            int bx = (int)Math.Round(nowR.CenterX - bw / 2.0);
+            int bx = Math.Clamp((int)Math.Round(nowR.CenterX - bw / 2.0), x + 1, Math.Max(x + 1, right - bw));
             int by = nowR.Y - 1 - gap - bh;
             AddBoardBox(bx, by, bw, bh, LerpColor(BoardActorColor(actor), BoardCardBackground, 0.5), BoardCardBackground);
             if (gap > 0)

@@ -37,9 +37,9 @@ namespace RPGGame.MCP
         // ========== Navigation Tools ==========
 
         [McpServerTool(Name = "handle_input", Title = "Handle Game Input")]
-        [Description("Handles game input (menu selection, combat actions, etc.). Returns updated game state.")]
+        [Description("Sends one input (a choice's Input from get_agent_context). Returns the new screen (Screen.Body), its labeled choices, and NewEvents: the lines this input produced (a dungeon run's combat log, loot, messages).")]
         public static Task<string> HandleInput(
-            [Description("The input to send to the game (e.g., '1', '2', 'attack')")] string input)
+            [Description("The input to send, exactly as a choice's Input (e.g. '1', '0', 'l', 'hub:tab:actions', 'cpi:pool:2')")] string input)
         {
             return Tools.NavigationTools.HandleInput(input);
         }

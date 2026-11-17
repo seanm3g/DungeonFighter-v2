@@ -119,7 +119,19 @@ def variant(base, tag, edit, patch_dir=None):
 
 # ---------------------------------------------------------------- curves
 
+# Explicit level cells that take the place of the 5-level region band (bo-solve --range): set_band / band_levels on
+# a level inside one of these touch only that cell, e.g. (5, 5) solves L5 alone inside a per-level early ramp.
+BAND_RANGES = []
+
+
+def set_band_ranges(ranges):
+    BAND_RANGES[:] = [(int(lo), int(hi)) for lo, hi in ranges]
+
+
 def region_band(level):
+    for lo, hi in BAND_RANGES:
+        if lo <= level <= hi:
+            return lo, hi
     lo = 5 * ((level - 1) // 5) + 1
     return lo, lo + 4
 

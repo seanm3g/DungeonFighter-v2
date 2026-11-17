@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.MCP.Models;
+using RPGGame.MCP.Screens;
 
 namespace RPGGame.MCP
 {
@@ -55,6 +56,11 @@ namespace RPGGame.MCP
                 return hints;
             }
 
+            if (state == GameState.Dungeon || state == GameState.Combat)
+            {
+                hints.Add("Combat is automatic: the hero plays the action sequence and enemies and the room act on their own.");
+            }
+
             if (state == GameState.DungeonSelection)
             {
                 hints.Add("Selecting a dungeon runs the entire dungeon in one handle_input call (auto-combat).");
@@ -78,6 +84,10 @@ namespace RPGGame.MCP
                 };
             }
 
+            var view = ScreenDescriber.Describe(game);
+            if (view != null && view.Choices.Count > 0)
+                return view.Choices;
+
             return game.CurrentState switch
             {
                 GameState.MainMenu => new List<AgentChoice>
@@ -88,7 +98,6 @@ namespace RPGGame.MCP
                     new() { Input = MainMenuHandler.OverviewKey, Label = "Stable mode (fighters run side by side)" },
                     new() { Input = MainMenuHandler.HistoryKey, Label = "History of fallen fighters" },
                     new() { Input = MainMenuHandler.SettingsKey, Label = "Settings" },
-                    new() { Input = MainMenuHandler.QuitKey, Label = "Exit" }
                 },
                 GameState.TrainingGroundOffer => new List<AgentChoice>
                 {
@@ -274,6 +283,8 @@ namespace RPGGame.MCP
             GameState.Inventory => "Inventory",
             GameState.LoadCharacterSelection => "Load Character",
             GameState.Stable => "Stable",
+            GameState.SkillTree => "Skill Tree",
+            GameState.RegionTravel => "Region Travel",
             _ => state.ToString()
         };
     }

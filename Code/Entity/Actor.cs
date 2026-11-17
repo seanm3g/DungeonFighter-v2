@@ -114,6 +114,13 @@ namespace RPGGame
         public double ConfusionChance { get; set; } = 0.0;
         public bool IsMarked { get; set; } = false;
         public int MarkTurns { get; set; } = 0;
+        /// <summary>Brittle (TempoStatuses): the next crit against this actor deals more, then it is spent.</summary>
+        public int BrittleStacks { get; set; }
+        public int BrittleTurns { get; set; }
+        /// <summary>Stagger (TempoStatuses): this actor's next action takes longer, then it is spent.</summary>
+        public int StaggerStacks { get; set; }
+        /// <summary>Haste (TempoStatuses): this actor's actions take less time; one stack falls off per own action.</summary>
+        public int HasteStacks { get; set; }
         protected Actor(string name)
         {
             if (string.IsNullOrWhiteSpace(name))
@@ -212,6 +219,7 @@ namespace RPGGame
                     IsWeakened = false;
             }
             FocusTurns = TickStackStatus(FocusTurns, 1, () => FocusStacks = null);
+            TempoStatuses.AfterOwnAction(this);
         }
 
         private static int TickStackStatus(int turns, int ticks, System.Action clear)
@@ -299,6 +307,7 @@ namespace RPGGame
             int ticks = (int)Math.Ceiling(turnsPassed);
             HardenTurns = TickStackStatus(HardenTurns, ticks, () => HardenStacks = null);
             ExposeTurns = TickStackStatus(ExposeTurns, ticks, () => { ExposeStacks = null; ExposeArmorStrip = 0; });
+            BrittleTurns = TickStackStatus(BrittleTurns, ticks, () => BrittleStacks = 0);
             
             // Update damage reduction decay (per turn, not per action)
             if (DamageReduction > 0)
@@ -530,6 +539,11 @@ namespace RPGGame
 
             HasCriticalMissPenalty = false;
             CriticalMissPenaltyTurns = 0;
+
+            BrittleStacks = 0;
+            BrittleTurns = 0;
+            StaggerStacks = 0;
+            HasteStacks = 0;
 
             HardenStacks = null;
             HardenTurns = 0;

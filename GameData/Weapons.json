@@ -237,8 +237,8 @@
     "class": "barbarian",
     "damageMin": 15,
     "damageMax": 22,
-    "modifier": "WHILE IF TAG ragecaller -> DAMAGE {6-12}%",
-    "modifierName": "Ragecaller Habit"
+    "modifier": "WHILE IF TAG barbarian -> DAMAGE {6-12}%",
+    "modifierName": "Barbarian Habit"
   },
   {
     "type": "Mace",
@@ -261,8 +261,8 @@
     "class": "barbarian",
     "damageMin": 19,
     "damageMax": 28,
-    "modifier": "WHILE IF TAG ravager -> SPEED {5-9}%",
-    "modifierName": "Ravager Habit"
+    "modifier": "WHILE IF TAG bludgeon -> SPEED {5-9}%",
+    "modifierName": "Bludgeon Habit"
   },
   {
     "type": "Mace",
@@ -285,8 +285,8 @@
     "class": "barbarian",
     "damageMin": 14,
     "damageMax": 21,
-    "modifier": "WHILE -> POTENCY burn {18-30}%",
-    "modifierName": "Burn Habit"
+    "modifier": "WHILE IF TAG warbrute AND PREVTAG barbarian -> DAMAGE {10-16}%",
+    "modifierName": "Warbrute Habit"
   },
   {
     "type": "Mace",
@@ -309,8 +309,8 @@
     "class": "barbarian",
     "damageMin": 13,
     "damageMax": 19,
-    "modifier": "WHILE IF TAG warbrute -> DAMAGE {6-12}%",
-    "modifierName": "Warbrute Habit"
+    "modifier": "WHILE IF TAG ravager -> DAMAGE {6-12}%",
+    "modifierName": "Ravager Habit"
   },
   {
     "type": "Mace",
@@ -333,8 +333,8 @@
     "class": "barbarian",
     "damageMin": 17,
     "damageMax": 25,
-    "modifier": "WHILE IF TAG status -> SPEED {5-9}%",
-    "modifierName": "Affliction Habit"
+    "modifier": "WHILE IF TAG ragecaller -> SPEED {5-9}%",
+    "modifierName": "Ragecaller Habit"
   },
   {
     "type": "Mace",
@@ -357,8 +357,8 @@
     "class": "barbarian",
     "damageMin": 21,
     "damageMax": 31,
-    "modifier": "WHILE -> POTENCY bleed {18-30}%",
-    "modifierName": "Bleed Habit"
+    "modifier": "WHILE IF TAG status AND PREVTAG bludgeon -> DAMAGE {10-16}%",
+    "modifierName": "Affliction Habit"
   },
   {
     "type": "Mace",
@@ -381,8 +381,8 @@
     "class": "barbarian",
     "damageMin": 16,
     "damageMax": 24,
-    "modifier": "WHILE IF TAG verb -> DAMAGE {6-12}%",
-    "modifierName": "Verbal Habit"
+    "modifier": "WHILE IF TAG barbarian -> DAMAGE {6-12}%",
+    "modifierName": "Barbarian Habit"
   },
   {
     "type": "Mace",
@@ -405,8 +405,8 @@
     "class": "barbarian",
     "damageMin": 16,
     "damageMax": 24,
-    "modifier": "WHILE IF TAG ragecaller -> SPEED {5-9}%",
-    "modifierName": "Ragecaller Habit"
+    "modifier": "WHILE IF TAG bludgeon -> SPEED {5-9}%",
+    "modifierName": "Bludgeon Habit"
   },
   {
     "type": "Mace",
@@ -429,8 +429,8 @@
     "class": "barbarian",
     "damageMin": 16,
     "damageMax": 24,
-    "modifier": "WHILE IF TAG ragecaller -> SPEED {5-9}%",
-    "modifierName": "Ragecaller Habit"
+    "modifier": "WHILE IF TAG bludgeon -> SPEED {5-9}%",
+    "modifierName": "Bludgeon Habit"
   },
   {
     "type": "Mace",
@@ -453,8 +453,8 @@
     "class": "barbarian",
     "damageMin": 15,
     "damageMax": 22,
-    "modifier": "WHILE -> POTENCY burn {18-30}%",
-    "modifierName": "Burn Habit"
+    "modifier": "WHILE IF TAG warbrute AND PREVTAG ravager -> DAMAGE {10-16}%",
+    "modifierName": "Warbrute Habit"
   },
   {
     "type": "Mace",
@@ -501,8 +501,8 @@
     "class": "barbarian",
     "damageMin": 26,
     "damageMax": 39,
-    "modifier": "WHILE IF ACTION ACTION_BONUS -> DAMAGE {10-18}%",
-    "modifierName": "Action Bonus Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG ragecaller -> APPLY stagger 1",
+    "modifierName": "Stagger Technique"
   },
   {
     "type": "Mace",
@@ -525,8 +525,8 @@
     "class": "barbarian",
     "damageMin": 29,
     "damageMax": 44,
-    "modifier": "WHILE IF ACTION AFTER_MISS_HEAL -> SPEED {8-14}%",
-    "modifierName": "After Miss Heal Technique"
+    "modifier": "ONCONNECT IF TAG status -> NEXT DAMAGE {12-20}%",
+    "modifierName": "Affliction Technique"
   },
   {
     "type": "Mace",
@@ -549,8 +549,8 @@
     "class": "barbarian",
     "damageMin": 28,
     "damageMax": 42,
-    "modifier": "WHILE IF ACTION BARBARIAN_RAGE -> DAMAGE {10-18}%",
-    "modifierName": "Barbarian Rage Technique"
+    "modifier": "ONCOMBO EVERY 2 IF TAG barbarian -> ADD harden 1",
+    "modifierName": "Harden Technique"
   },
   {
     "type": "Mace",
@@ -573,8 +573,8 @@
     "class": "barbarian",
     "damageMin": 38,
     "damageMax": 56,
-    "modifier": "WHILE IF ACTION BASH -> SPEED {8-14}%",
-    "modifierName": "Bash Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG bludgeon -> MINT RAGE {1-2}",
+    "modifierName": "Rage Technique"
   },
   {
     "type": "Mace",
@@ -597,8 +597,8 @@
     "class": "barbarian",
     "damageMin": 27,
     "damageMax": 41,
-    "modifier": "WHILE IF ACTION BERSERKER -> DAMAGE {10-18}%",
-    "modifierName": "Berserker Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> APPLY brittle 1",
+    "modifierName": "Brittle Technique"
   },
   {
     "type": "Mace",
@@ -621,8 +621,8 @@
     "class": "barbarian",
     "damageMin": 34,
     "damageMax": 51,
-    "modifier": "WHILE IF ACTION BLOOD_FRENZY -> SPEED {8-14}%",
-    "modifierName": "Blood Frenzy Technique"
+    "modifier": "ONCONNECT IF TAG ravager -> NEXT DAMAGE {12-20}%",
+    "modifierName": "Ravager Technique"
   },
   {
     "type": "Mace",
@@ -645,8 +645,8 @@
     "class": "barbarian",
     "damageMin": 32,
     "damageMax": 48,
-    "modifier": "WHILE IF ACTION BLOOD_OATH -> DAMAGE {10-18}%",
-    "modifierName": "Blood Oath Technique"
+    "modifier": "ONCOMBO EVERY 2 IF TAG ragecaller -> ADD haste 1",
+    "modifierName": "Haste Technique"
   },
   {
     "type": "Mace",
@@ -669,8 +669,8 @@
     "class": "barbarian",
     "damageMin": 31,
     "damageMax": 46,
-    "modifier": "WHILE IF ACTION BLUDGEON -> SPEED {8-14}%",
-    "modifierName": "Bludgeon Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG status -> MINT CRISIS {1-2}",
+    "modifierName": "Crisis Technique"
   },
   {
     "type": "Mace",
@@ -693,8 +693,8 @@
     "class": "barbarian",
     "damageMin": 40,
     "damageMax": 60,
-    "modifier": "WHILE IF ACTION BODY_BLOW -> DAMAGE {10-18}%",
-    "modifierName": "Body Blow Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG barbarian -> APPLY expose 1",
+    "modifierName": "Expose Technique"
   },
   {
     "type": "Mace",
@@ -717,8 +717,8 @@
     "class": "barbarian",
     "damageMin": 27,
     "damageMax": 41,
-    "modifier": "WHILE IF ACTION CLEAVE_THROUGH -> SPEED {8-14}%",
-    "modifierName": "Cleave Through Technique"
+    "modifier": "ONCONNECT IF TAG bludgeon -> NEXT DAMAGE {12-20}%",
+    "modifierName": "Bludgeon Technique"
   },
   {
     "type": "Mace",
@@ -741,8 +741,8 @@
     "class": "barbarian",
     "damageMin": 62,
     "damageMax": 92,
-    "modifier": "WHILE IF ACTION CRIT_HEAL AND HP<50 -> DAMAGE {16-26}%",
-    "modifierName": "Crit Heal Mastery"
+    "modifier": "ONCONNECT IF TAG warbrute AND HP<50 -> NEXT DAMAGE {20-30}%",
+    "modifierName": "Warbrute Mastery"
   },
   {
     "type": "Mace",
@@ -765,8 +765,8 @@
     "class": "barbarian",
     "damageMin": 64,
     "damageMax": 96,
-    "modifier": "WHILE IF TAG warbrute AND TARGET bleed -> DAMAGE {12-20}%",
-    "modifierName": "Warbrute Mastery"
+    "modifier": "ONCOMBO IF TAG ravager -> NEXT AMP {20-30}% IFTAG ragecaller",
+    "modifierName": "Ravager Mastery"
   },
   {
     "type": "Mace",
@@ -789,8 +789,8 @@
     "class": "barbarian",
     "damageMin": 49,
     "damageMax": 74,
-    "modifier": "WHILE IF ACTION CRIT_MISS_HEAL AND HP<50 -> DAMAGE {16-26}%",
-    "modifierName": "Crit Miss Heal Mastery"
+    "modifier": "WHILE IF TAG ragecaller AND NEXTTAG status -> SPEED {12-18}%",
+    "modifierName": "Ragecaller Mastery"
   },
   {
     "type": "Mace",
@@ -813,8 +813,8 @@
     "class": "barbarian",
     "damageMin": 77,
     "damageMax": 115,
-    "modifier": "WHILE IF TAG status AND TARGET bleed -> DAMAGE {12-20}%",
-    "modifierName": "Affliction Mastery"
+    "modifier": "ONCRITICAL IF TAG status -> APPLY stagger 2",
+    "modifierName": "Stagger Mastery"
   },
   {
     "type": "Mace",
@@ -837,8 +837,8 @@
     "class": "barbarian",
     "damageMin": 53,
     "damageMax": 80,
-    "modifier": "WHILE IF ACTION DAZE AND HP<50 -> DAMAGE {16-26}%",
-    "modifierName": "Daze Mastery"
+    "modifier": "ONCONNECT IF TAG barbarian AND TARGET stagger -> NEXT DAMAGE {20-30}%",
+    "modifierName": "Barbarian Mastery"
   },
   {
     "type": "Mace",
@@ -861,8 +861,8 @@
     "class": "barbarian",
     "damageMin": 52,
     "damageMax": 78,
-    "modifier": "WHILE IF TAG verb AND TARGET bleed -> DAMAGE {12-20}%",
-    "modifierName": "Verbal Mastery"
+    "modifier": "ONCOMBO IF TAG bludgeon -> NEXT AMP {20-30}% IFTAG barbarian",
+    "modifierName": "Bludgeon Mastery"
   },
   {
     "type": "Mace",
@@ -885,8 +885,8 @@
     "class": "barbarian",
     "damageMin": 64,
     "damageMax": 96,
-    "modifier": "WHILE IF ACTION DETONATE AND HP<50 -> DAMAGE {16-26}%",
-    "modifierName": "Detonate Mastery"
+    "modifier": "WHILE IF TAG warbrute AND NEXTTAG bludgeon -> SPEED {12-18}%",
+    "modifierName": "Warbrute Mastery"
   },
   {
     "type": "Mace",
@@ -909,8 +909,8 @@
     "class": "barbarian",
     "damageMin": 51,
     "damageMax": 76,
-    "modifier": "WHILE IF TAG ragecaller AND TARGET bleed -> DAMAGE {12-20}%",
-    "modifierName": "Ragecaller Mastery"
+    "modifier": "ONCRITICAL IF TAG ravager -> APPLY brittle 2",
+    "modifierName": "Brittle Mastery"
   },
   {
     "type": "Mace",
@@ -933,8 +933,8 @@
     "class": "barbarian",
     "damageMin": 56,
     "damageMax": 84,
-    "modifier": "WHILE IF ACTION ENRAGE AND HP<50 -> DAMAGE {16-26}%",
-    "modifierName": "Enrage Mastery"
+    "modifier": "ONCONNECT IF TAG ragecaller AND HP<50 -> NEXT DAMAGE {20-30}%",
+    "modifierName": "Ragecaller Mastery"
   },
   {
     "type": "Mace",
@@ -957,7 +957,7 @@
     "class": "barbarian",
     "damageMin": 95,
     "damageMax": 142,
-    "modifier": "WHILE IF ACTION EXPOSE AND TARGET bleed -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
+    "modifier": "ONCONNECT EVERY 2 IF TAG status -> APPLY expose 1; WHILE -> DAMAGE {5-8}% PER TARGET expose",
     "modifierName": "Expose Legend"
   },
   {
@@ -981,8 +981,8 @@
     "class": "barbarian",
     "damageMin": 84,
     "damageMax": 126,
-    "modifier": "WHILE IF ACTION EXTRA_EFFORT -> DAMAGE {14-22}%; WHILE IF TAG ravager -> SPEED {8-12}%",
-    "modifierName": "Extra Effort Legend"
+    "modifier": "ONCOMBO IF TAG barbarian -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG barbarian AND PREVTAG barbarian -> SPEED {8-12}%",
+    "modifierName": "Barbarian Legend"
   },
   {
     "type": "Mace",
@@ -1005,8 +1005,8 @@
     "class": "barbarian",
     "damageMin": 121,
     "damageMax": 181,
-    "modifier": "WHILE IF ACTION FIGHTER AND HP<50 -> DAMAGE {20-32}%; WHILE -> POTENCY burn {25-40}%",
-    "modifierName": "Fighter Legend"
+    "modifier": "ONCOMBO EVERY 2 IF TAG bludgeon -> ADD harden 1; WHILE IF harden>=2 -> CRIT +{1-2}",
+    "modifierName": "Harden Legend"
   },
   {
     "type": "Mace",
@@ -1029,8 +1029,8 @@
     "class": "barbarian",
     "damageMin": 112,
     "damageMax": 167,
-    "modifier": "WHILE IF ACTION FLAME_BRAND -> DAMAGE {14-22}%; WHILE IF TAG warbrute -> SPEED {8-12}%",
-    "modifierName": "Flame Brand Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> APPLY stagger 1; WHILE -> DAMAGE {5-8}% PER TARGET stagger",
+    "modifierName": "Stagger Legend"
   },
   {
     "type": "Mace",
@@ -1053,8 +1053,8 @@
     "class": "barbarian",
     "damageMin": 87,
     "damageMax": 131,
-    "modifier": "WHILE IF ACTION GATHERING_STORM AND TARGET bleed -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
-    "modifierName": "Gathering Storm Legend"
+    "modifier": "ONCOMBO IF TAG ravager -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG ravager AND PREVTAG ravager -> SPEED {8-12}%",
+    "modifierName": "Ravager Legend"
   },
   {
     "type": "Mace",
@@ -1077,8 +1077,8 @@
     "class": "barbarian",
     "damageMin": 115,
     "damageMax": 172,
-    "modifier": "WHILE IF ACTION GUTTING_STRIKE -> DAMAGE {14-22}%; WHILE IF TAG status -> SPEED {8-12}%",
-    "modifierName": "Gutting Strike Legend"
+    "modifier": "ONCOMBO EVERY 2 IF TAG ragecaller -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
+    "modifierName": "Haste Legend"
   },
   {
     "type": "Mace",
@@ -1101,8 +1101,8 @@
     "class": "barbarian",
     "damageMin": 107,
     "damageMax": 160,
-    "modifier": "WHILE IF ACTION HAYMAKER AND HP<50 -> DAMAGE {20-32}%; WHILE -> POTENCY burn {25-40}%",
-    "modifierName": "Haymaker Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG status -> APPLY brittle 1; WHILE -> DAMAGE {5-8}% PER TARGET brittle",
+    "modifierName": "Brittle Legend"
   },
   {
     "type": "Mace",
@@ -1125,8 +1125,8 @@
     "class": "barbarian",
     "damageMin": 139,
     "damageMax": 209,
-    "modifier": "WHILE IF ACTION HEADSMAN'S_PROMISE -> DAMAGE {14-22}%; WHILE IF TAG verb -> SPEED {8-12}%",
-    "modifierName": "Headsman's Promise Legend"
+    "modifier": "ONCOMBO IF TAG barbarian -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG barbarian AND PREVTAG barbarian -> SPEED {8-12}%",
+    "modifierName": "Barbarian Legend"
   },
   {
     "type": "Mace",
@@ -1149,8 +1149,8 @@
     "class": "barbarian",
     "damageMin": 79,
     "damageMax": 119,
-    "modifier": "WHILE IF ACTION IRON_GUARD AND TARGET bleed -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
-    "modifierName": "Iron Guard Legend"
+    "modifier": "ONCOMBO EVERY 2 IF TAG bludgeon -> ADD harden 1; WHILE IF harden>=2 -> CRIT +{1-2}",
+    "modifierName": "Harden Legend"
   },
   {
     "type": "Sword",
@@ -1366,8 +1366,8 @@
     "class": "warrior",
     "damageMin": 16,
     "damageMax": 24,
-    "modifier": "WHILE IF TAG spellblade -> DAMAGE {6-12}%",
-    "modifierName": "Spellblade Habit"
+    "modifier": "WHILE IF TAG warrior -> DAMAGE {6-12}%",
+    "modifierName": "Warrior Habit"
   },
   {
     "type": "Sword",
@@ -1390,8 +1390,8 @@
     "class": "warrior",
     "damageMin": 15,
     "damageMax": 22,
-    "modifier": "WHILE IF TAG duelist -> SPEED {5-9}%",
-    "modifierName": "Duelist Habit"
+    "modifier": "WHILE IF TAG swift -> SPEED {5-9}%",
+    "modifierName": "Swift Habit"
   },
   {
     "type": "Sword",
@@ -1414,8 +1414,8 @@
     "class": "warrior",
     "damageMin": 15,
     "damageMax": 22,
-    "modifier": "WHILE -> POTENCY bleed {18-30}%",
-    "modifierName": "Bleed Habit"
+    "modifier": "WHILE IF TAG warbrute AND PREVTAG warrior -> DAMAGE {10-16}%",
+    "modifierName": "Warbrute Habit"
   },
   {
     "type": "Sword",
@@ -1438,8 +1438,8 @@
     "class": "warrior",
     "damageMin": 13,
     "damageMax": 19,
-    "modifier": "WHILE IF TAG warbrute -> DAMAGE {6-12}%",
-    "modifierName": "Warbrute Habit"
+    "modifier": "WHILE IF TAG duelist -> DAMAGE {6-12}%",
+    "modifierName": "Duelist Habit"
   },
   {
     "type": "Sword",
@@ -1462,8 +1462,8 @@
     "class": "warrior",
     "damageMin": 14,
     "damageMax": 21,
-    "modifier": "WHILE IF TAG swift -> SPEED {5-9}%",
-    "modifierName": "Swift Habit"
+    "modifier": "WHILE IF TAG spellblade -> SPEED {5-9}%",
+    "modifierName": "Spellblade Habit"
   },
   {
     "type": "Sword",
@@ -1486,8 +1486,8 @@
     "class": "warrior",
     "damageMin": 13,
     "damageMax": 19,
-    "modifier": "WHILE -> POTENCY bleed {18-30}%",
-    "modifierName": "Bleed Habit"
+    "modifier": "WHILE IF TAG verb AND PREVTAG swift -> DAMAGE {10-16}%",
+    "modifierName": "Verbal Habit"
   },
   {
     "type": "Sword",
@@ -1510,8 +1510,8 @@
     "class": "warrior",
     "damageMin": 17,
     "damageMax": 25,
-    "modifier": "WHILE IF TAG verb -> DAMAGE {6-12}%",
-    "modifierName": "Verbal Habit"
+    "modifier": "WHILE IF TAG warrior -> DAMAGE {6-12}%",
+    "modifierName": "Warrior Habit"
   },
   {
     "type": "Sword",
@@ -1534,8 +1534,8 @@
     "class": "warrior",
     "damageMin": 12,
     "damageMax": 18,
-    "modifier": "WHILE IF TAG spellblade -> SPEED {5-9}%",
-    "modifierName": "Spellblade Habit"
+    "modifier": "WHILE IF TAG swift -> SPEED {5-9}%",
+    "modifierName": "Swift Habit"
   },
   {
     "type": "Sword",
@@ -1558,8 +1558,8 @@
     "class": "warrior",
     "damageMin": 12,
     "damageMax": 18,
-    "modifier": "WHILE -> POTENCY bleed {18-30}%",
-    "modifierName": "Bleed Habit"
+    "modifier": "WHILE IF TAG warbrute AND PREVTAG duelist -> DAMAGE {10-16}%",
+    "modifierName": "Warbrute Habit"
   },
   {
     "type": "Sword",
@@ -1606,8 +1606,8 @@
     "class": "warrior",
     "damageMin": 24,
     "damageMax": 35,
-    "modifier": "WHILE IF ACTION AFTER_MISS_HEAL -> DAMAGE {10-18}%",
-    "modifierName": "After Miss Heal Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> APPLY stagger 1",
+    "modifierName": "Stagger Technique"
   },
   {
     "type": "Sword",
@@ -1630,8 +1630,8 @@
     "class": "warrior",
     "damageMin": 31,
     "damageMax": 46,
-    "modifier": "WHILE IF ACTION AVENGE -> SPEED {8-14}%",
-    "modifierName": "Avenge Technique"
+    "modifier": "ONCONNECT IF TAG verb -> NEXT DAMAGE {12-20}%",
+    "modifierName": "Verbal Technique"
   },
   {
     "type": "Sword",
@@ -1654,8 +1654,8 @@
     "class": "warrior",
     "damageMin": 28,
     "damageMax": 42,
-    "modifier": "WHILE IF ACTION BARRIER -> DAMAGE {10-18}%",
-    "modifierName": "Barrier Technique"
+    "modifier": "ONCOMBO EVERY 2 IF TAG warrior -> ADD haste 1",
+    "modifierName": "Haste Technique"
   },
   {
     "type": "Sword",
@@ -1678,8 +1678,8 @@
     "class": "warrior",
     "damageMin": 33,
     "damageMax": 49,
-    "modifier": "WHILE IF ACTION BODY_BLOW -> SPEED {8-14}%",
-    "modifierName": "Body Blow Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG swift -> MINT BEAT {1-2}",
+    "modifierName": "Beat Technique"
   },
   {
     "type": "Sword",
@@ -1702,8 +1702,8 @@
     "class": "warrior",
     "damageMin": 28,
     "damageMax": 42,
-    "modifier": "WHILE IF ACTION BRACE -> DAMAGE {10-18}%",
-    "modifierName": "Brace Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> APPLY rattle 1",
+    "modifierName": "Rattle Technique"
   },
   {
     "type": "Sword",
@@ -1726,8 +1726,8 @@
     "class": "warrior",
     "damageMin": 35,
     "damageMax": 53,
-    "modifier": "WHILE IF ACTION CADENCE_STRIKE -> SPEED {8-14}%",
-    "modifierName": "Cadence Strike Technique"
+    "modifier": "ONCONNECT IF TAG duelist -> NEXT DAMAGE {12-20}%",
+    "modifierName": "Duelist Technique"
   },
   {
     "type": "Sword",
@@ -1750,8 +1750,8 @@
     "class": "warrior",
     "damageMin": 25,
     "damageMax": 37,
-    "modifier": "WHILE IF ACTION CHALLENGE -> DAMAGE {10-18}%",
-    "modifierName": "Challenge Technique"
+    "modifier": "ONCOMBO EVERY 2 IF TAG spellblade -> ADD fortify 1",
+    "modifierName": "Fortify Technique"
   },
   {
     "type": "Sword",
@@ -1774,8 +1774,8 @@
     "class": "warrior",
     "damageMin": 29,
     "damageMax": 44,
-    "modifier": "WHILE IF ACTION CLEAVE_THROUGH -> SPEED {8-14}%",
-    "modifierName": "Cleave Through Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG verb -> MINT DRAG {1-2}",
+    "modifierName": "Drag Technique"
   },
   {
     "type": "Sword",
@@ -1798,8 +1798,8 @@
     "class": "warrior",
     "damageMin": 29,
     "damageMax": 44,
-    "modifier": "WHILE IF ACTION COMBO_END_HEAL -> DAMAGE {10-18}%",
-    "modifierName": "Combo End Heal Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warrior -> APPLY slow 1",
+    "modifierName": "Slow Technique"
   },
   {
     "type": "Sword",
@@ -1822,8 +1822,8 @@
     "class": "warrior",
     "damageMin": 26,
     "damageMax": 39,
-    "modifier": "WHILE IF ACTION CUNNING -> SPEED {8-14}%",
-    "modifierName": "Cunning Technique"
+    "modifier": "ONCONNECT IF TAG swift -> NEXT DAMAGE {12-20}%",
+    "modifierName": "Swift Technique"
   },
   {
     "type": "Sword",
@@ -1846,8 +1846,8 @@
     "class": "warrior",
     "damageMin": 51,
     "damageMax": 76,
-    "modifier": "WHILE IF ACTION DANCE AND STEP>=3 -> DAMAGE {16-26}%",
-    "modifierName": "Dance Mastery"
+    "modifier": "ONCONNECT IF TAG warbrute AND STEP>=3 -> NEXT DAMAGE {20-30}%",
+    "modifierName": "Warbrute Mastery"
   },
   {
     "type": "Sword",
@@ -1870,8 +1870,8 @@
     "class": "warrior",
     "damageMin": 57,
     "damageMax": 86,
-    "modifier": "WHILE IF TAG warbrute AND SLOT>=3 -> DAMAGE {12-20}%",
-    "modifierName": "Warbrute Mastery"
+    "modifier": "ONCOMBO IF TAG duelist -> NEXT AMP {20-30}% IFTAG spellblade",
+    "modifierName": "Duelist Mastery"
   },
   {
     "type": "Sword",
@@ -1894,8 +1894,8 @@
     "class": "warrior",
     "damageMin": 52,
     "damageMax": 78,
-    "modifier": "WHILE IF ACTION DEEP_BREATHING AND STEP>=3 -> DAMAGE {16-26}%",
-    "modifierName": "Deep Breathing Mastery"
+    "modifier": "WHILE IF TAG spellblade AND NEXTTAG verb -> SPEED {12-18}%",
+    "modifierName": "Spellblade Mastery"
   },
   {
     "type": "Sword",
@@ -1918,8 +1918,8 @@
     "class": "warrior",
     "damageMin": 53,
     "damageMax": 80,
-    "modifier": "WHILE IF TAG swift AND SLOT>=3 -> DAMAGE {12-20}%",
-    "modifierName": "Swift Mastery"
+    "modifier": "ONCRITICAL IF TAG verb -> APPLY stagger 2",
+    "modifierName": "Stagger Mastery"
   },
   {
     "type": "Sword",
@@ -1942,8 +1942,8 @@
     "class": "warrior",
     "damageMin": 47,
     "damageMax": 70,
-    "modifier": "WHILE IF ACTION DISARM AND STEP>=3 -> DAMAGE {16-26}%",
-    "modifierName": "Disarm Mastery"
+    "modifier": "ONCONNECT IF TAG warrior AND TARGET rattle -> NEXT DAMAGE {20-30}%",
+    "modifierName": "Warrior Mastery"
   },
   {
     "type": "Sword",
@@ -1966,8 +1966,8 @@
     "class": "warrior",
     "damageMin": 59,
     "damageMax": 88,
-    "modifier": "WHILE IF TAG verb AND SLOT>=3 -> DAMAGE {12-20}%",
-    "modifierName": "Verbal Mastery"
+    "modifier": "ONCOMBO IF TAG swift -> NEXT AMP {20-30}% IFTAG warrior",
+    "modifierName": "Swift Mastery"
   },
   {
     "type": "Sword",
@@ -1990,8 +1990,8 @@
     "class": "warrior",
     "damageMin": 70,
     "damageMax": 105,
-    "modifier": "WHILE IF ACTION DUELIST_FEINT AND STEP>=3 -> DAMAGE {16-26}%",
-    "modifierName": "Duelist Feint Mastery"
+    "modifier": "WHILE IF TAG warbrute AND NEXTTAG swift -> SPEED {12-18}%",
+    "modifierName": "Warbrute Mastery"
   },
   {
     "type": "Sword",
@@ -2014,8 +2014,8 @@
     "class": "warrior",
     "damageMin": 56,
     "damageMax": 84,
-    "modifier": "WHILE IF TAG spellblade AND SLOT>=3 -> DAMAGE {12-20}%",
-    "modifierName": "Spellblade Mastery"
+    "modifier": "ONCRITICAL IF TAG duelist -> APPLY rattle 2",
+    "modifierName": "Rattle Mastery"
   },
   {
     "type": "Sword",
@@ -2038,8 +2038,8 @@
     "class": "warrior",
     "damageMin": 56,
     "damageMax": 84,
-    "modifier": "WHILE IF TAG spellblade AND SLOT>=3 -> DAMAGE {12-20}%",
-    "modifierName": "Spellblade Mastery"
+    "modifier": "ONCRITICAL IF TAG duelist -> APPLY rattle 2",
+    "modifierName": "Rattle Mastery"
   },
   {
     "type": "Sword",
@@ -2062,8 +2062,8 @@
     "class": "warrior",
     "damageMin": 45,
     "damageMax": 68,
-    "modifier": "WHILE IF ACTION FEINT_AND_THRUST AND STEP>=3 -> DAMAGE {16-26}%",
-    "modifierName": "Feint And Thrust Mastery"
+    "modifier": "ONCONNECT IF TAG spellblade AND STEP>=3 -> NEXT DAMAGE {20-30}%",
+    "modifierName": "Spellblade Mastery"
   },
   {
     "type": "Sword",
@@ -2086,8 +2086,8 @@
     "class": "warrior",
     "damageMin": 47,
     "damageMax": 70,
-    "modifier": "WHILE IF TAG duelist AND SLOT>=3 -> DAMAGE {12-20}%",
-    "modifierName": "Duelist Mastery"
+    "modifier": "ONCOMBO IF TAG verb -> NEXT AMP {20-30}% IFTAG warbrute",
+    "modifierName": "Verbal Mastery"
   },
   {
     "type": "Sword",
@@ -2110,8 +2110,8 @@
     "class": "warrior",
     "damageMin": 81,
     "damageMax": 121,
-    "modifier": "WHILE IF ACTION FINESSE_THRUST AND STEP>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
-    "modifierName": "Finesse Thrust Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warrior -> APPLY slow 1; WHILE -> DAMAGE {5-8}% PER TARGET slow",
+    "modifierName": "Slow Legend"
   },
   {
     "type": "Sword",
@@ -2134,8 +2134,8 @@
     "class": "warrior",
     "damageMin": 96,
     "damageMax": 144,
-    "modifier": "WHILE IF ACTION FLURRY_STEP -> DAMAGE {14-22}%; WHILE IF TAG warbrute -> SPEED {8-12}%",
-    "modifierName": "Flurry Step Legend"
+    "modifier": "ONCOMBO IF TAG swift -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG swift AND PREVTAG swift -> SPEED {8-12}%",
+    "modifierName": "Swift Legend"
   },
   {
     "type": "Sword",
@@ -2158,8 +2158,8 @@
     "class": "warrior",
     "damageMin": 96,
     "damageMax": 144,
-    "modifier": "WHILE IF ACTION FLURRY_STEP -> DAMAGE {14-22}%; WHILE IF TAG warbrute -> SPEED {8-12}%",
-    "modifierName": "Flurry Step Legend"
+    "modifier": "ONCOMBO IF TAG swift -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG swift AND PREVTAG swift -> SPEED {8-12}%",
+    "modifierName": "Swift Legend"
   },
   {
     "type": "Sword",
@@ -2182,8 +2182,8 @@
     "class": "warrior",
     "damageMin": 84,
     "damageMax": 126,
-    "modifier": "WHILE IF ACTION HARDEN AND SLOT>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
-    "modifierName": "Harden Legend"
+    "modifier": "ONCOMBO EVERY 2 IF TAG warbrute -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
+    "modifierName": "Haste Legend"
   },
   {
     "type": "Sword",
@@ -2206,8 +2206,8 @@
     "class": "warrior",
     "damageMin": 107,
     "damageMax": 160,
-    "modifier": "WHILE IF ACTION HOLD_THE_LINE -> DAMAGE {14-22}%; WHILE IF TAG swift -> SPEED {8-12}%",
-    "modifierName": "Hold The Line Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> APPLY stagger 1; WHILE -> DAMAGE {5-8}% PER TARGET stagger",
+    "modifierName": "Stagger Legend"
   },
   {
     "type": "Sword",
@@ -2230,8 +2230,8 @@
     "class": "warrior",
     "damageMin": 99,
     "damageMax": 149,
-    "modifier": "WHILE IF ACTION INVEST AND STEP>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
-    "modifierName": "Invest Legend"
+    "modifier": "ONCOMBO IF TAG spellblade -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG spellblade AND PREVTAG spellblade -> SPEED {8-12}%",
+    "modifierName": "Spellblade Legend"
   },
   {
     "type": "Sword",
@@ -2254,8 +2254,8 @@
     "class": "warrior",
     "damageMin": 127,
     "damageMax": 190,
-    "modifier": "WHILE IF ACTION IRON_GUARD -> DAMAGE {14-22}%; WHILE IF TAG verb -> SPEED {8-12}%",
-    "modifierName": "Iron Guard Legend"
+    "modifier": "ONCOMBO EVERY 2 IF TAG verb -> ADD fortify 1; WHILE IF fortify>=2 -> CRIT +{1-2}",
+    "modifierName": "Fortify Legend"
   },
   {
     "type": "Sword",
@@ -2278,8 +2278,8 @@
     "class": "warrior",
     "damageMin": 107,
     "damageMax": 160,
-    "modifier": "WHILE IF ACTION JAB AND SLOT>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
-    "modifierName": "Jab Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warrior -> APPLY rattle 1; WHILE -> DAMAGE {5-8}% PER TARGET rattle",
+    "modifierName": "Rattle Legend"
   },
   {
     "type": "Sword",
@@ -2302,8 +2302,8 @@
     "class": "warrior",
     "damageMin": 72,
     "damageMax": 108,
-    "modifier": "WHILE IF ACTION LATE_BLOOM -> DAMAGE {14-22}%; WHILE IF TAG spellblade -> SPEED {8-12}%",
-    "modifierName": "Late Bloom Legend"
+    "modifier": "ONCOMBO IF TAG swift -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG swift AND PREVTAG swift -> SPEED {8-12}%",
+    "modifierName": "Swift Legend"
   },
   {
     "type": "Sword",
@@ -2326,8 +2326,8 @@
     "class": "warrior",
     "damageMin": 81,
     "damageMax": 121,
-    "modifier": "WHILE IF ACTION LUNGE AND STEP>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
-    "modifierName": "Lunge Legend"
+    "modifier": "ONCOMBO EVERY 2 IF TAG warbrute -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
+    "modifierName": "Haste Legend"
   },
   {
     "type": "Sword",
@@ -2350,8 +2350,8 @@
     "class": "warrior",
     "damageMin": 83,
     "damageMax": 124,
-    "modifier": "WHILE IF ACTION MARATHON -> DAMAGE {14-22}%; WHILE IF TAG duelist -> SPEED {8-12}%",
-    "modifierName": "Marathon Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> APPLY slow 1; WHILE -> DAMAGE {5-8}% PER TARGET slow",
+    "modifierName": "Slow Legend"
   },
   {
     "type": "Dagger",
@@ -2617,8 +2617,8 @@
     "class": "rogue",
     "damageMin": 13,
     "damageMax": 19,
-    "modifier": "WHILE IF TAG hexblade -> DAMAGE {6-12}%",
-    "modifierName": "Hexblade Habit"
+    "modifier": "WHILE IF TAG rogue -> DAMAGE {6-12}%",
+    "modifierName": "Rogue Habit"
   },
   {
     "type": "Dagger",
@@ -2643,8 +2643,8 @@
     "class": "rogue",
     "damageMin": 13,
     "damageMax": 19,
-    "modifier": "WHILE IF TAG hexblade -> DAMAGE {6-12}%",
-    "modifierName": "Hexblade Habit"
+    "modifier": "WHILE IF TAG rogue -> DAMAGE {6-12}%",
+    "modifierName": "Rogue Habit"
   },
   {
     "type": "Dagger",
@@ -2669,8 +2669,8 @@
     "class": "rogue",
     "damageMin": 13,
     "damageMax": 19,
-    "modifier": "WHILE IF TAG duelist -> SPEED {5-9}%",
-    "modifierName": "Duelist Habit"
+    "modifier": "WHILE IF TAG status -> SPEED {5-9}%",
+    "modifierName": "Affliction Habit"
   },
   {
     "type": "Dagger",
@@ -2695,8 +2695,8 @@
     "class": "rogue",
     "damageMin": 17,
     "damageMax": 25,
-    "modifier": "WHILE -> POTENCY poison {18-30}%",
-    "modifierName": "Poison Habit"
+    "modifier": "WHILE IF TAG ravager AND PREVTAG rogue -> DAMAGE {10-16}%",
+    "modifierName": "Ravager Habit"
   },
   {
     "type": "Dagger",
@@ -2721,8 +2721,8 @@
     "class": "rogue",
     "damageMin": 16,
     "damageMax": 24,
-    "modifier": "WHILE IF TAG ravager -> DAMAGE {6-12}%",
-    "modifierName": "Ravager Habit"
+    "modifier": "WHILE IF TAG duelist -> DAMAGE {6-12}%",
+    "modifierName": "Duelist Habit"
   },
   {
     "type": "Dagger",
@@ -2747,8 +2747,8 @@
     "class": "rogue",
     "damageMin": 12,
     "damageMax": 18,
-    "modifier": "WHILE IF TAG status -> SPEED {5-9}%",
-    "modifierName": "Affliction Habit"
+    "modifier": "WHILE IF TAG hexblade -> SPEED {5-9}%",
+    "modifierName": "Hexblade Habit"
   },
   {
     "type": "Dagger",
@@ -2773,8 +2773,8 @@
     "class": "rogue",
     "damageMin": 14,
     "damageMax": 21,
-    "modifier": "WHILE -> POTENCY bleed {18-30}%",
-    "modifierName": "Bleed Habit"
+    "modifier": "WHILE IF TAG finisher AND PREVTAG status -> DAMAGE {10-16}%",
+    "modifierName": "Finisher Habit"
   },
   {
     "type": "Dagger",
@@ -2799,8 +2799,8 @@
     "class": "rogue",
     "damageMin": 13,
     "damageMax": 19,
-    "modifier": "WHILE IF TAG verb -> DAMAGE {6-12}%",
-    "modifierName": "Verbal Habit"
+    "modifier": "WHILE IF TAG rogue -> DAMAGE {6-12}%",
+    "modifierName": "Rogue Habit"
   },
   {
     "type": "Dagger",
@@ -2825,8 +2825,8 @@
     "class": "rogue",
     "damageMin": 12,
     "damageMax": 18,
-    "modifier": "WHILE IF TAG hexblade -> SPEED {5-9}%",
-    "modifierName": "Hexblade Habit"
+    "modifier": "WHILE IF TAG status -> SPEED {5-9}%",
+    "modifierName": "Affliction Habit"
   },
   {
     "type": "Dagger",
@@ -2851,8 +2851,8 @@
     "class": "rogue",
     "damageMin": 14,
     "damageMax": 21,
-    "modifier": "WHILE -> POTENCY acid {18-30}%",
-    "modifierName": "Acid Habit"
+    "modifier": "WHILE IF TAG ravager AND PREVTAG duelist -> DAMAGE {10-16}%",
+    "modifierName": "Ravager Habit"
   },
   {
     "type": "Dagger",
@@ -2903,8 +2903,8 @@
     "class": "rogue",
     "damageMin": 33,
     "damageMax": 49,
-    "modifier": "WHILE IF ACTION BLOOD_FRENZY -> DAMAGE {10-18}%",
-    "modifierName": "Blood Frenzy Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG hexblade -> APPLY brittle 1",
+    "modifierName": "Brittle Technique"
   },
   {
     "type": "Dagger",
@@ -2929,8 +2929,8 @@
     "class": "rogue",
     "damageMin": 22,
     "damageMax": 34,
-    "modifier": "WHILE IF ACTION CONCENTRATE -> SPEED {8-14}%",
-    "modifierName": "Concentrate Technique"
+    "modifier": "ONCONNECT IF TAG finisher -> NEXT DAMAGE {12-20}%",
+    "modifierName": "Finisher Technique"
   },
   {
     "type": "Dagger",
@@ -2955,8 +2955,8 @@
     "class": "rogue",
     "damageMin": 29,
     "damageMax": 44,
-    "modifier": "WHILE IF ACTION CONFUSE -> DAMAGE {10-18}%",
-    "modifierName": "Confuse Technique"
+    "modifier": "ONCOMBO EVERY 2 IF TAG rogue -> ADD haste 1",
+    "modifierName": "Haste Technique"
   },
   {
     "type": "Dagger",
@@ -2981,8 +2981,8 @@
     "class": "rogue",
     "damageMin": 29,
     "damageMax": 44,
-    "modifier": "WHILE IF ACTION CORRODE -> SPEED {8-14}%",
-    "modifierName": "Corrode Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG status -> MINT GRAZE {1-2}",
+    "modifierName": "Graze Technique"
   },
   {
     "type": "Dagger",
@@ -3007,8 +3007,8 @@
     "class": "rogue",
     "damageMin": 26,
     "damageMax": 39,
-    "modifier": "WHILE IF ACTION COUNTED_PACES -> DAMAGE {10-18}%",
-    "modifierName": "Counted Paces Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG ravager -> APPLY mark 1",
+    "modifierName": "Mark Technique"
   },
   {
     "type": "Dagger",
@@ -3033,8 +3033,8 @@
     "class": "rogue",
     "damageMin": 25,
     "damageMax": 37,
-    "modifier": "WHILE IF ACTION CRIT_FACES -> SPEED {8-14}%",
-    "modifierName": "Crit Faces Technique"
+    "modifier": "ONCONNECT IF TAG duelist -> NEXT DAMAGE {12-20}%",
+    "modifierName": "Duelist Technique"
   },
   {
     "type": "Dagger",
@@ -3059,8 +3059,8 @@
     "class": "rogue",
     "damageMin": 27,
     "damageMax": 41,
-    "modifier": "WHILE IF ACTION CRIT_HEAL -> DAMAGE {10-18}%",
-    "modifierName": "Crit Heal Technique"
+    "modifier": "ONCOMBO EVERY 2 IF TAG hexblade -> ADD focus 1",
+    "modifierName": "Focus Technique"
   },
   {
     "type": "Dagger",
@@ -3085,8 +3085,8 @@
     "class": "rogue",
     "damageMin": 25,
     "damageMax": 37,
-    "modifier": "WHILE IF ACTION DISARM -> SPEED {8-14}%",
-    "modifierName": "Disarm Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG finisher -> MINT SWING {1-2}",
+    "modifierName": "Swing Technique"
   },
   {
     "type": "Dagger",
@@ -3111,8 +3111,8 @@
     "class": "rogue",
     "damageMin": 24,
     "damageMax": 35,
-    "modifier": "WHILE IF ACTION DISTILL -> DAMAGE {10-18}%",
-    "modifierName": "Distill Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG rogue -> APPLY expose 1",
+    "modifierName": "Expose Technique"
   },
   {
     "type": "Dagger",
@@ -3137,8 +3137,8 @@
     "class": "rogue",
     "damageMin": 24,
     "damageMax": 35,
-    "modifier": "WHILE IF ACTION DUELIST_FEINT -> SPEED {8-14}%",
-    "modifierName": "Duelist Feint Technique"
+    "modifier": "ONCONNECT IF TAG status -> NEXT DAMAGE {12-20}%",
+    "modifierName": "Affliction Technique"
   },
   {
     "type": "Dagger",
@@ -3163,8 +3163,8 @@
     "class": "rogue",
     "damageMin": 53,
     "damageMax": 80,
-    "modifier": "WHILE IF ACTION ENRAGE AND TARGET poison -> DAMAGE {16-26}%",
-    "modifierName": "Enrage Mastery"
+    "modifier": "ONCONNECT IF TAG ravager AND TARGET brittle -> NEXT DAMAGE {20-30}%",
+    "modifierName": "Ravager Mastery"
   },
   {
     "type": "Dagger",
@@ -3189,8 +3189,8 @@
     "class": "rogue",
     "damageMin": 44,
     "damageMax": 66,
-    "modifier": "WHILE IF TAG ravager AND TARGET bleed -> DAMAGE {12-20}%",
-    "modifierName": "Ravager Mastery"
+    "modifier": "ONCOMBO IF TAG duelist -> NEXT AMP {20-30}% IFTAG hexblade",
+    "modifierName": "Duelist Mastery"
   },
   {
     "type": "Dagger",
@@ -3215,8 +3215,8 @@
     "class": "rogue",
     "damageMin": 41,
     "damageMax": 62,
-    "modifier": "WHILE IF ACTION EVEN_ODDS AND TARGET poison -> DAMAGE {16-26}%",
-    "modifierName": "Even Odds Mastery"
+    "modifier": "WHILE IF TAG hexblade AND NEXTTAG finisher -> SPEED {12-18}%",
+    "modifierName": "Hexblade Mastery"
   },
   {
     "type": "Dagger",
@@ -3241,8 +3241,8 @@
     "class": "rogue",
     "damageMin": 55,
     "damageMax": 82,
-    "modifier": "WHILE IF TAG status AND TARGET bleed -> DAMAGE {12-20}%",
-    "modifierName": "Affliction Mastery"
+    "modifier": "ONCRITICAL IF TAG finisher -> APPLY brittle 2",
+    "modifierName": "Brittle Mastery"
   },
   {
     "type": "Dagger",
@@ -3267,8 +3267,8 @@
     "class": "rogue",
     "damageMin": 45,
     "damageMax": 68,
-    "modifier": "WHILE IF ACTION EXPLODING_DICE AND TARGET poison -> DAMAGE {16-26}%",
-    "modifierName": "Exploding Dice Mastery"
+    "modifier": "ONCONNECT IF TAG rogue AND TARGET mark -> NEXT DAMAGE {20-30}%",
+    "modifierName": "Rogue Mastery"
   },
   {
     "type": "Dagger",
@@ -3293,8 +3293,8 @@
     "class": "rogue",
     "damageMin": 64,
     "damageMax": 96,
-    "modifier": "WHILE IF TAG verb AND TARGET bleed -> DAMAGE {12-20}%",
-    "modifierName": "Verbal Mastery"
+    "modifier": "ONCOMBO IF TAG status -> NEXT AMP {20-30}% IFTAG rogue",
+    "modifierName": "Affliction Mastery"
   },
   {
     "type": "Dagger",
@@ -3319,8 +3319,8 @@
     "class": "rogue",
     "damageMin": 55,
     "damageMax": 82,
-    "modifier": "WHILE IF ACTION EXPOSE AND TARGET poison -> DAMAGE {16-26}%",
-    "modifierName": "Expose Mastery"
+    "modifier": "WHILE IF TAG ravager AND NEXTTAG status -> SPEED {12-18}%",
+    "modifierName": "Ravager Mastery"
   },
   {
     "type": "Dagger",
@@ -3345,8 +3345,8 @@
     "class": "rogue",
     "damageMin": 40,
     "damageMax": 60,
-    "modifier": "WHILE IF TAG hexblade AND TARGET bleed -> DAMAGE {12-20}%",
-    "modifierName": "Hexblade Mastery"
+    "modifier": "ONCRITICAL IF TAG duelist -> APPLY mark 2",
+    "modifierName": "Mark Mastery"
   },
   {
     "type": "Dagger",
@@ -3371,8 +3371,8 @@
     "class": "rogue",
     "damageMin": 44,
     "damageMax": 66,
-    "modifier": "WHILE IF ACTION FAN_OF_KNIVES AND TARGET poison -> DAMAGE {16-26}%",
-    "modifierName": "Fan Of Knives Mastery"
+    "modifier": "ONCONNECT IF TAG hexblade AND TARGET brittle -> NEXT DAMAGE {20-30}%",
+    "modifierName": "Hexblade Mastery"
   },
   {
     "type": "Dagger",
@@ -3397,8 +3397,8 @@
     "class": "rogue",
     "damageMin": 49,
     "damageMax": 74,
-    "modifier": "WHILE IF TAG duelist AND TARGET bleed -> DAMAGE {12-20}%",
-    "modifierName": "Duelist Mastery"
+    "modifier": "ONCOMBO IF TAG finisher -> NEXT AMP {20-30}% IFTAG ravager",
+    "modifierName": "Finisher Mastery"
   },
   {
     "type": "Dagger",
@@ -3423,8 +3423,8 @@
     "class": "rogue",
     "damageMin": 84,
     "damageMax": 126,
-    "modifier": "WHILE IF ACTION FEINT_AND_THRUST AND TARGET poison -> DAMAGE {20-32}%; WHILE -> POTENCY poison {25-40}%",
-    "modifierName": "Feint And Thrust Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG rogue -> APPLY expose 1; WHILE -> DAMAGE {5-8}% PER TARGET expose",
+    "modifierName": "Expose Legend"
   },
   {
     "type": "Dagger",
@@ -3449,8 +3449,8 @@
     "class": "rogue",
     "damageMin": 66,
     "damageMax": 99,
-    "modifier": "WHILE IF ACTION FINESSE_THRUST -> DAMAGE {14-22}%; WHILE IF TAG ravager -> SPEED {8-12}%",
-    "modifierName": "Finesse Thrust Legend"
+    "modifier": "ONCOMBO IF TAG status -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG status AND PREVTAG status -> SPEED {8-12}%",
+    "modifierName": "Affliction Legend"
   },
   {
     "type": "Dagger",
@@ -3475,8 +3475,8 @@
     "class": "rogue",
     "damageMin": 96,
     "damageMax": 144,
-    "modifier": "WHILE IF ACTION FOCUS AND TARGET bleed -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
-    "modifierName": "Focus Legend"
+    "modifier": "ONCOMBO EVERY 2 IF TAG ravager -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
+    "modifierName": "Haste Legend"
   },
   {
     "type": "Dagger",
@@ -3501,8 +3501,8 @@
     "class": "rogue",
     "damageMin": 86,
     "damageMax": 128,
-    "modifier": "WHILE IF ACTION GAMBLERS_BLESSING -> DAMAGE {14-22}%; WHILE IF TAG status -> SPEED {8-12}%",
-    "modifierName": "Gamblers Blessing Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> APPLY brittle 1; WHILE -> DAMAGE {5-8}% PER TARGET brittle",
+    "modifierName": "Brittle Legend"
   },
   {
     "type": "Dagger",
@@ -3527,8 +3527,8 @@
     "class": "rogue",
     "damageMin": 92,
     "damageMax": 138,
-    "modifier": "WHILE IF ACTION GUTTING_STRIKE AND TARGET poison -> DAMAGE {20-32}%; WHILE -> POTENCY acid {25-40}%",
-    "modifierName": "Gutting Strike Legend"
+    "modifier": "ONCOMBO IF TAG hexblade -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG hexblade AND PREVTAG hexblade -> SPEED {8-12}%",
+    "modifierName": "Hexblade Legend"
   },
   {
     "type": "Dagger",
@@ -3553,8 +3553,8 @@
     "class": "rogue",
     "damageMin": 90,
     "damageMax": 135,
-    "modifier": "WHILE IF ACTION HEXBLADE_CURSE -> DAMAGE {14-22}%; WHILE IF TAG verb -> SPEED {8-12}%",
-    "modifierName": "Hexblade Curse Legend"
+    "modifier": "ONCOMBO EVERY 2 IF TAG finisher -> ADD focus 1; WHILE IF focus>=2 -> CRIT +{1-2}",
+    "modifierName": "Focus Legend"
   },
   {
     "type": "Dagger",
@@ -3579,8 +3579,8 @@
     "class": "rogue",
     "damageMin": 76,
     "damageMax": 115,
-    "modifier": "WHILE IF ACTION JAB AND TARGET bleed -> DAMAGE {20-32}%; WHILE -> POTENCY poison {25-40}%",
-    "modifierName": "Jab Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG rogue -> APPLY mark 1; WHILE -> DAMAGE {5-8}% PER TARGET mark",
+    "modifierName": "Mark Legend"
   },
   {
     "type": "Dagger",
@@ -3605,8 +3605,8 @@
     "class": "rogue",
     "damageMin": 78,
     "damageMax": 117,
-    "modifier": "WHILE IF ACTION LEECHING_CUT -> DAMAGE {14-22}%; WHILE IF TAG hexblade -> SPEED {8-12}%",
-    "modifierName": "Leeching Cut Legend"
+    "modifier": "ONCOMBO IF TAG status -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG status AND PREVTAG status -> SPEED {8-12}%",
+    "modifierName": "Affliction Legend"
   },
   {
     "type": "Dagger",
@@ -3631,8 +3631,8 @@
     "class": "rogue",
     "damageMin": 81,
     "damageMax": 121,
-    "modifier": "WHILE IF ACTION LOADED_DICE AND TARGET poison -> DAMAGE {20-32}%; WHILE -> POTENCY bleed {25-40}%",
-    "modifierName": "Loaded Dice Legend"
+    "modifier": "ONCOMBO EVERY 2 IF TAG ravager -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
+    "modifierName": "Haste Legend"
   },
   {
     "type": "Dagger",
@@ -3657,8 +3657,8 @@
     "class": "rogue",
     "damageMin": 78,
     "damageMax": 117,
-    "modifier": "WHILE IF ACTION LOW_BLOW -> DAMAGE {14-22}%; WHILE IF TAG duelist -> SPEED {8-12}%",
-    "modifierName": "Low Blow Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> APPLY expose 1; WHILE -> DAMAGE {5-8}% PER TARGET expose",
+    "modifierName": "Expose Legend"
   },
   {
     "type": "Wand",
@@ -3946,8 +3946,8 @@
     "class": "wizard",
     "damageMin": 17,
     "damageMax": 25,
-    "modifier": "WHILE IF TAG hexblade -> DAMAGE {6-12}%",
-    "modifierName": "Hexblade Habit"
+    "modifier": "WHILE IF TAG wizard -> DAMAGE {6-12}%",
+    "modifierName": "Wizard Habit"
   },
   {
     "type": "Wand",
@@ -3970,8 +3970,8 @@
     "class": "wizard",
     "damageMin": 15,
     "damageMax": 22,
-    "modifier": "WHILE IF TAG spellblade -> SPEED {5-9}%",
-    "modifierName": "Spellblade Habit"
+    "modifier": "WHILE IF TAG focus -> SPEED {5-9}%",
+    "modifierName": "Focus Habit"
   },
   {
     "type": "Wand",
@@ -3994,8 +3994,8 @@
     "class": "wizard",
     "damageMin": 15,
     "damageMax": 22,
-    "modifier": "WHILE -> POTENCY acid {18-30}%",
-    "modifierName": "Acid Habit"
+    "modifier": "WHILE IF TAG ragecaller AND PREVTAG wizard -> DAMAGE {10-16}%",
+    "modifierName": "Ragecaller Habit"
   },
   {
     "type": "Wand",
@@ -4018,8 +4018,8 @@
     "class": "wizard",
     "damageMin": 17,
     "damageMax": 25,
-    "modifier": "WHILE IF TAG ragecaller -> DAMAGE {6-12}%",
-    "modifierName": "Ragecaller Habit"
+    "modifier": "WHILE IF TAG spellblade -> DAMAGE {6-12}%",
+    "modifierName": "Spellblade Habit"
   },
   {
     "type": "Wand",
@@ -4042,8 +4042,8 @@
     "class": "wizard",
     "damageMin": 14,
     "damageMax": 21,
-    "modifier": "WHILE IF TAG verb -> SPEED {5-9}%",
-    "modifierName": "Verbal Habit"
+    "modifier": "WHILE IF TAG hexblade -> SPEED {5-9}%",
+    "modifierName": "Hexblade Habit"
   },
   {
     "type": "Wand",
@@ -4066,8 +4066,8 @@
     "class": "wizard",
     "damageMin": 16,
     "damageMax": 24,
-    "modifier": "WHILE -> POTENCY burn {18-30}%",
-    "modifierName": "Burn Habit"
+    "modifier": "WHILE IF TAG store AND PREVTAG focus -> DAMAGE {10-16}%",
+    "modifierName": "Hoarder Habit"
   },
   {
     "type": "Wand",
@@ -4090,8 +4090,8 @@
     "class": "wizard",
     "damageMin": 16,
     "damageMax": 24,
-    "modifier": "WHILE -> POTENCY burn {18-30}%",
-    "modifierName": "Burn Habit"
+    "modifier": "WHILE IF TAG store AND PREVTAG focus -> DAMAGE {10-16}%",
+    "modifierName": "Hoarder Habit"
   },
   {
     "type": "Wand",
@@ -4114,8 +4114,8 @@
     "class": "wizard",
     "damageMin": 14,
     "damageMax": 21,
-    "modifier": "WHILE IF TAG store -> DAMAGE {6-12}%",
-    "modifierName": "Hoarder Habit"
+    "modifier": "WHILE IF TAG wizard -> DAMAGE {6-12}%",
+    "modifierName": "Wizard Habit"
   },
   {
     "type": "Wand",
@@ -4138,8 +4138,8 @@
     "class": "wizard",
     "damageMin": 14,
     "damageMax": 21,
-    "modifier": "WHILE IF TAG hexblade -> SPEED {5-9}%",
-    "modifierName": "Hexblade Habit"
+    "modifier": "WHILE IF TAG focus -> SPEED {5-9}%",
+    "modifierName": "Focus Habit"
   },
   {
     "type": "Wand",
@@ -4162,8 +4162,8 @@
     "class": "wizard",
     "damageMin": 32,
     "damageMax": 48,
-    "modifier": "WHILE IF ACTION BLOOD_OATH -> DAMAGE {10-18}%",
-    "modifierName": "Blood Oath Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG ragecaller -> APPLY rattle 1",
+    "modifierName": "Rattle Technique"
   },
   {
     "type": "Wand",
@@ -4186,8 +4186,8 @@
     "class": "wizard",
     "damageMin": 27,
     "damageMax": 41,
-    "modifier": "WHILE IF ACTION CHANNEL -> SPEED {8-14}%",
-    "modifierName": "Channel Technique"
+    "modifier": "ONCONNECT IF TAG spellblade -> NEXT DAMAGE {12-20}%",
+    "modifierName": "Spellblade Technique"
   },
   {
     "type": "Wand",
@@ -4210,8 +4210,8 @@
     "class": "wizard",
     "damageMin": 25,
     "damageMax": 37,
-    "modifier": "WHILE IF ACTION CONCENTRATED_CHAOS -> DAMAGE {10-18}%",
-    "modifierName": "Concentrated Chaos Technique"
+    "modifier": "ONCOMBO EVERY 2 IF TAG hexblade -> ADD focus 1",
+    "modifierName": "Focus Technique"
   },
   {
     "type": "Wand",
@@ -4234,8 +4234,8 @@
     "class": "wizard",
     "damageMin": 35,
     "damageMax": 53,
-    "modifier": "WHILE IF ACTION CONFUSE -> SPEED {8-14}%",
-    "modifierName": "Confuse Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG store -> MINT CHAIN {1-2}",
+    "modifierName": "Chain Technique"
   },
   {
     "type": "Wand",
@@ -4258,8 +4258,8 @@
     "class": "wizard",
     "damageMin": 35,
     "damageMax": 53,
-    "modifier": "WHILE IF ACTION CONFUSE -> SPEED {8-14}%",
-    "modifierName": "Confuse Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG store -> MINT CHAIN {1-2}",
+    "modifierName": "Chain Technique"
   },
   {
     "type": "Wand",
@@ -4282,8 +4282,8 @@
     "class": "wizard",
     "damageMin": 34,
     "damageMax": 51,
-    "modifier": "WHILE IF ACTION CORRODE -> DAMAGE {10-18}%",
-    "modifierName": "Corrode Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG wizard -> APPLY weaken 1",
+    "modifierName": "Weaken Technique"
   },
   {
     "type": "Wand",
@@ -4306,8 +4306,8 @@
     "class": "wizard",
     "damageMin": 29,
     "damageMax": 44,
-    "modifier": "WHILE IF ACTION CRESCENDO -> SPEED {8-14}%",
-    "modifierName": "Crescendo Technique"
+    "modifier": "ONCONNECT IF TAG focus -> NEXT DAMAGE {12-20}%",
+    "modifierName": "Focus Technique"
   },
   {
     "type": "Wand",
@@ -4330,8 +4330,8 @@
     "class": "wizard",
     "damageMin": 26,
     "damageMax": 39,
-    "modifier": "WHILE IF ACTION DETONATE -> DAMAGE {10-18}%",
-    "modifierName": "Detonate Technique"
+    "modifier": "ONCOMBO EVERY 2 IF TAG ragecaller -> ADD haste 1",
+    "modifierName": "Haste Technique"
   },
   {
     "type": "Wand",
@@ -4354,8 +4354,8 @@
     "class": "wizard",
     "damageMin": 28,
     "damageMax": 42,
-    "modifier": "WHILE IF ACTION DISTILL -> SPEED {8-14}%",
-    "modifierName": "Distill Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> MINT LENS {1-2}",
+    "modifierName": "Lens Technique"
   },
   {
     "type": "Wand",
@@ -4378,8 +4378,8 @@
     "class": "wizard",
     "damageMin": 33,
     "damageMax": 49,
-    "modifier": "WHILE IF ACTION DUNGEON_ANALYSIS -> DAMAGE {10-18}%",
-    "modifierName": "Dungeon Analysis Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG hexblade -> APPLY brittle 1",
+    "modifierName": "Brittle Technique"
   },
   {
     "type": "Wand",
@@ -4402,8 +4402,8 @@
     "class": "wizard",
     "damageMin": 28,
     "damageMax": 42,
-    "modifier": "WHILE IF ACTION ECHO_SPELL -> SPEED {8-14}%",
-    "modifierName": "Echo Spell Technique"
+    "modifier": "ONCONNECT IF TAG store -> NEXT DAMAGE {12-20}%",
+    "modifierName": "Hoarder Technique"
   },
   {
     "type": "Wand",
@@ -4426,8 +4426,8 @@
     "class": "wizard",
     "damageMin": 59,
     "damageMax": 88,
-    "modifier": "WHILE IF ACTION EMPOWERED AND STEP>=3 -> DAMAGE {16-26}%",
-    "modifierName": "Empowered Mastery"
+    "modifier": "ONCONNECT IF TAG wizard AND STEP>=3 -> NEXT DAMAGE {20-30}%",
+    "modifierName": "Wizard Mastery"
   },
   {
     "type": "Wand",
@@ -4450,8 +4450,8 @@
     "class": "wizard",
     "damageMin": 42,
     "damageMax": 64,
-    "modifier": "WHILE IF TAG spellblade AND TARGET burn -> DAMAGE {12-20}%",
-    "modifierName": "Spellblade Mastery"
+    "modifier": "ONCOMBO IF TAG focus -> NEXT AMP {20-30}% IFTAG spellblade",
+    "modifierName": "Focus Mastery"
   },
   {
     "type": "Wand",
@@ -4474,8 +4474,8 @@
     "class": "wizard",
     "damageMin": 48,
     "damageMax": 72,
-    "modifier": "WHILE IF ACTION EVEN_ODDS AND STEP>=3 -> DAMAGE {16-26}%",
-    "modifierName": "Even Odds Mastery"
+    "modifier": "WHILE IF TAG ragecaller AND NEXTTAG hexblade -> SPEED {12-18}%",
+    "modifierName": "Ragecaller Mastery"
   },
   {
     "type": "Wand",
@@ -4498,8 +4498,8 @@
     "class": "wizard",
     "damageMin": 55,
     "damageMax": 82,
-    "modifier": "WHILE IF TAG ragecaller AND TARGET burn -> DAMAGE {12-20}%",
-    "modifierName": "Ragecaller Mastery"
+    "modifier": "ONCRITICAL IF TAG spellblade -> APPLY rattle 2",
+    "modifierName": "Rattle Mastery"
   },
   {
     "type": "Wand",
@@ -4522,8 +4522,8 @@
     "class": "wizard",
     "damageMin": 68,
     "damageMax": 103,
-    "modifier": "WHILE IF ACTION EXPLODING_DICE AND STEP>=3 -> DAMAGE {16-26}%",
-    "modifierName": "Exploding Dice Mastery"
+    "modifier": "ONCONNECT IF TAG hexblade AND TARGET weaken -> NEXT DAMAGE {20-30}%",
+    "modifierName": "Hexblade Mastery"
   },
   {
     "type": "Wand",
@@ -4546,8 +4546,8 @@
     "class": "wizard",
     "damageMin": 47,
     "damageMax": 70,
-    "modifier": "WHILE IF TAG verb AND TARGET burn -> DAMAGE {12-20}%",
-    "modifierName": "Verbal Mastery"
+    "modifier": "ONCOMBO IF TAG store -> NEXT AMP {20-30}% IFTAG hexblade",
+    "modifierName": "Hoarder Mastery"
   },
   {
     "type": "Wand",
@@ -4570,8 +4570,8 @@
     "class": "wizard",
     "damageMin": 66,
     "damageMax": 98,
-    "modifier": "WHILE IF ACTION FLAME_BRAND AND STEP>=3 -> DAMAGE {16-26}%",
-    "modifierName": "Flame Brand Mastery"
+    "modifier": "WHILE IF TAG wizard AND NEXTTAG focus -> SPEED {12-18}%",
+    "modifierName": "Wizard Mastery"
   },
   {
     "type": "Wand",
@@ -4594,8 +4594,8 @@
     "class": "wizard",
     "damageMin": 62,
     "damageMax": 92,
-    "modifier": "WHILE IF TAG store AND TARGET burn -> DAMAGE {12-20}%",
-    "modifierName": "Hoarder Mastery"
+    "modifier": "ONCRITICAL IF TAG focus -> APPLY weaken 2",
+    "modifierName": "Weaken Mastery"
   },
   {
     "type": "Wand",
@@ -4618,8 +4618,8 @@
     "class": "wizard",
     "damageMin": 47,
     "damageMax": 70,
-    "modifier": "WHILE IF ACTION FROST_BOLT AND STEP>=3 -> DAMAGE {16-26}%",
-    "modifierName": "Frost Bolt Mastery"
+    "modifier": "ONCONNECT IF TAG ragecaller AND STEP>=3 -> NEXT DAMAGE {20-30}%",
+    "modifierName": "Ragecaller Mastery"
   },
   {
     "type": "Wand",
@@ -4642,8 +4642,8 @@
     "class": "wizard",
     "damageMin": 71,
     "damageMax": 107,
-    "modifier": "WHILE IF TAG hexblade AND TARGET burn -> DAMAGE {12-20}%",
-    "modifierName": "Hexblade Mastery"
+    "modifier": "ONCOMBO IF TAG spellblade -> NEXT AMP {20-30}% IFTAG focus",
+    "modifierName": "Spellblade Mastery"
   },
   {
     "type": "Wand",
@@ -4666,8 +4666,8 @@
     "class": "wizard",
     "damageMin": 84,
     "damageMax": 126,
-    "modifier": "WHILE IF ACTION HEXBLADE_CURSE AND STEP>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY acid {25-40}%",
-    "modifierName": "Hexblade Curse Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG hexblade -> APPLY brittle 1; WHILE -> DAMAGE {5-8}% PER TARGET brittle",
+    "modifierName": "Brittle Legend"
   },
   {
     "type": "Wand",
@@ -4690,8 +4690,8 @@
     "class": "wizard",
     "damageMin": 102,
     "damageMax": 154,
-    "modifier": "WHILE IF ACTION INDEX -> DAMAGE {14-22}%; WHILE IF TAG spellblade -> SPEED {8-12}%",
-    "modifierName": "Index Legend"
+    "modifier": "ONCOMBO IF TAG store -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG store AND PREVTAG store -> SPEED {8-12}%",
+    "modifierName": "Hoarder Legend"
   },
   {
     "type": "Wand",
@@ -4714,8 +4714,8 @@
     "class": "wizard",
     "damageMin": 96,
     "damageMax": 144,
-    "modifier": "WHILE IF ACTION INVEST AND TARGET burn -> DAMAGE {20-32}%; WHILE -> POTENCY burn {25-40}%",
-    "modifierName": "Invest Legend"
+    "modifier": "ONCOMBO EVERY 2 IF TAG wizard -> ADD focus 1; WHILE IF focus>=2 -> CRIT +{1-2}",
+    "modifierName": "Focus Legend"
   },
   {
     "type": "Wand",
@@ -4738,8 +4738,8 @@
     "class": "wizard",
     "damageMin": 92,
     "damageMax": 138,
-    "modifier": "WHILE IF ACTION LATE_BLOOM -> DAMAGE {14-22}%; WHILE IF TAG ragecaller -> SPEED {8-12}%",
-    "modifierName": "Late Bloom Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG focus -> APPLY rattle 1; WHILE -> DAMAGE {5-8}% PER TARGET rattle",
+    "modifierName": "Rattle Legend"
   },
   {
     "type": "Wand",
@@ -4762,8 +4762,8 @@
     "class": "wizard",
     "damageMin": 108,
     "damageMax": 163,
-    "modifier": "WHILE IF ACTION LIQUIDATE AND STEP>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY acid {25-40}%",
-    "modifierName": "Liquidate Legend"
+    "modifier": "ONCOMBO IF TAG ragecaller -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG ragecaller AND PREVTAG ragecaller -> SPEED {8-12}%",
+    "modifierName": "Ragecaller Legend"
   },
   {
     "type": "Wand",
@@ -4786,8 +4786,8 @@
     "class": "wizard",
     "damageMin": 81,
     "damageMax": 121,
-    "modifier": "WHILE IF ACTION MIND_HEX -> DAMAGE {14-22}%; WHILE IF TAG verb -> SPEED {8-12}%",
-    "modifierName": "Mind Hex Legend"
+    "modifier": "ONCOMBO EVERY 2 IF TAG spellblade -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
+    "modifierName": "Haste Legend"
   },
   {
     "type": "Wand",
@@ -4810,8 +4810,8 @@
     "class": "wizard",
     "damageMin": 78,
     "damageMax": 117,
-    "modifier": "WHILE IF ACTION NATURAL_SEVEN AND TARGET burn -> DAMAGE {20-32}%; WHILE -> POTENCY burn {25-40}%",
-    "modifierName": "Natural Seven Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG hexblade -> APPLY weaken 1; WHILE -> DAMAGE {5-8}% PER TARGET weaken",
+    "modifierName": "Weaken Legend"
   },
   {
     "type": "Wand",
@@ -4834,8 +4834,8 @@
     "class": "wizard",
     "damageMin": 86,
     "damageMax": 128,
-    "modifier": "WHILE IF ACTION PRE-FIGHT_PLANNING -> DAMAGE {14-22}%; WHILE IF TAG store -> SPEED {8-12}%",
-    "modifierName": "Pre-fight Planning Legend"
+    "modifier": "ONCOMBO IF TAG store -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG store AND PREVTAG store -> SPEED {8-12}%",
+    "modifierName": "Hoarder Legend"
   },
   {
     "type": "Wand",
@@ -4858,8 +4858,8 @@
     "class": "wizard",
     "damageMin": 112,
     "damageMax": 167,
-    "modifier": "WHILE IF ACTION PRELUDE AND STEP>=3 -> DAMAGE {20-32}%; WHILE -> POTENCY acid {25-40}%",
-    "modifierName": "Prelude Legend"
+    "modifier": "ONCOMBO EVERY 2 IF TAG wizard -> ADD focus 1; WHILE IF focus>=2 -> CRIT +{1-2}",
+    "modifierName": "Focus Legend"
   },
   {
     "type": "Wand",
@@ -4882,7 +4882,7 @@
     "class": "wizard",
     "damageMin": 118,
     "damageMax": 176,
-    "modifier": "WHILE IF ACTION RAGECALLER_HOWL -> DAMAGE {14-22}%; WHILE IF TAG hexblade -> SPEED {8-12}%",
-    "modifierName": "Ragecaller Howl Legend"
+    "modifier": "ONCONNECT EVERY 2 IF TAG focus -> APPLY brittle 1; WHILE -> DAMAGE {5-8}% PER TARGET brittle",
+    "modifierName": "Brittle Legend"
   }
 ]

@@ -14,6 +14,10 @@ namespace RPGGame.MCP.Models
         public AgentPlayerBrief? Player { get; set; }
         public List<DungeonOptionSnapshot> Dungeons { get; set; } = new();
         public List<string> RecentEvents { get; set; } = new();
+        /// <summary>Lines the last handle_input produced (combat log, loot, messages). Set only on handle_input replies.</summary>
+        public List<string>? NewEvents { get; set; }
+        /// <summary>How many earlier NewEvents lines were left out (long dungeon runs); read them with get_recent_output.</summary>
+        public int? NewEventsOmitted { get; set; }
         public string? UserDirective { get; set; }
         public DungeonRunSummary? LastRunSummary { get; set; }
         public string CurrentState { get; set; } = "";
@@ -23,6 +27,10 @@ namespace RPGGame.MCP.Models
     {
         public string State { get; set; } = "";
         public string Title { get; set; } = "";
+        /// <summary>Open prompt inside the screen (EquipPicker, Compare, ActionSequence, ...), or null.</summary>
+        public string? SubScreen { get; set; }
+        /// <summary>What the screen shows, as text (bag, comparison, sequence, skill nodes, regions...).</summary>
+        public List<string> Body { get; set; } = new();
     }
 
     public class AgentChoice
@@ -49,6 +57,12 @@ namespace RPGGame.MCP.Models
         public string? HeadArmor { get; set; }
         public string? BodyArmor { get; set; }
         public string? FeetArmor { get; set; }
+        public string? LegsArmor { get; set; }
+        public string? Charm { get; set; }
+        public string? Region { get; set; }
+        public List<string> ActionSequence { get; set; } = new();
+        public int ActionSequenceCapacity { get; set; }
+        public int UnspentSkillPoints { get; set; }
         public List<ItemSnapshot> Inventory { get; set; } = new();
     }
 

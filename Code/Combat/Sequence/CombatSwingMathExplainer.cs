@@ -46,7 +46,10 @@ namespace RPGGame.Combat.Sequence
                 double other = known > 0 && trace.PreRoundTotal > 0 ? trace.PreRoundTotal / known : 1.0;
 
                 var parts = new List<string> { $"base {trace.BaseDamage}" };
-                if (Math.Abs(trace.ActionMultiplier - 1.0) > 0.001) parts.Add($"action ×{trace.ActionMultiplier:0.##}");
+                double actionMult = trace.ActionMultiplierWithoutNextActionMod;
+                if (Math.Abs(actionMult - 1.0) > 0.001) parts.Add($"action ×{actionMult:0.##}");
+                if (Math.Abs(trace.NextActionDamageModPercent) > 0.0001)
+                    parts.Add($"next-action {trace.NextActionDamageModPercent:+0.#;-0.#}%");
                 if (Math.Abs(trace.Amp - 1.0) > 0.001) parts.Add($"AMP ×{trace.Amp:0.##}");
                 if (Math.Abs(trace.StrengthMultiplier - 1.0) > 0.001) parts.Add($"STR ×{trace.StrengthMultiplier:0.##}");
                 if (!string.IsNullOrEmpty(trace.RollBand) && Math.Abs(trace.RollBandMultiplier - 1.0) > 0.001)

@@ -108,8 +108,12 @@ namespace RPGGame.Combat.Calculators
                     baseline = Math.Max(baseline, character.GetComboAmplifier());
                 m = baseline * (1.0 + character.Effects.ConsumedAmpModPercent / 100.0);
             }
-            if (attacker is Character skillAmpCharacter && skillAmpCharacter.Effects.ConsumedSkillAmpPercent != 0)
-                m *= 1.0 + skillAmpCharacter.Effects.ConsumedSkillAmpPercent / 100.0;
+            if (attacker is Character skillAmpCharacter)
+            {
+                double skillAmp = SkillAmpPercent(skillAmpCharacter, action);
+                if (skillAmp != 0)
+                    m *= 1.0 + skillAmp / 100.0;
+            }
             return m;
         }
 
@@ -128,6 +132,15 @@ namespace RPGGame.Combat.Calculators
         /// <param name="roll">Total attack roll (modified d20 + roll bonuses) used for combo/normal damage bands.</param>
         /// <param name="rollBonusForCritEval">Same roll bonus as combat resolution; crit damage uses
         /// <see cref="CombatCalculator.GetCritThresholdEvaluationRoll"/> so accuracy does not inflate crits.</param>
+        /// <summary>Skill AMP % on this swing: the consumed skill AMP plus passive AMP rules (skills / items).</summary>
+        private static double SkillAmpPercent(Character hero, Action? action)
+        {
+            double pct = hero.Effects.ConsumedSkillAmpPercent;
+            if (hero is not Enemy)
+                pct += CrossWires.Passive(hero, "AMP", null, action);
+            return pct;
+        }
+
         public static int CalculateRawDamage(Actor attacker, Action? action = null, double comboAmplifier = 1.0, double damageMultiplier = 1.0, int roll = 0, int rollBonusForCritEval = 0)
         {
             // Get base damage from attacker
@@ -180,8 +193,12 @@ namespace RPGGame.Combat.Calculators
             }
 
             // Apply consumed DAMAGE_MOD from ACTION/ABILITY keyword (next action/ability only)
+            double nextActionDamageModPercent = 0;
             if (attacker is Character damageModCharacter && damageModCharacter.Effects.ConsumedDamageModPercent != 0)
-                actionMultiplier *= (1.0 + damageModCharacter.Effects.ConsumedDamageModPercent / 100.0);
+            {
+                nextActionDamageModPercent = damageModCharacter.Effects.ConsumedDamageModPercent;
+                actionMultiplier *= (1.0 + nextActionDamageModPercent / 100.0);
+            }
 
             // Apply consumed AMP_MOD from ACTION/ABILITY keyword (next action/ability only; % bonus, multiply).
             // Combo: sheet amp applies on top of technique baseline when slot mult is 1.0 (opener tier), matching HUD + combat log.
@@ -194,8 +211,12 @@ namespace RPGGame.Combat.Calculators
             }
 
             // Skill-tree AMP (First Glyph, Pure Prefer): a plain % on the current multiplier.
-            if (attacker is Character skillAmpHero && skillAmpHero.Effects.ConsumedSkillAmpPercent != 0)
-                comboAmplifier *= 1.0 + skillAmpHero.Effects.ConsumedSkillAmpPercent / 100.0;
+            if (attacker is Character skillAmpHero)
+            {
+                double skillAmp = SkillAmpPercent(skillAmpHero, action);
+                if (skillAmp != 0)
+                    comboAmplifier *= 1.0 + skillAmp / 100.0;
+            }
 
             // INT potency (combat.intelligenceAmpPerPoint): INT scales the hero's AMP.
             if (attacker is Character intHero && intHero is not Enemy)
@@ -375,6 +396,7 @@ namespace RPGGame.Combat.Calculators
             {
                 _sequenceTrace.BaseDamage = baseDamage;
                 _sequenceTrace.ActionMultiplier = actionMultiplier;
+                _sequenceTrace.NextActionDamageModPercent = nextActionDamageModPercent;
                 _sequenceTrace.Amp = comboAmplifier;
                 _sequenceTrace.ConvertFlat = convertFlat;
                 _sequenceTrace.Raw = result;

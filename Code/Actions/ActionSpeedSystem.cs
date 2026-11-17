@@ -244,6 +244,10 @@ namespace RPGGame
                 actionDuration = 1.0 * action.Length;
             }
             
+            // Stagger (spent) and Haste (TempoStatuses).
+            if (entity is not Environment)
+                actionDuration = TempoStatuses.AdjustDuration(entity, actionDuration);
+
             // Clear critical miss penalty after action is executed
             if (entity.HasCriticalMissPenalty)
             {

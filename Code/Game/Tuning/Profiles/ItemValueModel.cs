@@ -210,16 +210,23 @@ namespace RPGGame.Tuning.Profiles
             foreach (string part in item.ImplicitRule.Split(';'))
             {
                 var rule = string.IsNullOrWhiteSpace(part) ? null : CrossWireRule.Parse(part.Trim());
-                if (rule == null || !rule.IsPassive)
+                if (rule == null)
                     continue;
+                if (!rule.IsPassive)
+                {
+                    total += TriggeredValue(rule, hero, strip, weaponValue);
+                    continue;
+                }
                 var subject = rule.Conditions.Where(c => c.Subject is "action" or "tag" or "class").ToList();
                 double stateShare = subject.Count < rule.Conditions.Count ? ImplicitStateShare : 1.0;
                 var probe = new CrossWireRule { When = "WHILE", Conditions = subject, Verb = rule.Verb, Store = rule.Store, Amount = rule.Amount, Percent = rule.Percent };
                 double share = strip.Count(a => CrossWires.ConditionsHold(hero, null, probe, action: a)) / (double)strip.Count;
                 double amount = rule.Amount / 100.0 * stateShare;
+                if (rule.Per != null)
+                    amount *= ImplicitStateShare; // PER TARGET status / PER store: only while it is up
                 total += rule.Verb.ToUpperInvariant() switch
                 {
-                    "DAMAGE" => amount * share * weaponValue,
+                    "DAMAGE" or "AMP" => amount * share * weaponValue,
                     "SPEED" => amount * share * weaponValue * ImplicitSpeedShare,
                     "POTENCY" => strip.Any(a => RulesSynergy.Features(a.Name).ContainsKey("fx:" + rule.Store.ToLowerInvariant()))
                         ? amount * weaponValue * ImplicitPotencyShare : 0,
@@ -231,5 +238,49 @@ namespace RPGGame.Tuning.Profiles
 
         /// <summary>Share of a base modifier rule's value kept when it also needs fight state (HP, step, slot, target status).</summary>
         private const double ImplicitStateShare = 0.5;
+
+        /// <summary>Weapon-value share of one status / resource / mint a triggered base modifier hands out per firing.</summary>
+        public static double ImplicitGrantShare { get; set; } = 0.03;
+
+        /// <summary>
+        /// Triggered base modifiers (synergy pass 2026-11-16): NEXT n% is worth n% of the weapon value, APPLY / ADD / MINT a flat
+        /// share per unit; both times how often the event fires (connect / combo / crit / kill...), the share of the strip that
+        /// satisfies its swing conditions, 1/EVERY, and half when it also needs fight state.
+        /// </summary>
+        private static double TriggeredValue(CrossWireRule rule, Character hero, IReadOnlyList<Action> strip, double weaponValue)
+        {
+            double rate = rule.When.ToUpperInvariant() switch
+            {
+                "ONCONNECT" or "ONATTACK" => 0.7,
+                "ONCOMBO" or "ONCONSECUTIVEATTACK" => 0.45,
+                "ONCRITICAL" => 0.15,
+                "ONTAKEHIT" => 0.4,
+                "ONMISS" => 0.25,
+                "ONCOMBOEND" => 0.15,
+                "ONKILL" => 0.05,
+                _ => 0.2
+            };
+            if (rule.Every > 1)
+                rate /= rule.Every;
+            var subject = rule.Conditions.Where(c => c.Subject is "action" or "tag" or "class").ToList();
+            double share = 1.0;
+            if (subject.Count > 0)
+            {
+                var probe = new CrossWireRule { When = "WHILE", Conditions = subject, Verb = "DAMAGE", Amount = 1 };
+                share = strip.Count(a => CrossWires.ConditionsHold(hero, null, probe, action: a)) / (double)strip.Count;
+            }
+            double state = subject.Count < rule.Conditions.Count ? ImplicitStateShare : 1.0;
+            double per = rule.Verb switch
+            {
+                "NEXT" => rule.Store is "DAMAGE" or "AMP" ? rule.Amount / 100.0 * Math.Max(1, rule.Turns)
+                    : rule.Store == "SPEED" ? rule.Amount / 100.0 * ImplicitSpeedShare * Math.Max(1, rule.Turns)
+                    : ImplicitGrantShare,
+                "APPLY" or "ADD" or "MINT" => ImplicitGrantShare * Math.Max(1, rule.Amount),
+                _ => 0
+            };
+            if (rule.Verb == "NEXT" && rule.IfTag != null)
+                per *= strip.Count(a => a.Tags?.Any(t => string.Equals(t, rule.IfTag, StringComparison.OrdinalIgnoreCase)) == true) > 0 ? 1 : 0;
+            return per * rate * share * state * weaponValue;
+        }
     }
 }

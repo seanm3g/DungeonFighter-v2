@@ -218,7 +218,9 @@ namespace RPGGame.UI.Avalonia.Canvas
         }
 
         /// <summary>
-        /// Removes overlay boxes in the rectangle (same grid rules as <see cref="ClearBoxesInArea"/>).
+        /// Removes overlay boxes that overlap the rectangle. Unlike <see cref="ClearBoxesInArea"/> this tests the whole
+        /// box, not just its top-left corner: a prior hover tip anchored above the band (e.g. near the action strip)
+        /// still covers it, and keeping it left empty framed boxes stacked behind the new tip.
         /// </summary>
         public void ClearOverlayBoxesInArea(int startX, int startY, int width, int height)
         {
@@ -226,8 +228,8 @@ namespace RPGGame.UI.Avalonia.Canvas
             int endY = startY + height;
             boxElements.RemoveAll(box =>
                 box.IsOverlay &&
-                box.X >= startX && box.X < endX &&
-                box.Y >= startY && box.Y < endY);
+                box.X < endX && box.X + Math.Max(1, box.Width) > startX &&
+                box.Y < endY && box.Y + Math.Max(1, box.Height) > startY);
         }
 
         /// <summary>

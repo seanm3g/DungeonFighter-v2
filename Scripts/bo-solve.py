@@ -46,6 +46,8 @@ ap.add_argument('--target', type=float, default=None, help='target clear %% (def
 ap.add_argument('--patch', default='', help='balance patch name or path (default: active patch)')
 ap.add_argument('--knob', default='damage', help="damage | health | class:<Class> (see the docstring)")
 ap.add_argument('--anchor', action='append', default=[], help='other enemy damage band overrides L=multiplier (repeatable)')
+ap.add_argument('--range', default='', help='solve levels lo-hi (e.g. 5-5) instead of the 5-level region band holding --level; '
+                                             'for per-level cells such as the L1-L10 early ramp')
 ap.add_argument('--tools', default='Code/bin/BalanceTools', help='folder holding the built DF.dll')
 ap.add_argument('--shards', type=int, default=0, help='dungeon-sim shards per class per round (0 = slots // 4, at least 3)')
 ap.add_argument('--runs', type=int, default=2, help='heroes per shard')
@@ -66,6 +68,11 @@ ap.add_argument('--bot', default='synergy', choices=['smart', 'rules', 'synergy'
 ap.add_argument('--region-mix', action='store_true')
 ap.add_argument('--json', default='', help='write rounds and result here')
 A = ap.parse_args()
+if A.range:
+    _lo, _hi = (int(x) for x in A.range.split('-'))
+    if not _lo <= A.level <= _hi:
+        sys.exit(f'--level {A.level} is outside --range {A.range}')
+    bp.set_band_ranges([(_lo, _hi)])
 KNOB = A.knob.strip()
 CLASS = KNOB.split(':', 1)[1].strip().capitalize() if KNOB.lower().startswith('class:') else None
 CURVE = f'class:{CLASS}' if CLASS else KNOB.lower()

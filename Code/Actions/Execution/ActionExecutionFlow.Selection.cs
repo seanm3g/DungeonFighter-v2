@@ -74,6 +74,8 @@ namespace RPGGame.Actions.Execution
 
             if (CombatTriggerContext.TryGetCritFaceMin(source, out int critFaceMin))
                 thresholdManager.SetCriticalHitThreshold(source, critFaceMin);
+            // Mark: the next hit that lands on the target is a critical.
+            TempoStatuses.BeforeRoll(source, target, thresholdManager);
 
             // Consume replace_next_roll (Loaded Dice, etc.) before combo-vs-normal selection so the forced
             // face gates strip picks. Applying it only after SelectActionByEntityType allowed a high raw d20
@@ -186,7 +188,16 @@ namespace RPGGame.Actions.Execution
                     RollModificationManager.CollectAdvantageFlags(pendingActionRollBonuses, ref pendingAdvantage, ref pendingDisadvantage);
                 }
                 // 2. Consume TURN bonuses (roll-based; consumed per roll, apply only on hit for stat bonuses)
-                var turnBonuses = actionBonusCharacter.Effects.GetAndConsumeTurnBonuses();
+                var turnBonuses = actionBonusCharacter.Effects.GetAndConsumeTurnBonuses(result.SelectedAction);
+                // RELEASE verb: every queued buff lands on this swing.
+                if (VerbPresets.GetSpec(result.SelectedAction) is { Kind: VerbKind.Release } releaseSpec)
+                {
+                    var strip = ActionUtilities.GetComboActions(actionBonusCharacter);
+                    int releaseSlot = strip.Count > 0
+                        ? ActionUtilities.GetComboSlotForPendingBonuses(actionBonusCharacter, result.SelectedAction, strip)
+                        : -1;
+                    turnBonuses.AddRange(actionBonusCharacter.Effects.ReleaseQueuedBonuses(1.0 + releaseSpec.Rate / 100.0, releaseSlot));
+                }
                 RollModificationManager.ApplyDeferredThresholdPackageSetPhase(source, turnBonuses);
                 actionBonusCharacter.Effects.AccumulateConsumedModifierBonuses(turnBonuses);
                 actionBonusCharacter.Effects.SetConsumedTurnBonusesThisRoll(turnBonuses);
@@ -327,6 +338,8 @@ namespace RPGGame.Actions.Execution
                 result.Hit = true;
                 result.MissSalvaged = true;
             }
+            // Mark is spent by the hit; Brittle by a crit (its bonus rides this swing's damage).
+            TempoStatuses.AfterRoll(source, target, result.Hit, result.IsCritical);
 
             // Named hit sets that action's stance. A miss or unnamed normal hit sets neutral.
             // A salvaged miss counts as a hit, so it takes the action's stance.

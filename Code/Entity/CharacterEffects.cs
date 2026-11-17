@@ -170,12 +170,18 @@ namespace RPGGame
         internal static ActionAttackBonusGroup? ApplySourceSlotTiming(ActionAttackBonusGroup? group, Action? sourceAction, Character? owner)
         {
             var timing = group?.Timing;
-            if (group == null || timing == null || (string.IsNullOrWhiteSpace(timing.SlotIf) && !timing.PerSlot))
+            if (group == null || timing == null
+                || (string.IsNullOrWhiteSpace(timing.SlotIf) && !timing.PerSlot && string.IsNullOrWhiteSpace(timing.PerTag)))
                 return group;
             var (slot0, count) = SourceSlot(sourceAction, owner);
             if (!timing.SlotIfHolds(slot0, count))
                 return null;
-            if (!timing.PerSlot || slot0 < 0)
+            // perTag: x strip actions with the tag (no owner = no strip known, unscaled).
+            double tagFactor = owner != null ? timing.PerTagFactor(ActionUtilities.GetComboActions(owner)) : 1;
+            if (tagFactor <= 0)
+                return null;
+            double slotFactor = timing.PerSlot && slot0 >= 0 ? slot0 + 1 : 1;
+            if (slotFactor * tagFactor == 1)
                 return group;
             return new ActionAttackBonusGroup
             {
@@ -184,7 +190,7 @@ namespace RPGGame
                 Count = group.Count,
                 DurationType = group.DurationType,
                 Timing = group.Timing,
-                Bonuses = CadenceTiming.Scale(group.Bonuses, slot0 + 1)
+                Bonuses = CadenceTiming.Scale(group.Bonuses, slotFactor * tagFactor)
             };
         }
 
@@ -214,9 +220,11 @@ namespace RPGGame
         public void ClearConsumedModifierBonuses() => _state.ClearConsumedModifierBonuses();
         public void AccumulateConsumedModifierBonuses(List<ActionAttackBonusItem> bonuses) => _state.AccumulateConsumedModifierBonuses(bonuses);
         public void AddModifierBonusesFromAction(Action? action, int? nextComboSlot = null, bool useEnemySpreadsheetMods = false, Character? owner = null) => _state.AddModifierBonusesFromAction(action, nextComboSlot, useEnemySpreadsheetMods, owner);
-        public List<ActionAttackBonusItem> GetAndConsumeTurnBonuses() => _state.GetAndConsumeTurnBonuses();
-        public List<ActionAttackBonusItem> PeekTurnBonuses() => _state.PeekTurnBonuses();
+        public List<ActionAttackBonusItem> GetAndConsumeTurnBonuses(Action? action = null) => _state.GetAndConsumeTurnBonuses(action);
+        public List<ActionAttackBonusItem> PeekTurnBonuses(Action? action = null) => _state.PeekTurnBonuses(action);
         public void BreakTurnBonusesOnMiss() => _state.BreakTurnBonusesOnMiss();
+        public List<ActionAttackBonusItem> ReleaseQueuedBonuses(double multiplier, int currentSlot) =>
+            _state.ReleaseQueuedBonuses(multiplier, currentSlot);
         public ActionAttackBonusGroup[] SnapshotTurnBonuses() => _state.SnapshotTurnBonuses();
         public void AddPendingActionBonuses(int slot, List<ActionAttackBonusItem> bonuses) => _state.AddPendingActionBonuses(slot, bonuses);
         public List<ActionAttackBonusItem> ConsumePendingActionBonusesForSlot(int slot) => _state.ConsumePendingActionBonusesForSlot(slot);

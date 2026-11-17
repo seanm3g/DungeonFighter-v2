@@ -20,10 +20,10 @@ namespace RPGGame.UI.Avalonia.Layout
         {
             var rows = new List<Row>
             {
-                new Row("STR", HoverIds[0], "Strength", character.GetEffectiveStrength() + Queued(character, "STR")),
-                new Row("AGI", HoverIds[1], "Agility", character.GetEffectiveAgility() + Queued(character, "AGI")),
-                new Row("TECH", HoverIds[2], "Technique", character.GetEffectiveTechnique() + Queued(character, "TEC")),
-                new Row("INT", HoverIds[3], "Intelligence", character.GetEffectiveIntelligence() + Queued(character, "INT")),
+                new Row("STR", HoverIds[0], "Strength", Painted(character, "STR")),
+                new Row("AGI", HoverIds[1], "Agility", Painted(character, "AGI")),
+                new Row("TECH", HoverIds[2], "Technique", Painted(character, "TEC")),
+                new Row("INT", HoverIds[3], "Intelligence", Painted(character, "INT")),
             };
 
             if (sortByValue)
@@ -33,15 +33,44 @@ namespace RPGGame.UI.Avalonia.Layout
                 && Array.IndexOf(Codes, h.StatA) >= 0 && Array.IndexOf(Codes, h.StatB) >= 0)
             {
                 rows.Add(new Row(h.Attribute.ToUpperInvariant(), HybridHoverId(h), h.Attribute,
-                    HybridTrees.SecondaryAttribute(character, h), IsHybrid: true));
+                    RPGGame.Combat.UI.AttributeDisplayHold.Resolve(character, HybridKey,
+                        HybridTrees.SecondaryAttribute(character, h)), IsHybrid: true));
             }
 
             return rows;
         }
 
-        /// <summary>Queued TURN stat bonus (e.g. EXTRA EFFORT +5 STR) shown as soon as it is granted.</summary>
-        private static int Queued(Character character, string code) =>
-            CharacterEffectsState.PeekQueuedTurnStatBonus(character, code);
+        private const string HybridKey = "HYBRID";
+
+        /// <summary>
+        /// Live row value: effective attribute plus any queued TURN stat bonus (e.g. EXTRA EFFORT +5 STR),
+        /// so a granted bonus shows right away instead of on the next roll.
+        /// </summary>
+        public static int LiveValue(Character character, string code) => code switch
+        {
+            "STR" => character.GetEffectiveStrength(),
+            "AGI" => character.GetEffectiveAgility(),
+            "TEC" => character.GetEffectiveTechnique(),
+            "INT" => character.GetEffectiveIntelligence(),
+            _ => 0
+        } + CharacterEffectsState.PeekQueuedTurnStatBonus(character, code);
+
+        /// <summary>
+        /// Values to hold on the panel while a swing plays, captured before the swing changes any stat.
+        /// </summary>
+        public static Dictionary<string, int> CaptureForHold(Character character)
+        {
+            var values = new Dictionary<string, int>(5);
+            foreach (var code in Codes)
+                values[code] = LiveValue(character, code);
+            if (HybridTrees.PrimaryAttributeHybrid(character) is HybridInfo h)
+                values[HybridKey] = HybridTrees.SecondaryAttribute(character, h);
+            return values;
+        }
+
+        /// <summary>Painted value: the pre-swing value until the swing's OUTCOME shows, then the live value.</summary>
+        private static int Painted(Character character, string code) =>
+            RPGGame.Combat.UI.AttributeDisplayHold.Resolve(character, code, LiveValue(character, code));
 
         /// <summary>Hover id of a hybrid attribute row, e.g. <c>stat:will</c>.</summary>
         public static string HybridHoverId(HybridInfo h) => "stat:" + h.Attribute.ToLowerInvariant();

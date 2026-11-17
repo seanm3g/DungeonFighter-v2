@@ -43,6 +43,13 @@ namespace RPGGame
         [JsonPropertyName("requires")]
         public List<string> Requires { get; set; } = new();
 
+        /// <summary>
+        /// Either-or choices (2026-11-16): node ids this node shuts out. Learning either side of a pair locks the other
+        /// (checked both ways), so a branch walk is a series of picks instead of one fixed chain.
+        /// </summary>
+        [JsonPropertyName("excludes")]
+        public List<string> Excludes { get; set; } = new();
+
         [JsonPropertyName("effect")]
         public string Effect { get; set; } = "";
 

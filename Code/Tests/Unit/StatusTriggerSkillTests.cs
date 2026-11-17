@@ -8,6 +8,8 @@ namespace RPGGame.Tests.Unit
     /// <summary>
     /// Status-applied triggers: <see cref="StatusApplySnapshot"/> sees new and stacked debuffs and publishes
     /// StatusEffectApplied; Blood Frenzy / Pinning Drill / Toxic Insight / Kindled Mind grant class stats for the rest of the dungeon.
+    /// Since 2026-11-16 those four are rule nodes (<c>ONSTATUSAPPLY:bleed -> BUFF STR 6 FOR dungeon</c>) fired by the hub
+    /// (<see cref="HeroEventHub.OnStatusesApplied"/>, which <see cref="StatusApplySnapshot.PublishGained"/> calls).
     /// Expected values read node power from SkillTrees.json.
     /// </summary>
     public static class StatusTriggerSkillTests
@@ -46,11 +48,7 @@ namespace RPGGame.Tests.Unit
         }
 
         private static void Apply(Actor source, Actor target, string status) =>
-            CombatEventBus.Instance.Publish(new CombatEvent(CombatEventType.StatusEffectApplied, source)
-            {
-                Target = target,
-                StatusEffectType = status
-            });
+            HeroEventHub.OnStatusesApplied(source, target, new[] { status });
 
         private static void TestSnapshotSeesNewAndStackedStatuses()
         {
@@ -113,8 +111,9 @@ namespace RPGGame.Tests.Unit
             foreach (var (id, effect) in new[] { ("b-frenzy", "blood_frenzy"), ("w-pin", "pinning_drill"), ("r-insight", "toxic_insight"), ("z-kindle", "kindled_mind") })
             {
                 var node = GameConfiguration.Instance.SkillTrees.GetNode(id);
-                TestBase.AssertTrue(node != null && node.CustomEffectId == effect && node.MaxRank == 5,
-                    $"{id} is in its tree with effect {effect}", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(node != null && node.MaxRank == 5
+                        && (node.CrossWire ?? "").Contains("ONSTATUSAPPLY", StringComparison.OrdinalIgnoreCase),
+                    $"{id} ({effect}) is a rank-5 ONSTATUSAPPLY rule node", ref _run, ref _passed, ref _failed);
             }
         }
 
@@ -135,7 +134,7 @@ namespace RPGGame.Tests.Unit
                 hero.Progression.LearnedSkillRanks[node] = 5;
                 Apply(hero, enemy, status);
                 Apply(hero, enemy, status);
-                int expected = (int)Math.Floor(2 * perRank * 5 * Power(node) + 1e-9);
+                int expected = 2 * (int)Math.Round(perRank * 5 * Power(node)); // BUFF rounds each grant
                 TestBase.AssertEqual(expected, hero.DungeonCadenceBuffs.GetStatBonus(code),
                     $"{node}: two {status} applications at rank 5 grant {code}", ref _run, ref _passed, ref _failed);
             }
@@ -161,18 +160,17 @@ namespace RPGGame.Tests.Unit
             TestBase.SetCurrentTestName(nameof(TestFractionsCarryAndResetPerFight));
             var hero = MakeHero("Carry");
             var enemy = MockFactories.CreateMockEnemy("Dummy");
-            hero.Progression.LearnedSkillRanks["r-insight"] = 1;
-            double per = 1 * Power("r-insight");
-            int n = per < 1 ? (int)Math.Ceiling(1 / per) + 1 : 3;
-            for (int i = 0; i < n; i++) Apply(hero, enemy, "expose");
-            TestBase.AssertEqual((int)Math.Floor(n * per + 1e-9), hero.DungeonCadenceBuffs.GetStatBonus("TECH"),
-                "Toxic Insight: fractions add up across applications", ref _run, ref _passed, ref _failed);
+            hero.Progression.LearnedSkillRanks["r-insight"] = 5;
+            int per = (int)Math.Round(1 * 5 * Power("r-insight"));
+            for (int i = 0; i < 3; i++) Apply(hero, enemy, "expose");
+            TestBase.AssertEqual(3 * per, hero.DungeonCadenceBuffs.GetStatBonus("TECH"),
+                "Toxic Insight: each Expose application grants its TEC", ref _run, ref _passed, ref _failed);
             int beforeFight = hero.DungeonCadenceBuffs.GetStatBonus("TECH");
             SkillEffectRouter.Instance.ResetFightState();
             hero.FightCadenceBuffs.Clear();
             Apply(hero, enemy, "expose");
-            TestBase.AssertEqual(beforeFight + (int)Math.Floor(per + 1e-9), hero.DungeonCadenceBuffs.GetStatBonus("TECH"),
-                "TEC carries into the next fight; the leftover fraction does not", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(beforeFight + per, hero.DungeonCadenceBuffs.GetStatBonus("TECH"),
+                "TEC lasts the dungeon: it carries into the next fight", ref _run, ref _passed, ref _failed);
         }
     }
 }

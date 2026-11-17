@@ -425,6 +425,11 @@ namespace RPGGame.UI.Avalonia.Renderers
                 }
             }
 
+            // The Action Sequence editor shows sequence-card details in its own fixed panel under the cards.
+            if (!leftPanelTooltipActive && rpSeq >= 0 && ActionStripHoverState.HoveredPanelIndex < 0
+                && ActionSequenceEditorLayout.IsOpen)
+                return;
+
             if (!leftPanelTooltipActive && (tipLines == null || tipLines.Count == 0))
             {
                 // Action-strip hover must win over right-panel sequence hover so panels 2+ use the correct

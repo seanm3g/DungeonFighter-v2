@@ -223,17 +223,17 @@ namespace RPGGame
         /// <summary>Outgoing damage multiplier while Weakened (applies to the holder's next action).</summary>
         public double StatusWeakenDamageMultiplier { get; set; } = 0.5;
         /// <summary>Outgoing damage added per Focus stack (0.15 = +15%).</summary>
-        public double StatusFocusDamagePerStack { get; set; } = 0.15;
+        public double StatusFocusDamagePerStack { get; set; } = 0.20;
         /// <summary>Defense added per Harden stack, as a fraction of the DR constant K (0.15 × K ≈ +13% reduction from 0).</summary>
-        public double StatusHardenDefensePerStack { get; set; } = 0.15;
+        public double StatusHardenDefensePerStack { get; set; } = 0.20;
         /// <summary>Defense removed per Expose stack, as a fraction of K; may go below zero (then the holder takes extra damage).</summary>
-        public double StatusExposeDefensePerStack { get; set; } = 0.15;
+        public double StatusExposeDefensePerStack { get; set; } = 0.20;
         /// <summary>Expose tier 2: armor fraction stripped per Expose application while already at <see cref="StatusMaxStacks"/>.</summary>
         public double StatusExposeArmorStripPerStack { get; set; } = 0.10;
         /// <summary>Expose tier 2: most armor fraction Expose can strip.</summary>
         public double StatusExposeArmorStripMax { get; set; } = 0.30;
         /// <summary>Verb presets (DETONATE, CASH on a status): % of the hit paid per status unit spent.</summary>
-        public double VerbStatusCashPercentPerUnit { get; set; } = 6.0;
+        public double VerbStatusCashPercentPerUnit { get; set; } = 8.0;
         /// <summary>SCALE presets (RECKONING): most % damage a store can add without being spent. 0 = uncapped.</summary>
         public double VerbScaleMaxPercent { get; set; } = 100.0;
         /// <summary>Listener affix: share of the set's normal mint per trigger (min 1). See <see cref="ListenerAffix"/>.</summary>
@@ -258,7 +258,15 @@ namespace RPGGame
         /// <summary>DoT ticks on the hero scale by enemySystem.damageCurve at the hero's level (false = legacy, curve ignored).</summary>
         public bool EnemyDotFollowsDamageCurve { get; set; }
         /// <summary>Most stacks of one Focus/Harden/Expose status that count (0 = no cap; Expose then has no tier 2).</summary>
-        public int StatusMaxStacks { get; set; } = 3;
+        public int StatusMaxStacks { get; set; } = 4;
+        /// <summary>Brittle: crit damage taken per stack (0.25 = +25%), spent by the crit.</summary>
+        public double StatusBrittleCritDamagePerStack { get; set; } = 0.25;
+        /// <summary>Stagger: the holder's next action takes this much longer per stack.</summary>
+        public double StatusStaggerLengthPerStack { get; set; } = 0.15;
+        /// <summary>Haste: the holder's actions are this much faster per stack.</summary>
+        public double StatusHasteSpeedPerStack { get; set; } = 0.10;
+        /// <summary>Most stacks of Brittle / Stagger / Haste / Rattle.</summary>
+        public int StatusExtraMaxStacks { get; set; } = 5;
     }
 
     /// <summary>

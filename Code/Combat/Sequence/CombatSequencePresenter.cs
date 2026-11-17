@@ -97,6 +97,8 @@ namespace RPGGame.Combat.Sequence
         /// </summary>
         public static void RevealNarrativeColumn(CombatSequenceStepKind kind)
         {
+            if (kind == CombatSequenceStepKind.Outcome)
+                AttributeDisplayHold.Release();
             if (!CombatSequenceHudState.RevealStepKind(kind))
                 return;
 
@@ -221,7 +223,11 @@ namespace RPGGame.Combat.Sequence
                     {
                         CombatSequenceHudState.SetActive(i, resultRevealed: true, beats[b]);
                         if (b == beats.Count - 1)
+                        {
                             FireCue(step.Cue);
+                            if (step.Kind == CombatSequenceStepKind.Outcome)
+                                AttributeDisplayHold.Release();
+                        }
                         Invalidate();
                         // Training Ground: hold on the revealed column while its coach popup is up.
                         if (b == beats.Count - 1 && !UseManualPlayback)

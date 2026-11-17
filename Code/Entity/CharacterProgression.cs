@@ -246,13 +246,14 @@ namespace RPGGame
             var scaling = config.DungeonScaling;
             int baseXp = GetBaseXpForContentLevel(dungeonLevel);
 
-            int roomCount = Math.Max(1, Math.Max(scaling.RoomCountBase, (int)Math.Ceiling(dungeonLevel * scaling.RoomCountPerLevel)));
-            if (scaling.MaxRoomCount > 0)
-                roomCount = Math.Min(roomCount, scaling.MaxRoomCount);
+            // Room count rolls between two values (see DungeonScalingConfig.GetRoomCountRange); average over both.
+            var (lowRooms, highRooms, highChance) = scaling.GetRoomCountRange(dungeonLevel);
+            double roomCount = lowRooms + (highRooms - lowRooms) * highChance;
 
             // At least one room is forced hostile, so E[hostile] = p·n + (1−p)^n.
             double hostileChance = Math.Clamp(config.DungeonGeneration?.hostileRoomChance ?? 0.8, 0.0, 1.0);
-            double hostileRooms = hostileChance * roomCount + Math.Pow(1.0 - hostileChance, roomCount);
+            double HostileRooms(int n) => hostileChance * n + Math.Pow(1.0 - hostileChance, n);
+            double hostileRooms = HostileRooms(lowRooms) * (1 - highChance) + HostileRooms(highRooms) * highChance;
 
             int enemiesPerRoom = Math.Max(1, (int)Math.Ceiling(dungeonLevel / 2.0));
             if (scaling.EnemyCountPerRoom > 0)

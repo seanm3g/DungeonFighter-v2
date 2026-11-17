@@ -392,9 +392,6 @@ namespace RPGGame
             addWrapped("Compared to your underlying d20 total for this attack (accuracy and other roll bonuses do not make crits easier).");
             addWrapped($"Equation: stored {snapshot.Crit} − shifts {parts.CritRowShift} = {snapshot.Crit - parts.CritRowShift}{FloorSuffix(snapshot.EffectiveCrit, snapshot.Crit - parts.CritRowShift)}.");
             ThresholdModificationTooltipBuilder.AppendLines(c, ThresholdModificationTooltipBuilder.Kind.Crit, addWrapped);
-            int perfectAim = SkillEffectRouter.PerfectAimCritSteps(c);
-            if (perfectAim > 0)
-                addWrapped($"  Perfect Aim (+{perfectAim}): applied when the swing resolves; not in the panel number.");
             addWrapped($"Crit damage: ×{CritDamageMultiplier():0.##} (CombatBalance.CriticalHitDamageMultiplier).");
             AppendLadderExplainer(snapshot, addWrapped);
             AppendThresholdOutcomePercent(c, "Crit", addWrapped);

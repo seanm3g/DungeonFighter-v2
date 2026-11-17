@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RPGGame.MCP.Models;
+using RPGGame.MCP.Screens;
 using RPGGame.MCP.Tools;
 
 namespace RPGGame.MCP
@@ -14,6 +15,11 @@ namespace RPGGame.MCP
             var inputContext = AgentChoiceBuilder.ResolveInputContext(game);
             var state = game.CurrentState;
             var choices = AgentChoiceBuilder.BuildChoices(game, inputContext);
+            bool pendingMode = inputContext.PendingInputMode != AgentChoiceBuilder.ModeNormal;
+            var view = pendingMode ? null : ScreenDescriber.Describe(game);
+            var hints = AgentChoiceBuilder.BuildHints(inputContext, state);
+            if (view != null)
+                hints.AddRange(view.Hints);
 
             var snapshot = new AgentContextSnapshot
             {
@@ -21,13 +27,15 @@ namespace RPGGame.MCP
                 Screen = new AgentScreenInfo
                 {
                     State = state.ToString(),
-                    Title = AgentChoiceBuilder.GetScreenTitle(state)
+                    Title = view?.Title ?? AgentChoiceBuilder.GetScreenTitle(state),
+                    SubScreen = view?.SubScreen,
+                    Body = view?.Body ?? new List<string>()
                 },
                 Summary = BuildSummary(game, state),
                 SuggestedFocus = BuildSuggestedFocus(game, state, inputContext),
                 PendingInputMode = inputContext.PendingInputMode,
                 CustomLevelBuffer = inputContext.CustomLevelBuffer,
-                Hints = AgentChoiceBuilder.BuildHints(inputContext, state),
+                Hints = hints,
                 Choices = choices,
                 Player = game.CurrentPlayer != null ? BuildPlayerBrief(game.CurrentPlayer) : null,
                 Dungeons = state == GameState.DungeonSelection ? BuildDungeonList(game) : new List<DungeonOptionSnapshot>(),
@@ -83,6 +91,12 @@ namespace RPGGame.MCP
                 HeadArmor = player.Head?.Name,
                 BodyArmor = player.Body?.Name,
                 FeetArmor = player.Feet?.Name,
+                LegsArmor = player.Legs?.Name,
+                Charm = player.Charm?.Name,
+                Region = SafeRegionName(player),
+                ActionSequence = player.GetComboActions().Select(a => a.Name).ToList(),
+                ActionSequenceCapacity = ComboSequenceMaxHelper.GetEffectiveMax(player),
+                UnspentSkillPoints = ScreenDescriber.AvailableSkillPoints(player),
                 Inventory = player.Inventory.Select(i => new ItemSnapshot
                 {
                     Name = i.Name,
@@ -91,6 +105,12 @@ namespace RPGGame.MCP
                     Rarity = i.Rarity ?? "Common"
                 }).ToList()
             };
+        }
+
+        private static string? SafeRegionName(Character player)
+        {
+            try { return new TravelRegionCatalog().GetRegionForCharacter(player).DisplayName; }
+            catch { return null; }
         }
 
         private static string BuildSummary(GameCoordinator game, GameState state)
@@ -122,6 +142,11 @@ namespace RPGGame.MCP
                 case GameState.Combat:
                     sb.Append("In combat.");
                     break;
+                case GameState.Inventory:
+                case GameState.SkillTree:
+                case GameState.RegionTravel:
+                    sb.Append($"On screen: {AgentChoiceBuilder.GetScreenTitle(state)}. Read Screen.Body for what it shows.");
+                    break;
                 case GameState.GameLoop:
                     sb.Append("At the hub — enter a dungeon or manage inventory.");
                     break;
@@ -147,7 +172,10 @@ namespace RPGGame.MCP
                 GameState.DungeonSelection => $"Pick a dungeon near level {game.CurrentPlayer?.Level ?? 1}; avoid custom level unless testing.",
                 GameState.DungeonCompletion => "Continue to dungeon selection or check inventory for upgrades.",
                 GameState.Death => "Clone (keeps level and gear), return to main menu, or reset_game for a fresh run.",
-                GameState.Combat => "Use combo actions; prefer attacks when health is high.",
+                GameState.Combat => "Combat resolves on its own; read NewEvents for what happened.",
+                GameState.Inventory => "Equip upgrades (compare first) and shape the action sequence, then 0 to the hub.",
+                GameState.SkillTree => "Spend skill points on Available nodes (select, then l).",
+                GameState.GameLoop => "Spend skill points, check gear, then enter a dungeon near your level.",
                 _ => "Call handle_input with a choice input key from the choices list."
             };
         }

@@ -13,6 +13,7 @@ using RPGGame.UI.Avalonia.Renderers.Inventory;
 using RPGGame.UI.Avalonia.Managers;
 using RPGGame.UI.ColorSystem;
 using RPGGame.UI.ColorSystem.Applications;
+using RPGGame.UI.ColorSystem.Themes;
 
 namespace RPGGame.UI.Avalonia.Layout
 {
@@ -705,9 +706,12 @@ namespace RPGGame.UI.Avalonia.Layout
                     key: "set:" + material,
                     expandKey: material,
                     header: MaterialSetController.FormatFormingSetHudLine(material, count),
-                    // Below the set's first threshold (e.g. Leather 2/3): dimmed, since nothing is granted yet.
+                    // The material's item color (Leather = light brown); below the set's first threshold
+                    // (e.g. Leather 2/3): dimmed, since nothing is granted yet.
                     color: count >= MaterialSetController.ActivePieceCount(material)
-                        ? AsciiArtAssets.Colors.Cyan
+                        ? (ItemThemeProvider.TryGetMaterialPaletteColor(material, out var materialColor)
+                            ? materialColor
+                            : AsciiArtAssets.Colors.Cyan)
                         : AsciiArtAssets.Colors.Gray,
                     // Same text as the hover tip, minus its first line (the "Iron 3/5" header drawn above).
                     details: () => MaterialSetController.FormatSetStatusLinesForMaterial(character, material).Skip(1));

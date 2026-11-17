@@ -321,6 +321,10 @@ namespace RPGGame.UI.ColorSystem.Themes
                 "UNKNOWN" => ColorPalette.Purple.GetColor(),
                 "STRANGE" => ColorPalette.Magenta.GetColor(),
                 "CELESTIAL" => ColorPalette.Gold.GetColor(),
+                "LEATHER" => Color.FromRgb(196, 154, 108), // light brown
+                "WOOD" => Color.FromRgb(150, 105, 60),
+                "CLOTH" => Color.FromRgb(222, 208, 176),
+                "IRON" => Color.FromRgb(140, 150, 160),
                 _ => null
             };
             if (!c.HasValue)

@@ -19,7 +19,6 @@ namespace RPGGame
         private Character? _boundCharacter;
         private bool _subscribed;
 
-        private bool _bronzeSkinTriggered;
         private int _painMemoryStored;
         private bool _ironDisciplineUsed;
         private bool _ripostePending;
@@ -44,33 +43,7 @@ namespace RPGGame
         private int _rewriteFateRoll;
         private bool _perfectCrimePending;
         private int _mobileBulwarkMoves;
-        private int _attackStreak;
-        private int _nonMissStreak;
-        private int _slotIntApplied;
         private int _ironHideArmor;
-        private double _pendingRollAmp;
-        private int _steadyMarchApplied;
-        private int _gutInstinctApplied;
-        private int _focusLensApplied;
-
-        private const int RiteOfPassageAttributeBonus = 10;
-
-        private static readonly string[] BarbarianMaterialTags =
-            { "bone", "steel", "iron", "barbarian" };
-        private static readonly string[] WarriorMaterialTags =
-            { "bronze", "gold", "mithril", "warrior" };
-        private static readonly string[] RogueMaterialTags =
-            { "glass", "obsidian", "shadow", "rogue" };
-        private static readonly string[] WizardMaterialTags =
-            { "willow", "silver", "crystal", "wizard" };
-        private static readonly string[] ScrapPreferQualities =
-            { "Battle Scarred", "New", "Masterwork" };
-        private static readonly string[] ParadeDressQualities =
-            { "Worn", "Like New", "Heirloom" };
-        private static readonly string[] FragilePreferQualities =
-            { "Broken", "Preowned", "Perfect" };
-        private static readonly string[] PurePreferQualities =
-            { "Second Hand", "Cosmic" };
 
         private SkillEffectRouter() { }
 
@@ -82,7 +55,6 @@ namespace RPGGame
 
         public void ResetFightState()
         {
-            _bronzeSkinTriggered = false;
             _painMemoryStored = 0;
             _ironDisciplineUsed = false;
             _ripostePending = false;
@@ -105,16 +77,8 @@ namespace RPGGame
             _rewriteFateRoll = 0;
             _perfectCrimePending = false;
             _mobileBulwarkMoves = 0;
-            _attackStreak = 0;
-            _nonMissStreak = 0;
-            _slotIntApplied = 0;
             _ironHideArmor = 0;
-            _pendingRollAmp = 0;
-            _steadyMarchApplied = 0;
-            _gutInstinctApplied = 0;
-            _focusLensApplied = 0;
             ResetHybridFightState();
-            ResetStatusTriggerFightState();
         }
 
         public void OnRoomCleared(Character hero)
@@ -137,14 +101,12 @@ namespace RPGGame
             bus.Unsubscribe(CombatEventType.EnemyDied, OnKill);
             bus.Unsubscribe(CombatEventType.ComboEnded, OnComboEnded);
             bus.Unsubscribe(CombatEventType.ActionExecuted, OnActionExecuted);
-            bus.Unsubscribe(CombatEventType.StatusEffectApplied, OnStatusApplied);
             bus.Subscribe(CombatEventType.ActionMiss, OnMiss);
             bus.Subscribe(CombatEventType.ActionHit, OnHit);
             bus.Subscribe(CombatEventType.ActionCritical, OnHit);
             bus.Subscribe(CombatEventType.EnemyDied, OnKill);
             bus.Subscribe(CombatEventType.ComboEnded, OnComboEnded);
             bus.Subscribe(CombatEventType.ActionExecuted, OnActionExecuted);
-            bus.Subscribe(CombatEventType.StatusEffectApplied, OnStatusApplied);
             _subscribed = true;
         }
 
@@ -155,9 +117,6 @@ namespace RPGGame
 
         /// <summary>Rank x the node's <see cref="SkillTreeNodeDefinition.Power"/>: what per-rank magnitudes multiply by.</summary>
         private double GetPower(Character? c, string customEffectId) => SkillRanks.GetPower(c, customEffectId);
-
-        /// <summary>Stat added per streak step for consecutive_agi / consecutive_tec (5 x power, rounded).</summary>
-        private int StreakStep(Character hero, string customEffectId) => (int)Math.Round(5 * GetPower(hero, customEffectId));
 
         /// <summary>Flat armor from Bone Temper while Harden is active.</summary>
         public int GetSkillArmorBonus(Character? c)
@@ -179,14 +138,12 @@ namespace RPGGame
         public int GetSkillAttributeBonus(Character? c, string? statCode)
         {
             if (c == null || string.IsNullOrWhiteSpace(statCode)) return 0;
-            return statCode.Trim().ToUpperInvariant() switch
-            {
-                "STR" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "puberty")) + KinshipBonus(c, "STR"),
-                "AGI" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "commission")) + KinshipBonus(c, "AGI"),
-                "TEC" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "initiation")) + KinshipBonus(c, "TEC"),
-                "INT" => (int)Math.Round(RiteOfPassageAttributeBonus * GetPower(c, "apprenticeship")) + KinshipBonus(c, "INT"),
-                _ => 0
-            };
+            string code = statCode.Trim().ToUpperInvariant();
+            // Rite of Passage (+10), Kinship (+1 per class piece), Gut Instinct, Empty Fury, streak and slot stats are
+            // rule nodes now (SkillTrees.json crossWire: WHILE -> STR 10, WHILE -> STR 1 PER WORN barbarian, ...).
+            return code is "STR" or "AGI" or "TEC" or "INT"
+                ? (int)Math.Round(CrossWires.Passive(c, code))
+                : 0;
         }
 
         private Character? AsBoundHero(Actor? source)
@@ -220,7 +177,6 @@ namespace RPGGame
             var hero = AsBoundHero(evt.Source);
             if (hero == null) return;
 
-            ResetNonMissStreak(hero);
             ApplyDiceRollPassives(hero, evt);
             ApplyDaggerCritMissSalvage(hero, evt);
 
@@ -250,30 +206,12 @@ namespace RPGGame
             using var skillPin = SkillRanks.Pin(hero.Progression);
 
             TrackConnectStreak(hero, evt);
-            ApplyPendingRollAmp(hero);
             ApplyDiceRollPassives(hero, evt);
-            ApplyConcussiveCrit(hero, evt);
-            ApplyPrecisionMultihit(hero, evt);
             ApplyClassTreeOnHit(hero, evt);
             ApplyHybridOnHit(hero, evt);
             ApplyShadowcraft(hero, evt);
             // Venom Mace, Envenomed Edge, Hemorrhage: GameData/Conversions.json (phase early).
             ConversionTable.Apply(hero, evt.Target, evt.IsCritical, "early");
-            ApplyBronzeAges(hero, evt);
-            ApplyFirstFormation(hero, evt);
-            ApplyFirstCut(hero, evt);
-            ApplyFirstGlyph(hero, evt);
-            ApplyEmptyFury(hero, evt);
-            ApplyConsecutiveAgi(hero, evt);
-            ApplyConsecutiveTec(hero, evt);
-            ApplySlotInt(hero, evt);
-            ApplySwordHitAgi(hero, evt);
-            ApplyWandComboInt(hero, evt);
-            ApplyScrapPrefer(hero, evt);
-            ApplyParadeDress(hero, evt);
-            ApplyFragilePrefer(hero, evt);
-            ApplyPurePrefer(hero, evt);
-            ApplyGutInstinct(hero, evt);
             ApplyMaceMastery(hero, evt);
             ApplyRiposteConsume(hero, evt);
             ApplyCommandersOpening(hero, evt);
@@ -294,23 +232,9 @@ namespace RPGGame
             ApplyRewriteFateSpend(hero, evt);
             ApplyPerfectCrimeTransfer(hero, evt);
             ApplyMobileBulwark(hero, evt);
-            ApplyBloodPrice(hero, evt);
-            ApplyBloodDraught(hero, evt);
-            ApplySteadyMarch(hero, evt);
-            ApplyDeepCut(hero, evt);
             ApplyQuickFingers(hero, evt);
-            ApplyManaBleed(hero, evt);
-            ApplyFocusLens(hero, evt);
-            ApplyBronzeKnuckle(hero, evt);
-            ApplyPhalanx(hero, evt);
-            ApplyMetronome(hero, evt);
             ApplyFieldBrief(hero, evt);
             ApplyBackChannel(hero, evt);
-            ApplyToxinPressure(hero, evt);
-            ApplyGreasePalm(hero, evt);
-            ApplySigilBurn(hero, evt);
-            ApplySoftEcho(hero, evt);
-            ApplyLoadedOdds(hero, evt);
             ApplyDataDrivenRankMods(hero, evt);
 
             if (evt.NaturalRollValue > 0)
@@ -374,14 +298,6 @@ namespace RPGGame
             if (_boundCharacter == null || !ReferenceEquals(hero, _boundCharacter))
                 _boundCharacter = hero;
 
-            if (Has(hero, "bronze_skin") && !_bronzeSkinTriggered && postArmorDamage > 0)
-            {
-                _bronzeSkinTriggered = true;
-                int rank = GetRank(hero, "bronze_skin");
-                hero.HardenStacks = (hero.HardenStacks ?? 0) + 2 * rank;
-                hero.HardenTurns = Math.Max(hero.HardenTurns, 3);
-            }
-
             if (Has(hero, "pain_memory") && postArmorDamage > 0)
             {
                 int rank = GetRank(hero, "pain_memory");
@@ -408,9 +324,6 @@ namespace RPGGame
                 });
             }
 
-            ResetAttackStreak(hero);
-            ResetNonMissStreak(hero);
-            ClearSlotIntBonus(hero);
         }
 
         private void TrackConnectStreak(Character hero, CombatEvent evt)
@@ -462,72 +375,6 @@ namespace RPGGame
                 evt.Target.QueueBleedFromHit(2);
         }
 
-        /// <summary>Second / Third Age item count: equipped Barbarian material pieces (Living Alloy adds Harden/Fortify).</summary>
-        private int CountBronzeItems(Character hero)
-        {
-            int count = CountClassMaterialPieces(hero, ClassTags.Barbarian);
-            if (Has(hero, "living_alloy"))
-            {
-                count += hero.HardenStacks ?? 0;
-                count += hero.FortifyStacks ?? 0;
-            }
-            return count;
-        }
-
-        private static IEnumerable<Item?> EnumerateEquipped(Character hero)
-        {
-            yield return hero.Equipment.Head;
-            yield return hero.Equipment.Body;
-            yield return hero.Equipment.Legs;
-            yield return hero.Equipment.Feet;
-            yield return hero.Equipment.Weapon;
-        }
-
-        private static int CountEquippedMatchingTags(Character hero, string[] tags)
-        {
-            // Hybrid material nodes: a parent class's item counts also count the partner class's materials.
-            string? classTag = tags.FirstOrDefault(t => ClassTags.All.Contains(t, StringComparer.OrdinalIgnoreCase));
-            if (classTag != null)
-            {
-                var merged = new List<string>(tags);
-                foreach (string partner in HybridTrees.MergedPartners(hero, classTag))
-                {
-                    merged.Add(partner);
-                    merged.AddRange(ClassTags.MaterialsOf(partner).Select(m => m.ToLowerInvariant()));
-                }
-                tags = merged.ToArray();
-            }
-            int count = 0;
-            foreach (var item in EnumerateEquipped(hero))
-            {
-                if (item == null) continue;
-                if (!string.IsNullOrWhiteSpace(item.Material) &&
-                    tags.Any(t => string.Equals(item.Material, t, StringComparison.OrdinalIgnoreCase)))
-                {
-                    count++;
-                    continue;
-                }
-                if (item.Tags != null &&
-                    item.Tags.Any(it => tags.Any(t => string.Equals(it, t, StringComparison.OrdinalIgnoreCase))))
-                    count++;
-            }
-            return count;
-        }
-
-        private static int CountEquippedMatchingQualities(Character hero, string[] qualityNames)
-        {
-            int count = 0;
-            foreach (var item in EnumerateEquipped(hero))
-            {
-                if (item?.Modifications == null) continue;
-                if (item.Modifications.Any(m =>
-                        string.Equals(m.PrefixCategory, "Quality", StringComparison.OrdinalIgnoreCase) &&
-                        qualityNames.Any(q => string.Equals(m.Name, q, StringComparison.OrdinalIgnoreCase))))
-                    count++;
-            }
-            return count;
-        }
-
         /// <summary>Strip slots filled beyond the first (Empty Fury, Concentrated Chaos reward long strips).</summary>
         private static int CountExtraFilledActionSlots(Character hero) =>
             Math.Max(0, (hero.GetComboActions()?.Count ?? 0) - 1);
@@ -556,202 +403,9 @@ namespace RPGGame
             hero.Effects.ConsumedSkillAmpPercent += value;
         }
 
-        private void ApplyBronzeAges(Character hero, CombatEvent evt)
-        {
-            if (evt.Action == null) return;
-            int slot = hero.Effects.ComboStep;
-
-            // First Bronze Age: +8% damage per Barbarian-material item, per skill rank (no slot gate).
-            int barbItems = CountEquippedMatchingTags(hero, BarbarianMaterialTags);
-            if (barbItems > 0 && Has(hero, "first_bronze_age"))
-            {
-                AddDamageMod(hero, 8.0 * barbItems * GetPower(hero, "first_bronze_age"));
-            }
-
-            int bronze = CountBronzeItems(hero);
-            if (bronze <= 0) return;
-
-            if (Has(hero, "second_bronze_age") && slot == 1 && bronze >= 2)
-            {
-                // Flat stack: +1 full-power multihit per two Bronze items, times skill rank.
-                hero.Effects.ConsumedMultiHitMod += Math.Floor(bronze / 2.0 * GetPower(hero, "second_bronze_age"));
-            }
-            if (Has(hero, "third_bronze_age") && slot == 2)
-            {
-                int rank = GetRank(hero, "third_bronze_age");
-                double speedPct = 6.0 * bronze * rank;
-                double appliedSpeed = Math.Min(30.0, speedPct);
-                AddSpeedMod(hero, appliedSpeed);
-                if (speedPct > 30)
-                {
-                    int focus = (int)((speedPct - 30) / 6);
-                    hero.FocusStacks = (hero.FocusStacks ?? 0) + Math.Max(1, focus);
-                    hero.FocusTurns = Math.Max(hero.FocusTurns, 2);
-                }
-            }
-        }
-
-        private void ApplyFirstFormation(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "first_formation");
-            if (power <= 0 || evt.Action == null) return;
-            int items = CountEquippedMatchingTags(hero, WarriorMaterialTags);
-            if (items <= 0) return;
-            AddSpeedMod(hero, 8.0 * items * power);
-        }
-
-        private void ApplyFirstCut(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "first_cut");
-            if (power <= 0 || evt.Action == null) return;
-            int items = CountEquippedMatchingTags(hero, RogueMaterialTags);
-            if (items <= 0) return;
-            AddDamageMod(hero, 8.0 * items * power);
-        }
-
-        private void ApplyFirstGlyph(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "first_glyph");
-            if (power <= 0 || evt.Action == null) return;
-            int items = CountEquippedMatchingTags(hero, WizardMaterialTags);
-            if (items <= 0) return;
-            AddAmpMod(hero, 8.0 * items * power);
-        }
-
-        private void ApplyEmptyFury(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "empty_fury");
-            if (power <= 0) return;
-            int filled = CountExtraFilledActionSlots(hero);
-            if (filled <= 0) return;
-            int bonus = (int)Math.Round(25 * filled * power);
-            hero.Stats.TempStrengthBonus = Math.Max(hero.Stats.TempStrengthBonus, bonus);
-            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
-        }
-
-        private void ApplyConsecutiveAgi(Character hero, CombatEvent evt)
-        {
-            int step = StreakStep(hero, "consecutive_agi");
-            if (step <= 0) return;
-            _attackStreak++;
-            hero.Stats.TempAgilityBonus += step;
-            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
-        }
-
-        private void ApplyConsecutiveTec(Character hero, CombatEvent evt)
-        {
-            int step = StreakStep(hero, "consecutive_tec");
-            if (step <= 0) return;
-            _nonMissStreak++;
-            hero.Stats.TempTechniqueBonus += step;
-            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
-        }
-
-        private void ResetAttackStreak(Character hero)
-        {
-            if (_attackStreak <= 0) return;
-            int step = StreakStep(hero, "consecutive_agi");
-            if (step > 0)
-                hero.Stats.TempAgilityBonus = Math.Max(0, hero.Stats.TempAgilityBonus - step * _attackStreak);
-            _attackStreak = 0;
-        }
-
-        private void ResetNonMissStreak(Character hero)
-        {
-            if (_nonMissStreak <= 0) return;
-            int step = StreakStep(hero, "consecutive_tec");
-            if (step > 0)
-                hero.Stats.TempTechniqueBonus = Math.Max(0, hero.Stats.TempTechniqueBonus - step * _nonMissStreak);
-            _nonMissStreak = 0;
-        }
-
-        private void ApplySlotInt(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "slot_int");
-            if (power <= 0) return;
-            ClearSlotIntBonus(hero);
-            int slot = Math.Max(1, hero.Effects.ComboStep + 1);
-            _slotIntApplied = (int)Math.Round(5 * slot * power);
-            hero.Stats.TempIntelligenceBonus += _slotIntApplied;
-            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
-        }
-
-        private void ClearSlotIntBonus(Character hero)
-        {
-            if (_slotIntApplied <= 0) return;
-            hero.Stats.TempIntelligenceBonus = Math.Max(0, hero.Stats.TempIntelligenceBonus - _slotIntApplied);
-            _slotIntApplied = 0;
-        }
-
-        private void ApplySwordHitAgi(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "sword_hit_agi");
-            if (power <= 0) return;
-            if (hero.Equipment.Weapon is not WeaponItem w || w.WeaponType != WeaponType.Sword) return;
-            hero.Stats.TempAgilityBonus += (int)Math.Round(5 * power);
-            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
-        }
-
-        private void ApplyWandComboInt(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "wand_combo_int");
-            if (power <= 0 || !evt.IsCombo) return;
-            if (hero.Equipment.Weapon is not WeaponItem w || w.WeaponType != WeaponType.Wand) return;
-            hero.Stats.TempIntelligenceBonus += (int)Math.Round(5 * power);
-            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
-        }
-
-        private void ApplyScrapPrefer(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "scrap_prefer");
-            if (power <= 0 || evt.Action == null) return;
-            int n = CountEquippedMatchingQualities(hero, ScrapPreferQualities);
-            if (n <= 0) return;
-            AddDamageMod(hero, 10.0 * n * power);
-        }
-
-        private void ApplyParadeDress(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "parade_dress");
-            if (power <= 0 || evt.Action == null) return;
-            int n = CountEquippedMatchingQualities(hero, ParadeDressQualities);
-            if (n <= 0) return;
-            AddDamageMod(hero, 10.0 * n * power);
-        }
-
-        private void ApplyFragilePrefer(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "fragile_prefer");
-            if (power <= 0 || evt.Action == null) return;
-            int n = CountEquippedMatchingQualities(hero, FragilePreferQualities);
-            if (n <= 0) return;
-            AddDamageMod(hero, 10.0 * n * power);
-        }
-
-        private void ApplyPurePrefer(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "pure_prefer");
-            if (power <= 0 || evt.Action == null) return;
-            int n = CountEquippedMatchingQualities(hero, PurePreferQualities);
-            if (n <= 0) return;
-            AddAmpMod(hero, 10.0 * n * power);
-        }
-
-        private void ApplyGutInstinct(Character hero, CombatEvent evt)
-        {
-            // Sets the bonus instead of adding it on every hit (it stacked without limit, like Steady March did), and uses
-            // rank x power directly so power below 1 still scales it.
-            double power = GetPower(hero, "gut_instinct");
-            int bonus = power > 0 ? (int)Math.Floor(hero.GetEffectiveIntelligence() / 5.0 * power) : 0;
-            if (bonus == _gutInstinctApplied) return;
-            hero.Stats.TempStrengthBonus = Math.Max(0, hero.Stats.TempStrengthBonus - _gutInstinctApplied + bonus);
-            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
-            _gutInstinctApplied = bonus;
-        }
-
         /// <summary>
-        /// Natural-roll passives (one per class, "add the natural dice roll to … for next turn"): Barbarian armor
-        /// (held until the hero next acts), Warrior speed, Rogue damage, Wizard AMP (% each, × power).
+        /// Barbarian natural-roll passive: Defense = natural roll x power until the hero next acts. (Warrior speed, Rogue
+        /// damage and Wizard AMP from the roll are rule nodes: ONATTACK -> NEXT SPEED 1% PER ROLL.)
         /// </summary>
         private void ApplyDiceRollPassives(Character hero, CombatEvent evt)
         {
@@ -762,48 +416,6 @@ namespace RPGGame
             double armor = GetPower(hero, "iron_hide_roll");
             if (armor > 0)
                 _ironHideArmor = (int)Math.Round(roll * armor);
-
-            var next = new List<ActionAttackBonusItem>();
-            double speed = GetPower(hero, "roll_speed");
-            if (speed > 0)
-                next.Add(new ActionAttackBonusItem { Type = "SPEED_MOD", Value = roll * speed });
-            double damage = GetPower(hero, "roll_damage");
-            if (damage > 0)
-                next.Add(new ActionAttackBonusItem { Type = "DAMAGE_MOD", Value = roll * damage });
-            if (next.Count > 0)
-                hero.Effects.AddPendingActionBonusesNextHeroRoll(next);
-
-            double amp = GetPower(hero, "roll_amp");
-            if (amp > 0)
-                _pendingRollAmp = roll * amp;
-        }
-
-        /// <summary>Roll AMP banked by the previous action lands on this hit (skill AMP: no opener lift).</summary>
-        private void ApplyPendingRollAmp(Character hero)
-        {
-            if (_pendingRollAmp <= 0) return;
-            AddAmpMod(hero, _pendingRollAmp);
-            _pendingRollAmp = 0;
-        }
-
-        public const double ConcussiveStunChance = 0.35;
-
-        /// <summary>Concussive Crit: a Mace critical has a 35% (x power) chance to stun the target for 1 turn.</summary>
-        private void ApplyConcussiveCrit(Character hero, CombatEvent evt)
-        {
-            if (!evt.IsCritical || evt.Target == null || !Has(hero, "concussive_crit")) return;
-            if (hero.Equipment.Weapon is not WeaponItem w || w.WeaponType != WeaponType.Mace) return;
-            if (RandomUtility.NextDouble() >= Math.Min(1.0, ConcussiveStunChance * GetPower(hero, "concussive_crit"))) return;
-            evt.Target.IsStunned = true;
-            evt.Target.StunTurnsRemaining = Math.Max(evt.Target.StunTurnsRemaining, 1);
-        }
-
-        /// <summary>Precision: Rogue-tagged actions gain Multihit +1 (× power).</summary>
-        private void ApplyPrecisionMultihit(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "precision_multihit");
-            if (power <= 0 || !ClassTags.ActionHas(evt.Action, ClassTags.Rogue)) return;
-            hero.Effects.ConsumedMultiHitMod += power;
         }
 
         /// <summary>Dagger crit miss: bank a miss-salvage charge ("worst faces get one salvage").</summary>
@@ -1060,47 +672,6 @@ namespace RPGGame
                 hero.Heal(heal);
         }
 
-        private void ApplyBloodPrice(Character hero, CombatEvent evt)
-        {
-            // Heals a share of max HP per connect (the hit event fires before damage, so evt.Damage is 0 here; a flat
-            // 1 HP per rank also stopped mattering past the first levels).
-            double power = GetPower(hero, "blood_price");
-            if (power <= 0 || evt.IsMiss) return;
-            bool mace = hero.Equipment.Weapon is WeaponItem w && w.WeaponType == WeaponType.Mace;
-            if (!mace) return;
-            hero.Heal(Math.Max(1, (int)Math.Round(hero.GetEffectiveMaxHealth() * 0.005 * power)));
-        }
-
-        private void ApplyBloodDraught(Character hero, CombatEvent evt)
-        {
-            // Rogue sustain: Dagger connects on a Bleeding target heal a share of max HP (same rate as Blood Price, gated
-            // on Bleed so it rides the Obsidian line instead of every hit).
-            double power = GetPower(hero, "blood_draught");
-            if (power <= 0 || evt.IsMiss || evt.Target == null || evt.Target.BleedIntensity <= 0) return;
-            bool dagger = hero.Equipment.Weapon is WeaponItem w && w.WeaponType == WeaponType.Dagger;
-            if (!dagger) return;
-            hero.Heal(Math.Max(1, (int)Math.Round(hero.GetEffectiveMaxHealth() * 0.005 * power)));
-        }
-
-        private void ApplySteadyMarch(Character hero, CombatEvent evt)
-        {
-            int bonus = GetRank(hero, "steady_march");
-            bool sword = hero.Equipment.Weapon is WeaponItem w && w.WeaponType == WeaponType.Sword;
-            if (!sword) bonus = 0;
-            if (bonus == _steadyMarchApplied) return;
-            hero.Stats.TempAgilityBonus = Math.Max(0, hero.Stats.TempAgilityBonus - _steadyMarchApplied + bonus);
-            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
-            _steadyMarchApplied = bonus;
-        }
-
-        private void ApplyDeepCut(Character hero, CombatEvent evt)
-        {
-            int rank = GetRank(hero, "deep_cut");
-            if (rank <= 0 || evt.Target == null) return;
-            int stacks = evt.IsCritical ? rank * 2 : rank;
-            evt.Target.QueueBleedFromHit(stacks);
-        }
-
         private void ApplyQuickFingers(Character hero, CombatEvent evt)
         {
             int rank = GetRank(hero, "quick_fingers");
@@ -1111,64 +682,6 @@ namespace RPGGame
             hero.Effects.AccumulateConsumedModifierBonuses(new List<ActionAttackBonusItem>
             {
                 new() { Type = "DAMAGE_MOD", Value = rank }
-            });
-        }
-
-        private void ApplyManaBleed(Character hero, CombatEvent evt)
-        {
-            double power = GetPower(hero, "mana_bleed");
-            if (power <= 0 || evt.IsMiss || evt.Action == null) return;
-            bool spell = evt.Action.Tags?.Any(t =>
-                string.Equals(t, "spell", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(t, "wand", StringComparison.OrdinalIgnoreCase)) == true
-                || (hero.Equipment.Weapon is WeaponItem w && w.WeaponType == WeaponType.Wand);
-            if (!spell) return;
-            hero.Heal(Math.Max(1, (int)Math.Round(hero.GetEffectiveMaxHealth() * 0.005 * power)));
-        }
-
-        private void ApplyFocusLens(Character hero, CombatEvent evt)
-        {
-            // A standing bonus while casting: set it (it was added again on every hit and stacked for the whole fight).
-            double power = GetPower(hero, "focus_lens");
-            if (evt.Action == null) return;
-            bool spell = evt.Action.Tags?.Any(t =>
-                string.Equals(t, "spell", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(t, "wand", StringComparison.OrdinalIgnoreCase)) == true
-                || (hero.Equipment.Weapon is WeaponItem w && w.WeaponType == WeaponType.Wand);
-            int bonus = spell && power > 0 ? Math.Max(1, (int)Math.Round(power)) : 0;
-            if (bonus == _focusLensApplied) return;
-            hero.Stats.TempTechniqueBonus = Math.Max(0, hero.Stats.TempTechniqueBonus - _focusLensApplied + bonus);
-            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 1);
-            _focusLensApplied = bonus;
-        }
-
-        private void ApplyBronzeKnuckle(Character hero, CombatEvent evt)
-        {
-            int rank = GetRank(hero, "bronze_knuckle");
-            if (rank <= 0 || (hero.HardenStacks ?? 0) <= 0) return;
-            hero.Effects.AccumulateConsumedModifierBonuses(new List<ActionAttackBonusItem>
-            {
-                new() { Type = "DAMAGE_MOD", Value = 3 * rank }
-            });
-        }
-
-        private void ApplyPhalanx(Character hero, CombatEvent evt)
-        {
-            int rank = GetRank(hero, "phalanx");
-            if (rank <= 0 || (hero.FortifyStacks ?? 0) <= 0) return;
-            hero.Effects.AccumulateConsumedModifierBonuses(new List<ActionAttackBonusItem>
-            {
-                new() { Type = "DAMAGE_MOD", Value = 2 * rank }
-            });
-        }
-
-        private void ApplyMetronome(Character hero, CombatEvent evt)
-        {
-            int rank = GetRank(hero, "metronome");
-            if (rank <= 0 || hero.Effects.ComboStep != 1) return;
-            hero.Effects.AccumulateConsumedModifierBonuses(new List<ActionAttackBonusItem>
-            {
-                new() { Type = "SPEED_MOD", Value = 4 * rank }
             });
         }
 
@@ -1188,57 +701,6 @@ namespace RPGGame
             {
                 new() { Type = "DAMAGE_MOD", Value = 3 * rank }
             });
-        }
-
-        private void ApplyToxinPressure(Character hero, CombatEvent evt)
-        {
-            int rank = GetRank(hero, "toxin_pressure");
-            if (rank <= 0 || evt.Target == null) return;
-            if (evt.Target.PoisonPercentOfMaxHealth <= 0) return;
-            evt.Target.QueueBleedFromHit(rank);
-        }
-
-        private void ApplyGreasePalm(Character hero, CombatEvent evt)
-        {
-            // Temporary as written: lasts 2 turns (it never decayed, so it stacked for the whole fight).
-            int rank = GetRank(hero, "grease_palm");
-            if (rank <= 0 || evt.NaturalRollValue <= 0 || evt.NaturalRollValue > 7) return;
-            hero.Stats.TempTechniqueBonus += rank;
-            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 2);
-        }
-
-        private void ApplySigilBurn(Character hero, CombatEvent evt)
-        {
-            int rank = GetRank(hero, "sigil_burn");
-            if (rank <= 0 || evt.Target == null || evt.Target.BurnIntensity <= 0) return;
-            hero.Effects.AccumulateConsumedModifierBonuses(new List<ActionAttackBonusItem>
-            {
-                new() { Type = "DAMAGE_MOD", Value = 3 * rank }
-            });
-        }
-
-        private void ApplySoftEcho(Character hero, CombatEvent evt)
-        {
-            int rank = GetRank(hero, "soft_echo");
-            if (rank <= 0 || evt.Action == null) return;
-            bool spell = evt.Action.Tags?.Any(t =>
-                string.Equals(t, "spell", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(t, "wand", StringComparison.OrdinalIgnoreCase)) == true
-                || (hero.Equipment.Weapon is WeaponItem w && w.WeaponType == WeaponType.Wand);
-            if (!spell) return;
-            hero.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem>
-            {
-                new() { Type = "DAMAGE_MOD", Value = 2 * rank }
-            });
-        }
-
-        private void ApplyLoadedOdds(Character hero, CombatEvent evt)
-        {
-            // Temporary as written: lasts 2 turns (it never decayed, so it stacked for the whole fight).
-            int rank = GetRank(hero, "loaded_odds");
-            if (rank <= 0 || evt.NaturalRollValue < 15) return;
-            hero.Stats.TempIntelligenceBonus += rank;
-            hero.Stats.TempStatBonusTurns = Math.Max(hero.Stats.TempStatBonusTurns, 2);
         }
 
         private void ApplyRewriteFateSpend(Character hero, CombatEvent evt)

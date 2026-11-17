@@ -187,17 +187,25 @@ namespace RPGGame.Tuning
             foreach (var node in available.Where(n => hero.Progression.GetSkillRank(n.Id) < n.MaxRank))
             {
                 double mined = minedIndex.TryGetValue(node.Id, out int idx) ? 1 - (idx - first) / span : 0;
+                // Either-or partners (synergy pass 2026-11-16) share the mined score of the listed one; fit decides between them.
+                if (!minedIndex.ContainsKey(node.Id))
+                    foreach (var partner in SkillTreePrerequisites.ExclusionPartners(node))
+                        if (minedIndex.TryGetValue(partner.Id, out int pi))
+                            mined = Math.Max(mined, 1 - (pi - first) / span);
+                // Fit only decides between either-or partners; other nodes keep the mined order.
+                double fit = string.IsNullOrWhiteSpace(node.CrossWire) || SkillTreePrerequisites.ExclusionPartners(node).Count == 0
+                    ? 0 : sd.RuleFitScale * (RulesSynergy.RuleFit(hero, node, strip) - 0.5);
                 double branch = mainMaterial != null && string.Equals(node.Branch, mainMaterial, StringComparison.OrdinalIgnoreCase)
                     && !node.Id.Contains("-sink-", StringComparison.OrdinalIgnoreCase) ? sd.BranchBonus : 0;
                 double setNode = homeSet && sd.SetNodes.Contains(node.Id, StringComparer.OrdinalIgnoreCase) ? sd.SetNodeBonus : 0;
                 double stripFit = sd.SkillFromStripScale * RulesSynergy.NodeStripSynergy(node.Id, strip);
                 double rule = RulesSynergy.NodeRuleBonus(node, keywords);
-                double score = mined + branch + setNode + stripFit + rule;
+                double score = mined + branch + setNode + stripFit + rule + fit;
                 if (score > bestScore)
                 {
                     bestScore = score;
                     best = node;
-                    bestWhy = $"mined {mined:0.00} branch {branch:0.00} set {setNode:0.00} strip {stripFit:0.00} rule {rule:0.00}";
+                    bestWhy = $"mined {mined:0.00} branch {branch:0.00} set {setNode:0.00} strip {stripFit:0.00} rule {rule:0.00} fit {fit:0.00}";
                 }
             }
             if (best != null)
@@ -410,19 +418,42 @@ namespace RPGGame.Tuning
                 .ToList();
             bool fill = RulesSynergy.FillsSlots(hero);
             int floor = Math.Min(StripLengthFor(cls), length);
-            foreach (var x in scored)
+            var preset = picks.ToList();
+            void Pick(IEnumerable<(string name, double mined, double syn, double total)> order)
             {
-                if (picks.Count >= length)
+                picks.Clear();
+                picks.AddRange(preset);
+                foreach (var x in order)
+                {
+                    if (picks.Count >= length)
+                        break;
+                    if (x.total >= RulesSynergy.Data.MinScore || fill || picks.Count < floor)
+                        picks.Add(x.name);
+                }
+            }
+            Pick(scored);
+            // Strip context (synergy pass 2026-11-16): setups need their tag, perTag grants count tagged picks, RELEASE needs
+            // grant sources, status payoffs need an applier. Re-score against the previous picks; two rounds settle it.
+            for (int round = 0; round < 2; round++)
+            {
+                var prev = picks.ToList();
+                scored = scored
+                    .Select(x => (x.name, x.mined, x.syn,
+                        total: x.mined + x.syn + RulesSynergy.StripContextAdjust(hero, x.name,
+                            prev.Where(p => !p.Equals(x.name, StringComparison.OrdinalIgnoreCase)).ToList())))
+                    .OrderByDescending(x => x.total)
+                    .ThenBy(x => x.name, StringComparer.OrdinalIgnoreCase)
+                    .ToList();
+                Pick(scored);
+                if (picks.SequenceEqual(prev, StringComparer.OrdinalIgnoreCase))
                     break;
-                if (x.total >= RulesSynergy.Data.MinScore || fill || picks.Count < floor)
-                    picks.Add(x.name);
             }
             if (picks.Count == 0)
                 return;
             var kept = picks.Take(length).ToList();
             AddRequiredBasic(hero, owned, kept, length, a => scored.FirstOrDefault(x => x.name.Equals(a, StringComparison.OrdinalIgnoreCase)).total);
-            var strip = OrderStrip(cls, kept,
-                a => scored.FirstOrDefault(x => x.name.Equals(a, StringComparison.OrdinalIgnoreCase)).total, RiseOrderWeight());
+            var strip = RulesSynergy.SequenceOrder(OrderStrip(cls, kept,
+                a => scored.FirstOrDefault(x => x.name.Equals(a, StringComparison.OrdinalIgnoreCase)).total, RiseOrderWeight()));
             if (strip.SequenceEqual(StripOf(hero), StringComparer.OrdinalIgnoreCase))
                 return;
             hero.RestoreComboFromActionNames(strip);

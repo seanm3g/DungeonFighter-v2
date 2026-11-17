@@ -31,7 +31,9 @@ namespace RPGGame
         /// <summary>Spend your attuned mint now; it comes back at rate% after <see cref="VerbSpec.Delay"/> of your actions (INVEST).</summary>
         Invest,
         /// <summary>Bank this attack's natural roll: your next roll becomes it (PALM).</summary>
-        Palm
+        Palm,
+        /// <summary>Pull every queued buff (TURN grants and later strip-slot grants) onto this swing at +rate% (RELEASE).</summary>
+        Release
     }
 
     /// <summary>
@@ -65,13 +67,14 @@ namespace RPGGame
                 "TRANSMUTE" => VerbKind.Transmute,
                 "INVEST" => VerbKind.Invest,
                 "PALM" => VerbKind.Palm,
+                "RELEASE" => VerbKind.Release,
                 _ => VerbKind.None
             };
             if (kind == VerbKind.None)
                 return null;
 
             string store = Attunement.StoreToken;
-            double rate = kind == VerbKind.Apply ? 1 : 100; // APPLY's number is a stack count
+            double rate = kind == VerbKind.Apply ? 1 : kind == VerbKind.Release ? 0 : 100; // APPLY's number is a stack count
             int delay = 2;
             int numbers = 0;
             foreach (string part in parts.Skip(1))

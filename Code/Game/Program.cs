@@ -50,6 +50,8 @@ namespace RPGGame
                 if (args.Length > 0 && args[0] == "MCP")
                 {
                     executionMode = "MCP";
+                    // stdout carries the MCP protocol: keep the launch banner off it.
+                    Console.SetOut(Console.Error);
                     BuildExecutionMetrics.RecordLaunchTime("MCP");
                     // Run MCP server instead of GUI
                     await RPGGame.MCP.MCPServerProgram.RunMCPServer(args);

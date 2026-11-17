@@ -41,6 +41,9 @@ namespace RPGGame
         private const int ArrivalPauseMs = 1600;
 
         private TravelRegion? pendingDestination;
+
+        /// <summary>MCP/agent: destination waiting on the travel confirm popup (canvas only; headless travels at once).</summary>
+        public TravelRegion? PendingDestination => pendingDestination;
         private TravelRouteResult? pendingRoute;
 
         public RegionTravelHandler(GameStateManager stateManager, IUIManager? customUIManager)

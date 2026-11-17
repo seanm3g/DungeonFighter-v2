@@ -14,8 +14,11 @@ namespace RPGGame.MCP
     {
         private readonly ConcurrentQueue<string> _outputBuffer = new();
         private readonly object _lock = new object();
-        private int _maxBufferSize = 200; // Keep last 200 messages (reduced for token efficiency)
+        private int _maxBufferSize = 3000; // A whole dungeon run's log fits; tools return slices
+        private long _totalMessages = 0;
         private const int MaxMessageLength = 500; // Truncate very long messages
+        private static readonly System.Text.RegularExpressions.Regex ColorMarkup =
+            new(@"\[/?color(:[^\]]*)?\]", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
         private int _consecutiveMenuLines = 0;
         private int _baseMenuDelay = 25;
 
@@ -52,6 +55,24 @@ namespace RPGGame.MCP
             }
         }
 
+        /// <summary>Count of messages ever captured (not reduced by trimming or <see cref="Clear"/>); a mark for <see cref="GetMessagesSince"/>.</summary>
+        public long TotalMessages
+        {
+            get { lock (_lock) { return _totalMessages; } }
+        }
+
+        /// <summary>Messages captured after <paramref name="mark"/> (a <see cref="TotalMessages"/> value), oldest first.</summary>
+        public List<string> GetMessagesSince(long mark)
+        {
+            lock (_lock)
+            {
+                var all = new List<string>(_outputBuffer);
+                long newCount = Math.Max(0, _totalMessages - mark);
+                int take = (int)Math.Min(newCount, all.Count);
+                return all.GetRange(all.Count - take, take);
+            }
+        }
+
         /// <summary>
         /// Clears the output buffer
         /// </summary>
@@ -69,6 +90,12 @@ namespace RPGGame.MCP
             if (string.IsNullOrWhiteSpace(message))
                 return;
 
+            // Inline color markup ([color:#RRGGBB]...[/color]) is for the canvas only.
+            if (message.IndexOf("[color", StringComparison.OrdinalIgnoreCase) >= 0 || message.IndexOf("[/color]", StringComparison.OrdinalIgnoreCase) >= 0)
+                message = ColorMarkup.Replace(message, "");
+            if (string.IsNullOrWhiteSpace(message))
+                return;
+
             lock (_lock)
             {
                 // Truncate very long messages to prevent token bloat
@@ -78,6 +105,7 @@ namespace RPGGame.MCP
                 }
 
                 _outputBuffer.Enqueue(message);
+                _totalMessages++;
                 // Trim buffer if it exceeds max size
                 while (_outputBuffer.Count > _maxBufferSize)
                 {

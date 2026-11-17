@@ -68,8 +68,10 @@ namespace RPGGame.Data.ItemGeneration
             var influence = new List<string>();
             foreach (string part in parts)
             {
+                // Passive (WHILE) and triggered rules both work: high-tier bases change what an action does
+                // (ONCONNECT IF TAG x -> APPLY brittle 1) or feed the sequence (-> NEXT DAMAGE 20%).
                 var parsed = CrossWireRule.Parse(part, "base modifier");
-                if (parsed == null || !parsed.IsPassive)
+                if (parsed == null)
                     return null;
                 foreach (var c in parsed.Conditions)
                 {
@@ -79,11 +81,13 @@ namespace RPGGame.Data.ItemGeneration
                             .FirstOrDefault(a => string.Equals(a.Name?.Trim(), c.Key, StringComparison.OrdinalIgnoreCase));
                         influence.AddRange(data?.Tags ?? new List<string>());
                     }
-                    else if (c.Subject is "tag" or "class" or "target")
+                    else if (c.Subject is "tag" or "class" or "target" or "prevtag" or "nexttag" or "weapon")
                         influence.Add(c.Key);
                 }
-                if (parsed.Verb == "POTENCY")
+                if (parsed.Verb is "POTENCY" or "APPLY" or "ADD" or "MINT")
                     influence.Add(parsed.Store);
+                if (parsed.IfTag != null)
+                    influence.Add(parsed.IfTag);
             }
             return new Rolled(string.Join("; ", parts), first, influence);
         }

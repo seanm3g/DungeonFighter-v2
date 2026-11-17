@@ -337,6 +337,7 @@ namespace RPGGame
                     CombatSequencePresenter.SetPending(sequenceSteps, result.HealthBarHolds);
                 }
             }
+            RPGGame.Combat.UI.AttributeDisplayHold.DropStaged();
             RPGGame.Diagnostics.ToolProfiler.Stop("Turn.SequenceAndFlavor", profSeq);
 
             if (result.Hit

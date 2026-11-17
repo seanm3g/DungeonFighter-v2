@@ -275,6 +275,21 @@ namespace RPGGame
                     return n;
                 });
 
+            yield return new StoreDef("brittle", "Brittle", StoreKind.Status, StoreScope.Turn,
+                read: TempoStatuses.Brittle,
+                add: TempoStatuses.AddBrittle,
+                spend: (a, max) => TempoStatuses.Spend(a, "brittle", max));
+
+            yield return new StoreDef("stagger", "Stagger", StoreKind.Status, StoreScope.Turn,
+                read: TempoStatuses.Stagger,
+                add: TempoStatuses.AddStagger,
+                spend: (a, max) => TempoStatuses.Spend(a, "stagger", max));
+
+            yield return new StoreDef("rattle", "Rattle", StoreKind.Status, StoreScope.Turn,
+                read: TempoStatuses.Rattle,
+                add: TempoStatuses.AddRattle,
+                spend: (a, max) => TempoStatuses.Spend(a, "rattle", max));
+
             yield return new StoreDef("mark", "Mark", StoreKind.Status, StoreScope.Turn,
                 read: a => a.IsMarked ? Math.Max(1, a.MarkTurns) : 0,
                 add: (a, n) =>
@@ -295,6 +310,11 @@ namespace RPGGame
                 a => a.FortifyTurns, (a, v) => a.FortifyTurns = v);
             yield return StackResource("focus", "Focus", a => a.FocusStacks, (a, v) => a.FocusStacks = v,
                 a => a.FocusTurns, (a, v) => a.FocusTurns = v);
+
+            yield return new StoreDef("haste", "Haste", StoreKind.Resource, StoreScope.Turn,
+                read: TempoStatuses.Haste,
+                add: TempoStatuses.AddHaste,
+                spend: (a, max) => TempoStatuses.Spend(a, "haste", max));
 
             yield return new StoreDef("temphp", "Temporary HP", StoreKind.Resource, StoreScope.Turn,
                 read: a => a.TemporaryHP ?? 0,

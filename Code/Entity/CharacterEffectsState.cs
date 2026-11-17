@@ -383,13 +383,16 @@ namespace RPGGame
             };
             TurnBonuses.Add(group);
         }
-        public List<ActionAttackBonusItem> GetAndConsumeTurnBonuses()
+        /// <param name="action">The swing taking the bonuses: groups with <see cref="CadenceTiming.IfTag"/> wait (no payout,
+        /// no countdown) until an action with that tag rolls. Null = no tag gate check (legacy callers).</param>
+        public List<ActionAttackBonusItem> GetAndConsumeTurnBonuses(Action? action = null)
         {
             var result = new List<ActionAttackBonusItem>();
             var toRemove = new List<ActionAttackBonusGroup>();
             foreach (var group in TurnBonuses.ToArray())
             {
                 if (group.Count <= 0 || group.Bonuses == null) continue;
+                if (group.Timing != null && !group.Timing.TagGateHolds(action)) continue;
                 result.AddRange(TurnPayload(group));
                 group.Elapsed++;
                 // Delay rolls (timing.delay) don't spend the duration.
@@ -400,7 +403,7 @@ namespace RPGGame
             foreach (var g in toRemove) TurnBonuses.Remove(g);
             return result;
         }
-        public List<ActionAttackBonusItem> PeekTurnBonuses() { var r = new List<ActionAttackBonusItem>(); foreach (var g in SnapshotTurnBonuses()) { if (g?.Bonuses != null) r.AddRange(TurnPayload(g)); } return r; }
+        public List<ActionAttackBonusItem> PeekTurnBonuses(Action? action = null) { var r = new List<ActionAttackBonusItem>(); foreach (var g in SnapshotTurnBonuses()) { if (g?.Bonuses != null && (g.Timing == null || action == null && string.IsNullOrWhiteSpace(g.Timing.IfTag) || action != null && g.Timing.TagGateHolds(action))) r.AddRange(TurnPayload(g)); } return r; }
 
         /// <summary>
         /// What <paramref name="group"/> gives on its next roll: nothing while delayed (timing.delay) or off-beat (timing.every);
@@ -420,6 +423,40 @@ namespace RPGGame
             int total = group.Total > 0 ? group.Total : Math.Max(1, group.Count + k - 1);
             double factor = t.ShapeFactor(t.Every > 1 ? k / t.Every : k, t.Every > 1 ? Math.Max(1, total / t.Every) : total);
             return factor == 1 ? group.Bonuses ?? new List<ActionAttackBonusItem>() : CadenceTiming.Scale(group.Bonuses, factor);
+        }
+
+        /// <summary>
+        /// RELEASE: every queued TURN grant pays all its remaining rolls now (tag waits ignored), and every strip-slot grant
+        /// waiting on another slot moves here; values × <paramref name="multiplier"/>. The queues are emptied.
+        /// </summary>
+        public List<ActionAttackBonusItem> ReleaseQueuedBonuses(double multiplier, int currentSlot)
+        {
+            var result = new List<ActionAttackBonusItem>();
+            foreach (var group in TurnBonuses.ToArray())
+            {
+                if (group?.Bonuses == null || group.Count <= 0)
+                    continue;
+                var probe = new ActionAttackBonusGroup
+                {
+                    Bonuses = group.Bonuses, Timing = group.Timing, Total = group.Total, Count = group.Count
+                };
+                int elapsed = group.Elapsed;
+                int left = group.Count + Math.Max(0, (group.Timing?.Delay ?? 0) - elapsed);
+                for (int k = 0; k < left; k++)
+                {
+                    probe.Elapsed = elapsed + k;
+                    result.AddRange(TurnPayload(probe));
+                }
+            }
+            TurnBonuses.Clear();
+            foreach (int slot in PendingActionBonusesBySlot.Keys.ToArray())
+            {
+                if (slot == currentSlot)
+                    continue;
+                result.AddRange(PendingActionBonusesBySlot[slot]);
+                PendingActionBonusesBySlot.Remove(slot);
+            }
+            return multiplier == 1 ? result : CadenceTiming.Scale(result, multiplier);
         }
 
         /// <summary>A miss ends TURN grants marked timing.untilMiss.</summary>

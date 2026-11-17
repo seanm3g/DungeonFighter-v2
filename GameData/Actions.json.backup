@@ -1,7 +1,7 @@
 [
   {
     "action": "PUNCH",
-    "description": "basic non-weapon action",
+    "description": "",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -11,7 +11,7 @@
   },
   {
     "action": "SLAM",
-    "description": "basic mace action",
+    "description": "",
     "dps": "120%",
     "numberOfHits": "1",
     "damage": "120%",
@@ -21,7 +21,7 @@
   },
   {
     "action": "WIND UP",
-    "description": "starter mace action: wind up the next swing. Next action: \u002B25% damage.",
+    "description": "Next action: \u002B25% damage.",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -34,7 +34,7 @@
   },
   {
     "action": "STRIKE",
-    "description": "basic sword action",
+    "description": "",
     "dps": "120%",
     "numberOfHits": "1",
     "damage": "90%",
@@ -44,7 +44,7 @@
   },
   {
     "action": "SLASH",
-    "description": "starter sword action: set up the next strike. Next action: \u002B25% speed.",
+    "description": "Next action: \u002B25% speed.",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -57,7 +57,7 @@
   },
   {
     "action": "STAB",
-    "description": "basic dagger action",
+    "description": "",
     "dps": "120%",
     "numberOfHits": "3",
     "damage": "40%",
@@ -67,7 +67,7 @@
   },
   {
     "action": "CUT",
-    "description": "starter dagger action: open a wound for the next stab. Next action: \u002B1 hit.",
+    "description": "Next action: \u002B1 hit.",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -80,7 +80,7 @@
   },
   {
     "action": "MAGIC MISSILE",
-    "description": "basic wand action: \u002B AMP",
+    "description": "\u002B AMP",
     "dps": "1%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -90,7 +90,7 @@
   },
   {
     "action": "BOLT",
-    "description": "starter wand action: charge the next missile. Next action: \u002B25% AMP.",
+    "description": "Next action: \u002B25% AMP.",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "75%",
@@ -103,7 +103,7 @@
   },
   {
     "action": "STEADY HAND",
-    "description": "Settle your aim. Next 2 turns: \u002B1 HIT.",
+    "description": "Next 2 turns: +1 HIT.",
     "tier": 1,
     "dps": "89%",
     "numberOfHits": "1",
@@ -116,7 +116,7 @@
   },
   {
     "action": "ACTION BONUS",
-    "description": "Build up force. Next 3 actions: \u002B25% damage.",
+    "description": "Next 3 actions: +25% damage.",
     "tier": 1,
     "dps": "60%",
     "numberOfHits": "1",
@@ -126,11 +126,11 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00223\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022IsEnabled\u0022:true}]",
     "damageMod": "25",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:25}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
-    "tags": "bludgeon"
+    "tags": "bludgeon, class, barbarian"
   },
   {
     "action": "FIGHT BONUS",
-    "description": "Find the range. \u002B1 HIT for the rest of the fight.",
+    "description": "+1 HIT for the rest of the fight.",
     "tier": 1,
     "dps": "75%",
     "numberOfHits": "1",
@@ -143,7 +143,7 @@
   },
   {
     "action": "KEEN EYE",
-    "description": "Spot the weak points. Next 3 turns: \u002B1 CRIT.",
+    "description": "Next 3 turns: +1 CRIT.",
     "tier": 1,
     "dps": "88%",
     "numberOfHits": "1",
@@ -156,7 +156,7 @@
   },
   {
     "action": "LUCKY CHARM",
-    "description": "Fortune smiles. Next turn: \u002B1 HIT and \u002B1 CRIT.",
+    "description": "Next turn: +1 HIT and +1 CRIT.",
     "rarity": "RARE",
     "tier": 1,
     "dps": "100%",
@@ -168,11 +168,11 @@
     "heroHit": "1",
     "heroCrit": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:1},{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "rare"
+    "tags": "rare, class, rogue"
   },
   {
     "action": "CONCENTRATION",
-    "description": "Keep the flow going. Next turn: \u002B1 COMBO.",
+    "description": "Next turn: +1 COMBO.",
     "rarity": "COMMON",
     "tier": 1,
     "dps": "100%",
@@ -187,7 +187,7 @@
   },
   {
     "action": "MEASURED ADVANCE",
-    "description": "Press forward step by step. Next 2 turns: \u002B1 COMBO.",
+    "description": "Next 2 turns: +1 COMBO.",
     "rarity": "COMMON",
     "tier": 1,
     "dps": "89%",
@@ -202,7 +202,7 @@
   },
   {
     "action": "CRITICAL ATTACK",
-    "description": "Aim for something vital. Next turn: \u002B1 CRIT.",
+    "description": "Next turn: +1 CRIT.",
     "rarity": "RARE",
     "tier": 1,
     "dps": "100%",
@@ -397,7 +397,7 @@
   },
   {
     "action": "SPRINT",
-    "description": "Burst of pace. Next turn: \u002B5% speed.",
+    "description": "Next turn: +5% speed.",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
@@ -411,7 +411,7 @@
   },
   {
     "action": "RUSH",
-    "description": "Hurry the follow-up. Next action: \u002B5% speed.",
+    "description": "Next action: +5% speed.",
     "tier": 1,
     "dps": "100%",
     "numberOfHits": "1",
@@ -425,7 +425,7 @@
   },
   {
     "action": "MOMENTUM",
-    "description": "Pick up pace. \u002B1% speed for the rest of the fight.",
+    "description": "+1% speed for the rest of the fight.",
     "tier": 1,
     "dps": "86%",
     "numberOfHits": "1",
@@ -435,11 +435,11 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "speedMod": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
-    "tags": "swift"
+    "tags": "swift, class, warrior"
   },
   {
     "action": "MARATHON",
-    "description": "Settle into a rhythm. \u002B0.5% speed for the rest of the dungeon.",
+    "description": "+0.5% speed for the rest of the dungeon.",
     "tier": 1,
     "dps": "71%",
     "numberOfHits": "1",
@@ -449,11 +449,11 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "speedMod": "0.5",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:0.5}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
-    "tags": "swift"
+    "tags": "swift, class, warrior"
   },
   {
     "action": "STRONGER",
-    "description": "Put your back into it. Next action: \u002B25% damage.",
+    "description": "Next action: +25% damage.",
     "tier": 1,
     "dps": "82%",
     "numberOfHits": "1",
@@ -463,11 +463,11 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022IsEnabled\u0022:true}]",
     "damageMod": "25",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:25}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
-    "tags": "bludgeon"
+    "tags": "bludgeon, class, barbarian"
   },
   {
     "action": "RAPID STRIKE",
-    "description": "Two quick strikes in one motion.",
+    "description": "4 hits.",
     "tier": 1,
     "dps": "120%",
     "numberOfHits": "4",
@@ -477,7 +477,7 @@
   },
   {
     "action": "EMPOWERED",
-    "description": "Charge your next blow. Next action: \u002B10% AMP.",
+    "description": "Next action: +10% AMP.",
     "tier": 1,
     "dps": "86%",
     "numberOfHits": "1",
@@ -487,11 +487,11 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_amp\u0022,\u0022IsEnabled\u0022:true}]",
     "ampMod": "10",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AMP_MOD\u0022,\u0022value\u0022:10}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
-    "tags": "focus"
+    "tags": "focus, class, wizard"
   },
   {
     "action": "SHARPEN",
-    "description": "A quick edge on the blade. Next turn: \u002B4 weapon damage.",
+    "description": "Next turn: +4 weapon damage.",
     "tier": 1,
     "dps": "83%",
     "numberOfHits": "1",
@@ -504,7 +504,7 @@
   },
   {
     "action": "HONE",
-    "description": "Hone your weapon. \u002B1 weapon damage for the rest of the fight.",
+    "description": "+1 weapon damage for the rest of the fight.",
     "tier": 1,
     "dps": "71%",
     "numberOfHits": "1",
@@ -517,7 +517,7 @@
   },
   {
     "action": "WHETSTONE",
-    "description": "Work the whetstone. \u002B1 weapon damage for the rest of the dungeon.",
+    "description": "+1 weapon damage for the rest of the dungeon.",
     "tier": 1,
     "dps": "59%",
     "numberOfHits": "1",
@@ -530,7 +530,7 @@
   },
   {
     "action": "LOOSE GRIP",
-    "description": "Swing loose and fast. Next turn: \u002B2 weapon speed, -2 weapon damage.",
+    "description": "Next turn: +2 weapon speed, -2 weapon damage.",
     "tier": 1,
     "dps": "112%",
     "numberOfHits": "3",
@@ -544,7 +544,7 @@
   },
   {
     "action": "JUICED",
-    "description": "Adrenaline kicks in. Next turn: \u002B1 weapon speed.",
+    "description": "Next turn: +1 weapon speed.",
     "tier": 1,
     "dps": "90%",
     "numberOfHits": "1",
@@ -557,7 +557,7 @@
   },
   {
     "action": "BLUR",
-    "description": "Move faster than the eye. Next 2 turns: \u002B1 weapon speed.",
+    "description": "Next 2 turns: +1 weapon speed.",
     "tier": 1,
     "dps": "83%",
     "numberOfHits": "2",
@@ -578,7 +578,7 @@
     "speed": "0.60",
     "block": "100",
     "opener": "true",
-    "tags": "opener"
+    "tags": "opener, unique"
   },
   {
     "action": "FINISHER",
@@ -590,11 +590,11 @@
     "speed": "1.80",
     "block": "0",
     "finisher": "true",
-    "tags": "finisher"
+    "tags": "finisher, unique"
   },
   {
     "action": "PHANTOM FOLLOW-UP",
-    "description": "A ghostly echo shadows your next action: \u002B1 hit.",
+    "description": "Next action: +1 hit.",
     "tier": 2,
     "dps": "89%",
     "numberOfHits": "2",
@@ -607,7 +607,7 @@
   },
   {
     "action": "WEAKEN",
-    "description": "Sap their strength: Weaken (enemy deals less damage).",
+    "description": "Weaken (enemy deals less damage).",
     "tier": 2,
     "dps": "78%",
     "numberOfHits": "1",
@@ -615,11 +615,12 @@
     "speed": "0.90",
     "block": "0",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022weaken\u0022,\u0022IsEnabled\u0022:true}]",
-    "weaken": "1"
+    "weaken": "1",
+    "tags": "hybrid, hexblade, rogue, wizard"
   },
   {
     "action": "SLOW",
-    "description": "Hamper their footing: Slow (enemy acts slower).",
+    "description": "Slow (enemy acts slower).",
     "tier": 2,
     "dps": "82%",
     "numberOfHits": "1",
@@ -627,23 +628,12 @@
     "speed": "0.55",
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022slow\u0022,\u0022IsEnabled\u0022:true}]",
-    "slow": "1"
-  },
-  {
-    "action": "VULNERABILITY",
-    "description": "Open a wound: Vulnerable (enemy takes extra damage).",
-    "tier": 2,
-    "dps": "75%",
-    "numberOfHits": "1",
-    "damage": "60%",
-    "speed": "0.80",
-    "block": "100",
-    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022vulnerability\u0022,\u0022IsEnabled\u0022:true}]",
-    "vulnerability": "1"
+    "slow": "1",
+    "tags": "hybrid, spellblade, warrior, wizard"
   },
   {
     "action": "HARDEN",
-    "description": "Strike, then brace: Harden (you take less damage).",
+    "description": "Harden (you take less damage).",
     "tier": 2,
     "dps": "64%",
     "numberOfHits": "1",
@@ -652,11 +642,12 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022harden\u0022,\u0022IsEnabled\u0022:true}]",
     "harden": "1",
-    "selfTargetEffects": "harden"
+    "selfTargetEffects": "harden",
+    "tags": "class, warrior"
   },
   {
     "action": "PIERCE",
-    "description": "Thrust through the gaps: ignores armor.",
+    "description": "Ignores armor.",
     "tier": 2,
     "dps": "107%",
     "numberOfHits": "1",
@@ -664,11 +655,12 @@
     "speed": "1.40",
     "block": "180",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022pierce\u0022,\u0022IsEnabled\u0022:true}]",
-    "pierce": "1"
+    "pierce": "1",
+    "tags": "hybrid, duelist, warrior, rogue"
   },
   {
     "action": "CONFUSE",
-    "description": "Daze them: Confuse (their next target is random).",
+    "description": "Confuse (their next target is random).",
     "tier": 2,
     "dps": "71%",
     "numberOfHits": "1",
@@ -676,7 +668,8 @@
     "speed": "0.70",
     "block": "180",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022confuse\u0022,\u0022IsEnabled\u0022:true}]",
-    "confuse": "1"
+    "confuse": "1",
+    "tags": "hybrid, hexblade, rogue, wizard"
   },
   {
     "action": "SELF TARGET",
@@ -687,7 +680,8 @@
     "damage": "100%",
     "speed": "1.00",
     "block": "0",
-    "target": "self"
+    "target": "self",
+    "tags": "unique"
   },
   {
     "action": "LUCK",
@@ -715,7 +709,7 @@
   },
   {
     "action": "JAB",
-    "description": "Snap jab that knocks the enemy off-rhythm (resets their combo).",
+    "description": "Resets the enemy's combo.",
     "tier": 2,
     "dps": "88%",
     "numberOfHits": "1",
@@ -723,11 +717,12 @@
     "speed": "0.40",
     "block": "180",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022disrupt\u0022,\u0022IsEnabled\u0022:true}]",
-    "disrupt": "1"
+    "disrupt": "1",
+    "tags": "hybrid, duelist, warrior, rogue"
   },
   {
     "action": "EXPOSE",
-    "description": "Find a gap in their guard: Expose (enemy has less defense).",
+    "description": "Expose (enemy has less defense; at full stacks, armor is stripped).",
     "tier": 2,
     "dps": "80%",
     "numberOfHits": "1",
@@ -735,7 +730,8 @@
     "speed": "0.75",
     "block": "180",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022expose\u0022,\u0022IsEnabled\u0022:true}]",
-    "expose": "1"
+    "expose": "1",
+    "tags": "hybrid, ravager, barbarian, rogue"
   },
   {
     "action": "SET BONUS",
@@ -745,7 +741,8 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "block": "0"
+    "block": "0",
+    "tags": "unique"
   },
   {
     "action": "FLIP ROOM SWITCH",
@@ -755,23 +752,24 @@
     "numberOfHits": "1",
     "damage": "100%",
     "speed": "1.00",
-    "block": "0"
+    "block": "0",
+    "tags": "unique"
   },
   {
     "action": "BERSERKER",
-    "description": "Fight harder when hurt: below 50% HP, this hit deals \u002B50% damage.",
+    "description": "+1% damage for every 1% of HP you are missing.",
     "tier": 3,
     "dps": "92%",
     "numberOfHits": "1",
     "damage": "120%",
     "speed": "1.30",
     "block": "100",
-    "triggerConditions": "IFSOURCEHEALTHBELOW:0.5",
-    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022hero_action_damage\u0022,\u0022value\u0022:50,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]"
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022hero_action_damage\u0022,\u0022value\u0022:1,\u0022filters\u0022:null,\u0022scaleFrom\u0022:\u0022MISSINGHP\u0022,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "class, barbarian"
   },
   {
     "action": "ENRAGE",
-    "description": "Fly into a rage. Next 3 turns: \u002B2 CRIT, -1 HIT.",
+    "description": "Next 3 turns: +2 CRIT, -1 HIT.",
     "tier": 3,
     "dps": "108%",
     "numberOfHits": "1",
@@ -781,7 +779,8 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00223\u0022,\u0022mechanics\u0022:\u0022hero_crit_threshold, hero_hit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHit": "-1",
     "heroCrit": "2",
-    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:2},{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:-1}],\u0022durationType\u0022:\u0022TURN\u0022}]}"
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:2},{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:-1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "hybrid, ravager, barbarian, rogue"
   },
   {
     "action": "GAMBLERS BLESSING",
@@ -793,11 +792,12 @@
     "speed": "0.70",
     "block": "100",
     "onCrit": "1",
-    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCRITICAL\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_next\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]"
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCRITICAL\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_next\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
+    "tags": "class, rogue"
   },
   {
     "action": "HAYMAKER",
-    "description": "A huge, slow wind-up blow. No guard while swinging; next turn -2 HIT.",
+    "description": "No guard while swinging. Next turn: -2 HIT.",
     "tier": 3,
     "dps": "120%",
     "numberOfHits": "1",
@@ -807,11 +807,11 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_hit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHit": "-2",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:-2}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "class"
+    "tags": "class, barbarian"
   },
   {
     "action": "TAUNT",
-    "description": "Goad them into dropping their guard (Expose). Next 2 turns: \u002B1 COMBO.",
+    "description": "Expose. Next 2 turns: +1 COMBO.",
     "tier": 3,
     "dps": "20%",
     "numberOfHits": "1",
@@ -826,15 +826,15 @@
   },
   {
     "action": "BASH",
-    "description": "Heavy bash that leaves the enemy Vulnerable (takes extra damage).",
+    "description": "Expose (enemy has less defense).",
     "tier": 3,
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "150%",
     "speed": "1.50",
     "block": "180",
-    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00222\u0022,\u0022mechanics\u0022:\u0022vulnerability\u0022,\u0022IsEnabled\u0022:true}]",
-    "vulnerability": "1",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00222\u0022,\u0022mechanics\u0022:\u0022expose\u0022,\u0022IsEnabled\u0022:true}]",
+    "expose": "1",
     "tags": "class, barbarian"
   },
   {
@@ -847,7 +847,7 @@
     "speed": "0.40",
     "block": "100",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00223\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_jump\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, wizard"
   },
   {
     "action": "STRIP SKIP",
@@ -859,7 +859,7 @@
     "speed": "0.50",
     "block": "100",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_skip\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, wizard"
   },
   {
     "action": "STRIP REPEAT",
@@ -871,7 +871,7 @@
     "speed": "1.20",
     "block": "180",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCOMBO\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_repeat\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, hybrid, spellblade, warrior, wizard"
   },
   {
     "action": "STRIP LOOP",
@@ -883,7 +883,7 @@
     "speed": "0.80",
     "block": "180",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_loop\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, hybrid, spellblade, warrior, wizard"
   },
   {
     "action": "STRIP STOP",
@@ -896,7 +896,7 @@
     "block": "0",
     "onMiss": "1",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONMISS\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_stop\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, hybrid, duelist, warrior, rogue"
   },
   {
     "action": "STRIP RANDOM",
@@ -908,7 +908,7 @@
     "speed": "1.00",
     "block": "180",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_random\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, wizard"
   },
   {
     "action": "STRIP SHUFFLE",
@@ -920,7 +920,7 @@
     "speed": "0.90",
     "block": "100",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONFIRSTHIT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_shuffle\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, wizard"
   },
   {
     "action": "STRIP REPLACE",
@@ -932,7 +932,7 @@
     "speed": "0.60",
     "block": "100",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_replace_next:STRIKE\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, rogue"
   },
   {
     "action": "RETRIGGER NEXT",
@@ -944,7 +944,7 @@
     "speed": "1.40",
     "block": "0",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCOMBO\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_next\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, hybrid, spellblade, warrior, wizard"
   },
   {
     "action": "RETRIGGER OPENER",
@@ -957,7 +957,7 @@
     "block": "180",
     "onKill": "1",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONKILL\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_opener\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, barbarian"
   },
   {
     "action": "RETRIGGER FINISHER",
@@ -969,7 +969,7 @@
     "speed": "1.40",
     "block": "0",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCOMBO\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_finisher\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, warrior"
   },
   {
     "action": "RETRIGGER SLOT",
@@ -981,7 +981,7 @@
     "speed": "1.40",
     "block": "180",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_slot:2\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, wizard"
   },
   {
     "action": "SALVAGE MISS",
@@ -993,7 +993,7 @@
     "speed": "0.75",
     "block": "100",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022FIGHT\u0022,\u0022mechanics\u0022:\u0022salvage_miss\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, hybrid, warbrute, barbarian, warrior"
   },
   {
     "action": "CRIT FACES",
@@ -1005,7 +1005,7 @@
     "speed": "0.90",
     "block": "180",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022FIGHT\u0022,\u0022mechanics\u0022:\u0022crit_face_min:19\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, rogue"
   },
   {
     "action": "REPLACE ROLL",
@@ -1017,7 +1017,7 @@
     "speed": "0.80",
     "block": "180",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022replace_next_roll:20\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, rogue"
   },
   {
     "action": "EXPLODING DICE",
@@ -1029,11 +1029,11 @@
     "speed": "1.20",
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022exploding_dice\u0022,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, hybrid, hexblade, rogue, wizard"
   },
   {
     "action": "NATURAL SEVEN",
-    "description": "Lucky seven: heal 10 when you roll a natural 7.",
+    "description": "Heal 10 when you roll a natural 7.",
     "tier": 3,
     "dps": "88%",
     "numberOfHits": "1",
@@ -1043,7 +1043,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONNATURALROLL\u0022,\u0022count\u0022:\u00227\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, hybrid, hexblade, rogue, wizard"
   },
   {
     "action": "CRIT HEAL",
@@ -1058,7 +1058,7 @@
     "heroHeal": "10",
     "onCrit": "1",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCRITICAL\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, hybrid, ravager, barbarian, rogue"
   },
   {
     "action": "COMBO END HEAL",
@@ -1072,11 +1072,11 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "4",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCOMBOEND\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, warrior"
   },
   {
     "action": "CRIT MISS HEAL",
-    "description": "Heal 10 on a critical miss. Turn failure into grit.",
+    "description": "Heal 10 on a critical miss.",
     "tier": 3,
     "dps": "108%",
     "numberOfHits": "1",
@@ -1086,7 +1086,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCRITICALMISS\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, barbarian"
   },
   {
     "action": "AFTER MISS HEAL",
@@ -1100,7 +1100,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONAFTERMISS\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, hybrid, warbrute, barbarian, warrior"
   },
   {
     "action": "ROOM CLEAR HEAL",
@@ -1132,7 +1132,7 @@
     "onRollValue": "15",
     "triggerConditions": "ONROLLVALUE",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONROLLVALUE\u0022,\u0022count\u0022:\u002215\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, rogue"
   },
   {
     "action": "STRIP DISABLE",
@@ -1144,11 +1144,11 @@
     "speed": "1.50",
     "block": "100",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_disable\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, class, wizard"
   },
   {
     "action": "MIGHTY SWING",
-    "description": "Crushing two-handed blow that ignores armor.",
+    "description": "Ignores armor.",
     "rarity": "RARE",
     "tier": 3,
     "dps": "112%",
@@ -1195,7 +1195,7 @@
   },
   {
     "action": "CHALLENGE",
-    "description": "Call them out: Weaken the enemy. Next turn: \u002B1 HIT.",
+    "description": "Weaken. Next turn: +1 HIT.",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "30%",
@@ -1211,7 +1211,7 @@
   },
   {
     "action": "MEASURED CUT",
-    "description": "A careful sword cut that keeps your guard up. Next turn: \u002B1 COMBO.",
+    "description": "Next turn: +1 COMBO.",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "89%",
@@ -1278,7 +1278,7 @@
   },
   {
     "action": "CHANNEL",
-    "description": "Gather power. Next action: \u002B50% AMP, -20% speed.",
+    "description": "Next action: +50% AMP, -20% speed.",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "20%",
@@ -1309,7 +1309,7 @@
   },
   {
     "action": "BLUDGEON",
-    "description": "Crushing mace blow that knocks the enemy off-rhythm (resets their combo).",
+    "description": "Resets the enemy's combo.",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1366,7 +1366,7 @@
   },
   {
     "action": "CONCENTRATED CHAOS",
-    "description": "110% wand finisher. Gains damage from skipped/disabled strip slots.",
+    "description": "Finisher. Gains damage from skipped/disabled strip slots.",
     "rarity": "RARE",
     "tier": 3,
     "dps": "114%",
@@ -1379,7 +1379,7 @@
   },
   {
     "action": "SKULL CRACK",
-    "description": "Mace blow to the head that cracks their guard (Expose).",
+    "description": "Expose (enemy has less defense).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1393,7 +1393,7 @@
   },
   {
     "action": "PARRY",
-    "description": "Turn their blade aside and riposte: Harden (you take less damage).",
+    "description": "Harden (you take less damage).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "88%",
@@ -1408,7 +1408,7 @@
   },
   {
     "action": "LEECHING CUT",
-    "description": "Draining cut: heal for 2% of the damage dealt.",
+    "description": "Heal for 2% of the damage dealt.",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1421,7 +1421,7 @@
   },
   {
     "action": "FROST BOLT",
-    "description": "Bolt of frost that Slows the enemy.",
+    "description": "Slow (enemy acts slower).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "88%",
@@ -1603,7 +1603,7 @@
   },
   {
     "action": "LANDSLIDE",
-    "description": "+5 damage per GRIT",
+    "description": "\u002B5 damage per GRIT",
     "tier": 3,
     "dps": "106%",
     "numberOfHits": "1",
@@ -1617,7 +1617,7 @@
   },
   {
     "action": "REVEAL",
-    "description": "+5 damage per ENIGMA",
+    "description": "\u002B5 damage per ENIGMA",
     "tier": 3,
     "dps": "109%",
     "numberOfHits": "1",
@@ -1631,7 +1631,7 @@
   },
   {
     "action": "QUIRK",
-    "description": "+5 damage per ODDITY",
+    "description": "\u002B5 damage per ODDITY",
     "tier": 3,
     "dps": "106%",
     "numberOfHits": "1",
@@ -1645,7 +1645,7 @@
   },
   {
     "action": "STARFALL",
-    "description": "+5 damage per OMEN",
+    "description": "\u002B5 damage per OMEN",
     "tier": 3,
     "dps": "108%",
     "numberOfHits": "3",
@@ -1659,7 +1659,7 @@
   },
   {
     "action": "KINDLE",
-    "description": "+5 damage per KINDLING",
+    "description": "\u002B5 damage per KINDLING",
     "tier": 3,
     "dps": "109%",
     "numberOfHits": "2",
@@ -1673,7 +1673,7 @@
   },
   {
     "action": "UNRAVEL",
-    "description": "+5 damage per FRAY",
+    "description": "\u002B5 damage per FRAY",
     "tier": 3,
     "dps": "107%",
     "numberOfHits": "2",
@@ -1687,7 +1687,7 @@
   },
   {
     "action": "BAT SWARM",
-    "description": "Three bats dive as one - each flap is a separate bite",
+    "description": "3 hits.",
     "tier": 1,
     "dps": "120%",
     "numberOfHits": "3",
@@ -1698,7 +1698,7 @@
   },
   {
     "action": "RAT SWARM",
-    "description": "Seven rats pile on - each nibble is its own hit",
+    "description": "7 hits.",
     "tier": 1,
     "dps": "105%",
     "numberOfHits": "7",
@@ -1709,7 +1709,7 @@
   },
   {
     "action": "ANT SWARM",
-    "description": "Five ants bite at once - one bite per living ant",
+    "description": "1 hit per living ant.",
     "tier": 1,
     "dps": "120%",
     "numberOfHits": "5",
@@ -1720,7 +1720,7 @@
   },
   {
     "action": "BODY BLOW",
-    "description": "Warbrute: \u002B25% damage on this hit for every 10 Body (x skill rank and power).",
+    "description": "+25% damage on this hit for every 10 Body (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1732,7 +1732,7 @@
   },
   {
     "action": "WARBRUTE SMASH",
-    "description": "Warbrute: \u002B25% damage on this hit for every 10 Warbrute tags (x skill rank and power).",
+    "description": "+25% damage on this hit for every 10 Warbrute tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1744,7 +1744,7 @@
   },
   {
     "action": "PROWESS RUSH",
-    "description": "Ravager: \u002B25% speed on this action for every 10 Prowess (x skill rank and power).",
+    "description": "+25% speed on this action for every 10 Prowess (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1756,7 +1756,7 @@
   },
   {
     "action": "RAVAGER FLURRY",
-    "description": "Ravager: \u002B25% speed on this action for every 10 Ravager tags (x skill rank and power).",
+    "description": "+25% speed on this action for every 10 Ravager tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "111%",
@@ -1768,7 +1768,7 @@
   },
   {
     "action": "WILLFIRE",
-    "description": "Ragecaller: \u002B25% AMP on this hit for every 10 Will (x skill rank and power).",
+    "description": "+25% AMP on this hit for every 10 Will (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1780,7 +1780,7 @@
   },
   {
     "action": "RAGECALLER HOWL",
-    "description": "Ragecaller: \u002B25% AMP on this hit for every 10 Ragecaller tags (x skill rank and power).",
+    "description": "+25% AMP on this hit for every 10 Ragecaller tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "88%",
@@ -1792,7 +1792,7 @@
   },
   {
     "action": "FINESSE THRUST",
-    "description": "Duelist: \u002B25% accuracy (each 25% = \u002B1 to your next roll) for every 10 Finesse (x skill rank and power).",
+    "description": "+25% accuracy (each 25% = +1 to your next roll) for every 10 Finesse (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "107%",
@@ -1804,7 +1804,7 @@
   },
   {
     "action": "DUELIST FEINT",
-    "description": "Duelist: \u002B25% accuracy (each 25% = \u002B1 to your next roll) for every 10 Duelist tags (x skill rank and power).",
+    "description": "+25% accuracy (each 25% = +1 to your next roll) for every 10 Duelist tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "83%",
@@ -1816,7 +1816,7 @@
   },
   {
     "action": "WITS ARC",
-    "description": "Spellblade: \u002B25% combo (each 25% = 1 easier combo step on your next attack) for every 10 Wits (x skill rank and power).",
+    "description": "+25% combo (each 25% = 1 easier combo step on your next attack) for every 10 Wits (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "111%",
@@ -1828,7 +1828,7 @@
   },
   {
     "action": "SPELLBLADE WEAVE",
-    "description": "Spellblade: \u002B25% combo (each 25% = 1 easier combo step on your next attack) for every 10 Spellblade tags (x skill rank and power).",
+    "description": "+25% combo (each 25% = 1 easier combo step on your next attack) for every 10 Spellblade tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "106%",
@@ -1840,7 +1840,7 @@
   },
   {
     "action": "MIND HEX",
-    "description": "Hexblade: \u002B25% status potency (each 25% = \u002B1 Vulnerability; also Weakens) for every 10 Mind (x skill rank and power).",
+    "description": "+25% status potency (each 25% = +1 Expose; also Weakens) for every 10 Mind (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "80%",
@@ -1852,7 +1852,7 @@
   },
   {
     "action": "HEXBLADE CURSE",
-    "description": "Hexblade: \u002B25% status potency (each 25% = \u002B1 Vulnerability; also Weakens) for every 10 Hexblade tags (x skill rank and power).",
+    "description": "+25% status potency (each 25% = +1 Expose; also Weakens) for every 10 Hexblade tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "76%",
@@ -1861,5 +1861,713 @@
     "speed": "1.05",
     "block": "180",
     "tags": "common, hybrid, hexblade, rogue, wizard"
+  },
+  {
+    "action": "CASH IN",
+    "description": "Cash in your attuned material's store at 75% (its convert, for any set). Attuned = the material you wear most; ties go to the weapon.",
+    "tier": 3,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "110%",
+    "speed": "1.10",
+    "block": "100",
+    "verb": "CASH ATTUNED 75",
+    "tags": "action, verb, store"
+  },
+  {
+    "action": "DETONATE",
+    "description": "Spend the target\u0027s largest status (Expose, Poison, Bleed or Burn): \u002B6% damage per stack spent.",
+    "tier": 3,
+    "dps": "90%",
+    "numberOfHits": "1",
+    "damage": "90%",
+    "speed": "1.00",
+    "block": "100",
+    "verb": "DETONATE 100",
+    "tags": "action, verb, store, hybrid, ragecaller, barbarian, wizard"
+  },
+  {
+    "action": "LIQUIDATE",
+    "description": "Cash every material store you hold at 50%.",
+    "tier": 3,
+    "dps": "57%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "1.40",
+    "block": "100",
+    "verb": "LIQUIDATE 50",
+    "tags": "action, verb, store, hybrid, ragecaller, barbarian, wizard"
+  },
+  {
+    "action": "RECKONING",
+    "description": "Damage grows with your attuned material\u0027s store without spending it (half its convert rate, up to \u002B100%).",
+    "tier": 3,
+    "dps": "83%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.20",
+    "block": "100",
+    "verb": "SCALE ATTUNED 50",
+    "tags": "action, verb, store, class, barbarian"
+  },
+  {
+    "action": "INDEX",
+    "description": "\u002B8% damage for each different material you wear.",
+    "tier": 3,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "block": "100",
+    "verb": "INDEX 8",
+    "tags": "action, verb, store, class, wizard"
+  },
+  {
+    "action": "MARK",
+    "description": "Mark the target: their next hit taken is a critical.",
+    "tier": 3,
+    "dps": "88%",
+    "numberOfHits": "1",
+    "damage": "70%",
+    "speed": "0.80",
+    "block": "100",
+    "verb": "APPLY mark 1",
+    "tags": "action, verb, store, class, rogue"
+  },
+  {
+    "action": "BARRIER",
+    "description": "Temporary HP worth 8% of your max HP.",
+    "tier": 3,
+    "dps": "67%",
+    "numberOfHits": "1",
+    "damage": "60%",
+    "speed": "0.90",
+    "block": "100",
+    "verb": "BARRIER 8",
+    "tags": "action, verb, store, class, warrior"
+  },
+  {
+    "action": "DISTILL",
+    "description": "Draw out the target\u0027s largest status (Expose, Poison, Bleed or Burn) into your attuned material\u0027s store at 50%.",
+    "tier": 3,
+    "dps": "80%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "1.00",
+    "block": "100",
+    "verb": "DISTILL 50",
+    "tags": "action, verb, store, hybrid, hexblade, rogue, wizard"
+  },
+  {
+    "action": "TRANSMUTE",
+    "description": "Pour your other material stores into your attuned material\u0027s store at 75%.",
+    "tier": 3,
+    "dps": "70%",
+    "numberOfHits": "1",
+    "damage": "70%",
+    "speed": "1.00",
+    "block": "100",
+    "verb": "TRANSMUTE 75",
+    "tags": "action, verb, store, class, wizard"
+  },
+  {
+    "action": "INVEST",
+    "description": "Spend your attuned material\u0027s store now; it comes back doubled after your next 2 actions.",
+    "tier": 3,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "90%",
+    "speed": "0.90",
+    "block": "100",
+    "verb": "INVEST ATTUNED 200 2",
+    "tags": "action, verb, store, hybrid, spellblade, warrior, wizard"
+  },
+  {
+    "action": "PALM",
+    "description": "Your next roll becomes this attack's natural roll.",
+    "tier": 3,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "0.80",
+    "block": "100",
+    "verb": "PALM",
+    "tags": "action, verb, store, class, rogue"
+  },
+  {
+    "action": "PRELUDE",
+    "description": "Next 3 actions: +15% AMP.",
+    "tier": 3,
+    "dps": "78%",
+    "numberOfHits": "1",
+    "damage": "70%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00223\u0022,\u0022mechanics\u0022:\u0022hero_next_action_amp\u0022,\u0022IsEnabled\u0022:true}]",
+    "ampMod": "15",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AMP_MOD\u0022,\u0022value\u0022:15}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "action, verb, prep, hybrid, spellblade, warrior, wizard"
+  },
+  {
+    "action": "BLOOD OATH",
+    "description": "Pay 5% max HP. Next action: +60% damage.",
+    "tier": 3,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "100%",
+    "speed": "1.00",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022IsEnabled\u0022:true}]",
+    "damageMod": "60",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:60}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "cost": "HP 5",
+    "tags": "action, verb, prep, hybrid, ragecaller, barbarian, wizard"
+  },
+  {
+    "action": "VENOM COAT",
+    "description": "Poison the target (1.5% max HP per tick).",
+    "tier": 3,
+    "dps": "75%",
+    "numberOfHits": "1",
+    "damage": "60%",
+    "speed": "0.80",
+    "block": "100",
+    "verb": "APPLY poison 6",
+    "tags": "action, status, poison, class, rogue"
+  },
+  {
+    "action": "OPEN VEIN",
+    "description": "2 Bleed on the target (ticks when it acts).",
+    "tier": 3,
+    "dps": "76%",
+    "numberOfHits": "1",
+    "damage": "65%",
+    "speed": "0.85",
+    "block": "100",
+    "verb": "APPLY bleed 2",
+    "tags": "action, status, bleed, hybrid, ravager, barbarian, rogue"
+  },
+  {
+    "action": "STOKE",
+    "description": "2 Burn on the target.",
+    "tier": 3,
+    "dps": "71%",
+    "numberOfHits": "1",
+    "damage": "60%",
+    "speed": "0.85",
+    "block": "100",
+    "verb": "APPLY burn 2",
+    "tags": "action, status, burn, hybrid, ragecaller, barbarian, wizard"
+  },
+  {
+    "action": "CORRODE",
+    "description": "1 Acid on the target (damage and armor shred).",
+    "tier": 3,
+    "dps": "71%",
+    "numberOfHits": "1",
+    "damage": "60%",
+    "speed": "0.85",
+    "block": "100",
+    "verb": "APPLY acid 1",
+    "tags": "action, status, acid, hybrid, hexblade, rogue, wizard"
+  },
+  {
+    "action": "DAZE",
+    "description": "Stun the target for a turn.",
+    "tier": 3,
+    "dps": "42%",
+    "numberOfHits": "1",
+    "damage": "50%",
+    "speed": "1.20",
+    "block": "100",
+    "verb": "APPLY stun 1",
+    "tags": "action, status, stun, class, barbarian"
+  },
+  {
+    "action": "BRACE",
+    "description": "2 Fortify (armor) on yourself.",
+    "tier": 3,
+    "dps": "63%",
+    "numberOfHits": "1",
+    "damage": "50%",
+    "speed": "0.80",
+    "block": "100",
+    "verb": "APPLY fortify 2",
+    "tags": "action, status, fortify, class, warrior"
+  },
+  {
+    "action": "LUNGE",
+    "description": "Next action: +10% speed.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "150%",
+    "numberOfHits": "1",
+    "damage": "90%",
+    "speed": "0.60",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
+    "speedMod": "10",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:10}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "common, class, warrior, swift"
+  },
+  {
+    "action": "HOLD THE LINE",
+    "description": "2 Harden (you take less damage).",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "50%",
+    "numberOfHits": "1",
+    "damage": "40%",
+    "speed": "0.80",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022harden\u0022,\u0022IsEnabled\u0022:true}]",
+    "harden": "2",
+    "selfTargetEffects": "harden",
+    "tags": "common, class, warrior"
+  },
+  {
+    "action": "CADENCE STRIKE",
+    "description": "Next 2 turns: +1 COMBO.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "89%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00222\u0022,\u0022mechanics\u0022:\u0022hero_combo_threshold\u0022,\u0022IsEnabled\u0022:true}]",
+    "heroCombo": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:2,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022COMBO\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "common, class, warrior"
+  },
+  {
+    "action": "LOW BLOW",
+    "description": "Weaken (enemy deals less damage).",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "100%",
+    "numberOfHits": "2",
+    "damage": "40%",
+    "speed": "0.80",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022weaken\u0022,\u0022IsEnabled\u0022:true}]",
+    "weaken": "1",
+    "tags": "common, class, rogue"
+  },
+  {
+    "action": "FAN OF KNIVES",
+    "description": "4 hits.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "100%",
+    "numberOfHits": "4",
+    "damage": "25%",
+    "speed": "1.00",
+    "block": "100",
+    "tags": "common, class, rogue"
+  },
+  {
+    "action": "SHOULDER CHECK",
+    "description": "Resets the enemy's combo.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "110%",
+    "speed": "1.10",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022disrupt\u0022,\u0022IsEnabled\u0022:true}]",
+    "disrupt": "1",
+    "tags": "common, hybrid, warbrute, barbarian, warrior"
+  },
+  {
+    "action": "IRON GUARD",
+    "description": "Harden. Next action: +25% damage.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "67%",
+    "numberOfHits": "1",
+    "damage": "60%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022IsEnabled\u0022:true}]",
+    "damageMod": "25",
+    "harden": "1",
+    "selfTargetEffects": "harden",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:25}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "common, hybrid, warbrute, barbarian, warrior"
+  },
+  {
+    "action": "CLEAVE THROUGH",
+    "description": "Ignores armor.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "107%",
+    "numberOfHits": "1",
+    "damage": "160%",
+    "speed": "1.50",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022pierce\u0022,\u0022IsEnabled\u0022:true}]",
+    "pierce": "1",
+    "tags": "common, hybrid, warbrute, barbarian, warrior"
+  },
+  {
+    "action": "GUTTING STRIKE",
+    "description": "1 Bleed on the target (ticks when it acts).",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "122%",
+    "numberOfHits": "2",
+    "damage": "55%",
+    "speed": "0.90",
+    "block": "100",
+    "verb": "APPLY bleed 1",
+    "tags": "common, hybrid, ravager, barbarian, rogue, status, bleed"
+  },
+  {
+    "action": "FLAME BRAND",
+    "description": "2 Burn on the target.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "100%",
+    "numberOfHits": "1",
+    "damage": "120%",
+    "speed": "1.20",
+    "block": "100",
+    "verb": "APPLY burn 2",
+    "tags": "common, hybrid, ragecaller, barbarian, wizard, status, burn"
+  },
+  {
+    "action": "THUNDER CLAP",
+    "description": "Expose. Next action: +25% AMP.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "70%",
+    "numberOfHits": "1",
+    "damage": "70%",
+    "speed": "1.00",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_amp\u0022,\u0022IsEnabled\u0022:true}]",
+    "ampMod": "25",
+    "expose": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AMP_MOD\u0022,\u0022value\u0022:25}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
+    "tags": "common, hybrid, ragecaller, barbarian, wizard, focus"
+  },
+  {
+    "action": "FEINT AND THRUST",
+    "description": "Next turn: +1 HIT.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "112%",
+    "numberOfHits": "2",
+    "damage": "45%",
+    "speed": "0.80",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_hit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
+    "heroHit": "1",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "common, hybrid, duelist, warrior, rogue"
+  },
+  {
+    "action": "RIPOSTE",
+    "description": "Harden. Next turn: +1 CRIT.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "88%",
+    "numberOfHits": "1",
+    "damage": "70%",
+    "speed": "0.80",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_crit_threshold, harden\u0022,\u0022IsEnabled\u0022:true}]",
+    "heroCrit": "1",
+    "harden": "1",
+    "selfTargetEffects": "harden",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "tags": "common, hybrid, duelist, warrior, rogue"
+  },
+  {
+    "action": "DISARM",
+    "description": "Weaken and Slow.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "62%",
+    "numberOfHits": "1",
+    "damage": "50%",
+    "speed": "0.80",
+    "block": "100",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022weaken, slow\u0022,\u0022IsEnabled\u0022:true}]",
+    "weaken": "1",
+    "slow": "1",
+    "tags": "common, hybrid, duelist, warrior, rogue"
+  },
+  {
+    "action": "GATHERING STORM",
+    "description": "Next 3 turns: +10%, +20%, then +30% damage.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "70%",
+    "numberOfHits": "1",
+    "damage": "70%",
+    "speed": "1.00",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"3\",\"mechanics\":\"hero_next_action_damage\",\"timing\":{\"shape\":\"ramp\"},\"IsEnabled\":true}]",
+    "damageMod": "10",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":3,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":10}],\"durationType\":\"TURN\",\"timing\":{\"shape\":\"ramp\"}}]}",
+    "tags": "common, class, barbarian, bludgeon"
+  },
+  {
+    "action": "LIT FUSE",
+    "description": "Two turns from now: +50% damage.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "89%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_damage\",\"timing\":{\"delay\":2},\"IsEnabled\":true}]",
+    "damageMod": "50",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":1,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":50}],\"durationType\":\"TURN\",\"timing\":{\"delay\":2}}]}",
+    "tags": "common, class, barbarian"
+  },
+  {
+    "action": "HEADSMAN'S PROMISE",
+    "description": "Your finisher (last strip slot): +60% damage.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "79%",
+    "numberOfHits": "1",
+    "damage": "75%",
+    "speed": "0.95",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_damage\",\"timing\":{\"slot\":\"last\"},\"IsEnabled\":true}]",
+    "damageMod": "60",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"ACTION\",\"cadenceType\":\"ACTION\",\"count\":1,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":60}],\"durationType\":\"ACTION\",\"timing\":{\"slot\":\"last\"}}]}",
+    "tags": "common, class, barbarian"
+  },
+  {
+    "action": "BLOOD FRENZY",
+    "description": "Next 4 turns: +10%, +20%, +30%, then +40% damage. A miss ends it.",
+    "rarity": "RARE",
+    "tier": 3,
+    "dps": "72%",
+    "numberOfHits": "1",
+    "damage": "65%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"4\",\"mechanics\":\"hero_next_action_damage\",\"timing\":{\"shape\":\"ramp\",\"untilMiss\":true},\"IsEnabled\":true}]",
+    "damageMod": "10",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":4,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":10}],\"durationType\":\"TURN\",\"timing\":{\"shape\":\"ramp\",\"untilMiss\":true}}]}",
+    "tags": "rare, hybrid, ravager, barbarian, rogue"
+  },
+  {
+    "action": "MARCHING DRUM",
+    "description": "For the next 6 turns, every 2nd turn: +3 COMBO.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "89%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"6\",\"mechanics\":\"hero_combo_threshold\",\"timing\":{\"every\":2},\"IsEnabled\":true}]",
+    "heroCombo": "3",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":6,\"bonuses\":[{\"type\":\"COMBO\",\"value\":3}],\"durationType\":\"TURN\",\"timing\":{\"every\":2}}]}",
+    "tags": "common, class, warrior"
+  },
+  {
+    "action": "RELAY STRIKE",
+    "description": "The 2 actions after next: +20% speed.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "106%",
+    "numberOfHits": "1",
+    "damage": "85%",
+    "speed": "0.80",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"2\",\"mechanics\":\"hero_next_action_speed\",\"timing\":{\"delay\":1},\"IsEnabled\":true}]",
+    "speedMod": "20",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"ACTION\",\"cadenceType\":\"ACTION\",\"count\":2,\"bonuses\":[{\"type\":\"SPEED_MOD\",\"value\":20}],\"durationType\":\"ACTION\",\"timing\":{\"delay\":1}}]}",
+    "tags": "common, class, warrior, swift"
+  },
+  {
+    "action": "OPENING GAMBIT",
+    "description": "In strip slot 1: next 3 turns +1 HIT and +1 COMBO.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "94%",
+    "numberOfHits": "1",
+    "damage": "85%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"3\",\"mechanics\":\"hero_hit_threshold, hero_combo_threshold\",\"timing\":{\"slotIf\":\"first\"},\"IsEnabled\":true}]",
+    "heroHit": "1",
+    "heroCombo": "1",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":3,\"bonuses\":[{\"type\":\"HIT\",\"value\":1},{\"type\":\"COMBO\",\"value\":1}],\"durationType\":\"TURN\",\"timing\":{\"slotIf\":\"first\"}}]}",
+    "tags": "common, class, warrior"
+  },
+  {
+    "action": "FLURRY STEP",
+    "description": "Next 3 actions: +30%, +20%, then +10% speed.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "94%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "0.85",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"3\",\"mechanics\":\"hero_next_action_speed\",\"timing\":{\"shape\":\"decay\"},\"IsEnabled\":true}]",
+    "speedMod": "10",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"ACTION\",\"cadenceType\":\"ACTION\",\"count\":3,\"bonuses\":[{\"type\":\"SPEED_MOD\",\"value\":10}],\"durationType\":\"ACTION\",\"timing\":{\"shape\":\"decay\"}}]}",
+    "tags": "common, class, warrior, swift"
+  },
+  {
+    "action": "PATIENT BLADE",
+    "description": "After one turn: next 2 turns +2 CRIT and +20% damage.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "88%",
+    "numberOfHits": "1",
+    "damage": "75%",
+    "speed": "0.85",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"2\",\"mechanics\":\"hero_crit_threshold, hero_next_action_damage\",\"timing\":{\"delay\":1},\"IsEnabled\":true}]",
+    "damageMod": "20",
+    "heroCrit": "2",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":2,\"bonuses\":[{\"type\":\"CRIT\",\"value\":2},{\"type\":\"DAMAGE_MOD\",\"value\":20}],\"durationType\":\"TURN\",\"timing\":{\"delay\":1}}]}",
+    "tags": "common, class, rogue"
+  },
+  {
+    "action": "THIRD CUT",
+    "description": "Your strip slot 3 action: +60% damage.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "94%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "0.85",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_damage\",\"timing\":{\"slot\":\"3\"},\"IsEnabled\":true}]",
+    "damageMod": "60",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"ACTION\",\"cadenceType\":\"ACTION\",\"count\":1,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":60}],\"durationType\":\"ACTION\",\"timing\":{\"slot\":\"3\"}}]}",
+    "tags": "common, class, rogue, dagger"
+  },
+  {
+    "action": "COUNTED PACES",
+    "description": "Next turn: +15% damage per strip slot of this action (slot 4 = +60%).",
+    "rarity": "RARE",
+    "tier": 3,
+    "dps": "78%",
+    "numberOfHits": "1",
+    "damage": "70%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_damage\",\"timing\":{\"perSlot\":true},\"IsEnabled\":true}]",
+    "damageMod": "15",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":1,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":15}],\"durationType\":\"TURN\",\"timing\":{\"perSlot\":true}}]}",
+    "tags": "rare, class, rogue"
+  },
+  {
+    "action": "EVEN ODDS",
+    "description": "In an even strip slot: next 2 actions +40% damage.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "83%",
+    "numberOfHits": "1",
+    "damage": "75%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"2\",\"mechanics\":\"hero_next_action_damage\",\"timing\":{\"slotIf\":\"even\"},\"IsEnabled\":true}]",
+    "damageMod": "40",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"ACTION\",\"cadenceType\":\"ACTION\",\"count\":2,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":40}],\"durationType\":\"ACTION\",\"timing\":{\"slotIf\":\"even\"}}]}",
+    "tags": "common, hybrid, hexblade, rogue, wizard"
+  },
+  {
+    "action": "CRESCENDO",
+    "description": "Next action: +25% AMP per strip slot of this action (slot 3 = +75%).",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "79%",
+    "numberOfHits": "1",
+    "damage": "75%",
+    "speed": "0.95",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_amp\",\"timing\":{\"perSlot\":true},\"IsEnabled\":true}]",
+    "ampMod": "25",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"ACTION\",\"cadenceType\":\"ACTION\",\"count\":1,\"bonuses\":[{\"type\":\"AMP_MOD\",\"value\":25}],\"durationType\":\"ACTION\",\"timing\":{\"perSlot\":true}}]}",
+    "tags": "common, class, wizard, focus"
+  },
+  {
+    "action": "RUNE OF THE FIFTH",
+    "description": "Your strip slot 5 action (or your last, on a shorter strip): +50% AMP.",
+    "rarity": "RARE",
+    "tier": 3,
+    "dps": "78%",
+    "numberOfHits": "1",
+    "damage": "70%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_amp\",\"timing\":{\"slot\":\"5\"},\"IsEnabled\":true}]",
+    "ampMod": "50",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"ACTION\",\"cadenceType\":\"ACTION\",\"count\":1,\"bonuses\":[{\"type\":\"AMP_MOD\",\"value\":50}],\"durationType\":\"ACTION\",\"timing\":{\"slot\":\"5\"}}]}",
+    "tags": "rare, class, wizard"
+  },
+  {
+    "action": "RISING CHORD",
+    "description": "Next 4 actions: +5%, +10%, +15%, then +20% AMP.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "79%",
+    "numberOfHits": "1",
+    "damage": "75%",
+    "speed": "0.95",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"4\",\"mechanics\":\"hero_next_action_amp\",\"timing\":{\"shape\":\"ramp\"},\"IsEnabled\":true}]",
+    "ampMod": "5",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"ACTION\",\"cadenceType\":\"ACTION\",\"count\":4,\"bonuses\":[{\"type\":\"AMP_MOD\",\"value\":5}],\"durationType\":\"ACTION\",\"timing\":{\"shape\":\"ramp\"}}]}",
+    "tags": "common, class, wizard, focus"
+  },
+  {
+    "action": "LATE BLOOM",
+    "description": "From strip slot 3 on: next 3 turns +1 COMBO and +15% damage.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "84%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "0.95",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"3\",\"mechanics\":\"hero_combo_threshold, hero_next_action_damage\",\"timing\":{\"slotIf\":\">=3\"},\"IsEnabled\":true}]",
+    "damageMod": "15",
+    "heroCombo": "1",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":3,\"bonuses\":[{\"type\":\"COMBO\",\"value\":1},{\"type\":\"DAMAGE_MOD\",\"value\":15}],\"durationType\":\"TURN\",\"timing\":{\"slotIf\":\">=3\"}}]}",
+    "tags": "common, hybrid, spellblade, warrior, wizard"
+  },
+  {
+    "action": "HOURGLASS",
+    "description": "After 3 turns: +1 CRIT and +15% damage for 3 turns.",
+    "tier": 3,
+    "dps": "94%",
+    "numberOfHits": "1",
+    "damage": "85%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"3\",\"mechanics\":\"hero_crit_threshold, hero_next_action_damage\",\"timing\":{\"delay\":3},\"IsEnabled\":true}]",
+    "damageMod": "15",
+    "heroCrit": "1",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":3,\"bonuses\":[{\"type\":\"CRIT\",\"value\":1},{\"type\":\"DAMAGE_MOD\",\"value\":15}],\"durationType\":\"TURN\",\"timing\":{\"delay\":3}}]}"
+  },
+  {
+    "action": "NEXT TIME",
+    "description": "Your first 2 strip slots: +35% damage.",
+    "tier": 3,
+    "dps": "89%",
+    "numberOfHits": "1",
+    "damage": "80%",
+    "speed": "0.90",
+    "block": "100",
+    "cadenceBundlesJson": "[{\"cadence\":\"ACTION\",\"enable\":\"1\",\"duration\":\"2\",\"mechanics\":\"hero_next_action_damage\",\"timing\":{\"slot\":\"first\"},\"IsEnabled\":true}]",
+    "damageMod": "35",
+    "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"ACTION\",\"cadenceType\":\"ACTION\",\"count\":2,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":35}],\"durationType\":\"ACTION\",\"timing\":{\"slot\":\"first\"}}]}"
   }
 ]

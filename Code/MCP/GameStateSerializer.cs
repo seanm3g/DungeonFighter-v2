@@ -151,7 +151,9 @@ namespace RPGGame.MCP
             {
                 Head = player.Head?.Name,
                 Body = player.Body?.Name,
-                Feet = player.Feet?.Name
+                Feet = player.Feet?.Name,
+                Legs = player.Legs?.Name,
+                Charm = player.Charm?.Name
             };
         }
 

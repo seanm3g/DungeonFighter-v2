@@ -26,7 +26,7 @@ namespace RPGGame.Game
             var wrapper = McpToolState.GameWrapper;
             if (wrapper?.Game != null)
             {
-                await session.ExecuteAction("1");
+                await session.ExecuteAction(MainMenuHandler.NewFighterKey);
                 var agentCtx = AgentContextBuilder.Build(wrapper.Game, wrapper.OutputCapture);
                 if (agentCtx.CurrentState == "TrainingGroundOffer")
                 {
@@ -111,10 +111,13 @@ namespace RPGGame.Game
             // Known menus — GameStateSerializer omits actions for several states
             string preferred = currentState switch
             {
+                "MainMenu" => MainMenuHandler.NewFighterKey,
                 "TrainingGroundOffer" => "2",
                 "PreWeaponPathIntro" => "1",
                 "WeaponSelection" => "1",
                 "CharacterCreation" => "1",
+                // The inventory follows weapon selection; 0 leaves it for the game hub.
+                "Inventory" => "0",
                 "GameLoop" => "1",
                 "DungeonSelection" => "1",
                 "Dungeon" or "DungeonExploration" => "1",

@@ -34,6 +34,7 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
             TestThreeActionComboDamageModBuffsRemainingSlots();
             TestActionBonusDurationFollowsComboBonusDurationWhenGroupCountStale();
             TestActionLabForcedGetActionUsesLoaderCadenceDuration();
+            TestWindUpBuffsSlamDamage();
 
             testsRun += _testsRun;
             testsPassed += _testsPassed;
@@ -43,6 +44,78 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
         private static int _testsRun;
         private static int _testsPassed;
         private static int _testsFailed;
+
+        /// <summary>
+        /// Real data: WIND UP (Next action +25% damage) then SLAM. SLAM's combo hit must deal more than an unbuffed SLAM.
+        /// </summary>
+        private static void TestWindUpBuffsSlamDamage()
+        {
+            Console.WriteLine("\n--- WIND UP -> SLAM: +25% damage lands on SLAM ---\n");
+            if (ActionLoader.GetAction("WIND UP") == null || ActionLoader.GetAction("SLAM") == null)
+            {
+                TestBase.AssertTrue(false, "WIND UP and SLAM load", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            const int comboRoll = 19;
+
+            int SlamDamage(bool windUpFirst, out bool pendingBeforeSlam, out double tracedModPercent)
+            {
+                var lastUsed = new Dictionary<Actor, Action>();
+                var lastCritMiss = new Dictionary<Actor, bool>();
+                var hero = new Character("TestHero", 1);
+                var windUp = ActionLoader.GetAction("WIND UP")!;
+                var slam = ActionLoader.GetAction("SLAM")!;
+                windUp.IsComboAction = true;
+                windUp.ComboOrder = 1;
+                slam.ComboOrder = 2;
+                hero.Stats.Strength = 60;
+                slam.IsComboAction = true;
+                hero.AddAction(windUp, 1.0);
+                hero.AddAction(slam, 1.0);
+                hero.Actions.AddToCombo(windUp);
+                hero.Actions.AddToCombo(slam);
+                hero.ComboStep = 0;
+                var enemy = new Enemy("TestEnemy", 1, 5000, 0, 0, 0, 0);
+                try
+                {
+                    if (windUpFirst)
+                    {
+                        Dice.SetTestRoll(comboRoll);
+                        ActionSelector.SetStoredActionRoll(hero, comboRoll);
+                        var r1 = ActionExecutionFlow.Execute(hero, enemy, null, null, windUp, null, lastUsed, lastCritMiss);
+                        Console.WriteLine($"  WIND UP: hit={r1.Hit} combo={r1.IsCombo} dmg={r1.Damage} ComboStep={hero.ComboStep}");
+                    }
+                    else
+                    {
+                        hero.ComboStep = 1;
+                    }
+                    pendingBeforeSlam = hero.Effects.PeekPendingActionBonusesNextHeroRoll().Count > 0
+                        || hero.Effects.GetPendingActionBonusesForSlot(1).Count > 0;
+                    Dice.SetTestRoll(comboRoll);
+                    ActionSelector.SetStoredActionRoll(hero, comboRoll);
+                    var r2 = ActionExecutionFlow.Execute(hero, enemy, null, null, slam, null, lastUsed, lastCritMiss);
+                    tracedModPercent = r2.DamageTrace?.NextActionDamageModPercent ?? 0;
+                    Console.WriteLine($"  SLAM (windUp={windUpFirst}): hit={r2.Hit} combo={r2.IsCombo} dmg={r2.Damage} banked={tracedModPercent}%");
+                    return r2.Damage;
+                }
+                finally
+                {
+                    Dice.ClearTestRoll();
+                    ActionSelector.ClearStoredRolls();
+                }
+            }
+
+            int plain = SlamDamage(false, out _, out _);
+            int buffed = SlamDamage(true, out bool pending, out double tracedMod);
+            TestBase.AssertTrue(pending, "WIND UP leaves a pending bonus for SLAM", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(buffed > plain,
+                $"SLAM after WIND UP deals more damage ({buffed} vs {plain})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(Math.Abs(tracedMod - 25) < 0.001,
+                $"Sequence damage trace shows the banked +25% ({tracedMod})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
 
 
 

@@ -14,13 +14,13 @@ namespace RPGGame.Combat
     {
         private readonly double _poison;
         private readonly int _burn, _acid, _bleed, _stun, _weaken, _slowTurns, _expose, _mark,
-            _confusion, _silence, _statDrain;
+            _confusion, _silence, _statDrain, _brittle, _stagger, _rattle;
         private readonly double _slowMult, _exposeStrip;
 
         public static readonly string[] StatusNames =
         {
             "poison", "burn", "acid", "bleed", "stun", "weaken", "slow", "expose",
-            "mark", "confusion", "silence", "statdrain"
+            "mark", "confusion", "silence", "statdrain", "brittle", "stagger", "rattle"
         };
 
         private StatusApplySnapshot(Actor t)
@@ -40,6 +40,9 @@ namespace RPGGame.Combat
             _confusion = t.IsConfused ? t.ConfusionTurns : 0;
             _silence = t.IsSilenced ? t.SilenceTurns : 0;
             _statDrain = t.StatDrainStacks ?? 0;
+            _brittle = TempoStatuses.Brittle(t);
+            _stagger = TempoStatuses.Stagger(t);
+            _rattle = TempoStatuses.Rattle(t);
         }
 
         public static StatusApplySnapshot Take(Actor target) => new(target);
@@ -61,6 +64,9 @@ namespace RPGGame.Combat
             if (now._confusion > _confusion) gained.Add("confusion");
             if (now._silence > _silence) gained.Add("silence");
             if (now._statDrain > _statDrain) gained.Add("statdrain");
+            if (now._brittle > _brittle) gained.Add("brittle");
+            if (now._stagger > _stagger) gained.Add("stagger");
+            if (now._rattle > _rattle) gained.Add("rattle");
             return gained;
         }
 

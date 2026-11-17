@@ -104,6 +104,9 @@ namespace RPGGame
             if (!IsTierOpen(progression, tree, node))
                 return false;
 
+            if (ExcludedBy(progression, node) != null)
+                return false;
+
             if (UsesExplicitRequires(node))
             {
                 foreach (string reqId in node.Requires ?? (IReadOnlyList<string>)Array.Empty<string>())
@@ -125,6 +128,19 @@ namespace RPGGame
                     : options.Any(o => progression.GetSkillRank(o.Id) >= 1);
             }
 
+            if (UsesBands(tree))
+            {
+                // Class material / Rite branches are tier bands too (2026-11-16): skills sharing a tier are parallel
+                // options, and each needs any one skill from the nearest lower tier of its branch.
+                var band = GetBandPredecessorOptions(tree, node);
+                if (band.Count == 0)
+                {
+                    var tip = GetTrunkTip(tree);
+                    return tip != null && progression.HasLearnedSkill(tip.Id);
+                }
+                return band.Any(o => progression.GetSkillRank(o.Id) >= 1);
+            }
+
             var pred = GetImmediatePredecessor(tree, node);
             if (pred == null)
             {
@@ -138,6 +154,58 @@ namespace RPGGame
 
         private static bool IsCoreBranch(string? branch) =>
             string.Equals(branch, "Core", StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>Class trees use tier bands on every branch; hybrid trees keep their single-file branches.</summary>
+        private static bool UsesBands(SkillTreeDefinition tree) => HybridTrees.ForTree(tree) == null;
+
+        /// <summary>Same-branch skills on the nearest lower tier (any one opens this skill). Empty for the first band.</summary>
+        public static IReadOnlyList<SkillTreeNodeDefinition> GetBandPredecessorOptions(
+            SkillTreeDefinition tree,
+            SkillTreeNodeDefinition node)
+        {
+            if (tree?.Nodes == null || node == null || node.Tier <= 0)
+                return Array.Empty<SkillTreeNodeDefinition>();
+            var below = tree.Nodes
+                .Where(n => string.Equals(n.Branch, node.Branch, StringComparison.OrdinalIgnoreCase) && n.Tier < node.Tier)
+                .ToList();
+            if (below.Count == 0)
+                return Array.Empty<SkillTreeNodeDefinition>();
+            int tier = below.Max(n => n.Tier);
+            return below.Where(n => n.Tier == tier).ToList();
+        }
+
+        /// <summary>The learned skill that shuts <paramref name="node"/> out (either side's <c>excludes</c>), or null.</summary>
+        public static SkillTreeNodeDefinition? ExcludedBy(CharacterProgression progression, SkillTreeNodeDefinition node)
+        {
+            if (progression == null || node == null)
+                return null;
+            var trees = SkillTreeService.Trees;
+            foreach (string id in node.Excludes ?? new List<string>())
+                if (!string.IsNullOrWhiteSpace(id) && progression.HasLearnedSkill(id))
+                    return trees?.GetNode(id);
+            foreach (var kv in progression.LearnedSkillRanks)
+            {
+                if (kv.Value <= 0)
+                    continue;
+                var other = trees?.GetNode(kv.Key);
+                if (other?.Excludes != null && other.Excludes.Any(x => string.Equals(x, node.Id, StringComparison.OrdinalIgnoreCase)))
+                    return other;
+            }
+            return null;
+        }
+
+        /// <summary>Every skill that shuts this one out or that this one shuts out (for card text).</summary>
+        public static IReadOnlyList<SkillTreeNodeDefinition> ExclusionPartners(SkillTreeNodeDefinition node)
+        {
+            var trees = SkillTreeService.Trees;
+            if (node == null || trees?.Trees == null)
+                return Array.Empty<SkillTreeNodeDefinition>();
+            var ids = new HashSet<string>(node.Excludes ?? new List<string>(), StringComparer.OrdinalIgnoreCase);
+            foreach (var other in trees.Trees.SelectMany(t => t.Nodes))
+                if (other.Excludes != null && other.Excludes.Any(x => string.Equals(x, node.Id, StringComparison.OrdinalIgnoreCase)))
+                    ids.Add(other.Id);
+            return ids.Select(id => trees.GetNode(id)).Where(n => n != null).Cast<SkillTreeNodeDefinition>().ToList();
+        }
 
         /// <summary>
         /// The Core trunk is a chain of tier bands: skills sharing a Core tier sit side by side as a choice, and each
@@ -164,6 +232,14 @@ namespace RPGGame
         {
             if (IsCoreBranch(node?.Branch))
                 return GetCorePredecessorOptions(tree, node!);
+            if (UsesBands(tree))
+            {
+                var band = GetBandPredecessorOptions(tree, node!);
+                if (band.Count > 0)
+                    return band;
+                var trunk = GetTrunkTip(tree);
+                return trunk != null && node!.Tier > 0 ? new[] { trunk } : Array.Empty<SkillTreeNodeDefinition>();
+            }
             var pred = GetImmediatePredecessor(tree, node!);
             if (pred != null)
                 return new[] { pred };
@@ -205,17 +281,29 @@ namespace RPGGame
             if (tree == null)
                 return "Requires: earlier skill on this branch";
 
+            string excl = ExclusionPartners(node) is { Count: > 0 } partners
+                ? " · Either-or with " + string.Join(", ", partners.Select(p => p.Name))
+                : "";
+
             if (IsCoreBranch(node.Branch))
             {
                 var options = GetCorePredecessorOptions(tree, node);
-                return options.Count == 0 ? "Requires: path root" : "Requires: " + string.Join(" or ", options.Select(o => o.Name));
+                return (options.Count == 0 ? "Requires: path root" : "Requires: " + string.Join(" or ", options.Select(o => o.Name))) + excl;
+            }
+
+            if (UsesBands(tree))
+            {
+                var band = GetBandPredecessorOptions(tree, node);
+                if (band.Count > 0)
+                    return "Requires: " + string.Join(" or ", band.Select(o => o.Name)) + excl;
+                return (GetTrunkTip(tree) is { Tier: > 0 } trunk ? $"Requires: {trunk.Name}" : "Requires: path root") + excl;
             }
 
             var pred = GetImmediatePredecessor(tree, node);
             if (pred == null)
-                return GetTrunkTip(tree) is { Tier: > 0 } tip ? $"Requires: {tip.Name}" : "Requires: path root";
+                return (GetTrunkTip(tree) is { Tier: > 0 } tip ? $"Requires: {tip.Name}" : "Requires: path root") + excl;
 
-            return $"Requires: {pred.Name}";
+            return $"Requires: {pred.Name}" + excl;
         }
 
         public static IReadOnlyList<string> GetConnectorParentIds(SkillTreeNodeDefinition node)
@@ -234,6 +322,15 @@ namespace RPGGame
 
             if (IsCoreBranch(node.Branch))
                 return GetCorePredecessorOptions(tree, node).Select(o => o.Id).ToList();
+
+            if (UsesBands(tree))
+            {
+                var band = GetBandPredecessorOptions(tree, node);
+                if (band.Count > 0)
+                    return band.Select(o => o.Id).ToList();
+                var trunk = GetTrunkTip(tree);
+                return trunk != null ? new[] { trunk.Id } : Array.Empty<string>();
+            }
 
             var pred = GetImmediatePredecessor(tree, node);
             if (pred != null)

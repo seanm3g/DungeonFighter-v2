@@ -23,6 +23,8 @@ namespace RPGGame.Combat.UI
         {
             if (holds == null)
                 return;
+            if (!CombatUiMuteScope.IsMuted)
+                AttributeDisplayHold.ActivateStaged();
             for (int i = 0; i < holds.Count; i++)
             {
                 var (id, health) = holds[i];
@@ -40,6 +42,7 @@ namespace RPGGame.Combat.UI
         public static void ReleaseAll()
         {
             Held.Clear();
+            AttributeDisplayHold.Release();
         }
 
         public static bool TryGet(string entityId, out int health)
@@ -56,6 +59,10 @@ namespace RPGGame.Combat.UI
         public static int Resolve(string entityId, int actualHealth) =>
             TryGet(entityId, out int held) ? held : actualHealth;
 
-        internal static void ResetForTests() => Held.Clear();
+        internal static void ResetForTests()
+        {
+            Held.Clear();
+            AttributeDisplayHold.ResetForTests();
+        }
     }
 }

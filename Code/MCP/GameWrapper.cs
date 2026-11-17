@@ -16,6 +16,7 @@ namespace RPGGame.MCP
     {
         private GameCoordinator? _game;
         private OutputCapture _outputCapture;
+        private readonly McpCombatLog _combatLog;
         private DungeonRunBaseline? _pendingRunBaseline;
 
         private sealed class DungeonRunBaseline
@@ -30,6 +31,7 @@ namespace RPGGame.MCP
         public GameWrapper()
         {
             _outputCapture = new OutputCapture();
+            _combatLog = new McpCombatLog(_outputCapture, () => _game?.CurrentPlayer);
         }
 
         /// <summary>
@@ -91,11 +93,26 @@ namespace RPGGame.MCP
                 throw new InvalidOperationException("Game is not initialized. Call InitializeGame() first.");
             }
 
+            // Quit on the main menu ends the process, which would kill the MCP server mid-session.
+            if (_game.CurrentState == GameState.MainMenu && IsQuitInput(input))
+            {
+                _outputCapture.WriteSystemLine("Quit is disabled over MCP (it would stop the server). Use reset_game for a fresh start.");
+                return GameStateSerializer.SerializeGameState(_game, _outputCapture, includeRecentOutput: false);
+            }
+
             var inputContext = AgentChoiceBuilder.ResolveInputContext(_game);
             if (IsLikelyDungeonEntry(_game, input, inputContext))
                 _pendingRunBaseline = CaptureRunBaseline(_game, input, inputContext);
 
-            await _game.HandleInput(input);
+            _combatLog.EnsureSubscribed();
+            try
+            {
+                await _game.HandleInput(input);
+            }
+            finally
+            {
+                _combatLog.Flush();
+            }
 
             var snapshot = GameStateSerializer.SerializeGameState(_game, _outputCapture, includeRecentOutput: false);
 
@@ -107,6 +124,37 @@ namespace RPGGame.MCP
             }
 
             return snapshot;
+        }
+
+        /// <summary>Most NewEvents lines returned by one handle_input (a full dungeon run logs far more).</summary>
+        public const int MaxNewEventsPerInput = 150;
+
+        /// <summary>
+        /// Sends input and returns the agent view after it: screen, body, labeled choices, plus the lines this input
+        /// produced (combat log, loot, messages). This is what the handle_input tool returns.
+        /// </summary>
+        public async Task<AgentContextSnapshot> HandleInputForAgent(string input, int recentEventCount = 0)
+        {
+            if (_game == null)
+                throw new InvalidOperationException("Game is not initialized. Call InitializeGame() first.");
+
+            long mark = _outputCapture.TotalMessages;
+            await HandleInput(input);
+            var events = _outputCapture.GetMessagesSince(mark);
+
+            var context = AgentContextBuilder.Build(_game, _outputCapture, Math.Max(0, recentEventCount));
+            if (recentEventCount <= 0)
+                context.RecentEvents = new List<string>();
+            int omitted = Math.Max(0, events.Count - MaxNewEventsPerInput);
+            context.NewEvents = omitted > 0 ? events.GetRange(omitted, MaxNewEventsPerInput) : events;
+            context.NewEventsOmitted = omitted > 0 ? omitted : null;
+            return context;
+        }
+
+        private static bool IsQuitInput(string input)
+        {
+            string t = (input ?? "").Trim();
+            return t == "0" || string.Equals(t, MainMenuHandler.QuitKey, StringComparison.OrdinalIgnoreCase);
         }
 
         private static bool IsLikelyDungeonEntry(GameCoordinator game, string input, McpGameplayInputContext inputContext)

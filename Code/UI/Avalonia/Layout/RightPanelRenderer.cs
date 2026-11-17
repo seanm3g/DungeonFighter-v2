@@ -519,6 +519,9 @@ namespace RPGGame.UI.Avalonia.Layout
             int rpInvPool = RightPanelActionHoverState.HoveredInventoryPoolIndex;
             if (rpPool < 0 && rpInvPool < 0)
                 return;
+            // The Action Sequence editor shows card details in its own fixed panel under the cards.
+            if (rpInvPool < 0 && ActionSequenceEditorLayout.IsOpen)
+                return;
 
             int innerTop = LayoutConstants.CENTER_PANEL_Y + 1;
             int innerLeft = LayoutConstants.CENTER_PANEL_X + 1;
