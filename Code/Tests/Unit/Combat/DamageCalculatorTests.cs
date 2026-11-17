@@ -19,6 +19,8 @@ namespace RPGGame.Tests.Unit.Combat
         /// </summary>
         public static void RunAllTests()
         {
+            // Rules under test use fixed numbers; keep the active balance patch out of them.
+            using var codeDefaults = RPGGame.Tests.TestConfigScope.CodeDefaults();
             Console.WriteLine("=== DamageCalculator Tests ===\n");
             
             _testsRun = 0;

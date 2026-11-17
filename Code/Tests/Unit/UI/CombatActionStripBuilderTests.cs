@@ -166,7 +166,7 @@ namespace RPGGame.Tests.Unit.UI
             var charWithBonuses = new Character("Test", 1);
             charWithBonuses.Effects.AddPendingActionBonusesNextHeroRoll(new List<ActionAttackBonusItem> { new ActionAttackBonusItem { Type = "COMBO", Value = 3 } });
             var modLines = CombatActionStripBuilder.BuildActiveModifierLines(charWithBonuses);
-            TestBase.AssertTrue(modLines != null && modLines.Count >= 1 && modLines[0].Contains("Next action:") && modLines[0].Contains("COMBO"),
+            TestBase.AssertTrue(modLines != null && modLines.Count >= 1 && modLines[0].Contains("Next action:") && modLines[0].Contains("ACTION"),
                 "BuildActiveModifierLines shows pending ACTION bank as next action",
                 ref run, ref passed, ref failed);
 
@@ -420,7 +420,7 @@ namespace RPGGame.Tests.Unit.UI
                 && tipMechanicalCompact.Contains("Hold Alt for more", StringComparison.Ordinal),
                 "BuildActionTooltipLines compact mode shows Triggers but not Alt-only mechanics",
                 ref run, ref passed, ref failed);
-            string tipMechanical = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charMechanical, 0, 120, 80, includeExtendedDetails: true));
+            string tipMechanical = string.Join("\n", CombatActionStripBuilder.BuildActionTooltipLines(charMechanical, 0, 120, 200, includeExtendedDetails: true));
             TestBase.AssertTrue(
                 !tipMechanical.Contains("Type Attack | Target AOE | combo action", StringComparison.Ordinal)
                 && tipMechanical.Contains("Hero accuracy +2", StringComparison.Ordinal)

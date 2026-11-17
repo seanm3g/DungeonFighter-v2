@@ -60,6 +60,13 @@ namespace RPGGame.Tests.Unit
             TestBase.PrintSummary("Character Attributes Tests", _testsRun, _testsPassed, _testsFailed);
         }
 
+        /// <summary>
+        /// Health suffix lines are a percent of max HP when the character is passed in (EquipmentBonusCalculator, since
+        /// 2026-05-07): summed percent, floored, at least +1.
+        /// </summary>
+        private static int WithHealthPercent(int baseMaxHealth, int percent) =>
+            baseMaxHealth + Math.Max(1, (int)Math.Floor(baseMaxHealth * (percent / 100.0) + 1e-9));
+
         private static void TestInitialStats()
         {
             Console.WriteLine("--- Testing Initial Stats ---");
@@ -459,8 +466,8 @@ namespace RPGGame.Tests.Unit
                 $"Effective max health with equipment should be greater than base: {effectiveMaxHealthWithEquipment} > {baseMaxHealth}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            TestBase.AssertEqual(baseMaxHealth + 10, effectiveMaxHealthWithEquipment,
-                $"Effective max health should be base + equipment bonus: {baseMaxHealth + 10} == {effectiveMaxHealthWithEquipment}",
+            TestBase.AssertEqual(WithHealthPercent(baseMaxHealth, 10), effectiveMaxHealthWithEquipment,
+                $"Effective max health should be base + equipment bonus: {WithHealthPercent(baseMaxHealth, 10)} == {effectiveMaxHealthWithEquipment}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -482,8 +489,8 @@ namespace RPGGame.Tests.Unit
             character.EquipItem(headItem, "head");
 
             int effectiveMaxHealth = character.GetEffectiveMaxHealth();
-            TestBase.AssertTrue(effectiveMaxHealth == baseMaxHealth + 20,
-                $"Effective max health should include equipment bonus: {effectiveMaxHealth} == {baseMaxHealth + 20}",
+            TestBase.AssertTrue(effectiveMaxHealth == WithHealthPercent(baseMaxHealth, 20),
+                $"Effective max health should include equipment bonus: {effectiveMaxHealth} == {WithHealthPercent(baseMaxHealth, 20)}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Damage character
@@ -531,7 +538,7 @@ namespace RPGGame.Tests.Unit
             character.EquipItem(feetItem, "feet");
 
             int effectiveMaxHealth = character.GetEffectiveMaxHealth();
-            int expectedEffectiveMax = baseMaxHealth + 10 + 20;
+            int expectedEffectiveMax = WithHealthPercent(baseMaxHealth, 10 + 20);
 
             TestBase.AssertEqual(expectedEffectiveMax, effectiveMaxHealth,
                 $"Effective max health should sum all equipment bonuses: {expectedEffectiveMax} == {effectiveMaxHealth}",
@@ -676,7 +683,7 @@ namespace RPGGame.Tests.Unit
             character.EquipItem(feetItem, "feet");
 
             int totalHealthBonus = 10 + 20 + 15;
-            int expectedEffectiveMax = baseMaxHealth + totalHealthBonus;
+            int expectedEffectiveMax = WithHealthPercent(baseMaxHealth, totalHealthBonus);
             int actualEffectiveMax = character.GetEffectiveMaxHealth();
 
             TestBase.AssertEqual(expectedEffectiveMax, actualEffectiveMax,

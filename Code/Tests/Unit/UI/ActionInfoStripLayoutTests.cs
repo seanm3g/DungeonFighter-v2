@@ -193,12 +193,13 @@ namespace RPGGame.Tests.Unit.UI
         {
             const double charW = 10.0;
             LayoutConstants.UpdateGridDimensions(210, 52);
-            LayoutConstants.UpdateEffectiveVisibleWidth(75 * charW, charW);
+            // Side panels + gaps + a 10-cell center column (computed so panel width changes don't break the setup).
+            LayoutConstants.UpdateEffectiveVisibleWidth((LayoutConstants.LEFT_PANEL_WIDTH + LayoutConstants.RIGHT_PANEL_WIDTH + 3 + 10) * charW, charW);
 
             try
             {
                 TestBase.AssertEqual(10, LayoutConstants.ACTION_INFO_WIDTH,
-                    "Regression setup: effective width 75 yields ACTION_INFO_WIDTH 10",
+                    "Regression setup: side panels + 13 yields ACTION_INFO_WIDTH 10",
                     ref run, ref passed, ref failed);
 
                 const int displayCount = 5;

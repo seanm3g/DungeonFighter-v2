@@ -27,6 +27,8 @@ namespace RPGGame.Tests.Unit.Combat
             double oldPct = combat.MaterialConvertPercentPerUnit;
             int oldFive = combat.MaterialFiveStackMintMultiplier;
             int oldMaxUnits = combat.MaterialConvertMaxUnits;
+            bool oldPaysDamage = combat.MaterialConvertPaysDamage;
+            combat.MaterialConvertPaysDamage = true; // patches since v38c pay class stat instead; these tests cover the damage path
             combat.MaterialConvertPercentPerUnit = 0;
             combat.MaterialFiveStackMintMultiplier = 0;
             combat.MaterialConvertMaxUnits = 0;
@@ -59,6 +61,7 @@ namespace RPGGame.Tests.Unit.Combat
                 combat.MaterialConvertPercentPerUnit = oldPct;
                 combat.MaterialFiveStackMintMultiplier = oldFive;
                 combat.MaterialConvertMaxUnits = oldMaxUnits;
+                combat.MaterialConvertPaysDamage = oldPaysDamage;
             }
 
             TestBase.PrintSummary("Material Set Controller Tests", _run, _passed, _failed);

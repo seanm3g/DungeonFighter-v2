@@ -101,16 +101,19 @@ namespace RPGGame.Tests.Unit.UI
                     ItemTriggerIdentityCatalog.ToBundle(ItemTriggerIdentityCatalog.Get(0))
                 }
             };
-            var trigLines = ItemTooltipFormatter.BuildItemTooltipLines(hero, triggered, "Legs", 30);
+            // Material set details are Alt-only since 11-14; the compact tooltip lists the item's Triggers.
+            var trigLines = ItemTooltipFormatter.BuildItemTooltipLines(hero, triggered, "Legs", 80, includeExtendedDetails: true);
             string trigFlat = string.Join("\n", trigLines.Select(ColoredTextRenderer.RenderAsPlainText));
+            string trigCompact = string.Join("\n", ItemTooltipFormatter.BuildItemTooltipLines(hero, triggered, "Legs", 30)
+                .Select(ColoredTextRenderer.RenderAsPlainText));
             TestBase.AssertTrue(trigFlat.Contains("Material", StringComparison.Ordinal),
                 "tooltip has Material set section",
                 ref run, ref passed, ref failed);
             TestBase.AssertTrue(trigFlat.Contains("Iron", StringComparison.OrdinalIgnoreCase),
                 "tooltip shows Iron set",
                 ref run, ref passed, ref failed);
-            TestBase.AssertTrue(!trigFlat.Contains("Triggers", StringComparison.Ordinal),
-                "tooltip no longer lists item Triggers",
+            TestBase.AssertTrue(trigCompact.Contains("Triggers", StringComparison.Ordinal),
+                "compact tooltip lists item Triggers",
                 ref run, ref passed, ref failed);
             string summary = ItemTriggerBundleDisplay.FormatSummary(triggered.TriggerBundles[0]);
             TestBase.AssertTrue(summary.Contains("Wound Momentum", StringComparison.Ordinal)

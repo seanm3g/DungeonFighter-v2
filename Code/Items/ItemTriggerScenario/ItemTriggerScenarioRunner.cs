@@ -350,6 +350,10 @@ namespace RPGGame.Items.ItemTriggerScenario
                 face = Math.Clamp(face == 20 ? 16 : Math.Max(face, 15), 14, 19);
             if (when is "ONCRITICAL" or "ONCRITICALHIT" or "ONCRIT")
                 face = 20;
+            // Mid-chain (IFSLOT > 1) a roll below the slot's combo threshold misses and the threshold rises per slot, so a
+            // plain connect face must clear the live hit threshold.
+            if (hero.ComboStep > 0 && when is "ONCONNECT" or "ONHIT" or "ONANYHIT" or "ONFIRSTHIT" or "ONFIRSTBLOOD" or "ONAFTERMISS")
+                face = Math.Clamp(Math.Max(face, RollModificationManager.GetThresholdManager().GetHitThreshold(hero) + 1), 2, 19);
             notes.Add($"Forced d20={face}");
 
             var result = ForceExecute(hero, enemy, swing, face);

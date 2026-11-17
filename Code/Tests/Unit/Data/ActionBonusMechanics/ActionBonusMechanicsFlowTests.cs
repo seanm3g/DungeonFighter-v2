@@ -35,6 +35,7 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
             TestActionBonusDurationFollowsComboBonusDurationWhenGroupCountStale();
             TestActionLabForcedGetActionUsesLoaderCadenceDuration();
             TestWindUpBuffsSlamDamage();
+            PrepActionFlowTests.RunAll(ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             testsRun += _testsRun;
             testsPassed += _testsPassed;
@@ -544,12 +545,17 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
 
             var lastUsed = new Dictionary<Actor, Action>();
             var lastCritMiss = new Dictionary<Actor, bool>();
+            // Mid-chain rolls below the combo threshold miss by default (2026-11-03); this test needs the plain hit band.
+            var comboConfig = GameConfiguration.Instance.ComboSystem;
+            bool oldMissBelow = comboConfig.MissBelowComboMidChain;
+            comboConfig.MissBelowComboMidChain = false;
 
             try
             {
                 ActionSelector.ClearStoredRolls();
                 var character = ActionBonusMechanicsTestHelpers.CreateComboWithBuffingAction();
                 character.Intelligence = 0;
+                character.ComboStep = 1; // before reading thresholds: the combo threshold rises per strip slot
                 var tm = RollModificationManager.GetThresholdManager();
                 tm.ResetThresholds(character);
                 TechniqueMilestoneThresholdBonuses.Apply(tm, character);
@@ -561,7 +567,6 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 });
                 var finisher = character.GetComboActions()[1];
                 var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
-                character.ComboStep = 1;
 
                 int targetAttack = Math.Max(hitMin, comboTh - 1);
                 int rollBonus = ActionUtilities.CalculateRollBonus(character, finisher, consumeTempBonus: false);
@@ -581,6 +586,7 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
             }
             finally
             {
+                comboConfig.MissBelowComboMidChain = oldMissBelow;
                 Dice.ClearTestRoll();
                 ActionSelector.ClearStoredRolls();
             }

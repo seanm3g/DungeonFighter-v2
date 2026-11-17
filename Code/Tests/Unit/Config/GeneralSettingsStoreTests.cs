@@ -67,6 +67,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -146,6 +147,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -171,6 +173,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -196,6 +199,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -221,6 +225,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -258,6 +263,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }

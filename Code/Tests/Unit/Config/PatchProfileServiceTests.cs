@@ -48,6 +48,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -79,6 +80,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -104,6 +106,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -135,6 +138,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -161,6 +165,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -190,6 +195,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -219,6 +225,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -248,6 +255,7 @@ namespace RPGGame.Tests.Unit.Config
             }
             finally
             {
+                PatchProfileServiceTestHooks.RestoreGameDataRoot();
                 try { Directory.Delete(root, true); } catch { }
             }
         }
@@ -265,5 +273,18 @@ namespace RPGGame.Tests.Unit.Config
     {
         public static void OverrideGameDataRoot(string root) =>
             PatchProfileService.SetGameDataRootForTests(root);
+
+        /// <summary>
+        /// Undo <see cref="OverrideGameDataRoot"/>: re-resolve the real GameData root and drop every cached patch path, so
+        /// later suites (audio cues, settings) read the real active patches, not the deleted temp root. Call it in every
+        /// finally that overrides the root.
+        /// </summary>
+        public static void RestoreGameDataRoot()
+        {
+            PatchProfileService.SetGameDataRootForTests(null!);
+            GameSettings.InvalidatePatchPathCache();
+            RPGGame.Audio.AudioConfig.InvalidatePatchPathCache();
+            GeneralSettingsStore.InvalidateCache();
+        }
     }
 }

@@ -22,6 +22,8 @@ namespace RPGGame.Tests.Unit.Game
         /// </summary>
         public static void RunAllTests()
         {
+            // Rules under test use fixed numbers; keep the active balance patch out of them.
+            using var codeDefaults = RPGGame.Tests.TestConfigScope.CodeDefaults();
             Console.WriteLine("=== GameInitializer Tests ===\n");
             
             _testsRun = 0;

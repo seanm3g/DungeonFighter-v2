@@ -194,6 +194,8 @@ namespace RPGGame.Tests.Unit
                 Rarity = "Common",
                 Modifications = new List<Modification>
                 {
+                    // A real legacy save carries "Worn" as a quality prefix; the name rebuild strips known prefixes.
+                    new Modification { Name = "Worn", PrefixCategory = "QUALITY", ItemRank = "Common" },
                     new Modification { Name = "IRON", PrefixCategory = "MATERIAL", ItemRank = "Common" }
                 }
             };

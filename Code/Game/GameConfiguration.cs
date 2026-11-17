@@ -210,6 +210,12 @@ namespace RPGGame
                 UIManager.WriteSystemLine("Using default values");
             }
 
+            NormalizeAfterLoad();
+        }
+
+        /// <summary>Fills omitted sections, sanitizes defaults and reloads the data-file sections (class unlocks, skill trees).</summary>
+        private void NormalizeAfterLoad()
+        {
             // JSON may omit nested objects; restore so sanitizer methods never null-ref.
             Character ??= new CharacterConfig();
             CombatBalance ??= new CombatBalanceConfig();
@@ -266,6 +272,30 @@ namespace RPGGame
         public void Reload()
         {
             LoadFromFile();
+        }
+
+        /// <summary>
+        /// Test hook: makes <see cref="Instance"/> a config built from code defaults only (no balance patch), the same state
+        /// a missing patch file loads, and returns the previous instance for <see cref="RestoreInstanceForTests"/>. Tests of
+        /// rules (armor, attribute scale, slot caps, ...) use it so the active patch's tuning does not change their numbers.
+        /// </summary>
+        internal static GameConfiguration? UseCodeDefaultsForTests()
+        {
+            var defaults = new GameConfiguration();
+            defaults.NormalizeAfterLoad();
+            lock (_lock)
+            {
+                var previous = _instance;
+                _instance = defaults;
+                return previous;
+            }
+        }
+
+        /// <summary>Puts back the instance <see cref="UseCodeDefaultsForTests"/> returned (null = load lazily again).</summary>
+        internal static void RestoreInstanceForTests(GameConfiguration? previous)
+        {
+            lock (_lock)
+                _instance = previous;
         }
 
         /// <summary>

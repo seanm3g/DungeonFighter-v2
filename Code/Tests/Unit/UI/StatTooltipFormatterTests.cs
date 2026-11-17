@@ -11,6 +11,8 @@ namespace RPGGame.Tests.Unit.UI
     {
         public static void RunAllTests()
         {
+            // Rules under test use fixed numbers; keep the active balance patch out of them.
+            using var codeDefaults = RPGGame.Tests.TestConfigScope.CodeDefaults();
             Console.WriteLine("=== StatTooltipFormatter Tests ===\n");
             int run = 0, passed = 0, failed = 0;
 

@@ -62,8 +62,8 @@ namespace RPGGame.Tests.Unit.World
             TestBase.AssertTrue(EnemyPrefixLoader.Find("Demonic")?.BossOnly == true, "Demon is boss-only", ref _run, ref _passed, ref _failed);
             foreach (var name in new[] { "Undead", "Skeleton", "Ghost", "Giant", "Tiny" })
                 TestBase.AssertNotNull(EnemyPrefixLoader.Find(name), $"{name} prefix exists", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(file.Prefixes.All(p => p.Tags.Count > 0 && !string.IsNullOrWhiteSpace(p.Idea)),
-                "every prefix has tags and an idea", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(file.Prefixes.All(p => p.Tags.Count > 0 && !string.IsNullOrWhiteSpace(p.Description)),
+                "every prefix has tags and a description", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestEligibilityRules()

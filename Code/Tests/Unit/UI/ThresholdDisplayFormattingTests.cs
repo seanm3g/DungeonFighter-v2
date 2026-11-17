@@ -205,7 +205,7 @@ namespace RPGGame.Tests.Unit.UI
 
             TestBase.AssertEqual("Crit", rows[0].Label, "chance row 1 label", ref run, ref passed, ref failed);
             TestBase.AssertEqual(5, rows[0].Percent, "chance row 1 percent", ref run, ref passed, ref failed);
-            TestBase.AssertEqual("Combo", rows[1].Label, "chance row 2 label", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Action", rows[1].Label, "chance row 2 label", ref run, ref passed, ref failed);
             TestBase.AssertEqual(35, rows[1].Percent, "chance row 2 percent includes crit (crit always combos)", ref run, ref passed, ref failed);
             TestBase.AssertEqual("Hit", rows[2].Label, "chance row 3 label", ref run, ref passed, ref failed);
             TestBase.AssertEqual(40, rows[2].Percent, "chance row 3 percent", ref run, ref passed, ref failed);
@@ -287,7 +287,7 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual(4, segments[1].FaceCount, "segment 2 faces", ref run, ref passed, ref failed);
             TestBase.AssertEqual("Hit", segments[2].Label, "segment 3 label", ref run, ref passed, ref failed);
             TestBase.AssertEqual(8, segments[2].FaceCount, "segment 3 faces", ref run, ref passed, ref failed);
-            TestBase.AssertEqual("Combo", segments[3].Label, "segment 4 label", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("Action", segments[3].Label, "segment 4 label", ref run, ref passed, ref failed);
             TestBase.AssertEqual(6, segments[3].FaceCount, "segment 4 faces", ref run, ref passed, ref failed);
             TestBase.AssertEqual("Crit", segments[4].Label, "segment 5 label", ref run, ref passed, ref failed);
             TestBase.AssertEqual(1, segments[4].FaceCount, "segment 5 faces", ref run, ref passed, ref failed);
@@ -321,9 +321,9 @@ namespace RPGGame.Tests.Unit.UI
                 "Hit uses #5B8DB8", ref run, ref passed, ref failed);
             TestBase.AssertTrue(
                 ColorValidator.AreColorsEqual(
-                    ThresholdDisplayFormatting.GetD20OutcomeColor("Combo"),
+                    ThresholdDisplayFormatting.GetD20OutcomeColor("Action"),
                     ThresholdDisplayFormatting.D20ThresholdBarColors.Combo),
-                "Combo uses #9B59B6", ref run, ref passed, ref failed);
+                "Action uses #9B59B6", ref run, ref passed, ref failed);
             TestBase.AssertTrue(
                 ColorValidator.AreColorsEqual(
                     ThresholdDisplayFormatting.GetD20OutcomeColor("Crit"),
@@ -337,7 +337,7 @@ namespace RPGGame.Tests.Unit.UI
             int comboFaces = 0;
             for (int i = 0; i < segments.Length; i++)
             {
-                if (segments[i].Label == "Combo")
+                if (segments[i].Label == "Action")
                     comboFaces = segments[i].FaceCount;
             }
             TestBase.AssertEqual(10, comboFaces, "lower combo threshold widens combo band to 10 faces", ref run, ref passed, ref failed);

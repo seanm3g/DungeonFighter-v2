@@ -224,6 +224,7 @@ namespace RPGGame.Tests.Unit.Combat
                 combat.MaterialConvertPrimaryStatMaxPerFight = 0;
                 combat.MaterialConvertPercentPerUnit = 1;
                 combat.MaterialConvertPercentByKeyword = new(StringComparer.OrdinalIgnoreCase) { ["RAGE"] = 5 };
+                combat.MaterialConvertPaysDamage = true;
                 TestBase.AssertEqual("STR", MaterialSetController.GetConvertStatCode(null, "RAGE"), "RAGE (Bone, Barbarian) pays STR", ref _run, ref _passed, ref _failed);
                 TestBase.AssertEqual("TEC", MaterialSetController.GetConvertStatCode(null, "GRAZE"), "GRAZE (Glass, Rogue) pays TEC", ref _run, ref _passed, ref _failed);
 

@@ -80,8 +80,8 @@ namespace RPGGame.Tests.Unit.Combat
                 hero.TryEquipItem(item, slot, out _, out _);
             }
 
-            TestBase.AssertEqual(3, LeatherSetBonus.CountEquipped(hero),
-                "starter kit equips 3 leather pieces", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(4, LeatherSetBonus.CountEquipped(hero),
+                "starter kit equips 4 leather pieces (head, chest, legs, feet)", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(LeatherSetBonus.HasLuckyStatus(hero),
                 "starter leather kit grants Lucky status", ref _run, ref _passed, ref _failed);
         }
