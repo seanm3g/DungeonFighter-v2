@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using RPGGame;
 using RPGGame.Actions;
@@ -22,6 +22,7 @@ namespace RPGGame.Tests.Unit.Combat
             TestUnequipLosesAdvantage();
             TestStarterCatalogUnlocksLuck();
             TestLuckyAppearsAsStatusEffect();
+            TestLuckyRollsRunOutPerFight();
 
             TestBase.PrintSummary("Leather Set Bonus Tests", _run, _passed, _failed);
         }
@@ -47,6 +48,36 @@ namespace RPGGame.Tests.Unit.Combat
             ActionSelector.PeekPendingMultiDiceFlags(hero, out bool peekAdv, out bool peekDis, null);
             TestBase.AssertTrue(peekAdv, "PeekPendingMultiDiceFlags includes leather Lucky", ref _run, ref _passed, ref _failed);
             TestBase.AssertFalse(peekDis, "Peek does not invent disadvantage", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestLuckyRollsRunOutPerFight()
+        {
+            TestBase.SetCurrentTestName(nameof(TestLuckyRollsRunOutPerFight));
+            var hero = new Character("LuckyBudget", 1);
+            hero.Equipment.Head = new HeadItem("Helmet", 1, 1) { Material = "Leather" };
+            hero.Equipment.Body = new ChestItem("Armor", 1, 1) { Material = "Leather" };
+            hero.Equipment.Feet = new FeetItem("Boots", 1, 1) { Material = "Leather" };
+            LeatherSetBonus.ResetFight(hero);
+            TestBase.AssertEqual(3, LeatherSetBonus.RollsPerFight(hero), "3 Leather pieces: 3 Lucky rolls a fight", ref _run, ref _passed, ref _failed);
+
+            bool adv = false, dis = false;
+            LeatherSetBonus.CollectAdvantageFlags(hero, ref adv, ref dis);
+            TestBase.AssertEqual(3, LeatherSetBonus.RollsLeft(hero), "a preview spends nothing", ref _run, ref _passed, ref _failed);
+            for (int i = 0; i < 3; i++)
+            {
+                adv = false;
+                LeatherSetBonus.CollectAdvantageFlags(hero, ref adv, ref dis, consume: true);
+                TestBase.AssertTrue(adv, $"roll {i + 1} is Lucky", ref _run, ref _passed, ref _failed);
+            }
+            adv = false;
+            LeatherSetBonus.CollectAdvantageFlags(hero, ref adv, ref dis, consume: true);
+            TestBase.AssertFalse(adv, "the fourth roll has no Lucky die", ref _run, ref _passed, ref _failed);
+            TestBase.AssertFalse(LeatherSetBonus.HasLuckAdvantage(hero), "Lucky is spent for the fight", ref _run, ref _passed, ref _failed);
+
+            LeatherSetBonus.ResetFight(hero);
+            TestBase.AssertTrue(LeatherSetBonus.HasLuckAdvantage(hero), "a new fight brings Lucky back", ref _run, ref _passed, ref _failed);
+            hero.Equipment.Legs = new LegsItem("Pants", 1, 1) { Material = "Leather" };
+            TestBase.AssertEqual(4, LeatherSetBonus.RollsPerFight(hero), "a fourth piece adds a roll", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestUnequipLosesAdvantage()
@@ -98,8 +129,8 @@ namespace RPGGame.Tests.Unit.Combat
             string expected = LeatherSetBonus.FormatLuckyStatusLine(hero);
             TestBase.AssertTrue(lines.Contains(expected),
                 "Lucky appears in STATUS EFFECTS when leather set is active", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(LeatherSetBonus.LuckyStatusName, expected,
-                "Lucky status is plain Lucky (no charge count)", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual($"{LeatherSetBonus.LuckyStatusName} 3/3", expected,
+                "Lucky status shows the rolls left this fight", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(LeatherSetBonus.IsLuckyStatusLine(expected),
                 "FormatLuckyStatusLine is recognized as Lucky", ref _run, ref _passed, ref _failed);
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RPGGame.Combat.Calculators;
 using RPGGame.Combat.Narrative;
@@ -154,6 +154,7 @@ namespace RPGGame
             StandingBlock.Reset(enemy);
             // Keyword currency is dungeon-run scoped; only consecutive-connect tracking resets per fight.
             MaterialSetController.ResetFightConnects(player);
+            LeatherSetBonus.ResetFight(player);
             Persistence.OnFightStart(player, enemy);
             MaterialSetController.SyncConvertActionsToPool(player);
             AnimalSetController.SyncAnimalActionsToPool(player);

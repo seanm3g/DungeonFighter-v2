@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using RPGGame.Combat.Sequence;
 
@@ -166,8 +166,9 @@ namespace RPGGame
                             + "That second chance is what the Leather set buys you.",
                             TutorialCoachFocus.Die, Roll, lucky: true),
                         Note("LUCKY",
-                            "Check STATUS EFFECTS: you are Lucky. Wearing 3 or more Leather pieces grants it: every attack rolls two d20 "
-                            + "and keeps the higher. Take a Leather piece off and Lucky goes away.",
+                            "Check STATUS EFFECTS: you are Lucky. Wearing 3 or more Leather pieces grants it: your first rolls each fight "
+                            + "roll two d20 and keep the higher, one roll per Leather piece. The count beside Lucky shows what's left. "
+                            + "Below 3 Leather pieces Lucky goes away.",
                             TutorialCoachFocus.StatusEffects, Roll, lucky: true),
                         Note("COMBO",
                             "{kept} reaches the combo band ({combo}+). Instead of a plain strike, the lit card on your strip fires.",

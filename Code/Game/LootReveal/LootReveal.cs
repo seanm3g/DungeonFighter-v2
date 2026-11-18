@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Entity.Services;
@@ -123,6 +123,13 @@ namespace RPGGame.LootReveal
                 verdict = LootVerdict.NewSlot;
                 why = "Upgrade: fills an empty slot.";
             }
+            else if (brokenBonus != null && gain > 0 && rank > RarityRank(current.Rarity) && gain >= loss)
+            {
+                // A higher-rarity piece outgrows a set step it breaks (Lucky is a per-fight crutch, not a reason to
+                // keep starter gear): call it an upgrade and say what it costs.
+                verdict = LootVerdict.Upgrade;
+                why = $"Upgrade, but you lose {brokenBonus}.";
+            }
             else if (brokenBonus != null && gain > 0)
             {
                 // Mock 3: breaking a set step outweighs the stat gain; keep what you wear for now.
@@ -234,12 +241,18 @@ namespace RPGGame.LootReveal
             if (lost.Length > 0 && !string.Equals(lost, mat, StringComparison.OrdinalIgnoreCase))
             {
                 int now = Count(lost);
-                if (now >= 2)
+                bool leather = string.Equals(lost, LeatherSetBonus.MaterialName, StringComparison.OrdinalIgnoreCase);
+                if (leather && now > LeatherSetBonus.LuckUnlockCount)
+                {
+                    // Lucky is one roll per Leather piece each fight: a fourth or fifth piece costs a roll, not the set.
+                    lines.Add($"Lucky: {LeatherSetBonus.RollsPerFight(now)} → {LeatherSetBonus.RollsPerFight(now - 1)} rolls each fight");
+                }
+                else if (now >= 2)
                 {
                     bool crossesStep = SetSteps.Contains(now);
                     if (crossesStep)
                         brokenBonus = string.Equals(lost, "Leather", StringComparison.OrdinalIgnoreCase) && now == 3
-                            ? "Lucky (2d20, keep the higher)"
+                            ? LeatherSetBonus.Describe(now)
                             : $"your {lost} {now}-piece bonus";
                     lines.Add(crossesStep ? $"breaks your {lost} set ({now} → {now - 1}): you lose {brokenBonus}" : $"breaks your {lost} set ({now} → {now - 1})");
                 }
