@@ -59,6 +59,19 @@ namespace RPGGame.Tests.Unit.Rebuild
                 var entry = LootRevealBuilder.Build(three, boots);
                 TestBase.AssertTrue(entry.Verdict == LootVerdict.Sidegrade && entry.Suggested == LootChoice.Keep && entry.VerdictLine.Contains("Lucky"),
                     $"Breaking the Leather set's Lucky is a sidegrade: {entry.VerdictLine}", ref _run, ref _passed, ref _failed);
+
+                // A worse-stat Uncommon that brings an action for an empty strip slot is a sidegrade, not "worse".
+                var two = new Character("Two Slots", 3);
+                new GameInitializer().InitializeNewGame(two, new System.Collections.Generic.List<Dungeon>(), 1);
+                two.ActionLabActionSlotBonus = 1;
+                var action = ActionLoader.GetAllActions().FirstOrDefault(a => a.IsComboAction && !two.GetComboActions().Any(c => c.Name == a.Name) && GearActionNames.Resolve(new HeadItem("x") { GearAction = a.Name }).Contains(a.Name));
+                if (action != null && ComboSequenceMaxHelper.GetEffectiveMax(two) > two.GetComboActions().Count)
+                {
+                    var weakHelm = new HeadItem("Thin Hood", tier: 1, armor: 0) { Rarity = "Uncommon", GearAction = action.Name };
+                    var e2 = LootRevealBuilder.Build(two, weakHelm);
+                    TestBase.AssertTrue(e2.Verdict != LootVerdict.Worse && e2.VerdictLine.Contains("empty strip slot"),
+                        $"An action for an empty slot counts: {e2.VerdictLine}", ref _run, ref _passed, ref _failed);
+                }
             }
             finally
             {

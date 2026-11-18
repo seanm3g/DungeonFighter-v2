@@ -13,11 +13,18 @@ tests filed under `EnemyLevelCaption_ShowsHeroDelta`: "Mid with +25% deals more 
 193-HP level 1 enemies. Your main checkout runs `night-v47-6b`, which is gitignored too. I copied `night-v47-6b` and
 its base chain (`night-v47-1..5`, `lowhp10-l11soft`, `lowhp10`, `slotrise-v46*`) from the main checkout into this
 worktree's ignored `GameData/Patches/Balance/`, unchanged, and pointed this worktree's `PatchProfile.json` at it. No
-patch file is edited or committed. \*With `night-v47-6b` active, the 2 baseline failures pass, so from 1.3 on the
+patch file is edited or committed. *With `night-v47-6b` active, the 2 baseline failures pass, so from 1.3 on the
 comparison point is 0 failures.
 
 **Test-run side effect (pre-existing):** a full `--run-tests` rewrites `GameData/Patches/Balance/7-30-26.json`.
 I restore it with `git checkout` after every run; it never goes into a commit. Worth a fix later.
+
+## Morning summary
+**Steps 0, 1 and 2 are done**: 17 sub-steps (0.2–0.4, 1.1–1.9, 2.1–2.5), one commit each plus this wrap-up, and
+an MCP walk after each step on this worktree's own build. Last full run: **15305 passed, 0 failed**. Nothing is
+pushed. **7 questions** for you at the bottom. Two things I could not check by eye (no screen access overnight):
+the board (1.1) and the canvas side of the reveal and item card (2.2, 2.4). Please look at one fight and one dungeon
+end first. Every cut system sits behind a switch (listed per sub-step); nothing old was deleted (step 12).
 
 ## Summary
 
@@ -41,7 +48,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | 2.5 Charms off | done | `16aebda5` | 15273 passed / 0 failed |
 | 2.3 No gear changes mid-dungeon | done | `5a18d94a` | 15277 passed / 0 failed |
 | 2.4 Dungeon end: staged loot reveal | done, 2 questions | `76f45d1a` | 15293 passed / 0 failed |
-| 2.2 Item card reading order | done | (this commit) | 15304 passed / 0 failed |
+| 2.2 Item card reading order | done | `a41b6987` | 15304 passed / 0 failed |
+| Step 2 MCP walk + reveal verdict fix | done | (this commit) | 15305 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -296,7 +304,50 @@ approval), so the visual result is unverified. Please look at one fight first th
   `ItemRollerTests.TestCombatImplicitShowsInTooltip` check the pre-2.2 layout and now run with the card off.
 - **Not checked by eye** on the canvas (tooltip width, wrapping).
 
+### Step 2 walk (MCP, this worktree's build) — done
+- A Warrior and a Wizard, about 10 dungeons. Every dungeon end showed the summary, then "LOOT 1 of 1" with the
+  comparison and verdict, then E / K / S. Examples: "vs Bronze Branch: +10 Damage −2 AGI +4 INT → Sidegrade" (kept),
+  "vs Leather Helmet: +2 Defense +6 AGI +2 TEC +3 INT → Upgrade" (equipped). An Uncommon staged its beats over 6
+  Continues (drop → name → comparison → set step → ▸ action → ◆ modifier → verdict).
+- Fixed after the walk: an Uncommon weapon whose only cost was −5 AGI but which brought the hero's **first action for
+  the empty second slot** (RELAY STRIKE) was called "Worse". A new action for an empty strip slot now makes it a
+  sidegrade ("brings RELAY STRIKE for your empty strip slot, but −5 AGI"). Test added.
+- `get_item_details` shows the new card: "Leather Armor · Common body · Leather · T1 · Gives: +8 Defense · Leather
+  4/5 — wear 5 for the full set", then Details. **REVIEW:** Leather's own ladder is 3 pieces for Lucky; the card uses
+  the generic 2 / 3 / 5 steps for every material.
+- Seen but out of scope: Uncommon modifiers still name actions you don't have ("On connect (every 2) with BARRIER");
+  self-contained modifiers are step 6. Heroes still die around level 3–4 in the walks (balance comes later).
+
 ## Questions for the user
-- **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the
-  chain as D2.1 says? If yes, the fix is one line in the next patch (`"resetChainOnNormalHit": true`) or I can make
-  the rule code-only and ignore the patch value. Which do you want?
+- **Q1 (chain reset, D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off (from
+  `slotrise-v46a`). Should a plain HIT reset the chain as D2.1 says? If yes, the fix is one line in the next patch
+  (`"resetChainOnNormalHit": true`), or I can make the rule code-only and ignore the patch value. Which do you want?
+- **Q2 (first 60 seconds):** the flow names a "name rolled (reroll allowed)" step. Names are rolled today but there
+  is no reroll. Do you want a reroll on the class-card screen (one key, one line), or is the auto-rolled name enough?
+- **Q3 (the second slot):** with actions starting at Uncommon (D5.6), slot 2 (open from level 2) stays empty until an
+  Uncommon drops; every walk showed "1/2 slots" for several dungeons. The ladder has the strip lighting up across two
+  cards around level 2–3. Should something guarantee a second action by then (an early Uncommon, a class action at
+  level 2, the Training Ground's reward), or is waiting for the first Uncommon the intended pace? (The reveal now
+  calls out "brings X for your empty strip slot".)
+- **Q4 (salvage):** what does Salvage give? Tonight it discards the item. Phase 4 says "trade-up (5 → 1) stays as the
+  salvage sink": should salvaged items feed trade-up instead of vanishing?
+- **Q5 (reveal pacing):** beats advance on Continue. Do you want them on a timer (higher rarities slower), with
+  Continue as skip? That needs the per-rarity glow and sound you described; I left both for a review pass.
+- **Q6 (sets and the starter kit):** the starter Leather kit is already a 4-piece set, so "two pieces of one
+  material" fired the MaterialSets rung on every new hero. I made starter pieces not count toward that first event
+  (2.2), so the set line waits for found gear. Is that the intent?
+- **Q7 (crit amplifies "other effects", D2.5):** I did damage and the action's own statuses (1.5). Should heals,
+  cadence grants and trigger effects double on a crit too? The cleanest place is the merged rule engine in step 6.
+
+## REVIEW items (placeholders to look at)
+- Class card lines (1.8): strip style and signature status per class, from the design doc's examples.
+- Enemy chain thuds (1.2): three synthesized `enemy_thud1..3.wav` placeholders.
+- Crit scope (1.5, Q7) and the board's "bigger" cards (1.1: thickness and color, not size).
+- The item card's set step uses the generic 2 / 3 / 5 ladder, also for Leather (whose Lucky is at 3).
+
+## Follow-ups noticed (not in scope tonight)
+- A full `--run-tests` rewrites `GameData/Patches/Balance/7-30-26.json` (and the active patch file); tests should
+  not write patch files.
+- `StableManagerTests`' play-by-play check is flaky (depends on a room having a fight).
+- The inventory slot filter still cycles through "charm" while charms are off (harmless; step 12).
+- Uncommon modifiers still name actions the hero doesn't have (step 6, self-contained modifiers).

@@ -139,6 +139,12 @@ namespace RPGGame.LootReveal
                 verdict = LootVerdict.Sidegrade;
                 why = $"Sidegrade: {compare.FirstOrDefault(c => c.StartsWith('+')) ?? "gains"}, but {compare.FirstOrDefault(c => c.StartsWith('−')) ?? "losses"}.";
             }
+            else if (NewActionForEmptySlot(hero, item) is { } fresh)
+            {
+                // An action for an empty strip slot is the item's point at this rung (the second slot, D5.6).
+                verdict = LootVerdict.Sidegrade;
+                why = $"Sidegrade: brings {fresh} for your empty strip slot{(compare.FirstOrDefault(c => c.StartsWith('−')) is { } cost ? $", but {cost}" : "")}.";
+            }
             else
             {
                 verdict = LootVerdict.Worse;
@@ -239,6 +245,24 @@ namespace RPGGame.LootReveal
                 }
             }
             return lines;
+        }
+
+        /// <summary>The first action <paramref name="item"/> brings that the hero lacks, when their strip has a free slot; else null.</summary>
+        public static string? NewActionForEmptySlot(Character hero, Item item)
+        {
+            if (hero == null)
+                return null;
+            int max = 0;
+            try { max = ComboSequenceMaxHelper.GetEffectiveMax(hero); } catch { return null; }
+            if (hero.GetComboActions().Count >= max)
+                return null;
+            var have = new HashSet<string>(hero.GetComboActions().Select(a => a.Name), StringComparer.OrdinalIgnoreCase);
+            foreach (var name in GearActionNames.Resolve(hero.Equipment.GetSlotItem("weapon")))
+                have.Add(name);
+            return GearActionNames.Resolve(item)
+                .Where(a => !IsRequiredBasic(item, a) && !have.Contains(a))
+                .Select(a => a.ToUpperInvariant())
+                .FirstOrDefault();
         }
 
         private static bool IsRequiredBasic(Item item, string action) =>
