@@ -658,6 +658,10 @@ namespace RPGGame
             if (perFactor <= 0)
                 return;
             double amount = rule.Amount * perFactor;
+            // Q7 (D2.5): inside the hero's crit, rule amounts are amplified, except those already read off the crit's
+            // damage (HEAL n% of the hit, REFLECT).
+            if (!(rule.Verb == "REFLECT" || (rule.Verb == "HEAL" && rule.Percent)))
+                amount *= CritAmplifier.For(hero);
 
             switch (rule.Verb)
             {

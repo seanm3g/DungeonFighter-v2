@@ -397,7 +397,16 @@ namespace RPGGame.Actions.Conditional
 
                 if (InstantStatusIds.Contains(id))
                 {
-                    any |= ApplyStatus(id, action, source, target, messages, mag);
+                    bool landed = ApplyStatus(id, action, source, target, messages, mag);
+                    any |= landed;
+                    // Q7: a crit amplifies trigger statuses too (extra applications, one folded log line).
+                    int critApps = landed ? CritAmplifier.For(source) : 1;
+                    int extra = 0;
+                    for (int i = 1; i < critApps; i++)
+                        if (ApplyStatus(id, action, source, target, new List<string>(), mag))
+                            extra++;
+                    if (extra > 0)
+                        messages.Add($"    Critical: {id} lands {extra + 1} times");
                     continue;
                 }
 
@@ -408,6 +417,12 @@ namespace RPGGame.Actions.Conditional
             }
 
             int stacks = lasting ? ParsePositiveCount(bundle.Count, 1) : 1;
+            // Q7: a crit amplifies the bundle's grants (bonus values; durations stay).
+            if (CritAmplifier.For(source) is > 1 and int critMult)
+            {
+                heroBonuses = CadenceTiming.Scale(heroBonuses, critMult);
+                enemyBonuses = CadenceTiming.Scale(enemyBonuses, critMult);
+            }
             if (heroBonuses.Count > 0 && source is Character hero && hero is not Enemy)
             {
                 DepositBonuses(hero, action, heroBonuses, lasting ? scope : "", lasting ? stacks : 1, lasting);
@@ -521,6 +536,7 @@ namespace RPGGame.Actions.Conditional
                     amount = Math.Max(1, (int)Math.Round(bundleValue.Value));
                 if (amount <= 0)
                     return false;
+                amount *= CritAmplifier.For(source); // Q7: a crit amplifies heals
                 ActionUtilities.ApplyHealing(source, amount);
                 messages.Add($"{source.Name} heals {amount}.");
                 return true;

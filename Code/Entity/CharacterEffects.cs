@@ -173,9 +173,14 @@ namespace RPGGame
         internal static ActionAttackBonusGroup? ApplySourceSlotTiming(ActionAttackBonusGroup? group, Action? sourceAction, Character? owner)
         {
             var timing = group?.Timing;
-            if (group == null || timing == null
+            if (group == null)
+                return null;
+            // Q7: the action's own grants are amplified on a crit (bundle-built groups are scaled where they're built).
+            double crit = owner != null && sourceAction?.ActionAttackBonuses?.BonusGroups is { } own && own.Contains(group)
+                ? CritAmplifier.For(owner) : 1;
+            if (timing == null
                 || (string.IsNullOrWhiteSpace(timing.SlotIf) && !timing.PerSlot && string.IsNullOrWhiteSpace(timing.PerTag)))
-                return group;
+                return crit == 1 ? group : Scaled(group, crit);
             var (slot0, count) = SourceSlot(sourceAction, owner);
             if (!timing.SlotIfHolds(slot0, count))
                 return null;
@@ -184,18 +189,20 @@ namespace RPGGame
             if (tagFactor <= 0)
                 return null;
             double slotFactor = timing.PerSlot && slot0 >= 0 ? slot0 + 1 : 1;
-            if (slotFactor * tagFactor == 1)
+            if (slotFactor * tagFactor * crit == 1)
                 return group;
-            return new ActionAttackBonusGroup
-            {
-                Keyword = group.Keyword,
-                CadenceType = group.CadenceType,
-                Count = group.Count,
-                DurationType = group.DurationType,
-                Timing = group.Timing,
-                Bonuses = CadenceTiming.Scale(group.Bonuses, slotFactor * tagFactor)
-            };
+            return Scaled(group, slotFactor * tagFactor * crit);
         }
+
+        private static ActionAttackBonusGroup Scaled(ActionAttackBonusGroup group, double factor) => new()
+        {
+            Keyword = group.Keyword,
+            CadenceType = group.CadenceType,
+            Count = group.Count,
+            DurationType = group.DurationType,
+            Timing = group.Timing,
+            Bonuses = CadenceTiming.Scale(group.Bonuses, factor)
+        };
 
         /// <summary>0-based strip slot of <paramref name="sourceAction"/> on <paramref name="owner"/>'s combo strip, and the strip length.</summary>
         internal static (int Slot0, int Count) SourceSlot(Action? sourceAction, Character? owner)

@@ -59,6 +59,9 @@ namespace RPGGame.Actions.Execution
                     target,
                     result.StatusEffectMessages);
             }
+            // Rebuild Q7 (D2.5): from here on a crit amplifies heals, cadence grants, trigger bundles and rule amounts
+            // too (same-swing mods above are already in; damage-read effects scale through the crit damage).
+            using var critScope = CritAmplifier.Begin(source, result.IsCritical);
             long pfHit = RPGGame.Diagnostics.ToolProfiler.Start();
             var hitEvent = ActionEventPublisher.PublishActionHit(
                 source, target, selected, result.AttackRoll, result.IsCombo, result.IsCritical, result.NaturalRollValue);
@@ -171,7 +174,7 @@ namespace RPGGame.Actions.Execution
             else if (selected.Type == ActionType.Heal)
             {
                 Actor healRecipient = ActionEffectTargetResolver.ResolvePrimaryRecipient(selected, source, target);
-                result.HealAmount = ActionUtilities.CalculateHealAmount(source, selected);
+                result.HealAmount = ActionUtilities.CalculateHealAmount(source, selected) * CritAmplifier.For(source);
                 ActionUtilities.ApplyHealing(healRecipient, result.HealAmount);
                 if (healRecipient is Character healCharacter)
                 {
@@ -250,7 +253,7 @@ namespace RPGGame.Actions.Execution
                 if (selected.Advanced.RollBonus != 0 && accTurns > 0
                     && !Actions.Conditional.ActionTriggerBundleApplicator.IsMechanicOwned(selected, "hero_accuracy"))
                 {
-                    int scaledRollBonus = selected.Advanced.RollBonus * hitLayers;
+                    int scaledRollBonus = selected.Advanced.RollBonus * hitLayers * CritAmplifier.For(source);
                     if (source is Character heroAcc && !(heroAcc is Enemy))
                     {
                         if (CadenceKeywords.IsFight(selected.Cadence) || CadenceKeywords.IsDungeon(selected.Cadence))
@@ -347,7 +350,7 @@ namespace RPGGame.Actions.Execution
                             if (entry.Value == 0 && string.IsNullOrEmpty(entry.Type)) continue;
                             string statType = (entry.Type ?? "").ToUpper();
                             if (string.IsNullOrEmpty(statType)) continue;
-                            items.Add(new ActionAttackBonusItem { Type = statType, Value = entry.Value });
+                            items.Add(new ActionAttackBonusItem { Type = statType, Value = entry.Value * CritAmplifier.For(statBonusCharacter) });
                         }
                         if (items.Count > 0)
                             CadenceScopedBuffApplicator.DepositToScope(statBonusCharacter, CadenceKeywords.Normalize(selected.Cadence), items, stackTimes);
@@ -366,7 +369,7 @@ namespace RPGGame.Actions.Execution
                                 && concrete != DynamicAttributeCategoryResolver.CodeTechnique && concrete != DynamicAttributeCategoryResolver.CodeIntelligence)
                                 continue;
                             int currentBonus = ReadTempStatBonusForResolvedCode(statBonusCharacter, concrete);
-                            statBonusCharacter.ApplyStatBonus(currentBonus + entry.Value, statType, duration);
+                            statBonusCharacter.ApplyStatBonus(currentBonus + entry.Value * CritAmplifier.For(statBonusCharacter), statType, duration);
                         }
                     }
                 }
@@ -549,7 +552,8 @@ namespace RPGGame.Actions.Execution
             int sourceSlot = ActionUtilities.GetComboSlotForPendingBonuses(hero, selected, comboActions);
             if (timing != null && !timing.SlotIfHolds(sourceSlot, n))
                 return;
-            double perSlot = (timing?.PerSlot == true ? sourceSlot + 1 : 1) * (timing?.PerTagFactor(comboActions, hero) ?? 1);
+            double perSlot = (timing?.PerSlot == true ? sourceSlot + 1 : 1) * (timing?.PerTagFactor(comboActions, hero) ?? 1)
+                * CritAmplifier.For(hero); // Q7: a crit's ACTION grants are amplified
             if (perSlot <= 0)
                 return;
 

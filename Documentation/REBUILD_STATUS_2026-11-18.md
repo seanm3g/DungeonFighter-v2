@@ -136,7 +136,7 @@ end first. Every cut system sits behind a switch (listed per sub-step); nothing 
   not change the patch (out of scope). In practice a turn's chain already resets on a failed bonus roll and at the
   strip end, so this only matters when a rule keeps the chain alive across turns (EXEMPT COMBO). See Q1.
 
-### 1.5 Crit amplifies effects — done
+### 1.5 Crit amplifies effects — done (Q7: widened to heals, cadence grants, triggers and rules)
 - New switch `combat.critAmplifiesEffects` (default **true**). On a critical hit, each status the action itself
   applies lands `CritEffectApplications` times: the crit multiplier rounded (×2 today → twice), capped at 4. Stacking
   statuses get twice the stacks; refresh-only ones (Stun, Silence) just refresh. The extra applications' log lines
@@ -342,13 +342,21 @@ approval), so the visual result is unverified. Please look at one fight first th
 - **Q6 (sets and the starter kit):** the starter Leather kit is already a 4-piece set, so "two pieces of one
   material" fired the MaterialSets rung on every new hero. I made starter pieces not count toward that first event
   (2.2), so the set line waits for found gear. Is that the intent?
-- **Q7 (crit amplifies "other effects", D2.5):** I did damage and the action's own statuses (1.5). Should heals,
-  cadence grants and trigger effects double on a crit too? The cleanest place is the merged rule engine in step 6.
+- **Q7 (crit amplifies "other effects", D2.5) — answered "yes". Done:** new `CritAmplifier` (`Code/Combat/CritAmplifier.cs`)
+  opens a scope for the critting actor while its hit resolves (after the same-swing mods); inside it the actor's
+  effects scale by the crit's applications (x2 today). Amplified: heal actions and heal bundles; the action's own
+  cadence grants (TURN / FIGHT / DUNGEON groups, ACTION grants, sheet modifiers, roll bonus, stat bonuses); trigger
+  bundle bonuses and statuses (item and action triggers; statuses land twice, one folded log line); rule amounts
+  (MINT, ADD, APPLY, BUFF, NEXT, flat HEAL). Not amplified again: what already reads the crit's damage (lifesteal,
+  HEAL n% of the hit, REFLECT). A defender's own rules aren't amplified by the attacker's crit. Switch
+  `CritAmplifier.AmplifiesOtherEffects` (default true; false = damage and the action's statuses only, as in 1.5).
+  `CritAmplifiesEffectsTests` covers the scope and a TURN grant (+2 → +4). **REVIEW:** this raises crit value for
+  heal and grant builds; balance comes later.
 
 ## REVIEW items (placeholders to look at)
 - Class card lines (1.8): strip style and signature status per class, from the design doc's examples.
 - Enemy chain thuds (1.2): three synthesized `enemy_thud1..3.wav` placeholders.
-- Crit scope (1.5, Q7) and the board's "bigger" cards (1.1: thickness and color, not size).
+- Crit scope (1.5, Q7: now everything but damage-read effects) and the board's "bigger" cards (1.1: thickness and color, not size).
 - The item card's set step uses the generic 2 / 3 / 5 ladder, also for Leather (whose Lucky is at 3).
 
 ## Follow-ups noticed (not in scope tonight)

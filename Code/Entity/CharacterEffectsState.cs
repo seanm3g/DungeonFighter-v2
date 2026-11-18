@@ -360,6 +360,9 @@ namespace RPGGame
                     bonuses = bonuses.Where(b => !covered.Contains((b.Type ?? "").Trim())).ToList();
             }
             if (bonuses.Count == 0) return;
+            // Q7: a crit amplifies the action's sheet modifiers (owner is the hero resolving the swing).
+            if (CritAmplifier.For(owner) is > 1 and int critMult)
+                bonuses = CadenceTiming.Scale(bonuses, critMult);
 
             if (nextComboSlot.HasValue)
             {
