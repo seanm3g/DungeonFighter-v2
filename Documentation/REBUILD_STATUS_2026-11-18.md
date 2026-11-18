@@ -354,6 +354,10 @@ approval), so the visual result is unverified. Please look at one fight first th
   `CritAmplifiesEffectsTests` covers the scope and a TURN grant (+2 → +4). **REVIEW:** this raises crit value for
   heal and grant builds; balance comes later.
 
+- **Walk after the answers (MCP, this worktree's build, 2026-11-18):** 260 recommended steps, 10+ dungeon ends; every
+  reveal offered only `[E] Equip   [K] Keep`, with Equip suggested for upgrades and Keep otherwise. Over MCP the beats
+  land at once (no typing headless), as intended.
+
 ## REVIEW items (placeholders to look at)
 - Class card lines (1.8): strip style and signature status per class, from the design doc's examples.
 - Enemy chain thuds (1.2): three synthesized `enemy_thud1..3.wav` placeholders.
