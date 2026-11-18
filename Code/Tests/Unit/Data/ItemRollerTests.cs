@@ -128,14 +128,16 @@ namespace RPGGame.Tests.Unit.Data
                     int lines = spec.Lines.Count;
                     int cap = Math.Max(rarity.MaxLines, rarity.MinLines) + Math.Max(0, item.MinGeneratedActionBonuses);
                     bool hasAction = spec.Lines.Any(l => l.Pool == ModPools.Action);
-                    if (lines < rarity.MinLines || lines > cap || !hasAction)
+                    // Rebuild 2.1 (D5.6): actions start at Uncommon; a Common has none.
+                    bool common = string.Equals(rarity.Name, "Common", StringComparison.OrdinalIgnoreCase);
+                    if (lines < rarity.MinLines || lines > cap || hasAction == common)
                     {
                         ok = false;
                         detail = $"{item.Name}: {lines} lines, min {rarity.MinLines}, cap {cap}, action {hasAction}";
                         break;
                     }
                 }
-                TestBase.AssertTrue(ok, $"{rarity.Name}: min ≤ lines ≤ max, always an action {detail}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(ok, $"{rarity.Name}: min ≤ lines ≤ max, an action from Uncommon up (none on a Common) {detail}", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
         }
 
@@ -338,21 +340,23 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(items.All(i => (i.TriggerBundles?.Count ?? 0) == 0 && string.IsNullOrWhiteSpace(i.Implicit)),
                 "rolled items carry no base or material triggers", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Every item carries its base's modifier (user 2026-11-15): the catalog rule with only the values rolled.
+            // Every Uncommon+ item carries its base's modifier: the catalog rule with only the values rolled.
+            // Rebuild 2.1 (D0.7): a Common carries none (this replaced the 2026-11-15 "Commons included" rule).
             bool all = true, fixedToBase = true;
             string detail = "";
             foreach (var item in items)
             {
+                bool common = CommonItemRules.IsCommon(item);
                 var template = BaseModifierRoller.CatalogModifierFor(item.BaseName);
-                if (string.IsNullOrWhiteSpace(item.ImplicitRule))
+                if (string.IsNullOrWhiteSpace(item.ImplicitRule) != common)
                 {
                     all = false;
                     detail = $"{item.Name} ({item.Rarity})";
                 }
-                if (Shape(item.ImplicitRule) != Shape(template))
+                if (!common && Shape(item.ImplicitRule) != Shape(template))
                     fixedToBase = false;
             }
-            TestBase.AssertTrue(all, $"every item, Commons included, carries its base's named modifier {detail}", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(all, $"every Uncommon+ item carries its base's modifier and no Common does {detail}", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(fixedToBase, "the modifier's rule is the base's catalog rule (only values roll)", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // A save from before: its implicit trigger becomes a modifier on load.
@@ -664,15 +668,16 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(cfg.PoeticSuffixChance > 0 ? share > 0 && share < 3 * cfg.PoeticSuffixChance + 0.01 : share == 0,
                 $"commons get a poetic phrase only at the configured chance ({share:P1}, chance {cfg.PoeticSuffixChance:P0})", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // A Common item is its action plus at most one descriptor suffix (beyond any action minimum its base sets).
+            // Rebuild 2.1 (D0.7, D5.6): a Common is stats and a material only: no action, no modifier, no mechanic lines.
             bool plain = Roll(new ItemRollRequest { ItemLevel = 60, Rarity = "Common", AllowRollUps = false }, 400).All(x =>
             {
                 var mods = x.Item.Modifications.Where(m => m.ModLine != null).Select(m => m.ModLine!)
                     .Concat(x.Item.StatBonuses.Where(s => s.ModLine != null).Select(s => s.ModLine!)).ToList();
-                return mods.Count <= 1 && mods.All(m => m.SuffixKind == SuffixKinds.Common)
-                    && x.Item.ActionBonuses.Count == Math.Max(1, x.Item.MinGeneratedActionBonuses);
+                return mods.All(m => m.Pool != ModPools.Mechanic && m.Pool != ModPools.Action)
+                    && x.Item.ActionBonuses.Count == 0 && string.IsNullOrEmpty(x.Item.GearAction)
+                    && string.IsNullOrWhiteSpace(x.Item.ImplicitRule);
             });
-            TestBase.AssertTrue(plain, "a Common item is its action plus at most one descriptor suffix", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(plain, "a Common item is stats and a material only (no action, modifier or mechanic line)", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var named = new HeadItem("Cap", 1, 5) { BaseName = "Cap", Material = "Iron" };
             named.Modifications.Add(new Modification { Name = "Bathed in Blood", ModLine = new ItemModLineInfo { Pool = "mechanic", Affix = "suffix", Tier = 1, Keyword = "Bathed in Blood", Family = "Vampiric", SuffixKind = "rare" } });

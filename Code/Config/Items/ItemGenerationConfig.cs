@@ -62,6 +62,12 @@ namespace RPGGame
         /// </summary>
         public Dictionary<string, double> PoolWeights { get; set; } = DefaultPoolWeights();
 
+        /// <summary>
+        /// Rebuild 2.1 (D0.7, D5.6): Commons are stats and a material only: no base modifier, no action, no mechanic
+        /// lines. Starter gear keeps its action. False restores the old Commons.
+        /// </summary>
+        public bool CommonsArePlain { get; set; } = true;
+
         /// <summary>Action lines every item gets before the weighted lines (they count toward the rarity's line count).</summary>
         public int GuaranteedActionLines { get; set; } = 1;
 

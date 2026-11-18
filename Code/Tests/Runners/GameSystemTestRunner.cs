@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Runners
             ("FirstFights", () => FirstFightsTests.RunAllTests()),
             ("AudioSplit", () => AudioSplitTests.RunAllTests()),
             ("ComboBoardModel", () => ComboBoardModelTests.RunAllTests()),
+            ("CommonItemRules", () => CommonItemRulesTests.RunAllTests()),
             ("GameInitializer", () => GameInitializerTests.RunAllTests()),
             ("GameInitializationManager", () => GameInitializationManagerTests.RunAllTests()),
             ("GameLoader", () => GameLoaderTests.RunAllTests()),

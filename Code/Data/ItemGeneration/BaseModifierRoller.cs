@@ -95,8 +95,8 @@ namespace RPGGame.Data.ItemGeneration
         /// <summary>Sets <paramref name="item"/>'s modifier from a catalog row (starter gear, lab items); no-op without one.</summary>
         public static void ApplyCatalogModifier(Item item, string? template, Random rng)
         {
-            if (item == null || FromCatalog(template, rng) is not { } rolled)
-                return;
+            if (item == null || CommonItemRules.MustBePlain(item) || FromCatalog(template, rng) is not { } rolled)
+                return; // Rebuild 2.1 (D0.7): Commons, starters included, carry no modifier.
             item.ImplicitRule = rolled.Rule;
         }
 

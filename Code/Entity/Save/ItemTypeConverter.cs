@@ -39,6 +39,8 @@ namespace RPGGame
 
             // Remap Damascus→Iron; do not re-roll item trigger identities.
             MaterialTriggerMerge.RepairMissingMaterialTrigger(result);
+            // Rebuild 2.1 save migration: a Common keeps its stats; its modifier and rolled actions drop (starters keep their action).
+            CommonItemRules.MakePlain(result);
             return result;
         }
 

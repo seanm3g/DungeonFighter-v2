@@ -155,6 +155,7 @@ namespace RPGGame.Data.ItemGeneration
                 AnimalTagHelper.SyncSuffixTags(_item);
                 _item.RecomputeAttributeRequirementsIncludingModifications();
                 _item.RollUps = _spec.RollUps.Count > 0 ? new List<string>(_spec.RollUps) : null;
+                CommonItemRules.MakePlain(_item); // a forced affix or tool path never sneaks a mechanic onto a Common
                 _item.Name = ItemGenerator.GenerateItemNameWithBonuses(_item);
                 return _item;
             }
@@ -440,6 +441,8 @@ namespace RPGGame.Data.ItemGeneration
             private void ApplyImplicit()
             {
                 _item.Implicit = "";
+                if (CommonItemRules.MustBePlain(_item))
+                    return; // Rebuild 2.1: a Common has no base modifier.
                 var rolled = BaseModifierRoller.FromCatalog(_modifierTemplate, For("implicit"));
                 if (rolled is not { } r)
                     return;
@@ -517,7 +520,9 @@ namespace RPGGame.Data.ItemGeneration
             /// </summary>
             private void RollLines(int lineCount, RarityData rarity)
             {
-                int actions = Math.Min(lineCount, Cfg.GuaranteedActionLines);
+                // Rebuild 2.1: a Common rolls stat and material lines only (actions start at Uncommon, D5.6).
+                bool plain = CommonItemRules.MustBePlain(_item);
+                int actions = plain ? 0 : Math.Min(lineCount, Cfg.GuaranteedActionLines);
                 var lineRng = For("lines");
                 // Suffixes take lines out of the rarity's count, never on top of it (a 1-line Common is just its action).
                 int suffixes = RollSuffixes(rarity, For("suffixes"), lineRng, lineCount - actions);
@@ -534,6 +539,7 @@ namespace RPGGame.Data.ItemGeneration
                     {
                         var open = ModPools.All
                             .Where(p => !Dead(p) && Cfg.PoolWeights.GetValueOrDefault(p) > 0
+                                && !(plain && (p == ModPools.Action || p == ModPools.Mechanic))
                                 && (p == ModPools.Action || EligibleFamilies(p).Count > 0))
                             .ToList();
                         if (open.Count == 0)
@@ -555,7 +561,8 @@ namespace RPGGame.Data.ItemGeneration
                     }
                 }
 
-                actions = Math.Max(actions, _item.MinGeneratedActionBonuses);
+                if (!plain)
+                    actions = Math.Max(actions, _item.MinGeneratedActionBonuses);
                 for (int i = 0; i < actions; i++)
                     if (!RollAction(lineRng, ModPools.Action))
                         break;

@@ -35,7 +35,9 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | 1.8 First 60 seconds | done | `cf810c72` | 15220 passed / 0 failed |
 | 1.9 Level 1 fights ~2 swings | done | `0b27b695` | 15220 passed / 0 failed |
 | 1.2 Audio split | done | `28dc087f` | 15235 passed / 0 failed |
-| 1.1 The board | done, not seen on screen | (this commit) | 15253 passed / 0 failed |
+| 1.1 The board | done, not seen on screen | `df423b8a` | 15253 passed / 0 failed |
+| Step 1 MCP walk | done | — | see "Step 1 walk" |
+| 2.1 Commons are plain | done, 1 question | (this commit) | 15269 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -207,6 +209,28 @@ approval), so the visual result is unverified. Please look at one fight first th
   the power multiplier per card (×1.0, ×1.3…) isn't a separate line (the swing line already includes slot AMP).
   **REVIEW** whether that reads as "bigger" enough.
 - Tests: new `ComboBoardModelTests` (odds, +1 per link, escalation, ruler bands, mid-chain ruler).
+
+### Step 1 walk (MCP, this worktree's build) — done
+- A fresh Rogue, 30 steps: New → offer → skip → class cards (with strip style and signature) → the first dungeon ran
+  inside the weapon choice → 8 dungeons to level 5, no death. Level 1 fights took 1–4 hero swings (mostly 2); level 5
+  fights 5–9. The completion screen and loot are unchanged until step 2.
+- Seen: the strip shows **1/2 slots from level 2 with only the starter action**. Nothing fills slot 2 until gear
+  brings an action, and with Commons now actionless (2.1) that means the first Uncommon. See Q3.
+
+## Step 2 — Items, the second slot, the dungeon's end
+
+### 2.1 Commons are stats and a material only — done
+- New `CommonItemRules` (`Code/Items/CommonItemRules.cs`), switch `lootSystem.itemGeneration.commonsArePlain`
+  (default **true**). A rolled Common gets no base modifier, no action lines and no mechanic lines (stat and material
+  pools only). Uncommon and up are unchanged.
+- **Starters:** keep their action (D5.6) but lose their modifier (D0.7 says the rule change covers "every base,
+  starters included"), so the first item card is plain. Every weapon still grants its type's required basic (STAB,
+  SLAM…), so a Common weapon never empties the strip.
+- **Save migration** (Phase 10 table): every loaded item passes `CommonItemRules.MakePlain` in `ItemTypeConverter`, so
+  an old Common keeps its stats and material and loses its modifier and rolled actions; starters keep their action.
+- Tests: new `CommonItemRulesTests` (migration, starters, a new hero's kit). `ItemRollerTests` updated where the
+  decision changed them: Commons no longer "always an action" or "carry the base modifier", and the "Common = its
+  action + one suffix" check is now "stats and a material only".
 
 ## Questions for the user
 - **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the
