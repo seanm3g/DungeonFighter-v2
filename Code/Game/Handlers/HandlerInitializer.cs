@@ -52,6 +52,9 @@ namespace RPGGame.Handlers
             var dungeonRunnerManager = new DungeonRunnerManager(stateManager, narrativeManager, combatManager, uiManager);
             var trainingGroundOfferHandler = new TrainingGroundOfferHandler(stateManager, uiManager, dungeonRunnerManager);
             var preWeaponPathIntroHandler = new PreWeaponPathIntroHandler(stateManager, weaponSelectionHandler);
+            trainingGroundOfferHandler.ShowPathIntroRequested = preWeaponPathIntroHandler.ShowPathIntro;
+            var dungeonSelectionHandler = new DungeonSelectionHandler(stateManager, dungeonManager, uiManager);
+            weaponSelectionHandler.StartFirstDungeon = dungeonSelectionHandler.StartFirstDungeonAsync;
 
             return new HandlerInitializationResult
             {
@@ -63,7 +66,7 @@ namespace RPGGame.Handlers
                 WeaponSelectionHandler = weaponSelectionHandler,
                 CharacterCreationHandler = new CharacterCreationHandler(stateManager, uiManager),
                 GameLoopInputHandler = new GameLoopInputHandler(stateManager),
-                DungeonSelectionHandler = new DungeonSelectionHandler(stateManager, dungeonManager, uiManager),
+                DungeonSelectionHandler = dungeonSelectionHandler,
                 DungeonRunnerManager = dungeonRunnerManager,
                 DungeonCompletionHandler = new DungeonCompletionHandler(stateManager),
                 DeathScreenHandler = new DeathScreenHandler(stateManager),

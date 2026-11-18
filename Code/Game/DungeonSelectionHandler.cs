@@ -71,6 +71,31 @@ namespace RPGGame
         }
 
         /// <summary>
+        /// Rebuild 1.8: starts the lowest-level dungeon on offer without showing the selection screen (the first fight
+        /// comes before any menu). Falls back to the selection screen when nothing can start.
+        /// </summary>
+        public async Task StartFirstDungeonAsync()
+        {
+            if (stateManager.CurrentPlayer == null || dungeonManager == null) return;
+            dungeonManager.RegenerateDungeons(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
+            int index = -1;
+            for (int i = 0; i < stateManager.AvailableDungeons.Count; i++)
+            {
+                var d = stateManager.AvailableDungeons[i];
+                if (d.Name == GameConstants.DungeonCustomLevelMenuName || d.Name == GameConstants.DungeonResetDifficultyMenuName)
+                    continue;
+                if (index < 0 || d.MinLevel < stateManager.AvailableDungeons[index].MinLevel)
+                    index = i;
+            }
+            if (index < 0)
+            {
+                await ShowDungeonSelection();
+                return;
+            }
+            await SelectDungeon(index);
+        }
+
+        /// <summary>
         /// When the player opened the custom-level prompt, Escape cancels it and keeps them on dungeon selection.
         /// </summary>
         /// <returns>True if a pending custom-level prompt was cleared (caller should not also leave the screen).</returns>

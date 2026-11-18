@@ -31,7 +31,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | 1.4 INT 10 routing gate removed | done | `f3fe9d30` | 15196 passed / 0 failed |
 | 1.6 Chain rules confirmed | done, 1 question | `05f94848` | ChainRulesConfig 10/10 |
 | 1.5 Crit amplifies effects | done | `5d8bd70a` | 15213 passed / 0 failed |
-| 1.7 Simple / detailed log | done | (this commit) | 15217 passed / 0 failed |
+| 1.7 Simple / detailed log | done | `1f99d974` | 15217 passed / 0 failed |
+| 1.8 First 60 seconds | done | (this commit) | 15220 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -139,6 +140,25 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
   total bonus; the per-source breakdown arrives with the roll ruler (board, 1.1) and statuses (step 5).
 - Tests: new `CombatLogLevelTests`; `CombatResultsColoredTextTests`, `CombatResultsTests` and
   `DefenseBlockCalculatorTests` now run with the detailed log on (they check the detailed footer).
+
+### 1.8 The first 60 seconds — done
+- New switches in `FirstSixtySeconds` (`Code/Config/FirstSixtySeconds.cs`): `ShowPathIntro` (off), `RandomStartingArmor`
+  (off), `StraightIntoFirstDungeon` (on). The old screens stay behind them until step 12.
+- Flow now: New → **Training Ground offer (kept, D1.1)** → weapon choice → the **first dungeon starts at once**
+  (the lowest-level dungeon on offer; `DungeonSelectionHandler.StartFirstDungeonAsync`). No path intro, no inventory
+  screen, no random extra armor. Skipping the offer and finishing the Training Ground both go through the same skip.
+  `WeaponSelectionHandler.HandleMenuInput` is now async so MCP's `handle_input` runs the whole first dungeon.
+- Weapon choice was already 4 class cards on the canvas (art, class name, weapon stats, starting actions). Each card
+  now adds how the class plays its strip and its signature status (also in the MCP weapon labels). **REVIEW:**
+  the wording is the design doc's example text (`ClassPresentationConfig.*StripStyle` / `*SignatureStatus`):
+  Barbarian "Short and heavy: big hits that build Stagger" / Stagger, Warrior "Steady: Guard setups that turn into
+  tempo" / Guard, Rogue "Many quick hits that stack Bleed" / Bleed, Wizard "Composition: cards that change the cards
+  after them" / Burn. Guard and Stagger only become real statuses in step 5. No Fernis line (step 3).
+- Not done: "name rolled (reroll allowed)". Names are already rolled automatically; there is no reroll button yet.
+  See Q2.
+- Tests: `GameInitializerTests` now expects an empty starting bag (its expectation changed with the decision).
+- MCP walk: New → offer → skip → weapon 1 → the first dungeon ran inside the same `handle_input`, then the
+  completion screen. Confirmed three times.
 
 ## Questions for the user
 - **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the

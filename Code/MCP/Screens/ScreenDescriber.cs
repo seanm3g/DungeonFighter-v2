@@ -73,6 +73,14 @@ namespace RPGGame.MCP.Screens
                 string cls = Enum.TryParse(type, ignoreCase: true, out WeaponType wt) ? ClassForWeapon(wt) : "";
                 string kind = type.Length == 0 ? "" : $" ({type}{(cls.Length > 0 ? $", {cls} path" : "")})";
                 string line = $"{w.name}{kind}: damage {w.damage:0.#}, swing {w.attackSpeed:0.##}s";
+                if (Enum.TryParse(type, ignoreCase: true, out WeaponType styleType))
+                {
+                    var presentation = GameConfiguration.Instance.ClassPresentation;
+                    string style = presentation.GetStripStyle(styleType);
+                    string signature = presentation.GetSignatureStatus(styleType);
+                    if (style.Length > 0) line += $". {style}";
+                    if (signature.Length > 0) line += $". Signature: {signature}";
+                }
                 view.Body.Add($"[{i + 1}] {line}");
                 view.Choices.Add(new AgentChoice { Input = (i + 1).ToString(), Label = line, Recommended = i == 0 });
             }

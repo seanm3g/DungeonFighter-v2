@@ -31,6 +31,9 @@ namespace RPGGame
 
         public event OnShowMessage? ShowMessageEvent;
 
+        /// <summary>Set by the handler wiring: shows the path intro, or weapon choice when the intro is off.</summary>
+        public System.Action? ShowPathIntroRequested { get; set; }
+
         /// <summary>
         /// Renders the offer screen and sets <see cref="GameState.TrainingGroundOffer"/>.
         /// </summary>
@@ -60,6 +63,12 @@ namespace RPGGame
             if (player == null)
                 return;
             player.PendingPreWeaponTrainingGround = false;
+            if (ShowPathIntroRequested != null)
+            {
+                // Goes through PreWeaponPathIntroHandler, which skips the intro when it is switched off (Rebuild 1.8).
+                ShowPathIntroRequested.Invoke();
+                return;
+            }
             var screenCoordinator = new GameScreenCoordinator(stateManager);
             screenCoordinator.ShowPreWeaponPathIntro(player);
         }

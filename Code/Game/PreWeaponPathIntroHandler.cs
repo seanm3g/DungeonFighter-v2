@@ -29,6 +29,13 @@ namespace RPGGame
                 return;
             }
 
+            if (!FirstSixtySeconds.ShowPathIntro)
+            {
+                stateManager.TransitionToState(GameState.WeaponSelection);
+                weaponSelectionHandler.ShowWeaponSelection();
+                return;
+            }
+
             var screenCoordinator = new GameScreenCoordinator(stateManager);
             screenCoordinator.ShowPreWeaponPathIntro(stateManager.CurrentPlayer);
         }

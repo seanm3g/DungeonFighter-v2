@@ -128,6 +128,16 @@ namespace RPGGame.UI.Avalonia.Renderers.Menu
             Centered(cx, cw, row++, StatLine(preview), AsciiArtAssets.Colors.Silver);
             row++;
 
+            // Rebuild 1.8: how the class plays its strip, and its signature status.
+            var presentation = GameConfiguration.Instance.ClassPresentation;
+            string style = presentation.GetStripStyle(preview.WeaponType);
+            if (style.Length > 0 && row <= bottom - 3)
+                Centered(cx, cw, row++, style, white);
+            string signature = presentation.GetSignatureStatus(preview.WeaponType);
+            if (signature.Length > 0 && row <= bottom - 3)
+                Centered(cx, cw, row++, $"Signature: {signature}", accent);
+            row++;
+
             // Default actions the weapon brings.
             var actions = StartingActions(preview.WeaponType);
             if (row <= bottom - 1 && actions.Count > 0)

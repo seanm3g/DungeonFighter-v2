@@ -82,6 +82,37 @@ namespace RPGGame
             _ => "Unknown"
         };
 
+        // Rebuild 1.8: the class card's two lines (Phase 1 row 4, D5 class table, D3 class statuses).
+        // REVIEW: placeholder wording from the design doc's examples. Guard and Stagger arrive as statuses in step 5.
+        public string MaceStripStyle { get; set; } = "Short and heavy: big hits that build Stagger";
+        public string SwordStripStyle { get; set; } = "Steady: Guard setups that turn into tempo";
+        public string DaggerStripStyle { get; set; } = "Many quick hits that stack Bleed";
+        public string WandStripStyle { get; set; } = "Composition: cards that change the cards after them";
+        public string MaceSignatureStatus { get; set; } = "Stagger";
+        public string SwordSignatureStatus { get; set; } = "Guard";
+        public string DaggerSignatureStatus { get; set; } = "Bleed";
+        public string WandSignatureStatus { get; set; } = "Burn";
+
+        /// <summary>How the class plays its strip, one line for the class card.</summary>
+        public string GetStripStyle(WeaponType weaponType) => (weaponType switch
+        {
+            WeaponType.Mace => MaceStripStyle,
+            WeaponType.Sword => SwordStripStyle,
+            WeaponType.Dagger => DaggerStripStyle,
+            WeaponType.Wand => WandStripStyle,
+            _ => ""
+        } ?? "").Trim();
+
+        /// <summary>The class's signature status, for the class card.</summary>
+        public string GetSignatureStatus(WeaponType weaponType) => (weaponType switch
+        {
+            WeaponType.Mace => MaceSignatureStatus,
+            WeaponType.Sword => SwordSignatureStatus,
+            WeaponType.Dagger => DaggerSignatureStatus,
+            WeaponType.Wand => WandSignatureStatus,
+            _ => ""
+        } ?? "").Trim();
+
         public int GetClassPoints(WeaponType weaponType, int barbarianPoints, int warriorPoints, int roguePoints, int wizardPoints) =>
             weaponType switch
             {

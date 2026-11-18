@@ -155,13 +155,14 @@ namespace RPGGame.Tests.Unit.Game
             TestBase.AssertTrue(LeatherSetBonus.HasLuckAdvantage(player),
                 "New game leather starter kit should unlock luck set bonus",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(player.Inventory.Count >= 1,
-                "New game should add one random armor piece to inventory with the starting weapon",
+            // Rebuild 1.8 (first 60 seconds): no random extra armor; items arrive on the first drop.
+            TestBase.AssertTrue(!FirstSixtySeconds.RandomStartingArmor && player.Inventory.Count == 0,
+                "New game starts with an empty bag (no random armor piece)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            var bonus = player.Inventory[0];
-            TestBase.AssertTrue(bonus is not WeaponItem,
-                "New game bonus inventory item must not be a weapon",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            if (player.Inventory.Count > 0)
+                TestBase.AssertTrue(player.Inventory[0] is not WeaponItem,
+                    "New game bonus inventory item must not be a weapon",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestInitializeNewGame_EquipsStarterWeaponDespiteCatalogAttributeGates()

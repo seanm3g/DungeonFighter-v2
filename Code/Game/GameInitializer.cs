@@ -208,9 +208,13 @@ namespace RPGGame
 
             EarlyGameBalanceHelper.ApplyStartingClassPointsBonus(player, weaponType);
 
-            var bonusLoot = LootGenerator.GenerateNewGameBonusLoot(player);
-            if (bonusLoot != null)
-                player.AddToInventory(bonusLoot);
+            // Rebuild 1.8: items arrive on the first drop (G1.5), so no random extra armor by default.
+            if (FirstSixtySeconds.RandomStartingArmor)
+            {
+                var bonusLoot = LootGenerator.GenerateNewGameBonusLoot(player);
+                if (bonusLoot != null)
+                    player.AddToInventory(bonusLoot);
+            }
             
             // Add default actions (actions marked with IsDefaultAction = true)
             player.Actions.AddDefaultActions(player);

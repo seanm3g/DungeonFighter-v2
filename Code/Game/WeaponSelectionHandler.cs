@@ -3,6 +3,7 @@ namespace RPGGame
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Threading.Tasks;
     using RPGGame.UI.Avalonia;
 
     /// <summary>
@@ -93,7 +94,10 @@ namespace RPGGame
         /// <summary>
         /// Handle weapon selection input (1-4 for weapons)
         /// </summary>
-        public void HandleMenuInput(string input)
+        /// <summary>Set by the handler wiring: starts the first dungeon (Rebuild 1.8, straight in after weapon choice).</summary>
+        public Func<Task>? StartFirstDungeon { get; set; }
+
+        public async Task HandleMenuInput(string input)
         {
             if (stateManager.CurrentPlayer == null)
             {
@@ -138,7 +142,16 @@ namespace RPGGame
                     canvasUI.SetCharacter(player);
                 }
 
-                ShowMessageEvent?.Invoke($"You selected {player.Weapon.Name}. A random armor piece was added to your inventory.");
+                if (FirstSixtySeconds.StraightIntoFirstDungeon && StartFirstDungeon != null)
+                {
+                    // Rebuild 1.8: no menus before the first fight. Weapon choice → the first room of the first dungeon.
+                    await StartFirstDungeon();
+                    return;
+                }
+
+                ShowMessageEvent?.Invoke(FirstSixtySeconds.RandomStartingArmor
+                    ? $"You selected {player.Weapon.Name}. A random armor piece was added to your inventory."
+                    : $"You selected {player.Weapon.Name}.");
 
                 // Go straight to the inventory so the new hero can equip the starter armor; leaving it lands on the game loop.
                 var screenCoordinator = new GameScreenCoordinator(stateManager);

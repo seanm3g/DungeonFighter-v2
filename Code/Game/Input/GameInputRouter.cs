@@ -160,7 +160,8 @@ namespace RPGGame.GameCore.Input
                     handlers.SkillTreeMenuHandler?.HandleMenuInput(input);
                     break;
                 case GameState.WeaponSelection:
-                    handlers.WeaponSelectionHandler?.HandleMenuInput(input);
+                    if (handlers.WeaponSelectionHandler != null)
+                        await handlers.WeaponSelectionHandler.HandleMenuInput(input);
                     break;
                 case GameState.TrainingGroundOffer:
                     if (handlers.TrainingGroundOfferHandler != null)
