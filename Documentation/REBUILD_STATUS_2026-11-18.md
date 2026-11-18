@@ -38,7 +38,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | 1.1 The board | done, not seen on screen | `df423b8a` | 15253 passed / 0 failed |
 | Step 1 MCP walk | done | — | see "Step 1 walk" |
 | 2.1 Commons are plain | done, 1 question | `ed0a8603` | 15269 passed / 0 failed |
-| 2.5 Charms off | done | (this commit) | 15273 passed / 0 failed |
+| 2.5 Charms off | done | `16aebda5` | 15273 passed / 0 failed |
+| 2.3 No gear changes mid-dungeon | done | (this commit) | 15277 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -244,6 +245,15 @@ approval), so the visual result is unverified. Please look at one fight first th
   (`CharmAndAnimalLadderTests`, `LeftPanelTooltipBuilderTests`) now run with charms switched on.
 - A `StableManagerTests` play-by-play check failed once in this run's first pass and passed 3/3 on rerun: flaky
   (it depends on a room having a fight), not caused by this change.
+
+### 2.3 No gear changes mid-dungeon; the strip locks — done
+- The strip was already locked for the whole run: `ComboInputHandler`, `InventoryComboManager` and the mouse reorder
+  all refuse while `GameStateManager.HasCurrentDungeon`. Confirmed, unchanged.
+- New: gear locks the same way. `InventoryItemActionHandler` refuses equip (picker, compare, drag), unequip and
+  auto-equip inside a run with one line: "Your gear is locked inside a dungeon. Change it after you leave." The dungeon
+  is cleared before the completion screen, so the end-of-dungeon Equip / Keep / Salvage still works.
+- Loot already arrives only at the end (dungeon rewards are awarded on completion; room searches give consumables).
+- Tests: new `DungeonGearLockTests`.
 
 ## Questions for the user
 - **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the

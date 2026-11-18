@@ -45,8 +45,24 @@ namespace RPGGame.Handlers.Inventory
         /// <summary>
         /// Prompt user to equip an item
         /// </summary>
+        /// <summary>Rebuild 2.3 (D5.8): the message when gear is locked inside a dungeon.</summary>
+        public const string GearLockedMessage = "Your gear is locked inside a dungeon. Change it after you leave.";
+
+        /// <summary>
+        /// Rebuild 2.3 (D5.5, D5.8): no gear changes mid-dungeon. Equip, unequip and auto-equip refuse while a dungeon run
+        /// is in progress (the strip was already locked for the run). Returns true (and says why) when locked.
+        /// </summary>
+        private bool GearLockedInDungeon()
+        {
+            if (!stateManager.HasCurrentDungeon)
+                return false;
+            ShowMessageEvent?.Invoke(GearLockedMessage);
+            return true;
+        }
+
         public void PromptEquipItem()
         {
+            if (GearLockedInDungeon()) return;
             if (stateManager.CurrentPlayer == null) return;
             
             if (stateManager.CurrentInventory.Count == 0)
@@ -78,6 +94,7 @@ namespace RPGGame.Handlers.Inventory
         /// </summary>
         public void PromptUnequipItem()
         {
+            if (GearLockedInDungeon()) return;
             if (stateManager.CurrentPlayer == null) return;
             
             if (customUIManager is CanvasUICoordinator canvasUI)
@@ -124,6 +141,7 @@ namespace RPGGame.Handlers.Inventory
         /// </summary>
         public void AutoEquipEmptySlots()
         {
+            if (GearLockedInDungeon()) return;
             var player = stateManager.CurrentPlayer;
             if (player == null)
                 return;
@@ -193,6 +211,11 @@ namespace RPGGame.Handlers.Inventory
         /// <returns><c>true</c> if the flow completed (equipped new, or kept current); <c>false</c> on blocked equip or error.</returns>
         public bool ConfirmEquipItem(int itemIndex, string slot, bool equipNew, bool refreshInventoryScreen, bool announce, out string? failureMessage)
         {
+            if (equipNew && GearLockedInDungeon())
+            {
+                failureMessage = GearLockedMessage;
+                return false;
+            }
             failureMessage = null;
             if (stateManager.CurrentPlayer == null)
             {
@@ -270,6 +293,7 @@ namespace RPGGame.Handlers.Inventory
         /// </summary>
         public void UnequipItem(int slotChoice)
         {
+            if (GearLockedInDungeon()) return;
             if (stateManager.CurrentPlayer == null) return;
             
             string slot = slotChoice switch
@@ -297,6 +321,7 @@ namespace RPGGame.Handlers.Inventory
         /// <param name="refreshInventoryScreen">When false, the caller refreshes the inventory UI (e.g. after changing the selection).</param>
         public Item? UnequipSlot(string slot, bool refreshInventoryScreen = true)
         {
+            if (GearLockedInDungeon()) return null;
             if (stateManager.CurrentPlayer == null) return null;
 
             var player = stateManager.CurrentPlayer;
