@@ -122,7 +122,12 @@ namespace RPGGame.Tuning
 
             double scaled = levelScaledHealth * runtime * prog.CombatTempoScale;
             if (level.HasValue && enemySystem.HealthCurve != null)
-                scaled *= enemySystem.HealthCurve.MultiplierAt(level.Value);
+            {
+                double curve = enemySystem.HealthCurve.MultiplierAt(level.Value);
+                if (level.Value <= 1 && enemySystem.LevelOneHealthMultiplierFloor > 0)
+                    curve = Math.Max(curve, enemySystem.LevelOneHealthMultiplierFloor);
+                scaled *= curve;
+            }
             return Math.Max(1, FloorToInt(scaled));
         }
 

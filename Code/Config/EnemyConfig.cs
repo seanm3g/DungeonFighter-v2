@@ -414,6 +414,14 @@ namespace RPGGame
         public EnemyDamageCurveConfig DamageCurve { get; set; } = new();
         /// <summary>Enemy max HP × multiplier by level (same anchor table format as <see cref="DamageCurve"/>; off by default).</summary>
         public EnemyDamageCurveConfig HealthCurve { get; set; } = new();
+
+        /// <summary>
+        /// Rebuild 1.9 (D0.4): level 1 fights last about 2 hero swings. A floor on the level 1 enemy HP multiplier
+        /// (after <see cref="HealthCurve"/>): the active patch's level 1 band (0.026) makes 3-HP enemies that die to one
+        /// swing. 0.2 puts the level 1 roster at roughly 12–38 HP against hero hits of about 9–15 (14 typical). A data knob, not a solve:
+        /// only level 1 changes; level 2+ keep the patch's curve (it already ramps). 0 = off.
+        /// </summary>
+        public double LevelOneHealthMultiplierFloor { get; set; } = 0.2;
         /// <summary>
         /// Pack body count × multiplier by level (same anchor format; off by default). The pack's HP is unchanged, only
         /// split over fewer bodies, so early packs need fewer swings. See <see cref="RPGGame.Combat.PackCombat.BodiesAtLevel"/>.

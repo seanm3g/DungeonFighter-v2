@@ -29,6 +29,7 @@ namespace RPGGame.Tests.Runners
             ("ChainRulesConfig", () => ChainRulesConfigTests.RunAllTests()),
             ("CritAmplifiesEffects", () => CritAmplifiesEffectsTests.RunAllTests()),
             ("CombatLogLevel", () => CombatLogLevelTests.RunAllTests()),
+            ("FirstFights", () => FirstFightsTests.RunAllTests()),
             ("GameInitializer", () => GameInitializerTests.RunAllTests()),
             ("GameInitializationManager", () => GameInitializationManagerTests.RunAllTests()),
             ("GameLoader", () => GameLoaderTests.RunAllTests()),

@@ -32,7 +32,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | 1.6 Chain rules confirmed | done, 1 question | `05f94848` | ChainRulesConfig 10/10 |
 | 1.5 Crit amplifies effects | done | `5d8bd70a` | 15213 passed / 0 failed |
 | 1.7 Simple / detailed log | done | `1f99d974` | 15217 passed / 0 failed |
-| 1.8 First 60 seconds | done | (this commit) | 15220 passed / 0 failed |
+| 1.8 First 60 seconds | done | `cf810c72` | 15220 passed / 0 failed |
+| 1.9 Level 1 fights ~2 swings | done | (this commit) | 15220 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -159,6 +160,16 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 - Tests: `GameInitializerTests` now expects an empty starting bag (its expectation changed with the decision).
 - MCP walk: New → offer → skip → weapon 1 → the first dungeon ran inside the same `handle_input`, then the
   completion screen. Confirmed three times.
+
+### 1.9 Level 1 fights about 2 swings — done (a data knob, not a solve)
+- Cause: the active chain's level 1 enemy HP band is ×0.026 (from `lowhp10`), so level 1 enemies had 3–9 HP and died
+  to one swing.
+- New knob `enemySystem.levelOneHealthMultiplierFloor` (default **0.2**, 0 = off; code default, no patch edit): a floor
+  on the level 1 multiplier only. Level 2+ keep the patch curve (×0.237 at level 2, which already ramps). Picked by
+  reading hero hits in the walk (about 9–15, typically 14) against level 1 base HP (about 60–190): 0.2 gives 12–38 HP.
+  I tried 0.12 first: still one swing (8–9 HP).
+- MCP walk at 0.2, three fresh Barbarians, first dungeon: fights took 2, 2, 2, 3, 1, 1 hero swings. No sims run.
+- Tests: new `FirstFightsTests` (switch defaults, the floor raises level 1 only, level 2 unchanged).
 
 ## Questions for the user
 - **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the
