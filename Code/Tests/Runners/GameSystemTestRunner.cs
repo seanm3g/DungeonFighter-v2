@@ -8,6 +8,7 @@ using RPGGame.Tests.Unit.Game.Input;
 using RPGGame.Tests.Unit.Platform;
 using RPGGame.Tests.Unit.UI;
 using RPGGame.Tests.Unit.Combat;
+using RPGGame.Tests.Unit.Rebuild;
 
 namespace RPGGame.Tests.Runners
 {
@@ -21,6 +22,7 @@ namespace RPGGame.Tests.Runners
             ("GameCoordinator", () => GameCoordinatorTests.RunAllTests()),
             ("GameStateManager", () => GameStateManagerTests.RunAllTests()),
             ("GameStateValidator", () => GameStateValidatorTests.RunAllTests()),
+            ("DevBuild", () => DevBuildTests.RunAllTests()),
             ("GameInitializer", () => GameInitializerTests.RunAllTests()),
             ("GameInitializationManager", () => GameInitializationManagerTests.RunAllTests()),
             ("GameLoader", () => GameLoaderTests.RunAllTests()),

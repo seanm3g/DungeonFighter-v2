@@ -479,8 +479,9 @@ namespace RPGGame.MCP.Screens
         {
             var view = new ScreenView { Title = "Death" };
             view.Body.Add($"{hero.Name} fell at level {hero.Level}" + (game.CurrentDungeon != null ? $" in {game.CurrentDungeon.Name}." : "."));
-            view.Choices.Add(new AgentChoice { Input = "1", Label = "Clone this hero (keeps level and gear) and return to the hub", Recommended = true });
-            view.Choices.Add(new AgentChoice { Input = "0", Label = "Return to the main menu (hero becomes a tombstone)" });
+            if (DevBuild.AllowsClone)
+                view.Choices.Add(new AgentChoice { Input = "1", Label = "Clone this hero (keeps level and gear; dev build) and return to the hub", Recommended = true });
+            view.Choices.Add(new AgentChoice { Input = "0", Label = "Return to the main menu (hero becomes a tombstone)", Recommended = !DevBuild.AllowsClone });
             return view;
         }
 

@@ -36,6 +36,8 @@ namespace RPGGame
         /// </summary>
         public void ShowDeveloperMenu()
         {
+            if (!DevBuild.IsEnabled)
+                return;
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.SuppressDisplayBufferRendering();

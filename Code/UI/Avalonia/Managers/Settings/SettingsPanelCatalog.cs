@@ -83,9 +83,16 @@ namespace RPGGame.UI.Avalonia.Managers.Settings
             return descriptor?.ContentArea ?? SettingsContentArea.MainScroll;
         }
 
+        /// <summary>Developer, Balance and Testing panels exist only in a dev build (<see cref="DevBuild"/>).</summary>
+        public static bool IsDevOnlyGroup(string? sidebarGroup) =>
+            sidebarGroup == SettingsSidebarGroups.Developer
+            || sidebarGroup == SettingsSidebarGroups.Balance
+            || sidebarGroup == SettingsSidebarGroups.Testing;
+
         public static IEnumerable<SettingsPanelDescriptor> GetPanelsForSidebar()
         {
             return AllPanels
+                .Where(p => DevBuild.IsEnabled || !IsDevOnlyGroup(p.SidebarGroup))
                 .OrderBy(p => Array.FindIndex(SettingsSidebarGroups.OrderedGroups, g => g.Id == p.SidebarGroup))
                 .ThenBy(p => p.Order);
         }

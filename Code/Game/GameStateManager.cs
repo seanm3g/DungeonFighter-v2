@@ -209,6 +209,12 @@ namespace RPGGame
         /// <returns>True if transition was successful, false if invalid.</returns>
         public bool TransitionToState(GameState newState)
         {
+            if (!DevBuild.AllowsState(newState))
+            {
+                ErrorHandler.LogWarning($"{newState} is a developer screen; this is not a dev build ({DevBuild.EnvironmentVariable}).");
+                return false;
+            }
+
             if (stateValidator.ValidateStateTransition(currentState, newState))
             {
                 var previousState = currentState;

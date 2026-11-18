@@ -642,7 +642,7 @@ namespace RPGGame
             IReadOnlyList<string>? comboStripActionNames,
             bool alsoOpenSettingsWindow)
         {
-            if (combatManager == null) return;
+            if (combatManager == null || !DevBuild.IsEnabled) return;
 
             canvasUI.ResetForNewBattle();
             stateManager.TransitionToState(GameState.ActionInteractionLab);

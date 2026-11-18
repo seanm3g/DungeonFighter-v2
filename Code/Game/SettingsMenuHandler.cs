@@ -177,9 +177,9 @@ namespace RPGGame
             {
                 switch (input)
                 {
-                    case "1":
-                    case "2":
-                        // Developer Menu
+                    case "1" when DevBuild.IsEnabled:
+                    case "2" when DevBuild.IsEnabled:
+                        // Developer Menu (dev build only)
                         canvasUI.ResetDeleteConfirmation();
                         stateManager.TransitionToState(GameState.DeveloperMenu);
                         canvasUI.RenderDeveloperMenu();

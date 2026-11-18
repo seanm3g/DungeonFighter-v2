@@ -89,7 +89,7 @@ namespace RPGGame
         {
             string choice = input?.Trim() ?? string.Empty;
 
-            if (string.Equals(choice, "1", StringComparison.OrdinalIgnoreCase))
+            if (DevBuild.AllowsClone && string.Equals(choice, "1", StringComparison.OrdinalIgnoreCase))
             {
                 await CloneAndReturnToGameLoopAsync().ConfigureAwait(true);
                 return;

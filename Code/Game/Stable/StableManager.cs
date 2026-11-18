@@ -142,7 +142,7 @@ namespace RPGGame
         /// <summary>Brings a dead fighter back as their clone (next generation name, gear kept) and re-saves it as living.</summary>
         public async Task<bool> CloneAsync(StableFighter fighter)
         {
-            if (fighter.Status != StableFighterStatus.Dead || fighter.Game == null)
+            if (!DevBuild.AllowsClone || fighter.Status != StableFighterStatus.Dead || fighter.Game == null)
                 return false;
             var state = fighter.Game.StateManager;
             state.SetCurrentDungeon(null);

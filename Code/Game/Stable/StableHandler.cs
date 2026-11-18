@@ -337,7 +337,7 @@ namespace RPGGame
                     else if (f.Status == StableFighterStatus.AtHub)
                         Decide(() => stable.Go(f));
                     else
-                        Invalid(f.Status == StableFighterStatus.Dead ? "R clones them; X lays them to rest." : "Nothing to decide right now.");
+                        Invalid(f.Status == StableFighterStatus.Dead ? (DevBuild.AllowsClone ? "R clones them; X lays them to rest." : "X lays them to rest.") : "Nothing to decide right now.");
                     return;
                 case "u":
                     if (f.Status == StableFighterStatus.Dead)
@@ -387,7 +387,7 @@ namespace RPGGame
                     }
                     break;
                 case StableFighterStatus.Dead:
-                    if (key == "r")
+                    if (key == "r" && DevBuild.AllowsClone)
                     {
                         await stable.CloneAsync(f);
                         AudioCues.Trigger(AudioCue.Menu_Confirm);
@@ -822,7 +822,8 @@ namespace RPGGame
                         AddToggles();
                         break;
                     case StableFighterStatus.Dead:
-                        actions.Add(new StableLine("[R] Clone", StableLineTone.Alert, Key("r")));
+                        if (DevBuild.AllowsClone)
+                            actions.Add(new StableLine("[R] Clone", StableLineTone.Alert, Key("r")));
                         actions.Add(new StableLine("[X] Lay to rest", StableLineTone.Option, Key("x")));
                         break;
                     case StableFighterStatus.InHand:

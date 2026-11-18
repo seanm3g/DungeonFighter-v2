@@ -188,24 +188,28 @@ namespace RPGGame.UI.Avalonia.Renderers
             int footerX = x + (width / 2) - (footerText.Length / 2);
             canvas.AddText(footerX, footerTextY, footerText, AsciiArtAssets.Colors.Yellow);
 
-            string cloneText = "Clone this hero";
-            string cloneDisplayText = MenuOptionFormatter.Format(1, cloneText);
-            string cloneButtonText = $"[ {cloneDisplayText} ]";
-            int cloneButtonX = x + (width / 2) - (cloneButtonText.Length / 2);
-
-            var cloneButton = new ClickableElement
+            if (DevBuild.AllowsClone)
             {
-                X = cloneButtonX,
-                Y = cloneButtonY,
-                Width = cloneButtonText.Length,
-                Height = 1,
-                Type = ElementType.MenuOption,
-                Value = "1",
-                DisplayText = cloneDisplayText
-            };
+                string cloneText = "Clone this hero";
+                string cloneDisplayText = MenuOptionFormatter.Format(1, cloneText);
+                string cloneButtonText = $"[ {cloneDisplayText} ]";
+                int cloneButtonX = x + (width / 2) - (cloneButtonText.Length / 2);
 
-            clickableElements.Add(cloneButton);
-            canvas.AddText(cloneButtonX, cloneButtonY, cloneButtonText, AsciiArtAssets.Colors.Green);
+                var cloneButton = new ClickableElement
+                {
+                    X = cloneButtonX,
+                    Y = cloneButtonY,
+                    Width = cloneButtonText.Length,
+                    Height = 1,
+                    Type = ElementType.MenuOption,
+                    Value = "1",
+                    DisplayText = cloneDisplayText
+                };
+
+                clickableElements.Add(cloneButton);
+                canvas.AddText(cloneButtonX, cloneButtonY, cloneButtonText, AsciiArtAssets.Colors.Green);
+
+            }
 
             string continueText = UIConstants.MenuOptions.ReturnToMainMenu;
             string continueDisplayText = MenuOptionFormatter.Format(0, continueText);
@@ -226,13 +230,22 @@ namespace RPGGame.UI.Avalonia.Renderers
             clickableElements.Add(returnButton);
             canvas.AddText(returnButtonX, returnButtonY, returnButtonText, AsciiArtAssets.Colors.Yellow);
 
-            string cloneNote = "Your clone keeps level, gear and bag under a new name.";
-            int noteX = x + (width / 2) - (cloneNote.Length / 2);
-            canvas.AddText(noteX, returnButtonY + 1, cloneNote, AsciiArtAssets.Colors.Gray);
+            if (DevBuild.AllowsClone)
+            {
+                string cloneNote = "Your clone keeps level, gear and bag under a new name.";
+                int noteX = x + (width / 2) - (cloneNote.Length / 2);
+                canvas.AddText(noteX, returnButtonY + 1, cloneNote, AsciiArtAssets.Colors.Gray);
 
-            string promptText = "Press 1 to clone, or 0 to leave a tombstone.";
-            int promptX = x + (width / 2) - (promptText.Length / 2);
-            canvas.AddText(promptX, returnButtonY + 2, promptText, AsciiArtAssets.Colors.Gray);
+                string promptText = "Press 1 to clone, or 0 to leave a tombstone.";
+                int promptX = x + (width / 2) - (promptText.Length / 2);
+                canvas.AddText(promptX, returnButtonY + 2, promptText, AsciiArtAssets.Colors.Gray);
+            }
+            else
+            {
+                string promptText = "Press 0 to leave a tombstone.";
+                int promptX = x + (width / 2) - (promptText.Length / 2);
+                canvas.AddText(promptX, returnButtonY + 1, promptText, AsciiArtAssets.Colors.Gray);
+            }
         }
     }
 }

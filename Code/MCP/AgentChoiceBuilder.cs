@@ -126,11 +126,16 @@ namespace RPGGame.MCP
                     new() { Input = "2", Label = "Inventory" },
                     new() { Input = "0", Label = "Save and exit to main menu" }
                 },
-                GameState.Death => new List<AgentChoice>
-                {
-                    new() { Input = "1", Label = "Clone this hero (keeps level and gear)", Recommended = true },
-                    new() { Input = "0", Label = "Return to main menu (tombstone)" }
-                },
+                GameState.Death => DevBuild.AllowsClone
+                    ? new List<AgentChoice>
+                    {
+                        new() { Input = "1", Label = "Clone this hero (keeps level and gear; dev build)", Recommended = true },
+                        new() { Input = "0", Label = "Return to main menu (tombstone)" }
+                    }
+                    : new List<AgentChoice>
+                    {
+                        new() { Input = "0", Label = "Return to main menu (tombstone)", Recommended = true }
+                    },
                 GameState.Combat => BuildCombatChoices(game),
                 GameState.Inventory => BuildNumberedChoices("Inventory action", 6, includeZero: true, zeroLabel: "Back"),
                 GameState.LoadCharacterSelection => new List<AgentChoice>
