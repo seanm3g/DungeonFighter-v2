@@ -247,7 +247,7 @@ namespace RPGGame
         public double VerbStatusCashPercentPerUnit { get; set; } = 8.0;
         /// <summary>
         /// CASH ... INTO payouts: amount per store unit spent, by payout (<c>HEAL</c> and <c>temphp</c> in % max HP,
-        /// <c>attribute</c> in % of the stat, store ids in stacks). Missing keys use <see cref="CashPayout.DefaultRates"/>.
+        /// <c>attribute</c> in % of the stat, store ids in stacks; <c>healCapPercent</c> = most % max HP one HEAL cash restores). Missing keys use <see cref="CashPayout.DefaultRates"/>.
         /// </summary>
         public Dictionary<string, double>? CashIntoPerUnit { get; set; }
         /// <summary>SCALE presets (RECKONING): most % damage a store can add without being spent. 0 = uncapped.</summary>

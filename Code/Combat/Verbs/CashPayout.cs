@@ -23,6 +23,8 @@ namespace RPGGame
         public const string Damage = "DAMAGE";
         public const string Heal = "HEAL";
         public const string Primary = "PRIMARY";
+        /// <summary>Rate key for the most % of max HP one HEAL cash can restore (0 = uncapped).</summary>
+        public const string HealCapKey = "healCapPercent";
 
         private static readonly string[] Attributes = { "STR", "AGI", "TEC", "INT", Primary };
 
@@ -31,6 +33,7 @@ namespace RPGGame
             new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
             {
                 [Heal] = 0.75,         // % max HP per unit (2.0 out-healed L20 enemies: ACTIONVALUE 2026-11-18)
+                [HealCapKey] = 4.0,    // most % max HP one cash can heal
                 ["temphp"] = 5.0,      // % max HP per unit
                 ["attribute"] = 2.0,   // % of the attribute per unit
                 ["harden"] = 0.5, ["fortify"] = 0.5, ["focus"] = 0.34, ["haste"] = 0.5,
@@ -83,7 +86,9 @@ namespace RPGGame
 
             if (payout == Heal)
             {
-                int hp = Math.Max(1, (int)Math.Round(hero.GetEffectiveMaxHealth() * raw / 100.0));
+                double cap = RatePerUnit(HealCapKey);
+                double pct = cap > 0 ? Math.Min(cap, raw) : raw;
+                int hp = Math.Max(1, (int)Math.Round(hero.GetEffectiveMaxHealth() * pct / 100.0));
                 if (hero.CurrentHealth > 0)
                     hero.Heal(hp);
                 return hp;
@@ -118,7 +123,11 @@ namespace RPGGame
             double rate = RatePerUnit(payout) * share;
             string n = rate.ToString("0.##", CultureInfo.InvariantCulture);
             if (payout == Heal)
-                return $"healing ({n}% max HP per {store})";
+            {
+                double cap = RatePerUnit(HealCapKey);
+                string capText = cap > 0 ? $", up to {cap.ToString("0.##", CultureInfo.InvariantCulture)}% per cash" : "";
+                return $"healing ({n}% max HP per {store}{capText})";
+            }
             if (string.Equals(payout, "temphp", StringComparison.OrdinalIgnoreCase))
                 return $"temporary HP ({n}% max HP per {store})";
             if (IsAttribute(payout))

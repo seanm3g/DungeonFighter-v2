@@ -382,8 +382,15 @@ namespace RPGGame.Tests.Unit
                 int max = heal.GetEffectiveMaxHealth();
                 heal.CurrentHealth = max / 2;
                 VerbPresets.OnConnect(heal, foe, Verb("RESTORE", "CASH ATTUNED 100 INTO HEAL"));
-                int expectHeal = (int)Math.Round(max * 0.045);
-                TestBase.AssertEqual(Math.Min(max, max / 2 + expectHeal), heal.CurrentHealth, "6 RAGE x 0.75% = 4.5% max HP healed", ref _run, ref _passed, ref _failed);
+                int expectHeal = (int)Math.Round(max * 0.04);
+                TestBase.AssertEqual(Math.Min(max, max / 2 + expectHeal), heal.CurrentHealth, "6 RAGE x 0.75% = 4.5%, capped at 4% max HP", ref _run, ref _passed, ref _failed);
+
+                var capped = Hero("IntoHealCap", "Bone", "Bone");
+                capped.Effects.AddMaterialKeyword("RAGE", 10);
+                int capMax = capped.GetEffectiveMaxHealth();
+                capped.CurrentHealth = capMax / 2;
+                VerbPresets.OnConnect(capped, foe, Verb("RESTORE", "CASH ATTUNED 100 INTO HEAL"));
+                TestBase.AssertEqual(capMax / 2 + (int)Math.Round(capMax * 0.04), capped.CurrentHealth, "10 RAGE x 0.75% = 7.5%, capped at 4% per cash", ref _run, ref _passed, ref _failed);
 
                 var temp = Fresh("IntoTemp");
                 VerbPresets.OnConnect(temp, foe, Verb("BULWARK", "CASH ATTUNED 100 INTO temphp"));
