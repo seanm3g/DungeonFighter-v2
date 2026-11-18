@@ -30,11 +30,11 @@ namespace RPGGame
         public static readonly IReadOnlyDictionary<string, double> DefaultRates =
             new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
             {
-                [Heal] = 2.0,          // % max HP per unit
-                ["temphp"] = 3.0,      // % max HP per unit
+                [Heal] = 0.75,         // % max HP per unit (2.0 out-healed L20 enemies: ACTIONVALUE 2026-11-18)
+                ["temphp"] = 5.0,      // % max HP per unit
                 ["attribute"] = 2.0,   // % of the attribute per unit
-                ["harden"] = 0.34, ["fortify"] = 0.34, ["focus"] = 0.34, ["haste"] = 0.34,
-                ["bleed"] = 0.5, ["burn"] = 0.5, ["poison"] = 1.0,
+                ["harden"] = 0.5, ["fortify"] = 0.5, ["focus"] = 0.34, ["haste"] = 0.5,
+                ["bleed"] = 1.0, ["burn"] = 1.0, ["poison"] = 1.0,
                 ["expose"] = 0.34, ["stagger"] = 0.34, ["brittle"] = 0.34, ["rattle"] = 0.34, ["slow"] = 0.34,
                 ["weaken"] = 0.2, ["acid"] = 0.2, ["mark"] = 0.1, ["stun"] = 0.1,
             };

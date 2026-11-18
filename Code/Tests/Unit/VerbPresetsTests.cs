@@ -371,23 +371,23 @@ namespace RPGGame.Tests.Unit
                 var hard = Fresh("IntoHarden");
                 TestBase.AssertEqual(6, VerbPresets.OnConnect(hard, foe, Verb("GRIT TEETH", "CASH ATTUNED 100 INTO harden")), "spends 6 RAGE", ref _run, ref _passed, ref _failed);
                 TestBase.AssertEqual(0, hard.Effects.GetMaterialKeyword("RAGE"), "RAGE empty", ref _run, ref _passed, ref _failed);
-                TestBase.AssertEqual(2, Stores.Get(hard, "harden"), "6 RAGE x 0.34 = 2 Harden", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(3, Stores.Get(hard, "harden"), "6 RAGE x 0.5 = 3 Harden", ref _run, ref _passed, ref _failed);
 
                 var bleed = Fresh("IntoBleed");
                 VerbPresets.OnConnect(bleed, foe, Verb("BLOODLET", "CASH ATTUNED 100 INTO bleed"));
-                TestBase.AssertEqual(3, Stores.Get(foe, "bleed"), "6 RAGE x 0.5 = 3 Bleed on the target", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(6, Stores.Get(foe, "bleed"), "6 RAGE x 1 = 6 Bleed on the target", ref _run, ref _passed, ref _failed);
                 TestBase.AssertEqual(0, Stores.Get(bleed, "bleed"), "not on the hero", ref _run, ref _passed, ref _failed);
 
                 var heal = Fresh("IntoHeal");
                 int max = heal.GetEffectiveMaxHealth();
                 heal.CurrentHealth = max / 2;
                 VerbPresets.OnConnect(heal, foe, Verb("RESTORE", "CASH ATTUNED 100 INTO HEAL"));
-                int expectHeal = (int)Math.Round(max * 0.12);
-                TestBase.AssertEqual(Math.Min(max, max / 2 + expectHeal), heal.CurrentHealth, "6 RAGE x 2% = 12% max HP healed", ref _run, ref _passed, ref _failed);
+                int expectHeal = (int)Math.Round(max * 0.045);
+                TestBase.AssertEqual(Math.Min(max, max / 2 + expectHeal), heal.CurrentHealth, "6 RAGE x 0.75% = 4.5% max HP healed", ref _run, ref _passed, ref _failed);
 
                 var temp = Fresh("IntoTemp");
                 VerbPresets.OnConnect(temp, foe, Verb("BULWARK", "CASH ATTUNED 100 INTO temphp"));
-                TestBase.AssertEqual((int)Math.Round(temp.GetEffectiveMaxHealth() * 0.18), temp.TemporaryHP ?? 0, "6 RAGE x 3% = 18% max HP temp", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual((int)Math.Round(temp.GetEffectiveMaxHealth() * 0.30), temp.TemporaryHP ?? 0, "6 RAGE x 5% = 30% max HP temp", ref _run, ref _passed, ref _failed);
 
                 var stat = Fresh("IntoStat");
                 int before = stat.GetEffectiveStrength();
@@ -399,7 +399,7 @@ namespace RPGGame.Tests.Unit
                 var patched = Fresh("IntoPatched");
                 VerbPresets.OnConnect(patched, foe, Verb("GRIT TEETH", "CASH ATTUNED 100 INTO harden"));
                 TestBase.AssertEqual(Math.Min(6, Stores.Get(patched, "harden")), Stores.Get(patched, "harden"), "patch rate applies (capped by Harden's max)", ref _run, ref _passed, ref _failed);
-                TestBase.AssertTrue(Stores.Get(patched, "harden") > 2, "patch rate 1.0 beats the default", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(Stores.Get(patched, "harden") > 3, "patch rate 1.0 beats the default", ref _run, ref _passed, ref _failed);
 
                 var empty = Hero("IntoEmpty", "Bone", "Bone");
                 TestBase.AssertEqual(0, VerbPresets.OnConnect(empty, foe, Verb("GRIT TEETH", "CASH ATTUNED 100 INTO harden")), "nothing to spend", ref _run, ref _passed, ref _failed);
