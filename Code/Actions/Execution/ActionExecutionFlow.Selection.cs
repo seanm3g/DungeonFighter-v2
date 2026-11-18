@@ -395,8 +395,11 @@ namespace RPGGame.Actions.Execution
             result.RollBonus = ActionUtilities.CalculateRollBonus(source, result.SelectedAction, consumeRollBonus);
             result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
             result.NaturalRollValue = result.ModifiedBaseRoll;
+            // Only a roll that would have been a plain hit outside the chain "ends the chain"; a roll in the miss band
+            // is just a miss.
             result.WasMidChain = source is Character { ComboStep: > 0 }
-                && (GameConfiguration.Instance.ComboSystem?.MissBelowComboMidChain ?? true);
+                && (GameConfiguration.Instance.ComboSystem?.MissBelowComboMidChain ?? true)
+                && result.AttackRoll > thresholdManager.GetHitThresholdOutsideChain(source);
             int hitThreshold = thresholdManager.GetHitThreshold(source);
             int criticalMissThreshold = thresholdManager.GetCriticalMissThreshold(source);
             int critThresholdRoll = CombatCalculator.GetCritThresholdEvaluationRoll(

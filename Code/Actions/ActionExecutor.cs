@@ -45,7 +45,7 @@ namespace RPGGame
         /// <summary>Ladder values used to classify this swing (snapshotted at resolution).</summary>
         public int? ResolvedCritMissThreshold { get; set; }
         public int? ResolvedHitThreshold { get; set; }
-        /// <summary>The roll was a free chain roll (combo step above 0, no plain-hit band, D2.8). A miss on it ends the chain.</summary>
+        /// <summary>A free chain roll (combo step above 0, D2.8) that would have been a plain hit outside the chain.</summary>
         public bool WasMidChain { get; set; }
         /// <summary>A missed free chain roll that wasn't a crit miss: the log says "chain ends", not "misses".</summary>
         public bool IsChainBreak => WasMidChain && !Hit && !IsCriticalMiss;

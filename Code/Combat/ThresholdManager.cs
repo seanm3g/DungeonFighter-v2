@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using RPGGame;
 
@@ -142,6 +142,9 @@ namespace RPGGame.Combat
                 hit = Math.Max(hit, GetComboThreshold(actor) - 1);
             return hit;
         }
+
+        /// <summary>Hit threshold as if the actor weren't mid-chain (what a roll would need to land a plain hit).</summary>
+        public int GetHitThresholdOutsideChain(Actor actor) => GetStoredHitThreshold(actor);
 
         /// <summary>Hit threshold without the mid-combo rule; the setters and cascades work in these stored terms.</summary>
         private int GetStoredHitThreshold(Actor actor)
