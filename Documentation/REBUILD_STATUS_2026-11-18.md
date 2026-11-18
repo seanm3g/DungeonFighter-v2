@@ -30,7 +30,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | 1.3 One AMP formula | done | `aa2064d1` | 15196 passed / 0 failed* |
 | 1.4 INT 10 routing gate removed | done | `f3fe9d30` | 15196 passed / 0 failed |
 | 1.6 Chain rules confirmed | done, 1 question | `05f94848` | ChainRulesConfig 10/10 |
-| 1.5 Crit amplifies effects | done | (this commit) | 15213 passed / 0 failed |
+| 1.5 Crit amplifies effects | done | `5d8bd70a` | 15213 passed / 0 failed |
+| 1.7 Simple / detailed log | done | (this commit) | 15217 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -128,6 +129,16 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 - Crit miss confirmed as already built: `Actor.HasCriticalMissPenalty` / `ActionSpeedSystem` double the action
   length, so a natural 1 is a miss with 2× recovery. Tests: new `CritAmplifiesEffectsTests` (Expose 1 → 2 on a crit,
   switch off → 1, crit-miss length ×2).
+
+### 1.7 Simple / detailed log — done
+- New player setting `DetailedCombatLog` (default **off** = the simple log), with a checkbox in Settings → Gameplay
+  ("Detailed combat log (full roll math)"). Simple: each swing keeps its headline (who, action, band such as
+  CRITICAL, damage) and a short roll line, `(rolled 16)` or `(rolled 16 −2 = 14)`. Detailed: the old footer (attack vs
+  armor, defense margin, speed, AMP).
+- Not done here: naming the nudge's *cause* in the simple line ("−2 Rattle"). The roll formatter only gets the
+  total bonus; the per-source breakdown arrives with the roll ruler (board, 1.1) and statuses (step 5).
+- Tests: new `CombatLogLevelTests`; `CombatResultsColoredTextTests`, `CombatResultsTests` and
+  `DefenseBlockCalculatorTests` now run with the detailed log on (they check the detailed footer).
 
 ## Questions for the user
 - **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the

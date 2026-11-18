@@ -110,6 +110,10 @@ namespace RPGGame.Combat.Formatting
             int? defenseFace = null,
             string? leftoverDefenseFooter = null)
         {
+            // Simple log (D0.5, default): the roll and its nudge only; the band is in the headline.
+            if (!GameSettings.Instance.DetailedCombatLog)
+                return FormatRollInfoSimple(roll, rollBonus, multiDiceDetail);
+
             var builder = new ColoredTextBuilder();
             builder.Add("     (", Colors.Gray);
             builder.Add("roll:", ColorPalette.Info);
@@ -167,6 +171,25 @@ namespace RPGGame.Combat.Formatting
             
             builder.Add(")", Colors.Gray);
             
+            return builder.Build();
+        }
+
+        /// <summary>The simple log's roll line: <c>(rolled 16)</c> or <c>(rolled 16 −2 = 14)</c>.</summary>
+        public static List<ColoredText> FormatRollInfoSimple(int roll, int rollBonus, MultiDiceRollDetail multiDiceDetail = default)
+        {
+            var builder = new ColoredTextBuilder();
+            builder.Add("     (", Colors.Gray);
+            builder.Add("rolled", ColorPalette.Info);
+            builder.AddSpace();
+            AppendRollValue(builder, roll, multiDiceDetail);
+            if (rollBonus != 0)
+            {
+                builder.Add(rollBonus > 0 ? " +" : " −", Colors.White);
+                builder.Add(Math.Abs(rollBonus).ToString(), rollBonus > 0 ? ColorPalette.Success : ColorPalette.Error);
+                builder.Add(" = ", Colors.White);
+                builder.Add((roll + rollBonus).ToString(), Colors.White);
+            }
+            builder.Add(")", Colors.Gray);
             return builder.Build();
         }
 

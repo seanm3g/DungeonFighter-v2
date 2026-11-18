@@ -21,7 +21,16 @@ namespace RPGGame.Tests.Unit.Combat
         /// <summary>
         /// Runs all CombatResultsColoredText tests
         /// </summary>
+        /// <summary>These cover the detailed combat log's roll footer (Rebuild 1.7: the simple log is the default).</summary>
         public static void RunAllTests()
+        {
+            bool oldDetailed = GameSettings.Instance.DetailedCombatLog;
+            GameSettings.Instance.DetailedCombatLog = true;
+            try { RunAllTestsDetailed(); }
+            finally { GameSettings.Instance.DetailedCombatLog = oldDetailed; }
+        }
+
+        private static void RunAllTestsDetailed()
         {
             Console.WriteLine("=== CombatResultsColoredText Tests ===\n");
             

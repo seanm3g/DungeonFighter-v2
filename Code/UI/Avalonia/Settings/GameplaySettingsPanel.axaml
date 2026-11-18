@@ -54,6 +54,11 @@
                               Classes="settings-field-label"
                               FontSize="15"
                               IsChecked="True"/>
+                    <CheckBox x:Name="DetailedCombatLogCheckBox"
+                              Content="Detailed combat log (full roll math)"
+                              Classes="settings-field-label"
+                              FontSize="15"
+                              IsChecked="False"/>
 
                     <TextBlock Text="Combo strip — hit/miss border feedback (milliseconds)"
                                Classes="settings-muted"

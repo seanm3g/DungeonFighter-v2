@@ -43,6 +43,12 @@ namespace RPGGame
         /// <summary>New fighters see the Training Ground offer (enter / skip) before weapon selection. Off = go straight to the path intro.</summary>
         public bool ShowTrainingGroundOffer { get; set; } = true;
 
+        /// <summary>
+        /// Combat log level (D0.5). False = the simple log (default): one line per swing with its band and cause, the roll
+        /// shown as "rolled N" plus any nudge. True = the detailed log: full roll math (attack vs armor, speed, AMP).
+        /// </summary>
+        public bool DetailedCombatLog { get; set; }
+
         /// <summary>How long the combo strip border stays solid red after a hero miss (milliseconds).</summary>
         public int ActionStripMissFlashDurationMs { get; set; } = 1200;
 
@@ -271,6 +277,7 @@ namespace RPGGame
             ShowDamageNumbers = true;
             ShowComboProgress = true;
             ShowTrainingGroundOffer = true;
+            DetailedCombatLog = false;
             ActionStripMissFlashDurationMs = 1200;
             ActionStripSuccessFlashDurationMs = 3000;
             ActionStripSuccessFlashPulseHalfPeriodMs = 150;

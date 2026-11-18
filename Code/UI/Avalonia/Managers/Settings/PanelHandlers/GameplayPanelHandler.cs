@@ -65,6 +65,9 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             var trainingOfferCb = gameplayPanel.FindControl<CheckBox>("ShowTrainingGroundOfferCheckBox");
             if (trainingOfferCb != null)
                 trainingOfferCb.IsCheckedChanged += (s, e) => { if (trainingOfferCb.IsChecked.HasValue) GameSettings.Instance.ShowTrainingGroundOffer = trainingOfferCb.IsChecked.Value; };
+            var detailedLogCb = gameplayPanel.FindControl<CheckBox>("DetailedCombatLogCheckBox");
+            if (detailedLogCb != null)
+                detailedLogCb.IsCheckedChanged += (s, e) => { if (detailedLogCb.IsChecked.HasValue) GameSettings.Instance.DetailedCombatLog = detailedLogCb.IsChecked.Value; };
 
             var missFlashTb = gameplayPanel.ActionStripMissFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripMissFlashMsTextBox");
             var successTotalTb = gameplayPanel.ActionStripSuccessFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripSuccessFlashMsTextBox");
@@ -162,6 +165,8 @@ namespace RPGGame.UI.Avalonia.Managers.Settings.PanelHandlers
             if (showComboProgress != null) showComboProgress.IsChecked = s.ShowComboProgress;
             var trainingOffer = gameplayPanel.FindControl<CheckBox>("ShowTrainingGroundOfferCheckBox");
             if (trainingOffer != null) trainingOffer.IsChecked = s.ShowTrainingGroundOffer;
+            var detailedLog = gameplayPanel.FindControl<CheckBox>("DetailedCombatLogCheckBox");
+            if (detailedLog != null) detailedLog.IsChecked = s.DetailedCombatLog;
 
             var missFlashTb = gameplayPanel.ActionStripMissFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripMissFlashMsTextBox");
             var successTotalTb = gameplayPanel.ActionStripSuccessFlashMsTextBox ?? gameplayPanel.FindControl<TextBox>("ActionStripSuccessFlashMsTextBox");
