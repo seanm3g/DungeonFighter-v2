@@ -458,8 +458,12 @@ namespace RPGGame.UI.Avalonia.Renderers
             {
                 int cw = cardW;
                 bool isSel = i == selected;
-                Color border = isSel ? AsciiArtAssets.Colors.White : BoardDimBorder;
-                int thickness = isSel ? 2 : 1;
+                // Rebuild 1.1 (D0.11, D9.6): cards the enemy's chain already fired stay lit, escalating a bit quieter than yours.
+                bool lit = !isSel && selected > 0 && i < selected;
+                Color border = isSel ? AsciiArtAssets.Colors.White
+                    : lit ? LerpColor(AsciiArtAssets.Colors.Red, ComboTension.FinisherGold, RPGGame.UI.ComboBoardModel.LitGoldShare(i, filled, enemy: true))
+                    : BoardDimBorder;
+                int thickness = isSel ? 2 : lit ? RPGGame.UI.ComboBoardModel.LitBorderThickness(i, filled, enemy: true) : 1;
                 if (isSel && cardFires && swing != null)
                 {
                     // The firing card flares red on ATTACKER's result beat, holds through the roll, then wears its outcome.
@@ -478,6 +482,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                 if (isSel && (swing == null || cardFires))
                     selectedRect = new BoardRect(cx, y, cw, cardH);
                 cx += cw + gap;
+            }
+            // The enemy's chain count, top right (Mock 1: "its chain: 2").
+            if (selected > 0 && filled > 1)
+            {
+                string chain = $"its chain: {selected}";
+                canvas.AddText(Math.Max(x, x + w - chain.Length - 1), y + cardH, chain, AsciiArtAssets.Colors.Red);
             }
             return selectedRect;
         }
@@ -1422,6 +1432,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                     bool big = swing.Outcome == CombatSequenceSwingOutcome.Combo || swing.IsCritical;
                     canvas.AddText(wx, dy - 1, word, wc, wc, (big ? 0.6 : 0.3) + 0.4 * pop, big ? 6 : 3);
                 }
+                if (swing.Thresholds is { } bands && swing.Source is not Environment)
+                    DrawRollRuler(bands, swing, center.X, dy + dieH + 1, clampX, clampW);
             }
 
             AddBoardBox(r.X, r.Y, r.W, r.H, border, BoardCardBackground, borderThicknessPixels: thickness);
@@ -1432,6 +1444,42 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
         private const int BoardDieH = 3;
+
+        /// <summary>
+        /// Rebuild 1.1 (D2.2): the roll ruler, one row under the die once the roll lands. The five bands left to right
+        /// (crit miss, miss, hit, action, crit), the landed band lit in its color with the roll; "2d20" when an extra die
+        /// was rolled. Mid-chain the HIT band is gone (D2.8), so the ruler shows it.
+        /// </summary>
+        private void DrawRollRuler(CombatSequenceThresholds bands, CombatSequenceSwingInfo swing, double centerX, int row, int clampX, int clampW)
+        {
+            var segments = RPGGame.UI.ComboBoardModel.Ruler(bands, swing.Roll);
+            var parts = new List<(string Text, Color Color)>();
+            foreach (var s in segments)
+            {
+                if (parts.Count > 0)
+                    parts.Add((" │ ", AsciiArtAssets.Colors.DarkGray));
+                Color lit = s.Band switch
+                {
+                    RPGGame.UI.ComboBoardModel.RulerBand.CritMiss => AsciiArtAssets.Colors.Red,
+                    RPGGame.UI.ComboBoardModel.RulerBand.Miss => AsciiArtAssets.Colors.Gray,
+                    RPGGame.UI.ComboBoardModel.RulerBand.Hit => AsciiArtAssets.Colors.White,
+                    RPGGame.UI.ComboBoardModel.RulerBand.Combo => AsciiArtAssets.Colors.Gold,
+                    _ => AsciiArtAssets.Colors.Gold
+                };
+                parts.Add(s.Marked ? ($"[{s.Label}: {swing.Roll}]", lit) : (s.Label, AsciiArtAssets.Colors.DarkGray));
+            }
+            if (RPGGame.UI.ComboBoardModel.HasExtraDie(swing.Source))
+                parts.Add(("  2d20", AsciiArtAssets.Colors.Cyan));
+            int total = parts.Sum(p => p.Text.Length);
+            if (total > clampW)
+                return;
+            int rx = Math.Clamp((int)Math.Round(centerX - total / 2.0), clampX, clampX + clampW - total);
+            foreach (var (text, color) in parts)
+            {
+                canvas.AddText(rx, row, text, color);
+                rx += text.Length;
+            }
+        }
 
         private static string? PickNumber(string text, bool first)
         {

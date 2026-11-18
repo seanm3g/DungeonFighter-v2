@@ -160,7 +160,10 @@ namespace RPGGame.UI.Avalonia.Renderers
                 if (isFinisherSlot)
                     baseBorder = i == selectedIndex ? ComboTension.FinisherGold : ActionInfoStripLayout.DarkenRgb(ComboTension.FinisherGold, 0.45);
                 else if (isSpent)
-                    baseBorder = AsciiArtAssets.Colors.White;
+                    // Rebuild 1.1 (D0.1): on the board a lit card brightens toward gold the further the chain got.
+                    baseBorder = CombatBoardLayout.IsActive
+                        ? LerpColor(AsciiArtAssets.Colors.White, ComboTension.FinisherGold, RPGGame.UI.ComboBoardModel.LitGoldShare(i, filled, enemy: false))
+                        : AsciiArtAssets.Colors.White;
                 bool flashActive = HeroActionStripFeedback.TryGetBorderOverride(i, out var flashColor);
                 bool isSelected = !isEmptySlot && selectedIndex >= 0 && i == selectedIndex;
                 bool bonusCue = !isEmptySlot && i < effectiveMaxSlots
@@ -180,7 +183,9 @@ namespace RPGGame.UI.Avalonia.Renderers
 
                 int borderThick = HeroActionStripFeedback.IsFlashEmphasisActive(i)
                     ? HeroActionStripFeedback.FlashBorderThicknessPixels
-                    : 1;
+                    : isSpent && CombatBoardLayout.IsActive
+                        ? RPGGame.UI.ComboBoardModel.LitBorderThickness(i, filled, enemy: false) // grows 1 → 4 along the chain
+                        : 1;
                 // A stun skips the hero's next turn: the card it is lined up on wears the stun color until the stun wears off.
                 if (CombatBoardLayout.IsActive && isSelected && !flashActive && player.StunTurnsRemaining > 0)
                     (borderColor, borderThick) = (BoardStunColor, 2);
@@ -202,7 +207,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                     continue;
 
                 DrawActionCardContent(player, panelData[i], comboForStrip[i], i, px, py, pw, panelH, damageLineMode,
-                    textBrightness: isSpent ? SpentCardTextBrightness : 1.0);
+                    // On the board lit cards stay bright (the chain is the show); in menus fired cards dim as before.
+                    textBrightness: isSpent && !CombatBoardLayout.IsActive ? SpentCardTextBrightness : 1.0);
             }
 
             if (anyBonusShimmer)

@@ -34,7 +34,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | 1.7 Simple / detailed log | done | `1f99d974` | 15217 passed / 0 failed |
 | 1.8 First 60 seconds | done | `cf810c72` | 15220 passed / 0 failed |
 | 1.9 Level 1 fights ~2 swings | done | `0b27b695` | 15220 passed / 0 failed |
-| 1.2 Audio split | done | (this commit) | 15235 passed / 0 failed |
+| 1.2 Audio split | done | `28dc087f` | 15235 passed / 0 failed |
+| 1.1 The board | done, not seen on screen | (this commit) | 15253 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -183,6 +184,29 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 - Tests: new `AudioSplitTests`. `AudioCueDispatcherTests`' enemy-hit test now uses a plain hit (an enemy combo hit
   plays its thud by design). Also fixed here: `AgentGameplayTests.AdvanceToDungeonSelection` still typed the old
   path-intro and inventory inputs; it now follows the 1.8 flow (offer → weapon → first dungeon → selection).
+
+### 1.1 The board — done in code, **not checked by eye**
+The board's numbers live in a new testable model, `ComboBoardModel` (`Code/UI/ComboBoardModel.cs`), and the existing
+renderers draw them. I could not look at the Avalonia window tonight (MCP is text-only and screen control needs your
+approval), so the visual result is unverified. Please look at one fight first thing.
+- **Odds on every card (D2.7):** the card's bottom line (where authored threshold shifts used to show alone) now reads
+  `needs 15+ · 30%`: the slot's combo threshold (14, +1 per link) against d20 + the card's roll bonus, a natural 20
+  always lands, Lucky (2d20 keep high) counted. Authored shifts (`C:+1` …) follow it. Shown on hero and enemy cards.
+- **The hero strip escalates (D0.1):** on the board, cards the chain has already fired stay lit at full brightness
+  (they used to dim), their border goes white → gold and 1 → 4 px along the strip. The next card keeps
+  `ComboTension`'s glow; the finisher stays gold.
+- **The strip collapses on a break:** already built. A failed roll resets the combo step to slot 1, so every lit card
+  goes dark at once, and `HeroActionStripFeedback` flashes the card red. No change needed.
+- **The enemy strip (D0.11, D9.6):** cards the enemy's chain already fired now stay lit, red → a little gold, 1 → 2 px
+  (quieter than yours), and "its chain: N" shows under its strip while it chains.
+- **The roll ruler (D2.2):** once the die lands, one row under it shows the five bands, e.g.
+  `1 │ 2–5 │ 6–13 │ [14+: 16] │ 20`, with the landed band lit in its color, and `2d20` when Lucky rolled two dice.
+  Mid-chain the HIT band is gone, so the ruler drops it. Nudges and the kept die already show in the die's math
+  caption on the reveal beat.
+- Not done: cards don't grow in *size* (the strip is a fixed grid; thickness and color carry the escalation), and
+  the power multiplier per card (×1.0, ×1.3…) isn't a separate line (the swing line already includes slot AMP).
+  **REVIEW** whether that reads as "bigger" enough.
+- Tests: new `ComboBoardModelTests` (odds, +1 per link, escalation, ruler bands, mid-chain ruler).
 
 ## Questions for the user
 - **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the

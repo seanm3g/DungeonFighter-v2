@@ -198,9 +198,13 @@ namespace RPGGame
                     ? baseSpeedPct * (1.0 + speedModPercent / 100.0)
                     : baseSpeedPct;
 
-                string thresholdText = GetThresholdText(action);
-
                 int accuracyRollBonus = CombatCalculator.CalculateRollBonus(character, action, actions, i, consumeTempBonus: false);
+
+                // Rebuild 1.1 (D2.7): the card's odds, "needs 16+ · 25%", then any authored threshold shifts.
+                string thresholdText = RPGGame.UI.ComboBoardModel.OddsLine(character, i, accuracyRollBonus);
+                string shifts = GetThresholdText(action);
+                if (shifts.Length > 0)
+                    thresholdText += "  " + shifts;
 
                 // Strip preview: pending ACTION cadence only — not Consumed* from a just-resolved swing.
                 int effectiveHits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(
