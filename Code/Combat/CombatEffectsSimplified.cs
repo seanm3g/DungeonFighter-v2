@@ -128,6 +128,10 @@ namespace RPGGame
 
             if (shouldApplyEffects)
             {
+                // D2.5: a crit amplifies the action's statuses too (extra applications; their log lines are folded into one).
+                int applications = combatEvent?.IsCritical == true && combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsMiss
+                    ? GameConfiguration.Instance.Combat.CritEffectApplications
+                    : 1;
                 foreach (var effectType in effectTypes)
                 {
                     // TRIGGERS → owned statuses fire only via ActionTriggerBundleApplicator on matching WHEN.
@@ -141,6 +145,12 @@ namespace RPGGame
                     if (_effectRegistry.ApplyEffect(effectType, effectRecipient, effectAction, results))
                     {
                         effectsApplied = true;
+                        int extra = 0;
+                        for (int i = 1; i < applications; i++)
+                            if (_effectRegistry.ApplyEffect(effectType, effectRecipient, effectAction, new List<string>()))
+                                extra++;
+                        if (extra > 0)
+                            results.Add($"    Critical: {effectType} lands {extra + 1} times");
                     }
                 }
             }

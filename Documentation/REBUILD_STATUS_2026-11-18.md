@@ -29,7 +29,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | Step 0 MCP walk | done | — | see "Step 0 walk" |
 | 1.3 One AMP formula | done | `aa2064d1` | 15196 passed / 0 failed* |
 | 1.4 INT 10 routing gate removed | done | `f3fe9d30` | 15196 passed / 0 failed |
-| 1.6 Chain rules confirmed | done, 1 question | (this commit) | ChainRulesConfig 10/10 |
+| 1.6 Chain rules confirmed | done, 1 question | `05f94848` | ChainRulesConfig 10/10 |
+| 1.5 Crit amplifies effects | done | (this commit) | 15213 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -115,6 +116,18 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
   chain sets `comboSystem.resetChainOnNormalHit = false` (from `slotrise-v46a`, inherited by `night-v47-6b`). I did
   not change the patch (out of scope). In practice a turn's chain already resets on a failed bonus roll and at the
   strip end, so this only matters when a rule keeps the chain alive across turns (EXEMPT COMBO). See Q1.
+
+### 1.5 Crit amplifies effects — done
+- New switch `combat.critAmplifiesEffects` (default **true**). On a critical hit, each status the action itself
+  applies lands `CritEffectApplications` times: the crit multiplier rounded (×2 today → twice), capped at 4. Stacking
+  statuses get twice the stacks; refresh-only ones (Stun, Silence) just refresh. The extra applications' log lines
+  fold into one: "Critical: bleed lands 2 times".
+- Scope: the action's own statuses (`CombatEffectsSimplified.ApplyStatusEffects`). Not amplified yet: gear mod
+  statuses, trigger bundles, heals and cadence grants. **REVIEW**: D2.5 says "and other effects"; I stopped at
+  statuses because the other effect paths merge into one rule engine in step 6, where one crit hook covers them all.
+- Crit miss confirmed as already built: `Actor.HasCriticalMissPenalty` / `ActionSpeedSystem` double the action
+  length, so a natural 1 is a miss with 2× recovery. Tests: new `CritAmplifiesEffectsTests` (Expose 1 → 2 on a crit,
+  switch off → 1, crit-miss length ×2).
 
 ## Questions for the user
 - **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the

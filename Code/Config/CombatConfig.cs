@@ -17,6 +17,17 @@ namespace RPGGame
 
         public int CriticalHitThreshold { get; set; }
         public double CriticalHitMultiplier { get; set; }
+
+        /// <summary>
+        /// Rebuild 1.5 (D2.5): a crit amplifies the action's effects as well as its damage. Each status the action
+        /// applies lands <see cref="CritEffectApplications"/> times (the crit multiplier, rounded: ×2 → twice).
+        /// False = statuses land once on a crit, as before.
+        /// </summary>
+        public bool CritAmplifiesEffects { get; set; } = true;
+
+        /// <summary>How many times a crit applies each of the action's statuses (1 when <see cref="CritAmplifiesEffects"/> is off).</summary>
+        public int CritEffectApplications =>
+            CritAmplifiesEffects ? Math.Clamp((int)Math.Round(CriticalHitMultiplier > 0 ? CriticalHitMultiplier : 2.0), 1, 4) : 1;
         public int MinimumDamage { get; set; }
         public int PlayerBaseArmor { get; set; }
         public int MaximumDamageCap { get; set; } = 999;
