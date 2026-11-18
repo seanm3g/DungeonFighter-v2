@@ -319,6 +319,26 @@ namespace RPGGame.UI.Avalonia
         /// <summary>
         /// Appends dungeon completion summary after existing center-panel log lines (combat log preserved).
         /// </summary>
+        /// <summary>
+        /// Rebuild 2.4: appends the loot reveal's newly shown lines under the completion summary and repaints the screen
+        /// (its footer switches to Equip / Keep / Salvage while a choice is due).
+        /// </summary>
+        public void AppendLootRevealLines(Character player, List<string> lines)
+        {
+            if (textManager is not CanvasTextManager ctm || lines == null || lines.Count == 0)
+                return;
+            ctm.SwitchToCharacterDisplayManager(player);
+            var dm = ctm.GetDisplayManagerForCharacter(player);
+            var colored = new List<List<ColoredText>>();
+            foreach (string line in lines)
+                colored.Add(RPGGame.UI.Avalonia.Renderers.DungeonCompletionRenderer.ColorRevealLine(line));
+            dm.Buffer.AddRange(colored, UIMessageType.OutcomeSummary);
+            dm.Buffer.FinishReveals();
+            if (_dungeonCompletionRenderDungeon != null && _dungeonCompletionRenderPlayer != null)
+                RenderDungeonCompletion(_dungeonCompletionRenderDungeon, _dungeonCompletionRenderPlayer, _dungeonCompletionRenderXpGained,
+                    _dungeonCompletionRenderLoot, _dungeonCompletionRenderLevelUps, _dungeonCompletionRenderItemsFound);
+        }
+
         public void AppendDungeonCompletionSummaryToBuffer(
             Dungeon dungeon,
             Character player,
@@ -340,6 +360,10 @@ namespace RPGGame.UI.Avalonia
                 levelUpInfos,
                 itemsFoundDuringRun),
                 UIMessageType.OutcomeSummary);
+            // Rebuild 2.4: the first loot item's opening beats follow the summary.
+            if (RPGGame.LootReveal.LootRevealSession.Active is { } reveal)
+                foreach (string line in reveal.TakeNewLines())
+                    dm.Buffer.Add(DungeonCompletionRenderer.ColorRevealLine(line), UIMessageType.OutcomeSummary);
             // The completion screen paints once (no reveal clock): typed-in lines would stay blank.
             dm.Buffer.FinishReveals();
         }

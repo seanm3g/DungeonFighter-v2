@@ -35,6 +35,7 @@ namespace RPGGame.Tests.Runners
             ("CommonItemRules", () => CommonItemRulesTests.RunAllTests()),
             ("CharmsOff", () => CharmsOffTests.RunAllTests()),
             ("DungeonGearLock", () => DungeonGearLockTests.RunAllTests()),
+            ("LootReveal", () => LootRevealTests.RunAllTests()),
             ("GameInitializer", () => GameInitializerTests.RunAllTests()),
             ("GameInitializationManager", () => GameInitializationManagerTests.RunAllTests()),
             ("GameLoader", () => GameLoaderTests.RunAllTests()),

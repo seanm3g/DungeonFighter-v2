@@ -83,6 +83,15 @@ namespace RPGGame
             var player = stateManager.CurrentPlayer;
             var dungeon = stateManager.CurrentDungeon;
 
+            // Rebuild 2.4 (D4.5): the loot reveals after the summary, item by item (all of it is already in the bag).
+            if (player != null)
+            {
+                var revealItems = new List<Item>(itemsFoundDuringRun ?? new List<Item>());
+                if (lootReceived != null)
+                    revealItems.Add(lootReceived);
+                RPGGame.LootReveal.LootRevealSession.Start(player, revealItems);
+            }
+
             if (canvasUI == null || player == null || dungeon == null)
             {
                 RPGGame.Combat.Narrative.VictoryLimerickService.Instance.ClearPrefetch();

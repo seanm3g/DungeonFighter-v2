@@ -45,6 +45,18 @@ namespace RPGGame
             stateManager.SetCurrentDungeon(null!);
             stateManager.SetCurrentRoom(null!);
 
+            // Rebuild 2.4 (D4.5): the summary is up; now the loot reveals item by item, then Equip / Keep / Salvage.
+            if (RPGGame.LootReveal.LootRevealSession.Active is { } reveal)
+            {
+                if (!reveal.HandleInput(input))
+                    ShowMessageEvent?.Invoke(reveal.AwaitingChoice
+                        ? "Press E to equip, K to keep or S to salvage."
+                        : "Press Continue to see the rest of this item.");
+                if (UIManager.GetCustomUIManager() is RPGGame.UI.Avalonia.CanvasUICoordinator revealCanvas && stateManager.CurrentPlayer != null)
+                    revealCanvas.AppendLootRevealLines(stateManager.CurrentPlayer, reveal.TakeNewLines());
+                return;
+            }
+
             // Windowed game: the completion screen has a single Continue button that opens the inventory hub
             // (Dungeon Select, Skill Tree, Travel, Main Menu live there). MCP agents / headless bots keep the numeric menu.
             if (!RPGGame.MCP.MCPMode.IsActive)

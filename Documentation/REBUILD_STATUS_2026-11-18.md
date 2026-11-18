@@ -39,7 +39,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | Step 1 MCP walk | done | — | see "Step 1 walk" |
 | 2.1 Commons are plain | done, 1 question | `ed0a8603` | 15269 passed / 0 failed |
 | 2.5 Charms off | done | `16aebda5` | 15273 passed / 0 failed |
-| 2.3 No gear changes mid-dungeon | done | (this commit) | 15277 passed / 0 failed |
+| 2.3 No gear changes mid-dungeon | done | `5a18d94a` | 15277 passed / 0 failed |
+| 2.4 Dungeon end: staged loot reveal | done, 2 questions | (this commit) | 15293 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -251,9 +252,33 @@ approval), so the visual result is unverified. Please look at one fight first th
   all refuse while `GameStateManager.HasCurrentDungeon`. Confirmed, unchanged.
 - New: gear locks the same way. `InventoryItemActionHandler` refuses equip (picker, compare, drag), unequip and
   auto-equip inside a run with one line: "Your gear is locked inside a dungeon. Change it after you leave." The dungeon
-  is cleared before the completion screen, so the end-of-dungeon Equip / Keep / Salvage still works.
+  stays set on the completion screen until its first input clears it, so the end-of-dungeon Equip / Keep / Salvage
+  (which equips directly, not through this handler) and the inventory reached from there both work.
 - Loot already arrives only at the end (dungeon rewards are awarded on completion; room searches give consumables).
 - Tests: new `DungeonGearLockTests`.
+
+### 2.4 Dungeon end: summary, staged reveal, Equip / Keep / Salvage — done
+- New `Code/Game/LootReveal/LootReveal.cs`: `LootRevealBuilder` builds each item's beats and verdict;
+  `LootRevealSession` walks them. Switch: `LootRevealSession.Enabled` (default on; off = the old silent bag).
+- Flow: the completion summary shows first (stats, XP, level-ups; its loot list becomes "Loot: N items to reveal").
+  Then each item reveals in order, Commons first and fast (all their beats at once), the best last. Beats, one per
+  Continue (D4.5 draft): Rare+ get "..." first; the drop ("A RARE drops!"); what it is (name, rarity, slot, material,
+  tier); **the comparison** against what you wear, one line per attribute, computed on a copy of the hero with the
+  item worn ("vs Leather Boots: +4 Defense +7 AGI +3 TEC"); the next set step only ("Bronze 0 → 1 pieces worn",
+  "breaks your Leather set (3 → 2): you lose Lucky"); its action (Uncommon+); its modifier; its unique rule
+  (Legendary+); then the verdict: Upgrade / Sidegrade (why) / Worse, or "fills an empty slot".
+- Then **Equip / Keep / Salvage** (E / K / S, or three buttons on the canvas footer). The suggested choice is
+  pre-marked: Equip for an upgrade you can wear, Salvage for a worse Common, else Keep; Continue applies it. Breaking a
+  set step makes it a sidegrade (Mock 3: keep Leather for now). After the last item, Continue goes to the hub as before.
+- The loot was already in the bag when the screen opens, so Keep leaves it, Equip wears it (old piece to the bag),
+  Salvage removes it. **REVIEW / Q4:** Salvage currently just discards.
+- MCP: `get_agent_context` shows the reveal as SubScreen `LootReveal` with Continue / skip, then E / K / S choices.
+- Not done: the glow and sound per rarity on the drop beat, and timed beats (each beat waits for Continue). Fernis
+  reports (D9.2) are step 3. **Not checked by eye** on the canvas; the MCP path was walked (below).
+- Tests: new `LootRevealTests` (order, fast Commons, staged Rare, comparison, salvage, equip, the Leather set break).
+  `AgentGameplayTests.AdvanceToDungeonSelection` walks the reveal first.
+- MCP walk: a Wizard, 4 dungeons: three single-Common reveals, e.g. "vs Leather Armor: −2 Defense +3 AGI +2 INT ·
+  Wood 0 → 1 · breaks your Leather set (4 → 3) · Sidegrade: +3 AGI, but −2 Defense" → Keep; two upgrades → Equip.
 
 ## Questions for the user
 - **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the

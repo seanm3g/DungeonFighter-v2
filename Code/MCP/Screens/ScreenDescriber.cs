@@ -473,6 +473,25 @@ namespace RPGGame.MCP.Screens
 
         private static ScreenView DescribeCompletion(Character hero)
         {
+            // Rebuild 2.4: while the loot reveal runs, the screen is the current item's beats and its choice.
+            if (RPGGame.LootReveal.LootRevealSession.Active is { } reveal && reveal.Current is { } entry)
+            {
+                var rv = new ScreenView { Title = "Dungeon Complete", SubScreen = "LootReveal" };
+                rv.Body.AddRange(reveal.CurrentLines());
+                if (reveal.AwaitingChoice)
+                {
+                    rv.Choices.Add(new AgentChoice { Input = "e", Label = $"Equip {entry.Item.Name}", Recommended = entry.Suggested == RPGGame.LootReveal.LootChoice.Equip });
+                    rv.Choices.Add(new AgentChoice { Input = "k", Label = $"Keep {entry.Item.Name} in the bag", Recommended = entry.Suggested == RPGGame.LootReveal.LootChoice.Keep });
+                    rv.Choices.Add(new AgentChoice { Input = "s", Label = $"Salvage {entry.Item.Name}", Recommended = entry.Suggested == RPGGame.LootReveal.LootChoice.Salvage });
+                }
+                else
+                {
+                    rv.Choices.Add(new AgentChoice { Input = "1", Label = "Continue (reveal the next part)", Recommended = true });
+                    rv.Choices.Add(new AgentChoice { Input = "skip", Label = "Reveal the rest of this item" });
+                }
+                rv.Hints.Add("Call get_item_details with a bag number for the full tooltip of the revealed item.");
+                return rv;
+            }
             var view = new ScreenView { Title = "Dungeon Complete" };
             view.Body.AddRange(CharacterSheet(hero));
             view.Choices.Add(new AgentChoice { Input = "1", Label = "Dungeon selection", Recommended = true });

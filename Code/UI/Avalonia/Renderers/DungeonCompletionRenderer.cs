@@ -186,7 +186,12 @@ namespace RPGGame.UI.Avalonia.Renderers
 
 
 
-            if (allLoot.Count > 0)
+            if (allLoot.Count > 0 && RPGGame.LootReveal.LootRevealSession.Active != null)
+            {
+                // Rebuild 2.4: the loot reveals item by item below, not as a list.
+                AddLogLine(lines, new List<ColoredText> { new ColoredText($"Loot: {allLoot.Count} item{(allLoot.Count == 1 ? "" : "s")} to reveal.", AsciiArtAssets.Colors.Yellow) });
+            }
+            else if (allLoot.Count > 0)
 
             {
 
@@ -213,6 +218,25 @@ namespace RPGGame.UI.Avalonia.Renderers
         }
 
 
+
+        /// <summary>Rebuild 2.4: one reveal line, colored by what it is (drop, action, modifier, rule, verdict, result).</summary>
+        public static List<ColoredText> ColorRevealLine(string line)
+        {
+            line ??= "";
+            Color color = line.StartsWith("LOOT ") ? AsciiArtAssets.Colors.Gold
+                : line.Contains("MYTHIC") || line.Contains("LEGENDARY") ? AsciiArtAssets.Colors.Orange
+                : line.Contains("EPIC") ? AsciiArtAssets.Colors.Purple
+                : line.Contains("RARE") ? AsciiArtAssets.Colors.Blue
+                : line.StartsWith("An Uncommon") ? AsciiArtAssets.Colors.Green
+                : line.StartsWith("▸") ? AsciiArtAssets.Colors.Cyan
+                : line.StartsWith("◆") || line.StartsWith("★") ? AsciiArtAssets.Colors.Gold
+                : line.StartsWith("Upgrade") ? AsciiArtAssets.Colors.Green
+                : line.StartsWith("Worse") ? AsciiArtAssets.Colors.Red
+                : line.StartsWith("Sidegrade") ? AsciiArtAssets.Colors.Yellow
+                : line.StartsWith("[E]") ? AsciiArtAssets.Colors.White
+                : AsciiArtAssets.Colors.Silver;
+            return new List<ColoredText> { new ColoredText(line, color) };
+        }
 
         private static List<ColoredText> BuildMetricLine(string label, string value)
 
@@ -323,6 +347,27 @@ namespace RPGGame.UI.Avalonia.Renderers
             int textAreaWidth = System.Math.Max(1, width - 2);
 
 
+
+            // Rebuild 2.4: while a loot choice is due, the footer offers Equip / Keep / Salvage instead of Continue.
+            if (RPGGame.LootReveal.LootRevealSession.Active is { AwaitingChoice: true } reveal)
+            {
+                var choices = new[] { ("e", "EQUIP"), ("k", "KEEP"), ("s", "SALVAGE") };
+                int bw = 13, gap = 2, total = choices.Length * bw + (choices.Length - 1) * gap;
+                int bx = textAreaLeft + System.Math.Max(0, (textAreaWidth - total) / 2);
+                int by = menuStartY - 1;
+                string suggested = reveal.Current?.Suggested.ToString().ToUpperInvariant() ?? "";
+                foreach (var (key, text) in choices)
+                {
+                    bool pick = text == suggested;
+                    var border = pick ? ColorPaletteExtensions.GetColor(ColorPalette.Success) : Color.FromRgb(140, 140, 140);
+                    canvas.AddBox(bx, by, bw, 3, border, Color.FromRgb(236, 236, 236), borderThicknessPixels: pick ? 3 : 2, aboveBackdrop: true);
+                    string shown = $"[{key.ToUpperInvariant()}] {text}";
+                    canvas.AddText(bx + System.Math.Max(1, (bw - shown.Length) / 2), by + 1, shown, Color.FromRgb(20, 20, 20));
+                    clickableElements.Add(new ClickableElement { X = bx, Y = by, Width = bw, Height = 3, Type = ElementType.MenuOption, Value = key, DisplayText = shown });
+                    bx += bw + gap;
+                }
+                return;
+            }
 
             // Single Continue button: the inventory is the hub (Dungeon Select, Skill Tree, Travel, Main Menu).
             // Drawn as a boxed button (3 rows tall, centered on the menu row); key 1 still works.

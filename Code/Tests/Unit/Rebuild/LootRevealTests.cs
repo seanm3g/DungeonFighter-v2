@@ -1,0 +1,70 @@
+using System;
+using System.Linq;
+using RPGGame.LootReveal;
+
+namespace RPGGame.Tests.Unit.Rebuild
+{
+    /// <summary>Rebuild 2.4 (D4.5): summary, then a staged reveal per item, then Equip / Keep / Salvage.</summary>
+    public static class LootRevealTests
+    {
+        private static int _run, _passed, _failed;
+
+        public static void RunAllTests()
+        {
+            Console.WriteLine("=== LootReveal Tests ===\n");
+            _run = _passed = _failed = 0;
+            try
+            {
+                var hero = new Character("Revealer", 3);
+                new GameInitializer().InitializeNewGame(hero, new System.Collections.Generic.List<Dungeon>(), 1);
+                LootGenerator.Initialize();
+                var common = TestDataBuilders.Armor().WithType(ItemType.Head).WithName("Plain Cap").Build();
+                common.Rarity = "Common";
+                var rare = new HeadItem("Fine Crown", tier: 2, armor: 9) { Rarity = "Rare", Material = "Iron" };
+                hero.Inventory.Add(common);
+                hero.Inventory.Add(rare);
+
+                var session = LootRevealSession.Start(hero, new Item[] { rare, common })!;
+                TestBase.AssertTrue(session != null && LootRevealSession.Active == session, "A reveal starts when loot dropped", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(ReferenceEquals(session!.Entries[0].Item, common), "Commons reveal first, the best last", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(session.Entries[0].Fast && session.AwaitingChoice, "A Common shows all its beats at once (fast batch)", ref _run, ref _passed, ref _failed);
+
+                var rareEntry = session.Entries[1];
+                TestBase.AssertTrue(rareEntry.Beats[0] == "..." && rareEntry.Beats.Any(b => b.Contains("RARE")), "A Rare gets a beat of anticipation, then its drop", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(rareEntry.Beats.Any(b => b.StartsWith("vs ")), "It compares against what you wear", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(rareEntry.Beats.Any(b => b.Contains("Defense")), $"One line per attribute ({string.Join(" | ", rareEntry.Beats)})", ref _run, ref _passed, ref _failed);
+
+                string first = session.Choose(LootChoice.Salvage);
+                TestBase.AssertTrue(!hero.Inventory.Contains(common) && first.StartsWith("Salvaged"), "Salvage removes the item from the bag", ref _run, ref _passed, ref _failed);
+                TestBase.AssertFalse(session.AwaitingChoice, "The Rare stages its beats", ref _run, ref _passed, ref _failed);
+                int steps = 0;
+                while (!session.AwaitingChoice && steps++ < 20)
+                    session.HandleInput("1");
+                TestBase.AssertTrue(session.AwaitingChoice, $"Continue walks the beats to the verdict ({steps} presses)", ref _run, ref _passed, ref _failed);
+                var oldHead = hero.Head;
+                session.HandleInput("e");
+                TestBase.AssertTrue(ReferenceEquals(hero.Head, rare) && hero.Inventory.Contains(oldHead!) && !hero.Inventory.Contains(rare),
+                    "Equip wears it and the old piece goes to the bag", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(session.IsDone && LootRevealSession.Active == null, "The reveal ends after the last item", ref _run, ref _passed, ref _failed);
+
+                var lines = session.TakeNewLines();
+                TestBase.AssertTrue(lines.Any(l => l.StartsWith("Equipped")), "The screen prints what happened", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(LootRevealSession.Start(hero, Array.Empty<Item>()) == null, "No loot, no reveal", ref _run, ref _passed, ref _failed);
+
+                // Mock 3: a piece that drops the Leather set from 3 to 2 loses Lucky: a sidegrade, keep for now.
+                var three = new Character("Lucky Three", 3);
+                new GameInitializer().InitializeNewGame(three, new System.Collections.Generic.List<Dungeon>(), 1);
+                three.UnequipItem("head");
+                var boots = new FeetItem("Bronze Slippers", tier: 2, armor: 6) { Rarity = "Common", Material = "Bronze" };
+                var entry = LootRevealBuilder.Build(three, boots);
+                TestBase.AssertTrue(entry.Verdict == LootVerdict.Sidegrade && entry.Suggested == LootChoice.Keep && entry.VerdictLine.Contains("Lucky"),
+                    $"Breaking the Leather set's Lucky is a sidegrade: {entry.VerdictLine}", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                LootRevealSession.Clear();
+            }
+            TestBase.PrintSummary("LootReveal Tests", _run, _passed, _failed);
+        }
+    }
+}

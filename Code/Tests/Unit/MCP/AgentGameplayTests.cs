@@ -150,6 +150,9 @@ namespace RPGGame.Tests.Unit.MCP
             await StartNewGameFromMenu(game);
             await game.HandleInput("2"); // skip training (Rebuild 1.8: no path intro)
             await game.HandleInput("1"); // weapon: the first dungeon runs straight away (Rebuild 1.8)
+            // Rebuild 2.4: the loot reveal runs first (Continue walks it, applying each pre-marked choice).
+            for (int guard = 0; guard < 60 && RPGGame.LootReveal.LootRevealSession.Active != null; guard++)
+                await game.HandleInput("1");
             if (game.CurrentState == GameState.DungeonCompletion)
                 await game.HandleInput("1"); // dungeon selection
             else if (game.CurrentState == GameState.GameLoop)
