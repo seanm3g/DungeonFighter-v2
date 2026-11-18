@@ -62,7 +62,8 @@ namespace RPGGame.Entity.Services
                     ? GameConstants.DefaultRegionId
                     : character.CurrentRegionId,
                 DungeonDifficultyAnchorLevel = character.DungeonDifficultyAnchorLevel,
-                SessionStats = character.SessionStats
+                SessionStats = character.SessionStats,
+                SystemUnlocks = character.Unlocks.Keys.ToList()
             };
 
             var options = new JsonSerializerOptions
@@ -168,6 +169,13 @@ namespace RPGGame.Entity.Services
             {
                 RebuildCharacterActions(character);
             }
+
+            // Ladder unlocks (Rebuild 0.3). A save from before the record existed opens every rung its state shows.
+            if (saveData.SystemUnlocks != null)
+                character.Unlocks.Restore(saveData.SystemUnlocks);
+            else
+                character.Unlocks = SystemUnlocks.InferFromCharacter(character);
+            character.RefreshSystemUnlocks();
 
             return character;
         }

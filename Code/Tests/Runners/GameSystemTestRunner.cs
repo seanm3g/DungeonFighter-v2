@@ -23,6 +23,7 @@ namespace RPGGame.Tests.Runners
             ("GameStateManager", () => GameStateManagerTests.RunAllTests()),
             ("GameStateValidator", () => GameStateValidatorTests.RunAllTests()),
             ("DevBuild", () => DevBuildTests.RunAllTests()),
+            ("SystemUnlocks", () => SystemUnlocksTests.RunAllTests()),
             ("GameInitializer", () => GameInitializerTests.RunAllTests()),
             ("GameInitializationManager", () => GameInitializationManagerTests.RunAllTests()),
             ("GameLoader", () => GameLoaderTests.RunAllTests()),

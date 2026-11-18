@@ -108,6 +108,7 @@ namespace RPGGame
         /// </summary>
         private void UpdateActionsAfterGearChange(Item? previousItem, Item? newItem, string slot)
         {
+            try { _character.RefreshSystemUnlocks(); } catch { /* unlock bookkeeping never blocks an equip */ }
             // Pool mutations replace some Action instances (e.g. AddClassActions removes/re-adds class actions).
             // Combo slots hold references; matching only by reference would drop valid actions by name.
             // Save order by name and restore after the pool is updated (same idea as CharacterSerializer.RebuildCharacterActions).

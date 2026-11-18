@@ -119,7 +119,7 @@ namespace RPGGame
             {
                 // Add to inventory (player.AddToInventory already adds to player.Inventory, 
                 // and inventory parameter is a reference to the same list)
-                player.AddToInventory(reward);
+                player.ReceiveLoot(reward);
                 
                 // Rare charm drop (~5%) — separate from armor/weapon affix loot.
                 var charm = LootGenerator.TryRollCharmLoot();
@@ -167,7 +167,7 @@ namespace RPGGame
             {
                 // Add to inventory (player.AddToInventory already adds to player.Inventory, 
                 // and inventory parameter is a reference to the same list)
-                player.AddToInventory(reward);
+                player.ReceiveLoot(reward);
                 
                 var charm = LootGenerator.TryRollCharmLoot();
                 if (charm != null)

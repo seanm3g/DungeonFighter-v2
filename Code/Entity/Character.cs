@@ -250,6 +250,35 @@ namespace RPGGame
         public Item? Charm => Facade.Properties.Charm;
 
         public void AddToInventory(Item item) => Facade.AddToInventory(item);
+
+        /// <summary>Adds a dropped or rewarded item to the bag and records its first-event unlocks (Items, Synergies, LootDepth).</summary>
+        public void ReceiveLoot(Item item)
+        {
+            if (item == null) return;
+            AddToInventory(item);
+            Unlocks.OnItemReceived(item);
+        }
+
+        /// <summary>Which ladder systems have arrived for this character (Rebuild 0.3). Saved with the character.</summary>
+        public SystemUnlocks Unlocks { get; set; } = new();
+
+        /// <summary>
+        /// Re-checks the state-based first events (strip length, worn materials, skill points) after a level-up,
+        /// a gear change or a load. Returns true when something new opened.
+        /// </summary>
+        public bool RefreshSystemUnlocks()
+        {
+            bool any = false;
+            try { any |= Unlocks.OnStripLengthChanged(ComboSequenceMaxHelper.GetEffectiveMax(this)); } catch { /* config not loaded */ }
+            any |= Unlocks.OnEquipmentChanged(new[] { Equipment.Head, Equipment.Body, Equipment.Legs, Equipment.Feet, Equipment.Weapon });
+            try
+            {
+                if (Equipment.Weapon is WeaponItem w)
+                    any |= Unlocks.OnSkillPointAvailable(Progression.GetAvailableSkillPoints(w.WeaponType));
+            }
+            catch { /* skill trees not loaded */ }
+            return any;
+        }
         public bool RemoveFromInventory(Item item) => Facade.RemoveFromInventory(item);
 
         // Effects accessors (delegated to Facade)

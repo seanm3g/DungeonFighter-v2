@@ -88,6 +88,7 @@ namespace RPGGame
             // Invalidate damage cache since stats changed
             DamageCalculator.InvalidateCache(_character);
             
+            _character.RefreshSystemUnlocks();
             return levelUpInfo;
         }
 

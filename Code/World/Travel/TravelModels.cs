@@ -547,7 +547,7 @@ namespace RPGGame
                     dungeonTheme: lootTheme);
 
                 if (lootReceived != null)
-                    player.AddToInventory(lootReceived);
+                    player.ReceiveLoot(lootReceived);
             }
 
             double travelTimeScale = GameSettings.Instance.TravelTimeMultiplier;

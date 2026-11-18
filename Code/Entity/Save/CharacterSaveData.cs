@@ -60,6 +60,9 @@ namespace RPGGame
 
         /// <summary>This life's running statistics (kills, damage, bests) feeding the History log. Null on legacy saves.</summary>
         public SessionStatistics? SessionStats { get; set; }
+
+        /// <summary>Unlocked ladder systems and seen keys (<see cref="RPGGame.SystemUnlocks"/>). Null in saves written before Rebuild 0.3.</summary>
+        public List<string>? SystemUnlocks { get; set; }
     }
 }
 
