@@ -65,7 +65,7 @@ namespace RPGGame
         /// <summary>One rule as <c>lead → effect</c> (no arrow when the rule has no lead), keywords styled.</summary>
         public static List<ColoredText> StyleRule(CrossWireRule rule)
         {
-            string text = CrossWires.Describe(rule);
+            string text = RPGGame.UI.RuleText.Line(rule);
             var (lead, effect) = Split(rule, text);
             var tokens = Tokens(rule);
             var segs = new List<ColoredText>();

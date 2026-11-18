@@ -486,7 +486,7 @@ namespace RPGGame
         public static string? DescribeMod(Modification mod)
         {
             var rules = RulesOf(mod, mod.Name ?? "").ToList();
-            return rules.Count == 0 ? null : string.Join("; ", rules.Select(Describe));
+            return rules.Count == 0 ? null : string.Join("; ", rules.Select(RPGGame.UI.RuleText.Line));
         }
 
         /// <summary>Attribute points ONSTATUSAPPLY BUFF rules have granted (never reset; sim fight logs diff it).</summary>

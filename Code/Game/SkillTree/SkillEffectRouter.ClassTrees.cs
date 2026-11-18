@@ -41,7 +41,7 @@ namespace RPGGame
                 bool rides = (keyword != null && rule.When.Equals("ONCASH:" + keyword, StringComparison.OrdinalIgnoreCase))
                     || rule.Conditions.Any(c => c.Subject == "action" && string.Equals(c.Key, actionName, StringComparison.OrdinalIgnoreCase));
                 if (rides)
-                    lines.Add($"{node.Name}: {CrossWires.Describe(rule)}");
+                    lines.Add($"{node.Name}: {RPGGame.UI.RuleText.Line(rule)}");
             }
             return string.Join(" ", lines);
         }

@@ -76,7 +76,7 @@ namespace RPGGame
                     continue;
                 var rule = CrossWireRule.Parse(part.Trim(), item.Name ?? "");
                 if (rule != null)
-                    parts.Add(CrossWires.Describe(rule));
+                    parts.Add(RPGGame.UI.RuleText.Line(rule));
             }
             if (parts.Count == 0)
                 return null;

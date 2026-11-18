@@ -414,7 +414,7 @@ namespace RPGGame.MCP.Screens
                 string rankText = n.MaxRank > 1 ? $" rank {rank}/{n.MaxRank}" : (rank > 0 ? " learned" : "");
                 string rail = model.IsRailIndex(i) ? $" [{model.RailTitle ?? "shared rail"}]" : "";
                 string sel = i == selected ? " <selected>" : "";
-                string effect = string.IsNullOrWhiteSpace(n.Effect) ? n.Payoff : n.Effect;
+                string effect = RPGGame.UI.RuleText.SkillNode(n);
                 string unlock = string.IsNullOrEmpty(n.UnlockActionName) ? "" : $" Unlocks action {n.UnlockActionName}.";
                 view.Body.Add($"  {i + 1}. {n.Name} (tier {n.Tier}, {n.Branch}, cost {n.Cost}, {state}{rankText}){rail}{sel}: {effect}{unlock}");
             }

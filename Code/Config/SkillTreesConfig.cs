@@ -72,7 +72,7 @@ namespace RPGGame
         /// (e.g. "+{8}% damage" at power 0.0625 → "+0.5% damage"), so text stays correct when power is tuned.
         /// </summary>
         [JsonIgnore]
-        public string DisplayEffect => FormatEffect(Effect, Power);
+        public string DisplayEffect => RPGGame.UI.RuleText.Plain(Effect, Power);
 
         public static string FormatEffect(string? effect, double power) =>
             System.Text.RegularExpressions.Regex.Replace(effect ?? "", @"\{(-?\d+(?:\.\d+)?)\}", m =>

@@ -16,7 +16,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | Sub-step | Status | Commit | Tests |
 |---|---|---|---|
 | 0.2 Dev build flag | done | `4cc9a3dd` | 15128 passed / 2 failed (baseline) |
-| 0.3 System unlocks | done | (this commit) | 15169 passed / 2 failed (baseline) |
+| 0.3 System unlocks | done | `395338b1` | 15169 passed / 2 failed (baseline) |
+| 0.4 Text pipeline + braces | done | (this commit) | 15187 passed / 2 failed (baseline) |
 
 ## Step 0 — Foundation
 
@@ -51,6 +52,19 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
   regions, level 13+ stores), so an existing hero never loses a screen.
 - Nothing reads it yet, so no player-visible change (as step 0 intends). Tests: new `SystemUnlocksTests` (41 checks,
   including a save round trip and a legacy save).
+
+### 0.4 Text pipeline and the leaking braces — done
+- New `RuleText` (`Code/UI/RuleText.cs`): `Plain` (authored text → one line; `{n}` × scale, `{lo-hi}` → `lo–hi`,
+  stray braces stripped, line breaks collapsed), `Line` (a parsed CrossWires rule → one line), `Lines` (a `;` rule
+  source → one line per rule, `{n}` = rolled value) and `SkillNode` (authored effect × power, else its rules, else
+  its payoff).
+- Routed through it: skill node `DisplayEffect`, the MCP skill tree screen (this was the Phase 1 leak: it printed
+  the raw `Effect`, "+{8}% damage"), base modifier text on item cards (`ItemTriggerBundleDisplay.FormatModifier`,
+  `ModifierTooltipFormatter`), RULE / CROSSWIRE prefix text (`CrossWires.DescribeMod`) and the skill lines attached
+  to convert actions.
+- Tests: new `RuleTextTests` (14 checks), including a sweep over all 210 skill nodes and 150 rolled items' full
+  tooltips (levels 1–30) asserting no `{` or `}` reaches the card.
+- Not changed: the wording of `CrossWires.Describe` itself (the one renderer still owns the sentences).
 
 ## Questions for the user
 _(none yet)_
