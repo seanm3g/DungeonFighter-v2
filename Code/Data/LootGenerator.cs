@@ -222,10 +222,6 @@ namespace RPGGame
         /// </summary>
         [JsonPropertyName("modifier")]
         public string? Modifier { get; set; }
-
-        /// <summary>The modifier's name: its subject plus the tier word ("Cleave Mastery").</summary>
-        [JsonPropertyName("modifierName")]
-        public string? ModifierName { get; set; }
     }
 
     public class WeaponData
@@ -297,10 +293,6 @@ namespace RPGGame
         /// </summary>
         [JsonPropertyName("modifier")]
         public string? Modifier { get; set; }
-
-        /// <summary>The modifier's name: its subject plus the tier word ("Cleave Mastery").</summary>
-        [JsonPropertyName("modifierName")]
-        public string? ModifierName { get; set; }
     }
 
     /// <summary>One row of <c>RarityTable.json</c>.</summary>

@@ -23,12 +23,14 @@ Attribute passives fold into `GetSkillAttributeBonus`; nested attribute reads sk
 
 ### 2. Base modifiers change behavior (`Scripts/build-item-mods.py --modifiers-only`)
 
+> Superseded 2026-11-17: base modifiers no longer grant any % bonus; see `Documentation/BASE_MODIFIERS_2026-11-17.md`.
+
 Every base still has one fixed modifier; the shapes per tier are now:
 
 | Tier | Shapes |
 |---|---|
-| 1 | class DAMAGE / SPEED, DoT POTENCY (unchanged) |
-| 2 | tag DAMAGE / SPEED, **tag after another tag in the strip** (`PREVTAG`) |
+| 1 | class DAMAGE / SPEED, DoT POTENCY (replaced 2026-11-17, see BASE_MODIFIERS_2026-11-17.md) |
+| 2 | tag DAMAGE / SPEED, **tag after another tag in the strip** (`PREVTAG`) (replaced 2026-11-17) |
 | 3 | tag actions **apply a status** (EVERY 2), **feed the next action** (`NEXT DAMAGE`), **grant a resource** (Haste / Focus / Harden), **mint a class store** |
 | 4 | NEXT with a condition, a **setup that waits for another tag** (`NEXT AMP ... IFTAG`), tag-before-tag SPEED, crits apply 2 of a status |
 | 5 | **producer + payoff pair** (APPLY brittle + DAMAGE PER TARGET brittle), ramping NEXT + same-tag chain SPEED, resource + CRIT while it is up |

@@ -206,6 +206,25 @@ namespace RPGGame
                     Verb = verb, Store = what, Amount = 1, Source = source, Text = spec.Trim()
                 };
             }
+            if (verb is "TAGAS" or "RANK" or "SETCOUNT")
+            {
+                // Modifier verbs (2026-11-17), passive only: TAGAS tag (the swing's action also counts as that tag),
+                // RANK node_id n (+n effective rank on a learned skill node), SETCOUNT n (this piece counts n more toward its
+                // material set; item modifiers only).
+                if (!passive)
+                    return null;
+                string what = verb == "SETCOUNT" ? "" : right[1].ToLowerInvariant();
+                int amountIdx = verb switch { "TAGAS" => -1, "RANK" => 2, _ => 1 };
+                if (right.Length != (verb == "TAGAS" ? 2 : amountIdx + 1))
+                    return null;
+                double n = 1;
+                if (amountIdx > 0 && (!TryAmount(right[amountIdx], out n, out bool isPct) || isPct || n < 1))
+                    return null;
+                return new CrossWireRule
+                {
+                    When = "WHILE", Conditions = conds, Verb = verb, Store = what, Amount = n, Source = source, Text = spec.Trim()
+                };
+            }
             if (passive != PassiveStats.Contains(verb) || (!passive && !TriggeredVerbs.Contains(verb)))
                 return null;
 
@@ -479,6 +498,7 @@ namespace RPGGame
             var trees = SkillTreeService.Trees;
             if (hero?.Progression == null || trees == null)
                 yield break;
+            var bonus = hero is Enemy ? null : View(hero).RankBonus;
             foreach (var kv in hero.Progression.LearnedSkillRanks)
             {
                 if (kv.Value <= 0)
@@ -486,7 +506,8 @@ namespace RPGGame
                 var node = trees.GetNode(kv.Key);
                 if (node == null || string.IsNullOrWhiteSpace(node.CrossWire))
                     continue;
-                double scale = Math.Max(1, kv.Value) * (node.Power > 0 ? node.Power : 1.0);
+                int rank = kv.Value + (bonus?.GetValueOrDefault(kv.Key) ?? 0);
+                double scale = Math.Max(1, rank) * (node.Power > 0 ? node.Power : 1.0);
                 foreach (string part in node.CrossWire.Split(';'))
                 {
                     var rule = Scaled(part.Trim(), node.Name, scale);
@@ -530,6 +551,7 @@ namespace RPGGame
             if (includeNodes)
             {
                 var trees = SkillTreeService.Trees;
+                var bonus = hero is Enemy ? null : View(hero).RankBonus;
                 foreach (var kv in hero.Progression.LearnedSkillRanks)
                 {
                     if (kv.Value <= 0)
@@ -537,8 +559,10 @@ namespace RPGGame
                     var node = trees?.GetNode(kv.Key);
                     if (node == null || string.IsNullOrWhiteSpace(node.CrossWire))
                         continue;
-                    // Ranked rule nodes: amounts scale by rank x node power (rank-1 nodes at power 1 stay as written).
-                    double scale = Math.Max(1, kv.Value) * (node.Power > 0 ? node.Power : 1.0);
+                    // Ranked rule nodes: amounts scale by rank x node power (rank-1 nodes at power 1 stay as written);
+                    // worn RANK modifiers add to the rank.
+                    int rank = kv.Value + (bonus?.GetValueOrDefault(kv.Key) ?? 0);
+                    double scale = Math.Max(1, rank) * (node.Power > 0 ? node.Power : 1.0);
                     foreach (string part in node.CrossWire.Split(';'))
                     {
                         var rule = Scaled(part.Trim(), node.Name, scale);
@@ -755,8 +779,7 @@ namespace RPGGame
                 "target" => target == null ? 0 : Stores.Get(target, per.Arg),
                 "stat" => AttributeValue(hero, per.Arg),
                 "worn" => WornCount(hero, per.Arg),
-                "tags" => ActionUtilities.GetComboActions(hero).Count(a =>
-                    a?.Tags != null && a.Tags.Any(t => string.Equals(t?.Trim(), per.Arg, StringComparison.OrdinalIgnoreCase))),
+                "tags" => ActionUtilities.GetComboActions(hero).Count(a => HasTag(hero, a, per.Arg)),
                 "quality" => QualityCount(hero, per.Arg.Split('|', StringSplitOptions.RemoveEmptyEntries)),
                 _ => SelfValue(hero, per.Arg, eventAmount, evt, action)
             };
@@ -870,9 +893,9 @@ namespace RPGGame
                 case "action":
                     return action != null && string.Equals(action.Name?.Trim(), c.Key, StringComparison.OrdinalIgnoreCase);
                 case "tag":
-                    return action?.Tags != null && action.Tags.Any(t => string.Equals(t?.Trim(), c.Key, StringComparison.OrdinalIgnoreCase));
+                    return HasTag(hero, action, c.Key);
                 case "class":
-                    return action != null && GearActionPools.IsClassActionFor(action.Tags, new[] { c.Key });
+                    return action != null && (GearActionPools.IsClassActionFor(action.Tags, new[] { c.Key }) || HasTag(hero, action, c.Key));
                 case "weapon":
                     return hero.Equipment.Weapon is WeaponItem w
                         && string.Equals(w.WeaponType.ToString(), c.Key, StringComparison.OrdinalIgnoreCase);
@@ -880,7 +903,7 @@ namespace RPGGame
                 case "nexttag":
                 {
                     var n = StripNeighbour(hero, action, c.Subject == "prevtag" ? -1 : 1);
-                    return n?.Tags != null && n.Tags.Any(t => string.Equals(t?.Trim(), c.Key, StringComparison.OrdinalIgnoreCase));
+                    return HasTag(hero, n, c.Key);
                 }
                 case "prefix":
                     return target is Enemy e && e.PrefixTags.Any(t => string.Equals(t, c.Key, StringComparison.OrdinalIgnoreCase));
@@ -945,6 +968,159 @@ namespace RPGGame
                     return true;
             }
             return false;
+        }
+
+        // ------------------------------------------------------------------ modifier verbs: TAGAS / RANK / SETCOUNT
+
+        /// <summary>Per-hero view of the modifier verbs, rebuilt when gear or learned ranks change.</summary>
+        private sealed class ModifierView
+        {
+            public long Signature = long.MinValue;
+            public bool Building;
+            public List<CrossWireRule> TagAliases = new();
+            public Dictionary<string, int> RankBonus = new(StringComparer.OrdinalIgnoreCase);
+        }
+
+        private static readonly ConditionalWeakTable<Character, ModifierView> _modifierViews = new();
+
+        private static long ModifierSignature(Character hero)
+        {
+            unchecked
+            {
+                long h = 23;
+                foreach (var item in MaterialSetController.EnumerateEquipped(hero))
+                {
+                    if (item == null)
+                        continue;
+                    h = h * 31 + RuntimeHelpers.GetHashCode(item);
+                    h = h * 31 + StringComparer.Ordinal.GetHashCode(item.ImplicitRule ?? "");
+                    h = h * 31 + (item.Modifications?.Count ?? 0);
+                }
+                var ranks = hero.Progression?.LearnedSkillRanks;
+                if (ranks != null)
+                {
+                    h = h * 31 + ranks.Count;
+                    foreach (var kv in ranks)
+                        h += StringComparer.OrdinalIgnoreCase.GetHashCode(kv.Key) * 397L + kv.Value;
+                }
+                return h;
+            }
+        }
+
+        private static ModifierView View(Character hero)
+        {
+            var view = _modifierViews.GetValue(hero, _ => new ModifierView());
+            long sig = ModifierSignature(hero);
+            if (sig == view.Signature || view.Building)
+                return view;
+            view.Building = true;
+            try
+            {
+                // Rank bonuses first (items only), so node rules collected below already scale by them.
+                var ranks = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+                foreach (var item in MaterialSetController.EnumerateEquipped(hero))
+                    foreach (var rule in ItemRules(item).Where(r => r.Verb == "RANK"))
+                        ranks[rule.Store] = ranks.GetValueOrDefault(rule.Store) + (int)Math.Round(rule.Amount);
+                view.RankBonus = ranks;
+                view.TagAliases = Collect(hero, includeNodes: true).Where(r => r.Verb == "TAGAS").ToList();
+                view.Signature = sig;
+            }
+            finally
+            {
+                view.Building = false;
+            }
+            return view;
+        }
+
+        /// <summary>An item's own rules: its base modifier and its RULE / CROSSWIRE prefixes.</summary>
+        public static IEnumerable<CrossWireRule> ItemRules(Item? item)
+        {
+            if (item == null)
+                yield break;
+            foreach (string part in BaseModifierParts(item))
+            {
+                var rule = Cached(part, item.Name);
+                if (rule != null)
+                    yield return rule;
+            }
+            foreach (var mod in item.Modifications ?? new List<Modification>())
+                if (mod != null)
+                    foreach (var rule in RulesOf(mod, item.Name))
+                        yield return rule;
+        }
+
+        private static IEnumerable<string> BaseModifierParts(Item item) =>
+            (item.ImplicitRule ?? "").Split(';').Select(p => p.Trim()).Where(p => p.Length > 0);
+
+        /// <summary>
+        /// Effective-rank bonus worn items give a learned skill node (<c>WHILE -> RANK node_id n</c>). Zero while the node is
+        /// unlearned: gear deepens a skill you took, it does not grant one. Prerequisites and the skill screen read learned ranks.
+        /// </summary>
+        public static int SkillRankBonus(Character? hero, string? nodeId)
+        {
+            if (hero?.Progression == null || hero is Enemy || string.IsNullOrWhiteSpace(nodeId)
+                || hero.Progression.GetSkillRank(nodeId) < 1)
+                return 0;
+            return View(hero).RankBonus.GetValueOrDefault(nodeId);
+        }
+
+        /// <summary>Worn RANK bonuses by node id (learned or not; callers check). Empty for most heroes.</summary>
+        public static IReadOnlyDictionary<string, int> SkillRankBonuses(Character? hero) =>
+            hero == null || hero is Enemy ? new Dictionary<string, int>() : View(hero).RankBonus;
+
+        /// <summary>Learned rank + worn RANK bonus (0 when unlearned).</summary>
+        public static int EffectiveSkillRank(Character? hero, string nodeId)
+        {
+            int learned = hero?.Progression?.GetSkillRank(nodeId) ?? 0;
+            return learned < 1 ? 0 : learned + SkillRankBonus(hero, nodeId);
+        }
+
+        /// <summary>
+        /// True when <paramref name="action"/> has <paramref name="tag"/>, or counts as it through an active
+        /// <c>WHILE [IF ACTION|TAG|CLASS …] -> TAGAS tag</c> rule (worn modifiers, skill nodes). Rule conditions, PER TAGS,
+        /// cadence ifTag / perTag, strip adjacency and class-tag counts read tags through here. Alias conditions see the
+        /// action's own tags only (no chains).
+        /// </summary>
+        public static bool HasTag(Character? hero, Action? action, string? tag)
+        {
+            if (action == null || string.IsNullOrWhiteSpace(tag))
+                return false;
+            string t = tag.Trim();
+            if (action.Tags != null && action.Tags.Any(x => string.Equals(x?.Trim(), t, StringComparison.OrdinalIgnoreCase)))
+                return true;
+            if (hero == null || hero is Enemy)
+                return false;
+            foreach (var alias in View(hero).TagAliases)
+            {
+                if (!alias.Store.Equals(t, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                if (alias.Conditions.All(c => c.Subject switch
+                    {
+                        "action" => string.Equals(action.Name?.Trim(), c.Key, StringComparison.OrdinalIgnoreCase),
+                        "tag" => action.Tags?.Any(x => string.Equals(x?.Trim(), c.Key, StringComparison.OrdinalIgnoreCase)) == true,
+                        "class" => GearActionPools.IsClassActionFor(action.Tags, new[] { c.Key }),
+                        "weapon" => hero.Equipment.Weapon is WeaponItem w
+                            && string.Equals(w.WeaponType.ToString(), c.Key, StringComparison.OrdinalIgnoreCase),
+                        _ => false
+                    }))
+                    return true;
+            }
+            return false;
+        }
+
+        /// <summary>SETCOUNT on worn pieces of <paramref name="material"/>: extra set count (base modifier "counts twice").</summary>
+        public static int ExtraSetCount(Character hero, string material)
+        {
+            int n = 0;
+            foreach (var item in MaterialSetController.EnumerateEquipped(hero))
+            {
+                if (item == null || !string.Equals(ItemMaterialRules.RemapLegacyMaterial(item.Material), material, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                foreach (string part in BaseModifierParts(item))
+                    if (Cached(part, item.Name) is { Verb: "SETCOUNT" } r)
+                        n += (int)Math.Round(r.Amount);
+            }
+            return n;
         }
 
         // ------------------------------------------------------------------ passive (WHILE) rules
@@ -1100,6 +1276,25 @@ namespace RPGGame
             }
             if (rule.Verb == "COUNTAS")
                 return $"{TriggerEvents.Label(rule.When) ?? rule.When}{cond} also counts as {(TriggerEvents.Label(rule.Store) ?? rule.Store).ToLowerInvariant()}";
+            if (rule.Verb == "TAGAS")
+            {
+                // "Wizard actions also count as focus actions" / "CLEAVE also counts as a bludgeon action"
+                var named = rule.Conditions.FirstOrDefault(c => c.Subject == "action");
+                string who = named != null ? named.Key.ToUpperInvariant()
+                    : rule.Conditions.Count > 0
+                        ? CultureInfo.InvariantCulture.TextInfo.ToTitleCase(string.Join(" ", rule.Conditions.Select(c => c.Key))) + " actions"
+                        : "Your actions";
+                bool one = named != null;
+                return $"{who} also count{(one ? "s" : "")} as {(one ? "a " : "")}{rule.Store} action{(one ? "" : "s")}";
+            }
+            if (rule.Verb == "RANK")
+            {
+                var node = SkillTreeService.Trees?.GetNode(rule.Store);
+                string name = string.IsNullOrWhiteSpace(node?.Name) ? rule.Store : node!.Name;
+                return $"+{rule.Amount:0} rank to {name} (once learned)";
+            }
+            if (rule.Verb == "SETCOUNT")
+                return rule.Amount <= 1 ? "Counts twice toward its material set" : $"Counts {rule.Amount + 1:0} times toward its material set";
             if (rule.IsPassive && rule.Verb == "POTENCY")
             {
                 string lead = cond.Length > 0 ? $"While{cond}: " : "";

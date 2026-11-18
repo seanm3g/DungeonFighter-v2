@@ -12,6 +12,8 @@ namespace RPGGame
     /// </summary>
     internal class CharacterEffectsState
     {
+        internal Character? Owner { get; set; }
+
         #region Combo
         public int ComboStep { get; set; }
         public double ComboAmplifier { get; set; } = 1.0;
@@ -392,7 +394,7 @@ namespace RPGGame
             foreach (var group in TurnBonuses.ToArray())
             {
                 if (group.Count <= 0 || group.Bonuses == null) continue;
-                if (group.Timing != null && !group.Timing.TagGateHolds(action)) continue;
+                if (group.Timing != null && !group.Timing.TagGateHolds(action, Owner)) continue;
                 result.AddRange(TurnPayload(group));
                 group.Elapsed++;
                 // Delay rolls (timing.delay) don't spend the duration.
@@ -403,7 +405,7 @@ namespace RPGGame
             foreach (var g in toRemove) TurnBonuses.Remove(g);
             return result;
         }
-        public List<ActionAttackBonusItem> PeekTurnBonuses(Action? action = null) { var r = new List<ActionAttackBonusItem>(); foreach (var g in SnapshotTurnBonuses()) { if (g?.Bonuses != null && (g.Timing == null || action == null && string.IsNullOrWhiteSpace(g.Timing.IfTag) || action != null && g.Timing.TagGateHolds(action))) r.AddRange(TurnPayload(g)); } return r; }
+        public List<ActionAttackBonusItem> PeekTurnBonuses(Action? action = null) { var r = new List<ActionAttackBonusItem>(); foreach (var g in SnapshotTurnBonuses()) { if (g?.Bonuses != null && (g.Timing == null || action == null && string.IsNullOrWhiteSpace(g.Timing.IfTag) || action != null && g.Timing.TagGateHolds(action, Owner))) r.AddRange(TurnPayload(g)); } return r; }
 
         /// <summary>
         /// What <paramref name="group"/> gives on its next roll: nothing while delayed (timing.delay) or off-beat (timing.every);

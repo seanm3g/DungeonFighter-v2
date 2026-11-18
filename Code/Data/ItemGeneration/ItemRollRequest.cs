@@ -85,8 +85,6 @@ namespace RPGGame.Data.ItemGeneration
         public string Material { get; set; } = "";
         /// <summary>The base modifier rule(s) as rolled (catalog template with its values filled in).</summary>
         public string Implicit { get; set; } = "";
-        /// <summary>The base modifier's name (catalog <c>modifierName</c>).</summary>
-        public string ImplicitName { get; set; } = "";
 
         /// <summary>The first rolled value of the base modifier (null when it has none).</summary>
         public double? ImplicitValue { get; set; }

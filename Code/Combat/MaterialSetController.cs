@@ -56,7 +56,7 @@ namespace RPGGame
                 else if (partnerMaterials.Any(m => string.Equals(m, itemMat, StringComparison.OrdinalIgnoreCase)))
                     joiners++;
             }
-            return count > 0 ? count + joiners + AffixTemplates.ExtraSetCount(hero, key) : 0;
+            return count > 0 ? count + joiners + AffixTemplates.ExtraSetCount(hero, key) + CrossWires.ExtraSetCount(hero, key) : 0;
         }
 
         /// <summary>

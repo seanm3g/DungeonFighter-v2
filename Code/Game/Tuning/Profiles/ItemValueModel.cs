@@ -217,12 +217,19 @@ namespace RPGGame.Tuning.Profiles
                     total += TriggeredValue(rule, hero, strip, weaponValue);
                     continue;
                 }
+                if (ModifierVerbValue(item, rule, hero, strip, weaponValue) is double modifierValue)
+                {
+                    total += modifierValue;
+                    continue;
+                }
                 var subject = rule.Conditions.Where(c => c.Subject is "action" or "tag" or "class").ToList();
                 double stateShare = subject.Count < rule.Conditions.Count ? ImplicitStateShare : 1.0;
                 var probe = new CrossWireRule { When = "WHILE", Conditions = subject, Verb = rule.Verb, Store = rule.Store, Amount = rule.Amount, Percent = rule.Percent };
                 double share = strip.Count(a => CrossWires.ConditionsHold(hero, null, probe, action: a)) / (double)strip.Count;
                 double amount = rule.Amount / 100.0 * stateShare;
-                if (rule.Per != null)
+                if (rule.Per is { Kind: "tags" or "stat" or "worn" or "quality" })
+                    amount *= CrossWires.PerValue(hero, null, rule.Per); // strip / gear / attribute counts are known now
+                else if (rule.Per != null)
                     amount *= ImplicitStateShare; // PER TARGET status / PER store: only while it is up
                 total += rule.Verb.ToUpperInvariant() switch
                 {
@@ -235,6 +242,42 @@ namespace RPGGame.Tuning.Profiles
             }
             return total;
         }
+
+        /// <summary>
+        /// Modifier verbs (2026-11-17): RANK is worth <see cref="ImplicitRankShare"/> per rank on a learned node (nothing
+        /// unlearned); SETCOUNT <see cref="ImplicitSetCountShare"/> when another worn piece shares the item's material (it
+        /// moves a forming set); TAGAS a grant share × the strip actions it re-tags; EXEMPT a grant share. Null = not one.
+        /// </summary>
+        private static double? ModifierVerbValue(Item item, CrossWireRule rule, Character hero, IReadOnlyList<Action> strip, double weaponValue)
+        {
+            switch (rule.Verb)
+            {
+                case "RANK":
+                    return hero.Progression.GetSkillRank(rule.Store) > 0 ? rule.Amount * ImplicitRankShare * weaponValue : 0;
+                case "SETCOUNT":
+                {
+                    bool sharing = MaterialSetController.EnumerateEquipped(hero).Any(o => o != null && !ReferenceEquals(o, item)
+                        && string.Equals(o.Material, item.Material, StringComparison.OrdinalIgnoreCase));
+                    return sharing ? rule.Amount * ImplicitSetCountShare * weaponValue : 0;
+                }
+                case "TAGAS":
+                {
+                    var probe = new CrossWireRule { When = "WHILE", Conditions = rule.Conditions, Verb = "DAMAGE", Amount = 1 };
+                    int retagged = strip.Count(a => CrossWires.ConditionsHold(hero, null, probe, action: a));
+                    return retagged * ImplicitGrantShare * weaponValue;
+                }
+                case "EXEMPT":
+                    return ImplicitGrantShare * weaponValue;
+                default:
+                    return null;
+            }
+        }
+
+        /// <summary>Weapon-value share of one worn skill rank on a learned node.</summary>
+        public static double ImplicitRankShare { get; set; } = 0.06;
+
+        /// <summary>Weapon-value share of one extra set count when the piece's material set is forming.</summary>
+        public static double ImplicitSetCountShare { get; set; } = 0.08;
 
         /// <summary>Share of a base modifier rule's value kept when it also needs fight state (HP, step, slot, target status).</summary>
         private const double ImplicitStateShare = 0.5;
@@ -276,6 +319,7 @@ namespace RPGGame.Tuning.Profiles
                     : rule.Store == "SPEED" ? rule.Amount / 100.0 * ImplicitSpeedShare * Math.Max(1, rule.Turns)
                     : ImplicitGrantShare,
                 "APPLY" or "ADD" or "MINT" => ImplicitGrantShare * Math.Max(1, rule.Amount),
+                "COUNTAS" => ImplicitGrantShare,
                 _ => 0
             };
             if (rule.Verb == "NEXT" && rule.IfTag != null)

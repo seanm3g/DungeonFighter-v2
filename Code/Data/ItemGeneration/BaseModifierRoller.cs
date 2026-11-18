@@ -10,12 +10,12 @@ namespace RPGGame.Data.ItemGeneration
 {
     /// <summary>
     /// Base item modifiers: the base's built-in line. Since 2026-11-15 each base's modifier is fixed in the catalog
-    /// (<c>modifier</c> / <c>modifierName</c> in Weapons.json / Armor.json, written by Scripts/build-item-mods.py) and
+    /// (<c>modifier</c> in Weapons.json / Armor.json, written by Scripts/build-item-mods.py) and
     /// <see cref="FromCatalog"/> only rolls its values. <see cref="Roll"/> (the <c>GameData/BaseModifiers.json</c> pools) is
     /// the fallback for saved items whose base is no longer in the catalog. It changes other things the hero
-    /// does (one named action, a tag's actions, the class's actions, a status) instead of firing as a trigger. The result is
-    /// one passive <see cref="CrossWires"/> rule stored on <see cref="Item.ImplicitRule"/>, e.g.
-    /// <c>WHILE IF ACTION Cleave -&gt; DAMAGE 12%</c> or <c>WHILE -&gt; POTENCY bleed 20%</c>.
+    /// does (a named action or a tag's actions apply a status, class hits apply a DoT, a DoT's potency). It never grants a
+    /// % damage / speed bonus. The result is one <see cref="CrossWires"/> rule stored on <see cref="Item.ImplicitRule"/>, e.g.
+    /// <c>ONCONNECT EVERY 2 IF TAG bludgeon -&gt; APPLY stagger 1</c> or <c>WHILE -&gt; POTENCY bleed 20%</c>.
     /// </summary>
     public static class BaseModifierRoller
     {
@@ -84,7 +84,7 @@ namespace RPGGame.Data.ItemGeneration
                     else if (c.Subject is "tag" or "class" or "target" or "prevtag" or "nexttag" or "weapon")
                         influence.Add(c.Key);
                 }
-                if (parsed.Verb is "POTENCY" or "APPLY" or "ADD" or "MINT")
+                if (parsed.Verb is "POTENCY" or "APPLY" or "ADD" or "MINT" or "TAGAS")
                     influence.Add(parsed.Store);
                 if (parsed.IfTag != null)
                     influence.Add(parsed.IfTag);
@@ -93,44 +93,43 @@ namespace RPGGame.Data.ItemGeneration
         }
 
         /// <summary>Sets <paramref name="item"/>'s modifier from a catalog row (starter gear, lab items); no-op without one.</summary>
-        public static void ApplyCatalogModifier(Item item, string? template, string? name, Random rng)
+        public static void ApplyCatalogModifier(Item item, string? template, Random rng)
         {
             if (item == null || FromCatalog(template, rng) is not { } rolled)
                 return;
             item.ImplicitRule = rolled.Rule;
-            item.ImplicitName = name?.Trim() ?? "";
         }
 
         /// <summary>The rules of a modifier (<see cref="Item.ImplicitRule"/> may hold several, <c>;</c>-separated).</summary>
         public static List<string> SplitRules(string? rule) =>
             (rule ?? "").Split(';').Select(p => p.Trim()).Where(p => p.Length > 0).ToList();
 
-        /// <summary>The catalog modifier template and name of the base called <paramref name="baseName"/>; nulls when none.</summary>
-        public static (string? Template, string? Name) CatalogModifierFor(string? baseName)
+        /// <summary>The catalog modifier template of the base called <paramref name="baseName"/>; null when none.</summary>
+        public static string? CatalogModifierFor(string? baseName)
         {
             if (string.IsNullOrWhiteSpace(baseName))
-                return (null, null);
-            Dictionary<string, (string?, string?)> map;
+                return null;
+            Dictionary<string, string?> map;
             lock (Lock)
             {
                 if (_catalog == null)
                 {
                     // Built once (cleared by Reload): legacy saves call this per item on load.
                     var cache = LootDataCache.Load();
-                    _catalog = new Dictionary<string, (string?, string?)>(StringComparer.OrdinalIgnoreCase);
+                    _catalog = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
                     foreach (var w in cache.WeaponData ?? new List<WeaponData>())
                         if (!string.IsNullOrWhiteSpace(w.Name))
-                            _catalog.TryAdd(w.Name.Trim(), (w.Modifier, w.ModifierName));
+                            _catalog.TryAdd(w.Name.Trim(), w.Modifier);
                     foreach (var r in cache.ArmorData ?? new List<ArmorData>())
                         if (!string.IsNullOrWhiteSpace(r.Name))
-                            _catalog.TryAdd(r.Name.Trim(), (r.Modifier, r.ModifierName));
+                            _catalog.TryAdd(r.Name.Trim(), r.Modifier);
                 }
                 map = _catalog;
             }
-            return map.TryGetValue(baseName.Trim(), out var found) ? found : (null, null);
+            return map.TryGetValue(baseName.Trim(), out var found) ? found : null;
         }
 
-        private static Dictionary<string, (string?, string?)>? _catalog;
+        private static Dictionary<string, string?>? _catalog;
 
         /// <summary>One rolled modifier: the rule text, its value, and tokens the roller's influence tilt can use.</summary>
         public readonly record struct Rolled(string Rule, double Value, IReadOnlyList<string> Influence);
@@ -216,7 +215,7 @@ namespace RPGGame.Data.ItemGeneration
                     if (actions.Count == 0)
                         return null;
                     var pick = actions[rng.Next(actions.Count)];
-                    return new Rolled($"WHILE IF ACTION {pick.Name.Trim().Replace(' ', '_')} -> {stat} {pct}", value,
+                    return new Rolled($"ONCONNECT EVERY 2 IF ACTION {pick.Name.Trim().Replace(' ', '_')} -> APPLY {FoeStatus(cls)} 1", value,
                         (pick.Tags ?? new List<string>()).ToList());
                 }
                 case "tag":
@@ -229,12 +228,12 @@ namespace RPGGame.Data.ItemGeneration
                         tag = tags[rng.Next(tags.Count)];
                     }
                     tag = tag!.Trim().ToLowerInvariant();
-                    return new Rolled($"WHILE IF TAG {tag} -> {stat} {pct}", value, new[] { tag });
+                    return new Rolled($"ONCONNECT EVERY 2 IF TAG {tag} -> APPLY {FoeStatus(cls)} 1", value, new[] { tag });
                 }
                 case "class":
                     if (cls.Length == 0)
                         return null;
-                    return new Rolled($"WHILE IF CLASS {cls} -> {stat} {pct}", value, new[] { cls });
+                    return new Rolled($"ONCONNECT EVERY 3 IF CLASS {cls} -> APPLY bleed 1", value, new[] { cls });
                 case "status":
                 {
                     string status = (e.Status ?? "").Trim().ToLowerInvariant();
@@ -246,6 +245,12 @@ namespace RPGGame.Data.ItemGeneration
                     return null;
             }
         }
+
+        /// <summary>The foe status a class's fallback modifiers apply (matches the catalog generator's first pick).</summary>
+        private static string FoeStatus(string cls) => cls switch
+        {
+            "barbarian" => "stagger", "warrior" => "rattle", "rogue" => "brittle", "wizard" => "weaken", _ => "expose"
+        };
 
         /// <summary>Gear-rollable actions tagged for <paramref name="cls"/> (hybrids count); any gear action when class-less.</summary>
         public static List<ActionData> ActionsFor(string? cls)

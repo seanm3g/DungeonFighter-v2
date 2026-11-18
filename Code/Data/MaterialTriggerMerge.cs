@@ -87,6 +87,7 @@ namespace RPGGame
 
             RemapLegacyMaterialOnItem(item);
             MigrateLegacyImplicit(item);
+            RefreshCatalogModifier(item);
 
             string material = ResolveMaterialName(item);
             if (string.IsNullOrWhiteSpace(material))
@@ -119,12 +120,9 @@ namespace RPGGame
                 int seed = 17;
                 foreach (char ch in (item.Name ?? "") + "|" + item.BaseName)
                     seed = unchecked(seed * 31 + ch);
-                var (template, name) = RPGGame.Data.ItemGeneration.BaseModifierRoller.CatalogModifierFor(item.BaseName);
+                var template = RPGGame.Data.ItemGeneration.BaseModifierRoller.CatalogModifierFor(item.BaseName);
                 if (RPGGame.Data.ItemGeneration.BaseModifierRoller.FromCatalog(template, new Random(seed)) is { } fromCatalog)
-                {
                     item.ImplicitRule = fromCatalog.Rule;
-                    item.ImplicitName = name?.Trim() ?? "";
-                }
                 else
                 {
                     double perLevel = GameConfiguration.Instance?.LootSystem?.ItemGeneration?.ImplicitPercentPerItemLevel ?? 0.01;
@@ -134,6 +132,36 @@ namespace RPGGame
             }
             item.Implicit = "";
         }
+
+        /// <summary>
+        /// A saved item whose base modifier no longer matches its base's catalog rule (the 2026-11-17 pass replaced the flat
+        /// tier 1-2 "+n% with class actions" lines with build rules) re-rolls it from the catalog. Only the rule's shape is
+        /// compared (numbers ignored), so an item already on the current rule keeps its rolled values. Values are stable per
+        /// item name and base.
+        /// </summary>
+        public static void RefreshCatalogModifier(Item item)
+        {
+            if (item == null || string.IsNullOrWhiteSpace(item.ImplicitRule))
+                return;
+            var template = RPGGame.Data.ItemGeneration.BaseModifierRoller.CatalogModifierFor(item.BaseName);
+            if (string.IsNullOrWhiteSpace(template))
+                return;
+            if (RuleShape(template) == RuleShape(item.ImplicitRule))
+                return;
+            int seed = 17;
+            foreach (char ch in (item.Name ?? "") + "|" + item.BaseName)
+                seed = unchecked(seed * 31 + ch);
+            if (RPGGame.Data.ItemGeneration.BaseModifierRoller.FromCatalog(template, new Random(seed)) is { } fromCatalog)
+                item.ImplicitRule = fromCatalog.Rule;
+        }
+
+        private static readonly System.Text.RegularExpressions.Regex RangeOrNumber =
+            new(@"\{[^}]*\}|-?[0-9]+(?:\.[0-9]+)?", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        /// <summary>A modifier rule with every value range / number replaced by <c>N</c> and whitespace collapsed.</summary>
+        internal static string RuleShape(string rule) =>
+            string.Join(" ", RangeOrNumber.Replace(rule ?? "", "N").Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries))
+                .ToUpperInvariant();
 
         /// <summary>Prefer <see cref="Item.Material"/>; fall back to the Material prefix modification name.</summary>
         public static string ResolveMaterialName(Item item)

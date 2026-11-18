@@ -148,7 +148,8 @@ namespace RPGGame.UI.Avalonia.Layout
                         character,
                         ThresholdBarPanel.Hero,
                         D20ThresholdBarRenderer.CombatStripHeightScale,
-                        D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor);
+                        D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor,
+                        rollMarkerBelow: true); // caret under the strip, not over the health bar
                 }
 
                 PanelText(

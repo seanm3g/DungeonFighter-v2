@@ -66,7 +66,7 @@ namespace RPGGame
                 if (!owner.Nodes.Any(n => string.Equals(n.Id, node.Id, StringComparison.OrdinalIgnoreCase)))
                     continue;
                 string name = string.IsNullOrWhiteSpace(node.Name) ? node.Id : node.Name;
-                list.Add(new SkillActionCardBonus(name, "dmg", node.DamageModPerRank * kv.Value));
+                list.Add(new SkillActionCardBonus(name, "dmg", node.DamageModPerRank * (kv.Value + CrossWires.SkillRankBonus(hero, kv.Key))));
             }
         }
 

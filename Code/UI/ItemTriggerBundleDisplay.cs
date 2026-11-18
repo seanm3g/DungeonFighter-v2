@@ -80,8 +80,7 @@ namespace RPGGame
             }
             if (parts.Count == 0)
                 return null;
-            string text = string.Join("; ", parts);
-            return string.IsNullOrWhiteSpace(item.ImplicitName) ? text : $"{item.ImplicitName.Trim()}: {text}";
+            return string.Join("; ", parts);
         }
 
         public static IEnumerable<string> FormatSummaries(IEnumerable<ActionTriggerBundle>? bundles)

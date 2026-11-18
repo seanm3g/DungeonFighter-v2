@@ -523,10 +523,15 @@ namespace RPGGame.UI.Avalonia.Renderers
             Color border = lit ? actorColor : LerpColor(actorColor, BoardDimBorder, 0.7);
             AddBoardBox(r.X, r.Y, r.W, r.H, border, BoardCardBackground, borderThicknessPixels: lit ? 2 : 1);
             string name = Truncate(TimelineLabel(actor, player), r.W - 2);
-            int ty = r.Y + Math.Max(1, (r.H - 1) / 2);
-            if (ty < (int)r.Bottom - 1)
-                canvas.AddText(r.X + Math.Max(1, (r.W - name.Length) / 2), ty, name,
-                    lit ? nameColor : LerpColor(nameColor, AsciiArtAssets.Colors.Gray, 0.25));
+            if (name.Length == 0 || r.H < 2)
+                return;
+            // As large as the box allows (up to 2x), centered both ways.
+            double zoom = CenterColumnTextZoom.IsCenterColumnX(r.X) ? CenterColumnTextZoom.FontScale : 1.0;
+            double scale = Math.Min(2.0, Math.Min((r.W - 2.0) / (name.Length * zoom), (r.H - 1.4) / zoom));
+            scale = Math.Max(1.0, Math.Floor(scale * 4) / 4);
+            double textW = name.Length * scale * zoom, textH = scale * zoom;
+            canvas.AddScaledTextNudged(r.X, r.Y, name, lit ? nameColor : LerpColor(nameColor, AsciiArtAssets.Colors.Gray, 0.25),
+                scale, (r.W - textW) / 2.0, (r.H - textH) / 2.0);
         }
 
         /// <summary>A played turn's card: grayed in the past, in its outcome's colors in the current slot.</summary>

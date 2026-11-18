@@ -33,7 +33,7 @@ namespace RPGGame.ActionInteractionLab
             IReadOnlyList<StatBonus>? suffixTemplates)
         {
             var weapon = ItemGenerator.GenerateWeaponItem(weaponData);
-            RPGGame.Data.ItemGeneration.BaseModifierRoller.ApplyCatalogModifier(weapon, weaponData.Modifier, weaponData.ModifierName, RandomUtility.Ambient);
+            RPGGame.Data.ItemGeneration.BaseModifierRoller.ApplyCatalogModifier(weapon, weaponData.Modifier, RandomUtility.Ambient);
             weapon.Modifications.Clear();
             weapon.StatBonuses.Clear();
             weapon.ActionBonuses.Clear();

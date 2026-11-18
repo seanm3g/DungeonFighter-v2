@@ -81,7 +81,6 @@ namespace RPGGame.Data.ItemGeneration
             /// <summary>Rarity used for line gates and values: the drop rarity, before any rarity roll-up.</summary>
             private int _rarityIndex;
             private string? _modifierTemplate;
-            private string? _modifierName;
 
             public RollState(ItemRoller roller, ItemRollRequest request, ItemRollSpec spec, int seed)
             {
@@ -283,7 +282,6 @@ namespace RPGGame.Data.ItemGeneration
                     Tags = GameDataTagHelper.NormalizeDistinct(row.Tags)
                 };
                 _modifierTemplate = row.Modifier;
-                _modifierName = row.ModifierName;
                 if (row.AttributeRequirements is { Count: > 0 })
                 {
                     weapon.AttributeRequirements = new AttributeRequirements(row.AttributeRequirements);
@@ -323,7 +321,6 @@ namespace RPGGame.Data.ItemGeneration
                 item.DefenseRolled = true;
                 item.Tags = GameDataTagHelper.NormalizeDistinct(row.Tags);
                 _modifierTemplate = row.Modifier;
-                _modifierName = row.ModifierName;
                 item.BaseStrength = Scale(row.Strength);
                 item.BaseAgility = Scale(row.Agility);
                 item.BaseTechnique = Scale(row.Technique);
@@ -436,7 +433,7 @@ namespace RPGGame.Data.ItemGeneration
             }
 
             /// <summary>
-            /// The base's modifier: fixed to the base in the catalog (<c>modifier</c> / <c>modifierName</c>), so finding a
+            /// The base's modifier: fixed to the base in the catalog (<c>modifier</c>), so finding a
             /// specific mechanic means finding that base again; only its values roll. Every base carries one, starters and
             /// Commons included (user 2026-11-15). Higher tiers are more complex (conditions, a second rule).
             /// </summary>
@@ -447,9 +444,7 @@ namespace RPGGame.Data.ItemGeneration
                 if (rolled is not { } r)
                     return;
                 _item.ImplicitRule = r.Rule;
-                _item.ImplicitName = _modifierName?.Trim() ?? "";
                 _spec.Implicit = r.Rule;
-                _spec.ImplicitName = _item.ImplicitName;
                 _spec.ImplicitValue = r.Value;
                 foreach (string token in r.Influence)
                     AddInfluence(token);

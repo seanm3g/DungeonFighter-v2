@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestGrammarParses();
             TestEveryCatalogRuleParses();
+            TestBaseModifiersEngageTheBuild();
             TestPerSourcesAndRankScaling();
             TestWeaponAndAdjacencyConditions();
             TestNextQueuesTurnGrant();
@@ -95,6 +96,91 @@ namespace RPGGame.Tests.Unit.Combat
                 .Select(x => $"{x.Id}: {x.Part}")
                 .ToList();
             Check(badNodes.Count == 0, $"every skill node rule parses ({badNodes.Count} bad{(badNodes.Count > 0 ? ": " + badNodes[0] : "")})");
+        }
+
+        /// <summary>
+        /// 2026-11-17: base modifiers change or enhance other systems (actions, tags, statuses, stores, class skills, the
+        /// item's set count, the combo) and never grant a % stat bonus (POTENCY, which strengthens a status, is the one
+        /// percent). Covers the modifier verbs TAGAS / RANK / SETCOUNT and the save refresh.
+        /// </summary>
+        private static void TestBaseModifiersEngageTheBuild()
+        {
+            Console.WriteLine("--- base modifiers modify systems ---");
+            var cache = LootDataCache.Load();
+            var bonus = new List<string>();
+            var verbs = new HashSet<string>();
+            foreach (var (name, template) in cache.WeaponData.Select(w => (w.Name, w.Modifier)).Concat(cache.ArmorData.Select(a => (a.Name, a.Modifier))))
+            {
+                if (string.IsNullOrWhiteSpace(template) || BaseModifierRoller.FromCatalog(template, new Random(1)) is not { } rolled)
+                    continue;
+                foreach (string part in BaseModifierRoller.SplitRules(rolled.Rule))
+                {
+                    var r = CrossWireRule.Parse(part, "test");
+                    if (r == null)
+                        continue;
+                    verbs.Add(r.Verb);
+                    bool statBonus = r.Verb is "NEXT" or "BUFF" or "HEAL" or "REFLECT"
+                        || r.IsPassive && CrossWireRule.PassiveStats.Contains(r.Verb) && r.Verb != "POTENCY";
+                    if (statBonus)
+                        bonus.Add($"{name}: {part}");
+                }
+            }
+            Check(bonus.Count == 0, $"no base modifier grants a stat bonus ({bonus.Count}{(bonus.Count > 0 ? ": " + bonus[0] : "")})");
+            Check(new[] { "TAGAS", "RANK", "SETCOUNT", "APPLY", "EXEMPT", "COUNTAS" }.All(verbs.Contains),
+                $"the catalog uses the modifier verbs ({string.Join(" ", verbs.OrderBy(v => v))})");
+
+            foreach (string sample in new[] { "WHILE IF ACTION CLEAVE -> TAGAS bludgeon", "WHILE IF CLASS wizard -> TAGAS focus",
+                "WHILE -> RANK b-kin 1", "WHILE -> SETCOUNT 1", "ONSTATUSAPPLY:bleed EVERY 2 -> APPLY brittle 1",
+                "ONCASH:RAGE -> APPLY stagger 1", "WHILE IF STEP>=3 -> EXEMPT COMBO", "ONMISS -> COUNTAS ONCRITICAL" })
+                Console.WriteLine("    " + CrossWires.Describe(CrossWireRule.Parse(sample, "test")!));
+            Check(CrossWireRule.Parse("ONCONNECT -> TAGAS focus") == null, "TAGAS is passive only");
+            Check(CrossWireRule.Parse("WHILE -> RANK b-kin 50%") == null, "RANK takes whole ranks");
+
+            // TAGAS: a worn alias makes a wand action count as a focus action for rule conditions and PER TAGS.
+            var hero = MakeHero("Alias", WeaponType.Wand);
+            hero.Level = 40;
+            var spell = new Action { Name = "ALIAS_SPELL", Type = ActionType.Attack, Tags = new List<string> { "wizard" }, IsComboAction = true };
+            hero.AddToCombo(spell);
+            var focusRule = CrossWireRule.Parse("WHILE IF TAG focus -> DAMAGE 10%")!;
+            Check(!CrossWires.HasTag(hero, spell, "focus") && !CrossWires.ConditionsHold(hero, null, focusRule, action: spell),
+                "without the alias the action is not a focus action");
+            hero.Weapon!.ImplicitRule = "WHILE IF TAG wizard -> TAGAS focus";
+            Check(CrossWires.HasTag(hero, spell, "focus") && CrossWires.ConditionsHold(hero, null, focusRule, action: spell),
+                "TAGAS: wizard actions count as focus actions");
+            Check(CrossWires.PerValue(hero, null, new RulePer { Kind = "tags", Arg = "focus" }) >= 1, "PER TAGS counts aliased actions");
+            Check(new CadenceTiming { IfTag = "focus" }.TagGateHolds(spell, hero), "a cadence IFTAG gate accepts the aliased action");
+
+            // RANK: deepens a learned node only.
+            var ranked = MakeHero("Rank");
+            ranked.Weapon!.Material = "Bone";
+            ranked.Weapon.ImplicitRule = "WHILE -> RANK b-kin 2";
+            Check(CrossWires.EffectiveSkillRank(ranked, "b-kin") == 0, "RANK does nothing on an unlearned node");
+            double before = SkillEffectRouter.Instance.GetSkillAttributeBonus(ranked, "STR");
+            ranked.Progression.LearnedSkillRanks["b-kin"] = 1;
+            Check(CrossWires.EffectiveSkillRank(ranked, "b-kin") == 3 && ranked.Progression.GetSkillRank("b-kin") == 1,
+                "worn RANK 2 on a rank-1 node: effective rank 3, learned rank stays 1");
+            double power = GameConfiguration.Instance.SkillTrees.GetNode("b-kin")?.Power ?? 1;
+            int expected = (int)Math.Round(CrossWires.WornCount(ranked, "barbarian") * 3 * power);
+            Check(SkillEffectRouter.Instance.GetSkillAttributeBonus(ranked, "STR") - before == expected,
+                "the node's rule scales by the effective rank");
+
+            // SETCOUNT: the piece counts twice toward its material set.
+            var paired = MakeHero("Paired");
+            paired.Weapon!.Material = "Bone";
+            int plain = MaterialSetController.CountEquipped(paired, "Bone");
+            paired.Weapon.ImplicitRule = "WHILE -> SETCOUNT 1";
+            Check(MaterialSetController.CountEquipped(paired, "Bone") == plain + 1, "SETCOUNT 1: the piece counts twice toward its set");
+
+            var first = cache.WeaponData.First(w => !string.IsNullOrWhiteSpace(w.Modifier));
+            var item = TestDataBuilders.Weapon().WithName("Old " + first.Name).Build();
+            item.BaseName = first.Name;
+            item.ImplicitRule = "WHILE IF CLASS barbarian -> DAMAGE 6%";
+            MaterialTriggerMerge.RefreshCatalogModifier(item);
+            Check(MaterialTriggerMerge.RuleShape(item.ImplicitRule) == MaterialTriggerMerge.RuleShape(first.Modifier!),
+                "a saved item on an old % rule re-rolls its base's catalog rule");
+            string kept = item.ImplicitRule;
+            MaterialTriggerMerge.RefreshCatalogModifier(item);
+            Check(item.ImplicitRule == kept, "an item already on its catalog rule keeps its rolled values");
         }
 
         private static void TestPerSourcesAndRankScaling()

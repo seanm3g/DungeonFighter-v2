@@ -57,7 +57,7 @@ namespace RPGGame.ActionInteractionLab
             IReadOnlyList<StatBonus>? suffixTemplates)
         {
             var item = ItemGenerator.GenerateArmorItem(armorData);
-            RPGGame.Data.ItemGeneration.BaseModifierRoller.ApplyCatalogModifier(item, armorData.Modifier, armorData.ModifierName, RandomUtility.Ambient);
+            RPGGame.Data.ItemGeneration.BaseModifierRoller.ApplyCatalogModifier(item, armorData.Modifier, RandomUtility.Ambient);
             item.Modifications.Clear();
             item.StatBonuses.Clear();
             item.ActionBonuses.Clear();

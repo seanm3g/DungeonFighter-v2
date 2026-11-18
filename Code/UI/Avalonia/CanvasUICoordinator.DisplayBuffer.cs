@@ -204,6 +204,22 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
+        /// Leaves the combat render path after a fight: drops the combat repaint callback (which holds the fight's enemy)
+        /// and returns the center panel to standard mode. Without this, text-reveal ticks kept repainting the combat
+        /// screen with the dead enemy while board/animation frames repainted the room with none, so the right panel
+        /// flickered between the enemy and the room until the next room-entry render.
+        /// </summary>
+        public void EndCombatRenderPath()
+        {
+            if (textManager is CanvasTextManager canvasTextManager)
+            {
+                var dm = canvasTextManager.GetDisplayManagerForCharacter(stateManager?.GetActiveCharacter());
+                dm.SetExternalRenderCallback(null);
+                dm.SetMode(new StandardDisplayMode());
+            }
+        }
+
+        /// <summary>
         /// Forces an immediate render without resetting layout state. Prefer after small data updates (e.g. combo reorder).
         /// </summary>
         public void ForceRender()

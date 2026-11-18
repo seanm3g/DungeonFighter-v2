@@ -114,10 +114,10 @@ namespace RPGGame.UI
             return links.OrderByDescending(l => l.Strong).ThenBy(l => l.Key, StringComparer.Ordinal).ToList();
         }
 
-        /// <summary>Worn pieces whose base modifier rule names one of <paramref name="keys"/>: (item name, modifier name, key).</summary>
-        public static List<(string Item, string Modifier, string Key)> GearLinks(Character? hero, HashSet<string> keys)
+        /// <summary>Worn pieces whose base modifier rule names one of <paramref name="keys"/>: (item name, key).</summary>
+        public static List<(string Item, string Key)> GearLinks(Character? hero, HashSet<string> keys)
         {
-            var result = new List<(string, string, string)>();
+            var result = new List<(string, string)>();
             if (hero == null || hero is Enemy || keys.Count == 0)
                 return result;
             foreach (var item in MaterialSetController.EnumerateEquipped(hero))
@@ -131,7 +131,7 @@ namespace RPGGame.UI
                     .OrderBy(k => IsClassKey(k) ? 1 : 0)
                     .FirstOrDefault(k => ruleWords.Contains(k.ToLowerInvariant()));
                 if (hit != null)
-                    result.Add((item.Name ?? "", item.ImplicitName ?? "", hit));
+                    result.Add((item.Name ?? "", hit));
             }
             return result;
         }

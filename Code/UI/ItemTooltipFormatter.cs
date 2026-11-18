@@ -44,6 +44,21 @@ namespace RPGGame
             }
             if (maxLines <= lines.Count) return Trim(lines, maxLines);
 
+            // The base item's modifier is what sets this base apart, so it sits right under the name: each rule as
+            // trigger → effect in keyword notation, then dim lines on what it does for this hero (ModifierTooltipFormatter).
+            var modifierLines = ModifierTooltipFormatter.BuildLines(item, character);
+            if (modifierLines.Count > 0)
+            {
+                AddBlank(lines);
+                AddLine(lines, SectionHeader("Modifier"));
+                foreach (var line in modifierLines)
+                {
+                    if (lines.Count >= maxLines) break;
+                    AddLine(lines, line);
+                }
+            }
+            if (maxLines <= lines.Count) return Trim(lines, maxLines);
+
             if (item is CharmItem charm)
             {
                 var effects = CharmBonusController.DescribeEffects(charm);
@@ -81,15 +96,6 @@ namespace RPGGame
                         segments = RecolorAll(segments, ColorPalette.Error.GetColor());
                     AddLine(lines, segments);
                 }
-            }
-
-            // The base item's modifier (changes other actions / a tag / the class / a status) shows without Alt.
-            string? modifier = ItemTriggerBundleDisplay.FormatModifier(item);
-            if (modifier != null && lines.Count < maxLines)
-            {
-                AddBlank(lines);
-                AddLine(lines, SectionHeader("Modifier"));
-                AddLine(lines, BuildTriggerLine(modifier));
             }
 
             // Any trigger rows the item still carries show without Alt.

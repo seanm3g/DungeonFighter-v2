@@ -13,6 +13,9 @@ namespace RPGGame
     {
         private readonly CharacterEffectsState _state = new CharacterEffectsState();
 
+        /// <summary>The character these effects belong to (set by <see cref="Character"/>), so cadence tag gates see its tag aliases.</summary>
+        public Character? Owner { get => _state.Owner; set => _state.Owner = value; }
+
         // Combo
         public int ComboStep { get => _state.ComboStep; set => _state.ComboStep = value; }
         public double ComboAmplifier { get => _state.ComboAmplifier; set => _state.ComboAmplifier = value; }
@@ -177,7 +180,7 @@ namespace RPGGame
             if (!timing.SlotIfHolds(slot0, count))
                 return null;
             // perTag: x strip actions with the tag (no owner = no strip known, unscaled).
-            double tagFactor = owner != null ? timing.PerTagFactor(ActionUtilities.GetComboActions(owner)) : 1;
+            double tagFactor = owner != null ? timing.PerTagFactor(ActionUtilities.GetComboActions(owner), owner) : 1;
             if (tagFactor <= 0)
                 return null;
             double slotFactor = timing.PerSlot && slot0 >= 0 ? slot0 + 1 : 1;

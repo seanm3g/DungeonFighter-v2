@@ -127,7 +127,7 @@ namespace RPGGame
             bool wandMastery = string.Equals(classTag, Wizard, StringComparison.OrdinalIgnoreCase)
                 && SkillEffectRouter.WandMasteryTagsStrip(hero);
             foreach (var action in hero.GetComboActions())
-                if (wandMastery || ActionHas(action, classTag))
+                if (wandMastery || CrossWires.HasTag(hero, action, classTag))
                     count++;
             return count;
         }
@@ -139,7 +139,31 @@ namespace RPGGame
         public static int GetRank(Character? c, string customEffectId)
         {
             if (c?.Progression == null || string.IsNullOrWhiteSpace(customEffectId)) return 0;
-            return Lookup(c.Progression).TryGetValue(customEffectId, out var e) ? e.Rank : 0;
+            return WithGear(c, customEffectId, Lookup(c.Progression).TryGetValue(customEffectId, out var e) ? e : (0, 0)).Rank;
+        }
+
+        /// <summary>
+        /// Worn <c>RANK node n</c> modifiers raise a learned node's effective rank (and its rank × power) for the effects the
+        /// router runs; learned ranks (prerequisites, the skill screen) are unchanged.
+        /// </summary>
+        private static (int Rank, double Power) WithGear(Character c, string customEffectId, (int Rank, double Power) e)
+        {
+            if (c is Enemy)
+                return e;
+            var bonus = CrossWires.SkillRankBonuses(c);
+            if (bonus.Count == 0)
+                return e;
+            foreach (var kv in bonus)
+            {
+                var node = SkillTreeService.Trees?.GetNode(kv.Key);
+                int learned = c.Progression.GetSkillRank(kv.Key);
+                if (node == null || learned < 1 || kv.Value <= 0
+                    || !string.Equals(node.CustomEffectId, customEffectId, StringComparison.OrdinalIgnoreCase))
+                    continue;
+                int rank = learned + kv.Value;
+                e = (Math.Max(e.Rank, rank), Math.Max(e.Power, rank * Math.Max(0, node.Power)));
+            }
+            return e;
         }
 
         /// <summary>round(rank × power), at least 1 once the node is learned (integer magnitudes).</summary>
@@ -153,7 +177,7 @@ namespace RPGGame
         public static double GetPower(Character? c, string customEffectId)
         {
             if (c?.Progression == null || string.IsNullOrWhiteSpace(customEffectId)) return 0;
-            return Lookup(c.Progression).TryGetValue(customEffectId, out var e) ? e.Power : 0;
+            return WithGear(c, customEffectId, Lookup(c.Progression).TryGetValue(customEffectId, out var e) ? e : (0, 0)).Power;
         }
 
         // Per-hero table: custom effect id -> (best rank, best rank x node power). The skill router asks ~60 effects per

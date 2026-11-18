@@ -2,8 +2,8 @@
 
 Writes / updates, in GameData/:
   ItemMods.json     mod families with tier ladders (keyword, value range, item level, weight, rarity requirement)
-  Weapons.json      + class, damageMin / damageMax (tier-scaled, fixed per base), modifier / modifierName
-  Armor.json        + class, defenseMin / defenseMax, modifier / modifierName
+  Weapons.json      + class, damageMin / damageMax (tier-scaled, fixed per base), modifier
+  Armor.json        + class, defenseMin / defenseMax, modifier
   RarityTable.json  + MinLevel, MinLines, MaxLines, Explode (old StatBonuses / ActionBonuses / Modifications columns dropped)
 
 Sources: StatBonuses.json (stat suffixes + animal suffixes), Modifications.json (adjectives, RULE / CROSSWIRE
@@ -430,10 +430,8 @@ WEAPON_DAMAGE_SPREAD = 0.2
 
 
 # Base modifiers (user 2026-11-15): every base, starters included, carries one fixed modifier written into the catalog
-# ("modifier" = CrossWires WHILE rule(s), "{lo-hi}" = the value range rolled per drop; "modifierName"). Low tiers are
-# simple, high tiers add conditions and a second rule. The name is "<subject> <tier word>", so one mechanic is named
-# differently at every tier (Barbarian Knack ... Cleave Legend).
-MODIFIER_TIER_WORDS = {1: "Knack", 2: "Habit", 3: "Technique", 4: "Mastery", 5: "Legend"}
+# ("modifier" = CrossWires WHILE rule(s), "{lo-hi}" = the value range rolled per drop). Low tiers are simple, high tiers
+# add conditions and a second rule. Modifiers have no name (the old "modifierName" was flavor only, retired 2026-11-17).
 MODIFIER_STATUSES = {"barbarian": ["bleed", "burn"], "warrior": ["bleed"], "rogue": ["poison", "bleed", "acid"],
                      "wizard": ["burn", "acid"]}
 # Synergy pass (2026-11-16, Documentation/SYNERGY_PASS_2026-11-16.md): bases from tier 2 up name a tag (class, hybrid or
@@ -445,23 +443,27 @@ MODIFIER_SELF_STATUS = {"barbarian": ["harden", "haste"], "warrior": ["haste", "
                         "rogue": ["haste", "focus"], "wizard": ["focus", "haste"]}
 MODIFIER_MINTS = {"barbarian": ["RAGE", "CRISIS", "TRIUMPH"], "warrior": ["BEAT", "DRAG", "STREAK"],
                   "rogue": ["GRAZE", "SWING", "TROPHY"], "wizard": ["CHAIN", "LENS", "CONTACT"]}
-# Tier-4/5 conditions per class (CrossWires conditions)
-MODIFIER_CONDITIONS = {
-    "barbarian": ["HP<50", "TARGET stagger"],
-    "warrior": ["STEP>=3", "TARGET rattle"],
-    "rogue": ["TARGET brittle", "TARGET mark"],
-    "wizard": ["STEP>=3", "TARGET weaken"],
-}
 # Shapes per tier, dealt round-robin across the bases of one class x tier cell. A tuple is (kind, stat, lo, hi[, second]).
 MODIFIER_SHAPES = {
-    1: [("class", "DAMAGE", 4, 8), ("status", None, 12, 20), ("class", "SPEED", 3, 6)],
-    2: [("tag", "DAMAGE", 6, 12), ("tag", "SPEED", 5, 9), ("tag+prev", "DAMAGE", 10, 16)],
-    3: [("apply", None, 1, 1), ("next", "DAMAGE", 12, 20), ("self", None, 1, 1), ("mint", None, 1, 2)],
-    4: [("next+cond", "DAMAGE", 20, 30), ("setup", "AMP", 20, 30), ("tag+next", "SPEED", 12, 18), ("crit-apply", None, 2, 2)],
-    5: [("apply", None, 1, 1, ("payoff", "DAMAGE", 5, 8)),
-        ("ramp", "DAMAGE", 12, 18, ("tag+prev-same", "SPEED", 8, 12)),
-        ("self", None, 1, 1, ("self-payoff", "CRIT", 1, 2))],
+    # User 2026-11-17: a base modifier changes or enhances another system (an action, a tag, a status, a store, a class
+    # skill, the item's set count, the combo) and never hands out a conditional "+n% damage / speed" bonus. The one
+    # percent left is POTENCY, which strengthens a status rather than the hero. Tier 1 touches one action or the class,
+    # tier 2 a tag or a status chain, tier 3 the skill tree / set / store systems, tier 4 bends a rule (combo, events,
+    # tags), tier 5 is a pair whose halves feed each other.
+    1: [("action-apply",), ("action-tagas",), ("class-dot",), ("potency",), ("action-mint",)],
+    2: [("tag-apply",), ("tag-add",), ("status-chain",), ("class-tagas",)],
+    3: [("rank",), ("setcount",), ("tag-mint",), ("cash-apply",)],
+    4: [("exempt",), ("countas",), ("full-add",), ("tag-tagas",), ("crit-apply",)],
+    5: [("tagas-apply",), ("rank-pair",), ("chain-mint",), ("setcount-rank",)],
 }
+# Event aliases a class's tier-4 bases can grant (COUNTAS: the first event also counts as the second for triggers).
+MODIFIER_COUNTAS = {"barbarian": [("ONTAKEHIT", "ONCOMBO")], "warrior": [("ONMISS", "ONCONSECUTIVEATTACK")],
+                    "rogue": [("ONMISS", "ONCRITICAL")], "wizard": [("ONCOMBOEND", "ONCOMBO")]}
+# Combo / streak exemptions (EXEMPT): what is protected and when.
+MODIFIER_EXEMPT = {"barbarian": [("COMBO", "HP<50"), ("STREAK", "TARGET stagger")],
+                   "warrior": [("STREAK", "STEP>=3"), ("COMBO", "TARGET rattle")],
+                   "rogue": [("COMBO", "TARGET mark"), ("STREAK", "TARGET brittle")],
+                   "wizard": [("COMBO", "STEP>=3"), ("STREAK", "focus>=1")]}
 BASIC_ACTION_TAGS = {"startingweapon", "weapon_basic", "required", "unique", "enemy"}
 CLASS_WEAPON_TAG = {"barbarian": "mace", "warrior": "sword", "rogue": "dagger", "wizard": "wand"}
 
@@ -493,6 +495,14 @@ class ModifierAssigner:
         self.tags = {c: list(mods.get("tags", {}).get(c) or mods.get("tags", {}).get("*") or ["verb"]) for c in CLASSES}
         self.cursor = Counter()
         self.by_name = {}
+        # Class skill nodes a RANK modifier can deepen: ranked rule nodes (their amounts scale by rank), per class tree.
+        trees = load(gd, "SkillTrees.json")["trees"]
+        self.nodes = {}
+        for c in CLASSES:
+            tree = next((t for t in trees if t["classKey"].lower() == c), {"nodes": []})
+            self.nodes[c] = sorted((n["id"], n["name"]) for n in tree["nodes"]
+                                   if n.get("crossWire") and int(n.get("maxRank") or 1) > 1
+                                   and any(ch.isdigit() for ch in n["crossWire"]))
 
     def _next(self, key, options):
         i = self.cursor[key]
@@ -500,88 +510,105 @@ class ModifierAssigner:
         return options[i % len(options)]
 
     def _rule(self, cls, shape, ctx=None):
-        """One rule for a shape; ctx carries the first rule's tag / status so a tier-5 second rule pays off the first."""
-        kind, stat, lo, hi = shape[:4]
+        """One rule (or a tier-5 pair) for a shape; ctx keeps the tag / status / store picked so far for this base."""
+        kind = shape[0]
         ctx = ctx if ctx is not None else {}
-        value = f"{{{lo}-{hi}}}%"
-        flat = f"{{{lo}-{hi}}}" if lo != hi else f"{lo}"
 
-        def tag():
-            if "tag" not in ctx:
-                ctx["tag"] = self._next(("tag", cls), self.tags[cls])
-            return ctx["tag"]
+        def pick(key, options):
+            if key not in ctx:
+                ctx[key] = self._next((key, cls), options)
+            return ctx[key]
 
-        def other_tag():
-            t = tag()
-            pool = [x for x in self.tags[cls] if x != t] or [t]
-            return self._next(("tag2", cls), pool)
+        tag = lambda: pick("tag", self.tags[cls])
+        foe = lambda: pick("foe", MODIFIER_FOE_STATUS[cls])
+        own = lambda: pick("own", MODIFIER_SELF_STATUS[cls])
+        dot = lambda: pick("status", MODIFIER_STATUSES[cls])
+        store = lambda: pick("mint", MODIFIER_MINTS[cls])
+        action = lambda: pick("action", self.actions[cls] or ["Strike"])
+        act = lambda: action().replace(" ", "_")
 
-        def foe():
-            if "foe" not in ctx:
-                ctx["foe"] = self._next(("foe", cls), MODIFIER_FOE_STATUS[cls])
-            return ctx["foe"]
+        def other_tag(avoid=None):
+            # A different tag than the one the rule reads (and never the class itself): aliases cross families.
+            skip = {avoid or tag(), cls}
+            return pick("tag2", [x for x in self.tags[cls] if x not in skip] or [x for x in self.tags[cls] if x != cls])
 
-        def own():
-            if "own" not in ctx:
-                ctx["own"] = self._next(("own", cls), MODIFIER_SELF_STATUS[cls])
-            return ctx["own"]
+        def node():
+            used = ctx.setdefault("nodes", [])
+            pool = [n for n in self.nodes[cls] if n[0] not in used] or self.nodes[cls]
+            picked = self._next(("node", cls), pool)
+            used.append(picked[0])
+            return picked
 
-        if kind == "class":
-            return f"WHILE IF CLASS {cls} -> {stat} {value}", title(cls)
-        if kind == "status":
-            status = self._next(("status", cls), MODIFIER_STATUSES[cls])
-            return f"WHILE -> POTENCY {status} {value}", title(status)
-        if kind == "tag":
-            return f"WHILE IF TAG {tag()} -> {stat} {value}", title(tag())
-        if kind == "tag+prev":
-            return f"WHILE IF TAG {tag()} AND PREVTAG {other_tag()} -> {stat} {value}", title(tag())
-        if kind == "tag+prev-same":
-            return f"WHILE IF TAG {tag()} AND PREVTAG {tag()} -> {stat} {value}", title(tag())
-        if kind == "apply":
-            return f"ONCONNECT EVERY 2 IF TAG {tag()} -> APPLY {foe()} {flat}", title(foe())
+        if kind == "action-apply":
+            return f"ONCONNECT EVERY 2 IF ACTION {act()} -> APPLY {foe()} 1", title(action())
+        if kind == "action-tagas":
+            return f"WHILE IF ACTION {act()} -> TAGAS {other_tag(cls)}", title(action())
+        if kind == "action-mint":
+            return f"ONCOMBO IF ACTION {act()} -> MINT {store()} 1", title(action())
+        if kind == "class-dot":
+            return f"ONCONNECT EVERY 3 IF CLASS {cls} -> APPLY {dot()} 1", title(dot())
+        if kind == "potency":
+            return f"WHILE -> POTENCY {dot()} {{10-20}}%", title(dot())
+        if kind == "tag-apply":
+            return f"ONCONNECT EVERY 2 IF TAG {tag()} -> APPLY {foe()} 1", title(foe())
+        if kind == "tag-add":
+            return f"ONCOMBO EVERY 2 IF TAG {tag()} -> ADD {own()} 1", title(own())
+        if kind == "status-chain":
+            return f"ONSTATUSAPPLY:{dot()} EVERY 2 -> APPLY {foe()} 1", title(foe())
+        if kind == "class-tagas":
+            return f"WHILE IF CLASS {cls} -> TAGAS {other_tag(cls)}", title(other_tag(cls))
+        if kind == "rank":
+            nid, name = node()
+            return f"WHILE -> RANK {nid} 1", name
+        if kind == "setcount":
+            return "WHILE -> SETCOUNT 1", "Paired"
+        if kind == "tag-mint":
+            return f"ONCONNECT EVERY 2 IF TAG {tag()} -> MINT {store()} 1", title(store())
+        if kind == "cash-apply":
+            return f"ONCASH:{store()} -> APPLY {foe()} 1", title(store())
+        if kind == "exempt":
+            what, cond = self._next(("exempt", cls), MODIFIER_EXEMPT[cls])
+            return f"WHILE IF {cond} -> EXEMPT {what}", "Unbroken" if what == "COMBO" else "Steady"
+        if kind == "countas":
+            src, dst = self._next(("countas", cls), MODIFIER_COUNTAS[cls])
+            return f"{src} -> COUNTAS {dst}", "Echo"
+        if kind == "full-add":
+            return f"ONSTOREFULL:{store()} -> ADD {own()} 2", title(store())
+        if kind == "tag-tagas":
+            return f"WHILE IF TAG {tag()} -> TAGAS {other_tag()}", title(tag())
         if kind == "crit-apply":
-            return f"ONCRITICAL IF TAG {tag()} -> APPLY {foe()} {flat}", title(foe())
-        if kind == "payoff":
-            return f"WHILE -> {stat} {value} PER TARGET {foe()}", title(foe())
-        if kind == "next":
-            return f"ONCONNECT IF TAG {tag()} -> NEXT {stat} {value}", title(tag())
-        if kind == "ramp":
-            return f"ONCOMBO IF TAG {tag()} -> NEXT {stat} {value} FOR 2 RAMP", title(tag())
-        if kind == "next+cond":
-            cond = self._next(("cond", cls), MODIFIER_CONDITIONS[cls])
-            return f"ONCONNECT IF TAG {tag()} AND {cond} -> NEXT {stat} {value}", title(tag())
-        if kind == "setup":
-            return f"ONCOMBO IF TAG {tag()} -> NEXT {stat} {value} IFTAG {other_tag()}", title(tag())
-        if kind == "tag+next":
-            return f"WHILE IF TAG {tag()} AND NEXTTAG {other_tag()} -> {stat} {value}", title(tag())
-        if kind == "self":
-            return f"ONCOMBO EVERY 2 IF TAG {tag()} -> ADD {own()} {flat}", title(own())
-        if kind == "self-payoff":
-            return f"WHILE IF {own()}>=2 -> {stat} +{flat}", title(own())
-        if kind == "mint":
-            mint = self._next(("mint", cls), MODIFIER_MINTS[cls])
-            return f"ONCONNECT EVERY 2 IF TAG {tag()} -> MINT {mint} {flat}", title(mint)
+            return f"ONCRITICAL IF TAG {tag()} -> APPLY {foe()} 2", title(foe())
+        if kind == "tagas-apply":
+            return (f"WHILE IF TAG {tag()} -> TAGAS {other_tag()}; "
+                    f"ONCONNECT EVERY 2 IF TAG {other_tag()} -> APPLY {foe()} 1"), title(other_tag())
+        if kind == "rank-pair":
+            (a, name), (b, _) = node(), node()
+            return f"WHILE -> RANK {a} 1; WHILE -> RANK {b} 1", name
+        if kind == "chain-mint":
+            return (f"ONSTATUSAPPLY:{foe()} -> MINT {store()} 1; "
+                    f"ONCASH:{store()} -> APPLY {foe()} 1"), title(store())
+        if kind == "setcount-rank":
+            nid, name = node()
+            return f"WHILE -> SETCOUNT 1; WHILE -> RANK {nid} 1", name
         raise ValueError(kind)
 
     def assign(self, row, cls):
         # Same-named bases (a few catalog rows repeat a name) share one modifier, so a name always means one mechanic.
         key = (str(row.get("name") or "").strip().lower(), str(row.get("type") or row.get("slot") or "").lower())
         if key in self.by_name:
-            row["modifier"], row["modifierName"] = self.by_name[key]
+            row["modifier"] = self.by_name[key]
+            row.pop("modifierName", None)
             row.pop("triggerName", None)
             return
         tier = min(5, max(1, int(row.get("tier") or 1)))
         cls = cls if cls in CLASSES else "barbarian"
         shape = self._next(("shape", cls, tier), MODIFIER_SHAPES[tier])
         ctx = {}
-        rule, subject = self._rule(cls, shape, ctx)
-        if len(shape) > 4:
-            second, _ = self._rule(cls, shape[4], ctx)
-            rule = rule + "; " + second
+        rule, _subject = self._rule(cls, shape, ctx)
         row["modifier"] = rule
-        row["modifierName"] = f"{subject} {MODIFIER_TIER_WORDS[tier]}"
+        row.pop("modifierName", None)  # retired 2026-11-17: the name was flavor only (subject + tier word)
         row.pop("triggerName", None)
-        self.by_name[key] = (row["modifier"], row["modifierName"])
+        self.by_name[key] = rule
 
 
 def weapon_rows(gd, assigner):

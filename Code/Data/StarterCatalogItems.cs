@@ -104,7 +104,7 @@ namespace RPGGame
                 if (!filledSlots.Add(slotKey))
                     continue;
                 var item = ItemGenerator.GenerateArmorItem(row);
-                RPGGame.Data.ItemGeneration.BaseModifierRoller.ApplyCatalogModifier(item, row.Modifier, row.ModifierName, RandomUtility.Ambient);
+                RPGGame.Data.ItemGeneration.BaseModifierRoller.ApplyCatalogModifier(item, row.Modifier, RandomUtility.Ambient);
                 if (string.IsNullOrWhiteSpace(item.Rarity))
                     item.Rarity = "Common";
                 materialApplier.ApplySpecificMaterial(item, LeatherSetBonus.MaterialName, item.Rarity);

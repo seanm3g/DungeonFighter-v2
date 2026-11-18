@@ -806,7 +806,8 @@ namespace RPGGame.UI.Avalonia.Layout
                     healthBarWidth,
                     enemy,
                     ThresholdBarPanel.Enemy,
-                    verticalOffsetScale: D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor);
+                    verticalOffsetScale: D20ThresholdBarRenderer.CombatStripVerticalOffsetNoArmor,
+                    rollMarkerBelow: true); // caret under the strip, not over the health bar
                 canvas.AddText(x, hpValueY, $"{displayEnemyHp}/{enemy.MaxHealth}", AsciiArtAssets.Colors.White);
                 y += 3;
 

@@ -381,13 +381,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             }
             if (weak.Count > 0)
                 result.Add(new ColoredTextBuilder().Add("Same class: ", gray).Add(string.Join(", ", weak.Select(n => n.ToUpperInvariant())), SynergyWeak).Build());
-            // One line per modifier: "Gear: Warrior Knack (warrior) on Coat, Leggings, ..." instead of a line per piece.
-            foreach (var group in gear.GroupBy(g => (g.Modifier ?? "", g.Key)))
+            // One line per shared key: "Gear: (warrior) on Coat, Leggings, ..." instead of a line per piece.
+            foreach (var group in gear.GroupBy(g => g.Key))
             {
-                var (modifier, key) = group.Key;
+                string key = group.Key;
                 var b = new ColoredTextBuilder().Add("Gear: ", gray);
-                if (!string.IsNullOrWhiteSpace(modifier))
-                    b.Add(modifier, white).Add(" ", gray);
                 b.Add($"({key})", ActionSynergy.IsClassKey(key) ? SynergyWeak : SynergyStrong);
                 b.Add(" on ", gray).Add(string.Join(", ", group.Select(g => g.Item)), gray);
                 result.Add(b.Build());

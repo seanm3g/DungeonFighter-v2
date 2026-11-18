@@ -44,6 +44,7 @@ namespace RPGGame.Tests.Unit.Data
             TestImplicitSurvivesTriggerCleanUp();
             TestImplicitScalesWithItemLevel();
             TestCombatImplicitShowsInTooltip();
+            TestModifierKeywordNotation();
             TestModifierRulesChangeOtherActions();
             TestCatalogModifiersGrowWithTier();
             TestRarityRollUpKeepsDropRarity();
@@ -342,8 +343,8 @@ namespace RPGGame.Tests.Unit.Data
             string detail = "";
             foreach (var item in items)
             {
-                var (template, name) = BaseModifierRoller.CatalogModifierFor(item.BaseName);
-                if (string.IsNullOrWhiteSpace(item.ImplicitRule) || item.ImplicitName != (name ?? "").Trim())
+                var template = BaseModifierRoller.CatalogModifierFor(item.BaseName);
+                if (string.IsNullOrWhiteSpace(item.ImplicitRule))
                 {
                     all = false;
                     detail = $"{item.Name} ({item.Rarity})";
@@ -369,6 +370,34 @@ namespace RPGGame.Tests.Unit.Data
         private static string Shape(string? rule) =>
             System.Text.RegularExpressions.Regex.Replace(rule ?? "", @"\{[^}]*\}|-?[0-9]+(\.[0-9]+)?", "#");
 
+        /// <summary>Modifier card notation (2026-11-17): trigger → effect, tags in brackets, actions / stores in caps.</summary>
+        private static void TestModifierKeywordNotation()
+        {
+            string Text(string spec) =>
+                string.Concat(ModifierTooltipFormatter.StyleRule(CrossWireRule.Parse(spec, "test")!).Select(s => s.Text));
+
+            string tagas = Text("WHILE IF ACTION CRIT_HEAL -> TAGAS status");
+            TestBase.AssertTrue(tagas.Contains("CRIT HEAL  →  ") && tagas.Contains("[status]") && !tagas.Contains("Knack"),
+                $"TAGAS reads as ACTION → counts as [tag] ({tagas})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string classTag = Text("WHILE IF CLASS barbarian -> TAGAS ragecaller");
+            TestBase.AssertTrue(classTag.Contains("[barbarian]") && classTag.Contains("[ragecaller]"),
+                $"class and granted tags both use [tag] ({classTag})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            string mint = Text("ONCONNECT EVERY 2 IF TAG warbrute -> MINT CRISIS 1");
+            TestBase.AssertTrue(mint.Contains("  →  ") && mint.Contains("[warbrute]") && mint.Contains("CRISIS"),
+                $"triggered rules split trigger → effect ({mint})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var segs = ModifierTooltipFormatter.StyleRule(CrossWireRule.Parse("ONCASH:CRISIS -> APPLY expose 1", "test")!);
+            TestBase.AssertTrue(segs.Any(s => s.Text == "expose" && s.Color == ModifierTooltipFormatter.StatusColor)
+                    && segs.Any(s => s.Text == "CRISIS" && s.Color == ModifierTooltipFormatter.StoreColor),
+                "statuses and stores get their own colors", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var reader = CrossWireRule.Parse("ONCONNECT EVERY 2 IF TAG status -> APPLY brittle 1", "ring")!;
+            TestBase.AssertTrue(ModifierTooltipFormatter.ReadsTag(reader, "status") && !ModifierTooltipFormatter.ReadsTag(reader, "focus"),
+                "a TAG condition reads that tag only", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         private static void TestCombatImplicitShowsInTooltip()
         {
             var item = Roll(new ItemRollRequest { ItemLevel = 20, AllowRollUps = false }, 200)
@@ -377,29 +406,35 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertNotNull(item, "some items carry a base modifier", ref _testsRun, ref _testsPassed, ref _testsFailed);
             if (item == null)
                 return;
-            string? expected = ItemTriggerBundleDisplay.FormatModifier(item);
+            var firstRule = ModifierTooltipFormatter.Rules(item).FirstOrDefault();
+            string? expected = firstRule == null ? null : string.Concat(ModifierTooltipFormatter.StyleRule(firstRule).Select(s => s.Text));
             var tooltip = ItemTooltipFormatter.BuildItemTooltipLines(null, item, "Weapon", 60, includeExtendedDetails: false)
                 .Select(line => string.Concat(line.Select(seg => seg.Text)))
                 .ToList();
-            TestBase.AssertTrue(expected != null && tooltip.Any(l => l.Contains("Modifier")) && tooltip.Any(l => l.Contains(expected)),
+            int header = tooltip.FindIndex(l => l.Trim() == "Modifier");
+            TestBase.AssertTrue(expected != null && header >= 0 && tooltip.Any(l => l.Contains(expected)),
                 $"the base modifier shows without Alt ({expected})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            int requires = tooltip.FindIndex(l => l.StartsWith("Requires", StringComparison.Ordinal));
+            int stats = tooltip.FindIndex(l => l.Trim() == "Stats");
+            TestBase.AssertTrue(header >= 0 && (requires < 0 || header < requires) && (stats < 0 || header < stats),
+                "the modifier sits above requirements and stats", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!tooltip.Any(l => l.Trim() == "Triggers"), "no Triggers section from the base or material",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!tooltip.Any(l => l.Trim() == "Material"),
                 "material set info waits for Alt", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        /// <summary>Every catalog base has a modifier; tier 1 names no action, tier 5 has two rules (user 2026-11-15).</summary>
+        /// <summary>Every catalog base has a modifier; tier 1 is one rule, tier 5 has two rules (user 2026-11-15 / 11-17).</summary>
         private static void TestCatalogModifiersGrowWithTier()
         {
-            var rows = _cache.WeaponData.Select(w => (w.Name, w.Tier, w.Modifier, w.ModifierName))
-                .Concat(_cache.ArmorData.Select(a => (a.Name, a.Tier, a.Modifier, a.ModifierName))).ToList();
+            var rows = _cache.WeaponData.Select(w => (w.Name, w.Tier, w.Modifier))
+                .Concat(_cache.ArmorData.Select(a => (a.Name, a.Tier, a.Modifier))).ToList();
             var rng = new Random(5);
-            var bad = rows.Where(r => string.IsNullOrWhiteSpace(r.ModifierName) || BaseModifierRoller.FromCatalog(r.Modifier, rng) == null).ToList();
-            TestBase.AssertTrue(bad.Count == 0, $"every base has a named modifier that parses ({bad.Count} bad, e.g. {bad.FirstOrDefault().Name})",
+            var bad = rows.Where(r => BaseModifierRoller.FromCatalog(r.Modifier, rng) == null).ToList();
+            TestBase.AssertTrue(bad.Count == 0, $"every base has a modifier that parses ({bad.Count} bad, e.g. {bad.FirstOrDefault().Name})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(rows.Where(r => r.Tier == 1).All(r => !(r.Modifier ?? "").Contains("ACTION")),
-                "tier-1 modifiers are simple (no named action)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(rows.Where(r => r.Tier == 1).All(r => !(r.Modifier ?? "").Contains(';')),
+                "tier-1 modifiers are a single rule", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(rows.Where(r => r.Tier >= 5).All(r => (r.Modifier ?? "").Contains(';')),
                 "tier-5 modifiers carry a second rule", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }

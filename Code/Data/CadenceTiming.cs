@@ -70,19 +70,19 @@ namespace RPGGame.Data
             && string.IsNullOrWhiteSpace(IfTag) && string.IsNullOrWhiteSpace(PerTag);
 
         /// <summary>True when <paramref name="action"/> may take (and spend) a grant with <see cref="IfTag"/>; true with no IfTag.</summary>
-        public bool TagGateHolds(Action? action) =>
-            string.IsNullOrWhiteSpace(IfTag)
-            || (action?.Tags != null && action.Tags.Any(t => string.Equals(t?.Trim(), IfTag.Trim(), StringComparison.OrdinalIgnoreCase)));
+        /// <param name="hero">The owner, so worn / learned TAGAS aliases count (null = the action's own tags).</param>
+        public bool TagGateHolds(Action? action, Character? hero = null) =>
+            string.IsNullOrWhiteSpace(IfTag) || CrossWires.HasTag(hero, action, IfTag);
 
         /// <summary><see cref="PerTag"/> factor: strip actions with the tag (1 with no PerTag; 0 when none carry it).</summary>
-        public double PerTagFactor(IReadOnlyList<Action>? strip)
+        public double PerTagFactor(IReadOnlyList<Action>? strip, Character? hero = null)
         {
             if (string.IsNullOrWhiteSpace(PerTag))
                 return 1;
             if (strip == null)
                 return 0;
             string tag = PerTag.Trim();
-            return strip.Count(a => a?.Tags != null && a.Tags.Any(t => string.Equals(t?.Trim(), tag, StringComparison.OrdinalIgnoreCase)));
+            return strip.Count(a => CrossWires.HasTag(hero, a, tag));
         }
 
         [JsonIgnore] public bool IsRamp => ShapeIs("ramp");

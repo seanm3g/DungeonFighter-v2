@@ -25,8 +25,7 @@
     "class": "wizard",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE -> POTENCY acid {12-20}%",
-    "modifierName": "Acid Knack"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION CORRODE -> APPLY rattle 1"
   },
   {
     "slot": "head",
@@ -54,8 +53,7 @@
     "class": "barbarian",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE IF CLASS barbarian -> DAMAGE {4-8}%",
-    "modifierName": "Barbarian Knack"
+    "modifier": "ONCOMBO IF ACTION BLOOD_FRENZY -> MINT RAGE 1"
   },
   {
     "slot": "head",
@@ -83,8 +81,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE IF CLASS wizard -> SPEED {3-6}%",
-    "modifierName": "Wizard Knack"
+    "modifier": "WHILE IF ACTION CRESCENDO -> TAGAS store"
   },
   {
     "slot": "head",
@@ -112,8 +109,7 @@
     "class": "wizard",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE IF CLASS wizard -> DAMAGE {4-8}%",
-    "modifierName": "Wizard Knack"
+    "modifier": "ONCONNECT EVERY 3 IF CLASS wizard -> APPLY burn 1"
   },
   {
     "slot": "head",
@@ -141,8 +137,7 @@
     "class": "barbarian",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE -> POTENCY burn {12-20}%",
-    "modifierName": "Burn Knack"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION BLOOD_OATH -> APPLY stagger 1"
   },
   {
     "slot": "head",
@@ -170,8 +165,7 @@
     "class": "wizard",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE -> POTENCY burn {12-20}%",
-    "modifierName": "Burn Knack"
+    "modifier": "WHILE -> POTENCY acid {10-20}%"
   },
   {
     "slot": "head",
@@ -199,8 +193,7 @@
     "class": "warrior",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE IF CLASS warrior -> SPEED {3-6}%",
-    "modifierName": "Warrior Knack"
+    "modifier": "WHILE -> POTENCY bleed {10-20}%"
   },
   {
     "slot": "head",
@@ -228,8 +221,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE IF CLASS wizard -> SPEED {3-6}%",
-    "modifierName": "Wizard Knack"
+    "modifier": "ONCOMBO IF ACTION CRYSTALLIZE -> MINT LENS 1"
   },
   {
     "slot": "head",
@@ -257,8 +249,7 @@
     "class": "wizard",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF CLASS wizard -> DAMAGE {4-8}%",
-    "modifierName": "Wizard Knack"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION DETONATE -> APPLY weaken 1"
   },
   {
     "slot": "head",
@@ -286,8 +277,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE -> POTENCY acid {12-20}%",
-    "modifierName": "Acid Knack"
+    "modifier": "WHILE IF ACTION DISTILL -> TAGAS focus"
   },
   {
     "slot": "head",
@@ -315,8 +305,7 @@
     "class": "rogue",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE -> POTENCY poison {12-20}%",
-    "modifierName": "Poison Knack"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION CRIT_FACES -> APPLY mark 1"
   },
   {
     "slot": "head",
@@ -344,8 +333,7 @@
     "class": "wizard",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE IF TAG ragecaller AND PREVTAG spellblade -> DAMAGE {10-16}%",
-    "modifierName": "Ragecaller Habit"
+    "modifier": "ONCONNECT EVERY 2 IF TAG focus -> APPLY brittle 1"
   },
   {
     "slot": "head",
@@ -373,8 +361,7 @@
     "class": "wizard",
     "defenseMin": 4,
     "defenseMax": 6,
-    "modifier": "WHILE IF TAG spellblade -> DAMAGE {6-12}%",
-    "modifierName": "Spellblade Habit"
+    "modifier": "ONCOMBO EVERY 2 IF TAG ragecaller -> ADD focus 1"
   },
   {
     "slot": "head",
@@ -402,8 +389,7 @@
     "class": "warrior",
     "defenseMin": 3,
     "defenseMax": 5,
-    "modifier": "WHILE IF TAG spellblade -> SPEED {5-9}%",
-    "modifierName": "Spellblade Habit"
+    "modifier": "ONSTATUSAPPLY:bleed EVERY 2 -> APPLY rattle 1"
   },
   {
     "slot": "head",
@@ -431,8 +417,7 @@
     "class": "barbarian",
     "defenseMin": 4,
     "defenseMax": 6,
-    "modifier": "WHILE IF TAG warbrute -> SPEED {5-9}%",
-    "modifierName": "Warbrute Habit"
+    "modifier": "ONSTATUSAPPLY:bleed EVERY 2 -> APPLY brittle 1"
   },
   {
     "slot": "head",
@@ -460,8 +445,7 @@
     "class": "wizard",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE IF TAG hexblade -> SPEED {5-9}%",
-    "modifierName": "Hexblade Habit"
+    "modifier": "ONSTATUSAPPLY:burn EVERY 2 -> APPLY rattle 1"
   },
   {
     "slot": "head",
@@ -489,8 +473,7 @@
     "class": "wizard",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE IF TAG store AND PREVTAG spellblade -> DAMAGE {10-16}%",
-    "modifierName": "Hoarder Habit"
+    "modifier": "WHILE IF CLASS wizard -> TAGAS ragecaller"
   },
   {
     "slot": "head",
@@ -518,8 +501,7 @@
     "class": "rogue",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE IF TAG hexblade -> SPEED {5-9}%",
-    "modifierName": "Hexblade Habit"
+    "modifier": "ONSTATUSAPPLY:poison EVERY 2 -> APPLY expose 1"
   },
   {
     "slot": "head",
@@ -547,8 +529,7 @@
     "class": "warrior",
     "defenseMin": 4,
     "defenseMax": 6,
-    "modifier": "WHILE IF TAG verb AND PREVTAG duelist -> DAMAGE {10-16}%",
-    "modifierName": "Verbal Habit"
+    "modifier": "WHILE IF CLASS warrior -> TAGAS verb"
   },
   {
     "slot": "head",
@@ -576,8 +557,7 @@
     "class": "rogue",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE IF TAG finisher AND PREVTAG duelist -> DAMAGE {10-16}%",
-    "modifierName": "Finisher Habit"
+    "modifier": "WHILE IF CLASS rogue -> TAGAS finisher"
   },
   {
     "slot": "head",
@@ -605,8 +585,7 @@
     "class": "barbarian",
     "defenseMin": 3,
     "defenseMax": 5,
-    "modifier": "WHILE IF TAG ravager AND PREVTAG warbrute -> DAMAGE {10-16}%",
-    "modifierName": "Ravager Habit"
+    "modifier": "WHILE IF CLASS barbarian -> TAGAS status"
   },
   {
     "slot": "head",
@@ -634,8 +613,7 @@
     "class": "warrior",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "ONCOMBO EVERY 2 IF TAG warrior -> ADD fortify 1",
-    "modifierName": "Fortify Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> MINT BEAT 1"
   },
   {
     "slot": "head",
@@ -663,8 +641,7 @@
     "class": "barbarian",
     "defenseMin": 6,
     "defenseMax": 8,
-    "modifier": "ONCOMBO EVERY 2 IF TAG ragecaller -> ADD haste 1",
-    "modifierName": "Haste Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> MINT CRISIS 1"
   },
   {
     "slot": "head",
@@ -692,8 +669,7 @@
     "class": "wizard",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCOMBO EVERY 2 IF TAG wizard -> ADD haste 1",
-    "modifierName": "Haste Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> MINT CONTACT 1"
   },
   {
     "slot": "head",
@@ -721,8 +697,7 @@
     "class": "barbarian",
     "defenseMin": 5,
     "defenseMax": 7,
-    "modifier": "ONCONNECT EVERY 2 IF TAG status -> MINT TRIUMPH {1-2}",
-    "modifierName": "Triumph Technique"
+    "modifier": "ONCASH:TRIUMPH -> APPLY expose 1"
   },
   {
     "slot": "head",
@@ -750,8 +725,7 @@
     "class": "rogue",
     "defenseMin": 8,
     "defenseMax": 12,
-    "modifier": "ONCOMBO EVERY 2 IF TAG rogue -> ADD focus 1",
-    "modifierName": "Focus Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> MINT SWING 1"
   },
   {
     "slot": "head",
@@ -779,8 +753,7 @@
     "class": "wizard",
     "defenseMin": 8,
     "defenseMax": 10,
-    "modifier": "ONCONNECT EVERY 2 IF TAG focus -> MINT CONTACT {1-2}",
-    "modifierName": "Contact Technique"
+    "modifier": "ONCASH:CHAIN -> APPLY weaken 1"
   },
   {
     "slot": "head",
@@ -808,8 +781,7 @@
     "class": "wizard",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCONNECT EVERY 2 IF TAG ragecaller -> APPLY rattle 1",
-    "modifierName": "Rattle Technique"
+    "modifier": "WHILE -> RANK z-resonate 1"
   },
   {
     "slot": "head",
@@ -837,8 +809,7 @@
     "class": "rogue",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "ONCONNECT EVERY 2 IF TAG status -> MINT TROPHY {1-2}",
-    "modifierName": "Trophy Technique"
+    "modifier": "ONCASH:TROPHY -> APPLY brittle 1"
   },
   {
     "slot": "head",
@@ -866,8 +837,7 @@
     "class": "rogue",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "ONCONNECT EVERY 2 IF TAG status -> MINT TROPHY {1-2}",
-    "modifierName": "Trophy Technique"
+    "modifier": "ONCASH:TROPHY -> APPLY brittle 1"
   },
   {
     "slot": "head",
@@ -895,8 +865,7 @@
     "class": "barbarian",
     "defenseMin": 5,
     "defenseMax": 7,
-    "modifier": "ONCONNECT EVERY 2 IF TAG barbarian -> APPLY expose 1",
-    "modifierName": "Expose Technique"
+    "modifier": "WHILE -> RANK b-scar 1"
   },
   {
     "slot": "head",
@@ -924,8 +893,7 @@
     "class": "wizard",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF TAG spellblade AND NEXTTAG store -> SPEED {12-18}%",
-    "modifierName": "Spellblade Mastery"
+    "modifier": "WHILE IF STEP>=3 -> EXEMPT COMBO"
   },
   {
     "slot": "head",
@@ -953,8 +921,7 @@
     "class": "rogue",
     "defenseMin": 15,
     "defenseMax": 21,
-    "modifier": "WHILE IF TAG ravager AND NEXTTAG finisher -> SPEED {12-18}%",
-    "modifierName": "Ravager Mastery"
+    "modifier": "WHILE IF TARGET mark -> EXEMPT COMBO"
   },
   {
     "slot": "head",
@@ -982,8 +949,7 @@
     "class": "barbarian",
     "defenseMin": 14,
     "defenseMax": 18,
-    "modifier": "ONCOMBO IF TAG bludgeon -> NEXT AMP {20-30}% IFTAG ragecaller",
-    "modifierName": "Bludgeon Mastery"
+    "modifier": "ONCRITICAL IF TAG ravager -> APPLY stagger 2"
   },
   {
     "slot": "head",
@@ -1011,8 +977,7 @@
     "class": "wizard",
     "defenseMin": 14,
     "defenseMax": 20,
-    "modifier": "ONCRITICAL IF TAG hexblade -> APPLY weaken 2",
-    "modifierName": "Weaken Mastery"
+    "modifier": "ONCOMBOEND -> COUNTAS ONCOMBO"
   },
   {
     "slot": "head",
@@ -1040,8 +1005,7 @@
     "class": "wizard",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCONNECT IF TAG store AND TARGET weaken -> NEXT DAMAGE {20-30}%",
-    "modifierName": "Hoarder Mastery"
+    "modifier": "ONSTOREFULL:LENS -> ADD haste 2"
   },
   {
     "slot": "head",
@@ -1069,8 +1033,7 @@
     "class": "warrior",
     "defenseMin": 11,
     "defenseMax": 15,
-    "modifier": "WHILE IF TAG swift AND NEXTTAG verb -> SPEED {12-18}%",
-    "modifierName": "Swift Mastery"
+    "modifier": "WHILE IF STEP>=3 -> EXEMPT STREAK"
   },
   {
     "slot": "head",
@@ -1098,8 +1061,7 @@
     "class": "barbarian",
     "defenseMin": 11,
     "defenseMax": 15,
-    "modifier": "WHILE IF TAG warbrute AND NEXTTAG status -> SPEED {12-18}%",
-    "modifierName": "Warbrute Mastery"
+    "modifier": "WHILE IF HP<50 -> EXEMPT COMBO"
   },
   {
     "slot": "head",
@@ -1127,8 +1089,7 @@
     "class": "wizard",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCOMBO IF TAG wizard -> NEXT AMP {20-30}% IFTAG focus",
-    "modifierName": "Wizard Mastery"
+    "modifier": "WHILE IF TAG hexblade -> TAGAS focus"
   },
   {
     "slot": "head",
@@ -1156,8 +1117,7 @@
     "class": "wizard",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCOMBO IF TAG wizard -> NEXT AMP {20-30}% IFTAG focus",
-    "modifierName": "Wizard Mastery"
+    "modifier": "WHILE IF TAG hexblade -> TAGAS focus"
   },
   {
     "slot": "head",
@@ -1185,8 +1145,7 @@
     "class": "wizard",
     "defenseMin": 8,
     "defenseMax": 12,
-    "modifier": "WHILE IF TAG focus AND NEXTTAG ragecaller -> SPEED {12-18}%",
-    "modifierName": "Focus Mastery"
+    "modifier": "ONCRITICAL IF TAG store -> APPLY brittle 2"
   },
   {
     "slot": "head",
@@ -1214,8 +1173,7 @@
     "class": "warrior",
     "defenseMin": 14,
     "defenseMax": 18,
-    "modifier": "ONCOMBO IF TAG warbrute -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG warbrute AND PREVTAG warbrute -> SPEED {8-12}%",
-    "modifierName": "Warbrute Legend"
+    "modifier": "ONSTATUSAPPLY:slow -> MINT DRAG 1; ONCASH:DRAG -> APPLY slow 1"
   },
   {
     "slot": "head",
@@ -1243,8 +1201,7 @@
     "class": "wizard",
     "defenseMin": 13,
     "defenseMax": 17,
-    "modifier": "ONCOMBO IF TAG ragecaller -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG ragecaller AND PREVTAG ragecaller -> SPEED {8-12}%",
-    "modifierName": "Ragecaller Legend"
+    "modifier": "ONSTATUSAPPLY:rattle -> MINT CONTACT 1; ONCASH:CONTACT -> APPLY rattle 1"
   },
   {
     "slot": "head",
@@ -1272,8 +1229,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "ONCOMBO EVERY 2 IF TAG spellblade -> ADD focus 1; WHILE IF focus>=2 -> CRIT +{1-2}",
-    "modifierName": "Focus Legend"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK z-sigil 1"
   },
   {
     "slot": "head",
@@ -1301,8 +1257,7 @@
     "class": "barbarian",
     "defenseMin": 12,
     "defenseMax": 16,
-    "modifier": "ONCONNECT EVERY 2 IF TAG ravager -> APPLY stagger 1; WHILE -> DAMAGE {5-8}% PER TARGET stagger",
-    "modifierName": "Stagger Legend"
+    "modifier": "WHILE -> RANK b-trance 1; WHILE -> RANK b-age1 1"
   },
   {
     "slot": "head",
@@ -1330,8 +1285,7 @@
     "class": "barbarian",
     "defenseMin": 20,
     "defenseMax": 26,
-    "modifier": "ONCOMBO IF TAG ragecaller -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG ragecaller AND PREVTAG ragecaller -> SPEED {8-12}%",
-    "modifierName": "Ragecaller Legend"
+    "modifier": "ONSTATUSAPPLY:brittle -> MINT RAGE 1; ONCASH:RAGE -> APPLY brittle 1"
   },
   {
     "slot": "head",
@@ -1359,8 +1313,7 @@
     "class": "wizard",
     "defenseMin": 17,
     "defenseMax": 23,
-    "modifier": "ONCONNECT EVERY 2 IF TAG hexblade -> APPLY brittle 1; WHILE -> DAMAGE {5-8}% PER TARGET brittle",
-    "modifierName": "Brittle Legend"
+    "modifier": "WHILE IF TAG wizard -> TAGAS hexblade; ONCONNECT EVERY 2 IF TAG hexblade -> APPLY weaken 1"
   },
   {
     "slot": "head",
@@ -1388,8 +1341,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "ONCOMBO IF TAG store -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG store AND PREVTAG store -> SPEED {8-12}%",
-    "modifierName": "Hoarder Legend"
+    "modifier": "WHILE -> RANK z-slotInt 1; WHILE -> RANK z-weave 1"
   },
   {
     "slot": "head",
@@ -1417,8 +1369,7 @@
     "class": "barbarian",
     "defenseMin": 20,
     "defenseMax": 26,
-    "modifier": "ONCOMBO EVERY 2 IF TAG status -> ADD harden 1; WHILE IF harden>=2 -> CRIT +{1-2}",
-    "modifierName": "Harden Legend"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK b-age1 1"
   },
   {
     "slot": "head",
@@ -1446,8 +1397,7 @@
     "class": "wizard",
     "defenseMin": 16,
     "defenseMax": 22,
-    "modifier": "ONCOMBO EVERY 2 IF TAG wizard -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
-    "modifierName": "Haste Legend"
+    "modifier": "ONSTATUSAPPLY:brittle -> MINT CHAIN 1; ONCASH:CHAIN -> APPLY brittle 1"
   },
   {
     "slot": "head",
@@ -1475,8 +1425,7 @@
     "class": "barbarian",
     "defenseMin": 10,
     "defenseMax": 14,
-    "modifier": "ONCONNECT EVERY 2 IF TAG barbarian -> APPLY brittle 1; WHILE -> DAMAGE {5-8}% PER TARGET brittle",
-    "modifierName": "Brittle Legend"
+    "modifier": "WHILE IF TAG ragecaller -> TAGAS ravager; ONCONNECT EVERY 2 IF TAG ravager -> APPLY expose 1"
   },
   {
     "slot": "head",
@@ -1504,8 +1453,7 @@
     "class": "rogue",
     "defenseMin": 17,
     "defenseMax": 23,
-    "modifier": "ONCOMBO IF TAG duelist -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG duelist AND PREVTAG duelist -> SPEED {8-12}%",
-    "modifierName": "Duelist Legend"
+    "modifier": "ONSTATUSAPPLY:mark -> MINT GRAZE 1; ONCASH:GRAZE -> APPLY mark 1"
   },
   {
     "slot": "chest",
@@ -1533,8 +1481,7 @@
     "class": "rogue",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF CLASS rogue -> SPEED {3-6}%",
-    "modifierName": "Rogue Knack"
+    "modifier": "WHILE IF ACTION CRIT_HEAL -> TAGAS status"
   },
   {
     "slot": "chest",
@@ -1562,8 +1509,7 @@
     "class": "barbarian",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE IF CLASS barbarian -> SPEED {3-6}%",
-    "modifierName": "Barbarian Knack"
+    "modifier": "WHILE IF ACTION BLOOD_RUSH -> TAGAS warbrute"
   },
   {
     "slot": "chest",
@@ -1591,8 +1537,7 @@
     "class": "rogue",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE IF CLASS rogue -> DAMAGE {4-8}%",
-    "modifierName": "Rogue Knack"
+    "modifier": "ONCONNECT EVERY 3 IF CLASS rogue -> APPLY bleed 1"
   },
   {
     "slot": "chest",
@@ -1620,8 +1565,7 @@
     "class": "barbarian",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF CLASS barbarian -> DAMAGE {4-8}%",
-    "modifierName": "Barbarian Knack"
+    "modifier": "ONCONNECT EVERY 3 IF CLASS barbarian -> APPLY burn 1"
   },
   {
     "slot": "chest",
@@ -1649,8 +1593,7 @@
     "class": "warrior",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF CLASS warrior -> DAMAGE {4-8}%",
-    "modifierName": "Warrior Knack"
+    "modifier": "ONCOMBO IF ACTION BRACE -> MINT STREAK 1"
   },
   {
     "slot": "chest",
@@ -1678,8 +1621,7 @@
     "class": "barbarian",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE -> POTENCY bleed {12-20}%",
-    "modifierName": "Bleed Knack"
+    "modifier": "WHILE -> POTENCY bleed {10-20}%"
   },
   {
     "slot": "chest",
@@ -1707,8 +1649,7 @@
     "class": "warrior",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE -> POTENCY bleed {12-20}%",
-    "modifierName": "Bleed Knack"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION CADENCE_STRIKE -> APPLY stagger 1"
   },
   {
     "slot": "chest",
@@ -1736,8 +1677,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE IF CLASS wizard -> SPEED {3-6}%",
-    "modifierName": "Wizard Knack"
+    "modifier": "ONCONNECT EVERY 3 IF CLASS wizard -> APPLY acid 1"
   },
   {
     "slot": "chest",
@@ -1765,8 +1705,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE IF CLASS wizard -> DAMAGE {4-8}%",
-    "modifierName": "Wizard Knack"
+    "modifier": "WHILE -> POTENCY burn {10-20}%"
   },
   {
     "slot": "chest",
@@ -1794,8 +1733,7 @@
     "class": "rogue",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE -> POTENCY bleed {12-20}%",
-    "modifierName": "Bleed Knack"
+    "modifier": "WHILE -> POTENCY acid {10-20}%"
   },
   {
     "slot": "chest",
@@ -1823,8 +1761,7 @@
     "class": "warrior",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE IF CLASS warrior -> SPEED {3-6}%",
-    "modifierName": "Warrior Knack"
+    "modifier": "WHILE IF ACTION CHALLENGE -> TAGAS swift"
   },
   {
     "slot": "chest",
@@ -1852,8 +1789,7 @@
     "class": "barbarian",
     "defenseMin": 4,
     "defenseMax": 6,
-    "modifier": "WHILE IF TAG bludgeon -> DAMAGE {6-12}%",
-    "modifierName": "Bludgeon Habit"
+    "modifier": "ONCONNECT EVERY 2 IF TAG status -> APPLY stagger 1"
   },
   {
     "slot": "chest",
@@ -1881,8 +1817,7 @@
     "class": "rogue",
     "defenseMin": 4,
     "defenseMax": 6,
-    "modifier": "WHILE IF TAG hexblade -> DAMAGE {6-12}%",
-    "modifierName": "Hexblade Habit"
+    "modifier": "ONCONNECT EVERY 2 IF TAG hexblade -> APPLY expose 1"
   },
   {
     "slot": "chest",
@@ -1910,8 +1845,7 @@
     "class": "barbarian",
     "defenseMin": 4,
     "defenseMax": 6,
-    "modifier": "WHILE IF TAG warbrute -> SPEED {5-9}%",
-    "modifierName": "Warbrute Habit"
+    "modifier": "ONCOMBO EVERY 2 IF TAG barbarian -> ADD haste 1"
   },
   {
     "slot": "chest",
@@ -1939,8 +1873,7 @@
     "class": "barbarian",
     "defenseMin": 8,
     "defenseMax": 10,
-    "modifier": "WHILE IF TAG ravager AND PREVTAG barbarian -> DAMAGE {10-16}%",
-    "modifierName": "Ravager Habit"
+    "modifier": "ONSTATUSAPPLY:burn EVERY 2 -> APPLY brittle 1"
   },
   {
     "slot": "chest",
@@ -1968,8 +1901,7 @@
     "class": "warrior",
     "defenseMin": 8,
     "defenseMax": 10,
-    "modifier": "WHILE IF TAG duelist -> DAMAGE {6-12}%",
-    "modifierName": "Duelist Habit"
+    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> APPLY rattle 1"
   },
   {
     "slot": "chest",
@@ -1997,8 +1929,7 @@
     "class": "warrior",
     "defenseMin": 5,
     "defenseMax": 7,
-    "modifier": "WHILE IF TAG spellblade -> SPEED {5-9}%",
-    "modifierName": "Spellblade Habit"
+    "modifier": "ONCOMBO EVERY 2 IF TAG verb -> ADD fortify 1"
   },
   {
     "slot": "chest",
@@ -2026,8 +1957,7 @@
     "class": "warrior",
     "defenseMin": 5,
     "defenseMax": 7,
-    "modifier": "WHILE IF TAG verb AND PREVTAG warrior -> DAMAGE {10-16}%",
-    "modifierName": "Verbal Habit"
+    "modifier": "ONSTATUSAPPLY:bleed EVERY 2 -> APPLY slow 1"
   },
   {
     "slot": "chest",
@@ -2055,8 +1985,7 @@
     "class": "rogue",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "WHILE IF TAG finisher -> SPEED {5-9}%",
-    "modifierName": "Finisher Habit"
+    "modifier": "ONCOMBO EVERY 2 IF TAG finisher -> ADD focus 1"
   },
   {
     "slot": "chest",
@@ -2084,8 +2013,7 @@
     "class": "barbarian",
     "defenseMin": 5,
     "defenseMax": 7,
-    "modifier": "WHILE IF TAG ragecaller -> DAMAGE {6-12}%",
-    "modifierName": "Ragecaller Habit"
+    "modifier": "WHILE IF CLASS barbarian -> TAGAS ravager"
   },
   {
     "slot": "chest",
@@ -2113,8 +2041,7 @@
     "class": "barbarian",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "WHILE IF TAG status -> SPEED {5-9}%",
-    "modifierName": "Affliction Habit"
+    "modifier": "ONCONNECT EVERY 2 IF TAG bludgeon -> APPLY expose 1"
   },
   {
     "slot": "chest",
@@ -2142,8 +2069,7 @@
     "class": "wizard",
     "defenseMin": 4,
     "defenseMax": 6,
-    "modifier": "WHILE IF TAG focus -> DAMAGE {6-12}%",
-    "modifierName": "Focus Habit"
+    "modifier": "ONCONNECT EVERY 2 IF TAG focus -> APPLY rattle 1"
   },
   {
     "slot": "chest",
@@ -2171,8 +2097,7 @@
     "class": "barbarian",
     "defenseMin": 12,
     "defenseMax": 16,
-    "modifier": "ONCONNECT IF TAG barbarian -> NEXT DAMAGE {12-20}%",
-    "modifierName": "Barbarian Technique"
+    "modifier": "WHILE -> SETCOUNT 1"
   },
   {
     "slot": "chest",
@@ -2200,8 +2125,7 @@
     "class": "barbarian",
     "defenseMin": 11,
     "defenseMax": 15,
-    "modifier": "ONCOMBO EVERY 2 IF TAG bludgeon -> ADD haste 1",
-    "modifierName": "Haste Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> MINT CRISIS 1"
   },
   {
     "slot": "chest",
@@ -2229,8 +2153,7 @@
     "class": "barbarian",
     "defenseMin": 15,
     "defenseMax": 21,
-    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> MINT RAGE {1-2}",
-    "modifierName": "Rage Technique"
+    "modifier": "ONCASH:TRIUMPH -> APPLY stagger 1"
   },
   {
     "slot": "chest",
@@ -2258,8 +2181,7 @@
     "class": "barbarian",
     "defenseMin": 11,
     "defenseMax": 15,
-    "modifier": "ONCONNECT EVERY 2 IF TAG ravager -> APPLY expose 1",
-    "modifierName": "Expose Technique"
+    "modifier": "WHILE -> RANK b-blood 1"
   },
   {
     "slot": "chest",
@@ -2287,8 +2209,7 @@
     "class": "barbarian",
     "defenseMin": 8,
     "defenseMax": 12,
-    "modifier": "ONCONNECT IF TAG ragecaller -> NEXT DAMAGE {12-20}%",
-    "modifierName": "Ragecaller Technique"
+    "modifier": "WHILE -> SETCOUNT 1"
   },
   {
     "slot": "chest",
@@ -2316,8 +2237,7 @@
     "class": "barbarian",
     "defenseMin": 8,
     "defenseMax": 12,
-    "modifier": "ONCONNECT IF TAG ragecaller -> NEXT DAMAGE {12-20}%",
-    "modifierName": "Ragecaller Technique"
+    "modifier": "WHILE -> SETCOUNT 1"
   },
   {
     "slot": "chest",
@@ -2345,8 +2265,7 @@
     "class": "barbarian",
     "defenseMin": 16,
     "defenseMax": 22,
-    "modifier": "ONCOMBO EVERY 2 IF TAG status -> ADD harden 1",
-    "modifierName": "Harden Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG ravager -> MINT RAGE 1"
   },
   {
     "slot": "chest",
@@ -2374,8 +2293,7 @@
     "class": "barbarian",
     "defenseMin": 14,
     "defenseMax": 18,
-    "modifier": "ONCONNECT EVERY 2 IF TAG barbarian -> MINT CRISIS {1-2}",
-    "modifierName": "Crisis Technique"
+    "modifier": "ONCASH:CRISIS -> APPLY brittle 1"
   },
   {
     "slot": "chest",
@@ -2403,8 +2321,7 @@
     "class": "warrior",
     "defenseMin": 12,
     "defenseMax": 16,
-    "modifier": "ONCONNECT EVERY 2 IF TAG warrior -> MINT STREAK {1-2}",
-    "modifierName": "Streak Technique"
+    "modifier": "ONCASH:BEAT -> APPLY stagger 1"
   },
   {
     "slot": "chest",
@@ -2432,8 +2349,7 @@
     "class": "rogue",
     "defenseMin": 8,
     "defenseMax": 12,
-    "modifier": "ONCONNECT EVERY 2 IF TAG rogue -> APPLY brittle 1",
-    "modifierName": "Brittle Technique"
+    "modifier": "WHILE -> RANK r-streak 1"
   },
   {
     "slot": "chest",
@@ -2461,8 +2377,7 @@
     "class": "wizard",
     "defenseMin": 14,
     "defenseMax": 18,
-    "modifier": "ONCONNECT IF TAG ragecaller -> NEXT DAMAGE {12-20}%",
-    "modifierName": "Ragecaller Technique"
+    "modifier": "WHILE -> SETCOUNT 1"
   },
   {
     "slot": "chest",
@@ -2490,8 +2405,7 @@
     "class": "barbarian",
     "defenseMin": 23,
     "defenseMax": 31,
-    "modifier": "ONCRITICAL IF TAG bludgeon -> APPLY stagger 2",
-    "modifierName": "Stagger Mastery"
+    "modifier": "ONTAKEHIT -> COUNTAS ONCOMBO"
   },
   {
     "slot": "chest",
@@ -2519,8 +2433,7 @@
     "class": "barbarian",
     "defenseMin": 14,
     "defenseMax": 18,
-    "modifier": "ONCONNECT IF TAG warbrute AND TARGET stagger -> NEXT DAMAGE {20-30}%",
-    "modifierName": "Warbrute Mastery"
+    "modifier": "ONSTOREFULL:TRIUMPH -> ADD harden 2"
   },
   {
     "slot": "chest",
@@ -2548,8 +2461,7 @@
     "class": "barbarian",
     "defenseMin": 15,
     "defenseMax": 21,
-    "modifier": "ONCOMBO IF TAG ravager -> NEXT AMP {20-30}% IFTAG bludgeon",
-    "modifierName": "Ravager Mastery"
+    "modifier": "WHILE IF TAG ragecaller -> TAGAS warbrute"
   },
   {
     "slot": "chest",
@@ -2577,8 +2489,7 @@
     "class": "barbarian",
     "defenseMin": 23,
     "defenseMax": 31,
-    "modifier": "WHILE IF TAG ragecaller AND NEXTTAG warbrute -> SPEED {12-18}%",
-    "modifierName": "Ragecaller Mastery"
+    "modifier": "ONCRITICAL IF TAG status -> APPLY expose 2"
   },
   {
     "slot": "chest",
@@ -2606,8 +2517,7 @@
     "class": "barbarian",
     "defenseMin": 21,
     "defenseMax": 29,
-    "modifier": "ONCRITICAL IF TAG status -> APPLY brittle 2",
-    "modifierName": "Brittle Mastery"
+    "modifier": "WHILE IF TARGET stagger -> EXEMPT STREAK"
   },
   {
     "slot": "chest",
@@ -2635,8 +2545,7 @@
     "class": "rogue",
     "defenseMin": 18,
     "defenseMax": 24,
-    "modifier": "ONCRITICAL IF TAG status -> APPLY mark 2",
-    "modifierName": "Mark Mastery"
+    "modifier": "ONMISS -> COUNTAS ONCRITICAL"
   },
   {
     "slot": "chest",
@@ -2664,8 +2573,7 @@
     "class": "rogue",
     "defenseMin": 25,
     "defenseMax": 33,
-    "modifier": "ONCONNECT IF TAG ravager AND TARGET mark -> NEXT DAMAGE {20-30}%",
-    "modifierName": "Ravager Mastery"
+    "modifier": "ONSTOREFULL:SWING -> ADD haste 2"
   },
   {
     "slot": "chest",
@@ -2693,8 +2601,7 @@
     "class": "barbarian",
     "defenseMin": 26,
     "defenseMax": 34,
-    "modifier": "ONCONNECT IF TAG barbarian AND HP<50 -> NEXT DAMAGE {20-30}%",
-    "modifierName": "Barbarian Mastery"
+    "modifier": "ONTAKEHIT -> COUNTAS ONCOMBO"
   },
   {
     "slot": "chest",
@@ -2722,8 +2629,7 @@
     "class": "barbarian",
     "defenseMin": 18,
     "defenseMax": 24,
-    "modifier": "ONCOMBO IF TAG bludgeon -> NEXT AMP {20-30}% IFTAG ragecaller",
-    "modifierName": "Bludgeon Mastery"
+    "modifier": "ONSTOREFULL:RAGE -> ADD haste 2"
   },
   {
     "slot": "chest",
@@ -2751,8 +2657,7 @@
     "class": "barbarian",
     "defenseMin": 15,
     "defenseMax": 21,
-    "modifier": "WHILE IF TAG warbrute AND NEXTTAG status -> SPEED {12-18}%",
-    "modifierName": "Warbrute Mastery"
+    "modifier": "WHILE IF TAG barbarian -> TAGAS status"
   },
   {
     "slot": "chest",
@@ -2780,8 +2685,7 @@
     "class": "warrior",
     "defenseMin": 18,
     "defenseMax": 24,
-    "modifier": "ONCRITICAL IF TAG swift -> APPLY stagger 2",
-    "modifierName": "Stagger Mastery"
+    "modifier": "ONMISS -> COUNTAS ONCONSECUTIVEATTACK"
   },
   {
     "slot": "chest",
@@ -2809,8 +2713,7 @@
     "class": "wizard",
     "defenseMin": 18,
     "defenseMax": 24,
-    "modifier": "ONCRITICAL IF TAG spellblade -> APPLY rattle 2",
-    "modifierName": "Rattle Mastery"
+    "modifier": "WHILE IF focus>=1 -> EXEMPT STREAK"
   },
   {
     "slot": "chest",
@@ -2838,8 +2741,7 @@
     "class": "wizard",
     "defenseMin": 17,
     "defenseMax": 23,
-    "modifier": "ONCONNECT EVERY 2 IF TAG hexblade -> APPLY weaken 1; WHILE -> DAMAGE {5-8}% PER TARGET weaken",
-    "modifierName": "Weaken Legend"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK z-weave 1"
   },
   {
     "slot": "chest",
@@ -2867,8 +2769,7 @@
     "class": "barbarian",
     "defenseMin": 23,
     "defenseMax": 31,
-    "modifier": "ONCOMBO IF TAG ravager -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG ravager AND PREVTAG ravager -> SPEED {8-12}%",
-    "modifierName": "Ravager Legend"
+    "modifier": "WHILE -> RANK b-empty 1; WHILE -> RANK b-gut 1"
   },
   {
     "slot": "chest",
@@ -2896,8 +2797,7 @@
     "class": "barbarian",
     "defenseMin": 20,
     "defenseMax": 26,
-    "modifier": "ONCOMBO EVERY 2 IF TAG ragecaller -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
-    "modifierName": "Haste Legend"
+    "modifier": "ONSTATUSAPPLY:stagger -> MINT CRISIS 1; ONCASH:CRISIS -> APPLY stagger 1"
   },
   {
     "slot": "chest",
@@ -2925,8 +2825,7 @@
     "class": "warrior",
     "defenseMin": 33,
     "defenseMax": 45,
-    "modifier": "ONCOMBO EVERY 2 IF TAG warbrute -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
-    "modifierName": "Haste Legend"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK w-polish 1"
   },
   {
     "slot": "chest",
@@ -2954,8 +2853,7 @@
     "class": "rogue",
     "defenseMin": 21,
     "defenseMax": 29,
-    "modifier": "ONCOMBO EVERY 2 IF TAG duelist -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
-    "modifierName": "Haste Legend"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK r-toxin 1"
   },
   {
     "slot": "chest",
@@ -2983,8 +2881,7 @@
     "class": "barbarian",
     "defenseMin": 25,
     "defenseMax": 33,
-    "modifier": "ONCONNECT EVERY 2 IF TAG status -> APPLY expose 1; WHILE -> DAMAGE {5-8}% PER TARGET expose",
-    "modifierName": "Expose Legend"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK b-frenzy 1"
   },
   {
     "slot": "chest",
@@ -3012,8 +2909,7 @@
     "class": "barbarian",
     "defenseMin": 17,
     "defenseMax": 23,
-    "modifier": "ONCOMBO IF TAG barbarian -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG barbarian AND PREVTAG barbarian -> SPEED {8-12}%",
-    "modifierName": "Barbarian Legend"
+    "modifier": "WHILE IF TAG bludgeon -> TAGAS status; ONCONNECT EVERY 2 IF TAG status -> APPLY brittle 1"
   },
   {
     "slot": "chest",
@@ -3041,8 +2937,7 @@
     "class": "rogue",
     "defenseMin": 29,
     "defenseMax": 39,
-    "modifier": "ONCONNECT EVERY 2 IF TAG hexblade -> APPLY expose 1; WHILE -> DAMAGE {5-8}% PER TARGET expose",
-    "modifierName": "Expose Legend"
+    "modifier": "WHILE IF TAG rogue -> TAGAS ravager; ONCONNECT EVERY 2 IF TAG ravager -> APPLY brittle 1"
   },
   {
     "slot": "chest",
@@ -3070,8 +2965,7 @@
     "class": "barbarian",
     "defenseMin": 19,
     "defenseMax": 25,
-    "modifier": "ONCOMBO EVERY 2 IF TAG bludgeon -> ADD harden 1; WHILE IF harden>=2 -> CRIT +{1-2}",
-    "modifierName": "Harden Legend"
+    "modifier": "WHILE -> RANK b-gut 1; WHILE -> RANK b-knuckle 1"
   },
   {
     "slot": "chest",
@@ -3099,8 +2993,7 @@
     "class": "warrior",
     "defenseMin": 22,
     "defenseMax": 30,
-    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> APPLY rattle 1; WHILE -> DAMAGE {5-8}% PER TARGET rattle",
-    "modifierName": "Rattle Legend"
+    "modifier": "WHILE IF TAG warrior -> TAGAS warbrute; ONCONNECT EVERY 2 IF TAG warbrute -> APPLY rattle 1"
   },
   {
     "slot": "legs",
@@ -3128,8 +3021,7 @@
     "class": "barbarian",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF CLASS barbarian -> SPEED {3-6}%",
-    "modifierName": "Barbarian Knack"
+    "modifier": "ONCOMBO IF ACTION BLUDGEON -> MINT TRIUMPH 1"
   },
   {
     "slot": "legs",
@@ -3157,8 +3049,7 @@
     "class": "barbarian",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE IF CLASS barbarian -> DAMAGE {4-8}%",
-    "modifierName": "Barbarian Knack"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION BODY_BLOW -> APPLY expose 1"
   },
   {
     "slot": "legs",
@@ -3186,8 +3077,7 @@
     "class": "wizard",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE -> POTENCY burn {12-20}%",
-    "modifierName": "Burn Knack"
+    "modifier": "ONCOMBO IF ACTION DUNGEON_ANALYSIS -> MINT LENS 1"
   },
   {
     "slot": "legs",
@@ -3215,8 +3105,7 @@
     "class": "warrior",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE IF CLASS warrior -> DAMAGE {4-8}%",
-    "modifierName": "Warrior Knack"
+    "modifier": "ONCONNECT EVERY 3 IF CLASS warrior -> APPLY bleed 1"
   },
   {
     "slot": "legs",
@@ -3244,8 +3133,7 @@
     "class": "wizard",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE IF CLASS wizard -> SPEED {3-6}%",
-    "modifierName": "Wizard Knack"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION ECHO_SPELL -> APPLY weaken 1"
   },
   {
     "slot": "legs",
@@ -3273,8 +3161,7 @@
     "class": "barbarian",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE -> POTENCY burn {12-20}%",
-    "modifierName": "Burn Knack"
+    "modifier": "WHILE IF ACTION CLEAVE_THROUGH -> TAGAS warbrute"
   },
   {
     "slot": "legs",
@@ -3302,8 +3189,7 @@
     "class": "rogue",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE IF CLASS rogue -> SPEED {3-6}%",
-    "modifierName": "Rogue Knack"
+    "modifier": "ONCOMBO IF ACTION DISARM -> MINT TROPHY 1"
   },
   {
     "slot": "legs",
@@ -3331,8 +3217,7 @@
     "class": "rogue",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF CLASS rogue -> DAMAGE {4-8}%",
-    "modifierName": "Rogue Knack"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION DISTILL -> APPLY mark 1"
   },
   {
     "slot": "legs",
@@ -3360,8 +3245,7 @@
     "class": "warrior",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE -> POTENCY bleed {12-20}%",
-    "modifierName": "Bleed Knack"
+    "modifier": "WHILE -> POTENCY bleed {10-20}%"
   },
   {
     "slot": "legs",
@@ -3389,8 +3273,7 @@
     "class": "rogue",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE -> POTENCY acid {12-20}%",
-    "modifierName": "Acid Knack"
+    "modifier": "WHILE IF ACTION DUELIST_FEINT -> TAGAS duelist"
   },
   {
     "slot": "legs",
@@ -3418,8 +3301,7 @@
     "class": "rogue",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE IF CLASS rogue -> SPEED {3-6}%",
-    "modifierName": "Rogue Knack"
+    "modifier": "ONCONNECT EVERY 3 IF CLASS rogue -> APPLY poison 1"
   },
   {
     "slot": "legs",
@@ -3447,8 +3329,7 @@
     "class": "warrior",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "WHILE IF TAG spellblade -> DAMAGE {6-12}%",
-    "modifierName": "Spellblade Habit"
+    "modifier": "WHILE IF CLASS warrior -> TAGAS duelist"
   },
   {
     "slot": "legs",
@@ -3476,8 +3357,7 @@
     "class": "barbarian",
     "defenseMin": 6,
     "defenseMax": 8,
-    "modifier": "WHILE IF TAG warbrute AND PREVTAG barbarian -> DAMAGE {10-16}%",
-    "modifierName": "Warbrute Habit"
+    "modifier": "ONCOMBO EVERY 2 IF TAG warbrute -> ADD harden 1"
   },
   {
     "slot": "legs",
@@ -3505,8 +3385,7 @@
     "class": "barbarian",
     "defenseMin": 8,
     "defenseMax": 10,
-    "modifier": "WHILE IF TAG ravager -> DAMAGE {6-12}%",
-    "modifierName": "Ravager Habit"
+    "modifier": "ONSTATUSAPPLY:bleed EVERY 2 -> APPLY stagger 1"
   },
   {
     "slot": "legs",
@@ -3534,8 +3413,7 @@
     "class": "warrior",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "WHILE IF TAG verb -> SPEED {5-9}%",
-    "modifierName": "Verbal Habit"
+    "modifier": "ONCONNECT EVERY 2 IF TAG swift -> APPLY slow 1"
   },
   {
     "slot": "legs",
@@ -3563,8 +3441,7 @@
     "class": "warrior",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "WHILE IF TAG warrior AND PREVTAG warbrute -> DAMAGE {10-16}%",
-    "modifierName": "Warrior Habit"
+    "modifier": "ONCOMBO EVERY 2 IF TAG warbrute -> ADD haste 1"
   },
   {
     "slot": "legs",
@@ -3592,8 +3469,7 @@
     "class": "rogue",
     "defenseMin": 6,
     "defenseMax": 8,
-    "modifier": "WHILE IF TAG finisher AND PREVTAG rogue -> DAMAGE {10-16}%",
-    "modifierName": "Finisher Habit"
+    "modifier": "ONSTATUSAPPLY:bleed EVERY 2 -> APPLY expose 1"
   },
   {
     "slot": "legs",
@@ -3621,8 +3497,7 @@
     "class": "warrior",
     "defenseMin": 5,
     "defenseMax": 7,
-    "modifier": "WHILE IF TAG swift -> DAMAGE {6-12}%",
-    "modifierName": "Swift Habit"
+    "modifier": "ONSTATUSAPPLY:bleed EVERY 2 -> APPLY stagger 1"
   },
   {
     "slot": "legs",
@@ -3650,8 +3525,7 @@
     "class": "wizard",
     "defenseMin": 4,
     "defenseMax": 6,
-    "modifier": "WHILE IF TAG store -> SPEED {5-9}%",
-    "modifierName": "Hoarder Habit"
+    "modifier": "ONCOMBO EVERY 2 IF TAG ragecaller -> ADD focus 1"
   },
   {
     "slot": "legs",
@@ -3679,8 +3553,7 @@
     "class": "warrior",
     "defenseMin": 8,
     "defenseMax": 10,
-    "modifier": "WHILE IF TAG warbrute -> SPEED {5-9}%",
-    "modifierName": "Warbrute Habit"
+    "modifier": "WHILE IF CLASS warrior -> TAGAS spellblade"
   },
   {
     "slot": "legs",
@@ -3708,8 +3581,7 @@
     "class": "warrior",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "WHILE IF TAG duelist AND PREVTAG warbrute -> DAMAGE {10-16}%",
-    "modifierName": "Duelist Habit"
+    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> APPLY rattle 1"
   },
   {
     "slot": "legs",
@@ -3737,8 +3609,7 @@
     "class": "wizard",
     "defenseMin": 12,
     "defenseMax": 16,
-    "modifier": "ONCOMBO EVERY 2 IF TAG wizard -> ADD focus 1",
-    "modifierName": "Focus Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> MINT CONTACT 1"
   },
   {
     "slot": "legs",
@@ -3766,8 +3637,7 @@
     "class": "warrior",
     "defenseMin": 8,
     "defenseMax": 12,
-    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> APPLY slow 1",
-    "modifierName": "Slow Technique"
+    "modifier": "WHILE -> RANK w-streak 1"
   },
   {
     "slot": "legs",
@@ -3795,8 +3665,7 @@
     "class": "warrior",
     "defenseMin": 14,
     "defenseMax": 18,
-    "modifier": "ONCONNECT IF TAG verb -> NEXT DAMAGE {12-20}%",
-    "modifierName": "Verbal Technique"
+    "modifier": "WHILE -> SETCOUNT 1"
   },
   {
     "slot": "legs",
@@ -3824,8 +3693,7 @@
     "class": "rogue",
     "defenseMin": 11,
     "defenseMax": 15,
-    "modifier": "ONCONNECT IF TAG rogue -> NEXT DAMAGE {12-20}%",
-    "modifierName": "Rogue Technique"
+    "modifier": "WHILE -> SETCOUNT 1"
   },
   {
     "slot": "legs",
@@ -3853,8 +3721,7 @@
     "class": "barbarian",
     "defenseMin": 10,
     "defenseMax": 14,
-    "modifier": "ONCONNECT EVERY 2 IF TAG ragecaller -> APPLY stagger 1",
-    "modifierName": "Stagger Technique"
+    "modifier": "WHILE -> RANK b-kin 1"
   },
   {
     "slot": "legs",
@@ -3882,8 +3749,7 @@
     "class": "barbarian",
     "defenseMin": 10,
     "defenseMax": 14,
-    "modifier": "ONCONNECT EVERY 2 IF TAG ragecaller -> APPLY stagger 1",
-    "modifierName": "Stagger Technique"
+    "modifier": "WHILE -> RANK b-kin 1"
   },
   {
     "slot": "legs",
@@ -3911,8 +3777,7 @@
     "class": "warrior",
     "defenseMin": 16,
     "defenseMax": 22,
-    "modifier": "ONCOMBO EVERY 2 IF TAG warrior -> ADD fortify 1",
-    "modifierName": "Fortify Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> MINT DRAG 1"
   },
   {
     "slot": "legs",
@@ -3940,8 +3805,7 @@
     "class": "rogue",
     "defenseMin": 13,
     "defenseMax": 17,
-    "modifier": "ONCOMBO EVERY 2 IF TAG status -> ADD focus 1",
-    "modifierName": "Focus Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG status -> MINT GRAZE 1"
   },
   {
     "slot": "legs",
@@ -3969,8 +3833,7 @@
     "class": "warrior",
     "defenseMin": 12,
     "defenseMax": 16,
-    "modifier": "ONCONNECT EVERY 2 IF TAG swift -> MINT BEAT {1-2}",
-    "modifierName": "Beat Technique"
+    "modifier": "ONCASH:STREAK -> APPLY slow 1"
   },
   {
     "slot": "legs",
@@ -3998,8 +3861,7 @@
     "class": "barbarian",
     "defenseMin": 13,
     "defenseMax": 17,
-    "modifier": "ONCONNECT IF TAG status -> NEXT DAMAGE {12-20}%",
-    "modifierName": "Affliction Technique"
+    "modifier": "WHILE -> SETCOUNT 1"
   },
   {
     "slot": "legs",
@@ -4027,8 +3889,7 @@
     "class": "warrior",
     "defenseMin": 17,
     "defenseMax": 23,
-    "modifier": "ONCONNECT IF TAG warbrute AND TARGET rattle -> NEXT DAMAGE {20-30}%",
-    "modifierName": "Warbrute Mastery"
+    "modifier": "ONSTOREFULL:BEAT -> ADD fortify 2"
   },
   {
     "slot": "legs",
@@ -4056,8 +3917,7 @@
     "class": "barbarian",
     "defenseMin": 18,
     "defenseMax": 24,
-    "modifier": "ONCRITICAL IF TAG barbarian -> APPLY brittle 2",
-    "modifierName": "Brittle Mastery"
+    "modifier": "ONCRITICAL IF TAG ravager -> APPLY brittle 2"
   },
   {
     "slot": "legs",
@@ -4085,8 +3945,7 @@
     "class": "rogue",
     "defenseMin": 19,
     "defenseMax": 25,
-    "modifier": "ONCOMBO IF TAG ravager -> NEXT AMP {20-30}% IFTAG status",
-    "modifierName": "Ravager Mastery"
+    "modifier": "WHILE IF TAG ravager -> TAGAS duelist"
   },
   {
     "slot": "legs",
@@ -4114,8 +3973,7 @@
     "class": "rogue",
     "defenseMin": 25,
     "defenseMax": 33,
-    "modifier": "WHILE IF TAG duelist AND NEXTTAG ravager -> SPEED {12-18}%",
-    "modifierName": "Duelist Mastery"
+    "modifier": "ONCRITICAL IF TAG duelist -> APPLY brittle 2"
   },
   {
     "slot": "legs",
@@ -4143,8 +4001,7 @@
     "class": "warrior",
     "defenseMin": 18,
     "defenseMax": 24,
-    "modifier": "ONCOMBO IF TAG duelist -> NEXT AMP {20-30}% IFTAG spellblade",
-    "modifierName": "Duelist Mastery"
+    "modifier": "WHILE IF TAG verb -> TAGAS duelist"
   },
   {
     "slot": "legs",
@@ -4172,8 +4029,7 @@
     "class": "wizard",
     "defenseMin": 25,
     "defenseMax": 33,
-    "modifier": "ONCONNECT IF TAG focus AND STEP>=3 -> NEXT DAMAGE {20-30}%",
-    "modifierName": "Focus Mastery"
+    "modifier": "ONCOMBOEND -> COUNTAS ONCOMBO"
   },
   {
     "slot": "legs",
@@ -4201,8 +4057,7 @@
     "class": "warrior",
     "defenseMin": 21,
     "defenseMax": 29,
-    "modifier": "WHILE IF TAG spellblade AND NEXTTAG verb -> SPEED {12-18}%",
-    "modifierName": "Spellblade Mastery"
+    "modifier": "ONCRITICAL IF TAG warrior -> APPLY stagger 2"
   },
   {
     "slot": "legs",
@@ -4230,8 +4085,7 @@
     "class": "warrior",
     "defenseMin": 23,
     "defenseMax": 31,
-    "modifier": "ONCRITICAL IF TAG verb -> APPLY stagger 2",
-    "modifierName": "Stagger Mastery"
+    "modifier": "WHILE IF TARGET rattle -> EXEMPT COMBO"
   },
   {
     "slot": "legs",
@@ -4259,8 +4113,7 @@
     "class": "warrior",
     "defenseMin": 24,
     "defenseMax": 32,
-    "modifier": "ONCONNECT IF TAG warrior AND STEP>=3 -> NEXT DAMAGE {20-30}%",
-    "modifierName": "Warrior Mastery"
+    "modifier": "ONMISS -> COUNTAS ONCONSECUTIVEATTACK"
   },
   {
     "slot": "legs",
@@ -4288,8 +4141,7 @@
     "class": "barbarian",
     "defenseMin": 26,
     "defenseMax": 34,
-    "modifier": "ONCONNECT IF TAG bludgeon AND TARGET stagger -> NEXT DAMAGE {20-30}%",
-    "modifierName": "Bludgeon Mastery"
+    "modifier": "WHILE IF HP<50 -> EXEMPT COMBO"
   },
   {
     "slot": "legs",
@@ -4317,8 +4169,7 @@
     "class": "rogue",
     "defenseMin": 28,
     "defenseMax": 38,
-    "modifier": "ONCOMBO IF TAG hexblade -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG hexblade AND PREVTAG hexblade -> SPEED {8-12}%",
-    "modifierName": "Hexblade Legend"
+    "modifier": "WHILE -> RANK r-age1 1; WHILE -> RANK r-draught 1"
   },
   {
     "slot": "legs",
@@ -4346,8 +4197,7 @@
     "class": "rogue",
     "defenseMin": 32,
     "defenseMax": 44,
-    "modifier": "ONCOMBO EVERY 2 IF TAG finisher -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
-    "modifierName": "Haste Legend"
+    "modifier": "ONSTATUSAPPLY:mark -> MINT SWING 1; ONCASH:SWING -> APPLY mark 1"
   },
   {
     "slot": "legs",
@@ -4375,8 +4225,7 @@
     "class": "warrior",
     "defenseMin": 22,
     "defenseMax": 30,
-    "modifier": "ONCOMBO IF TAG swift -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG swift AND PREVTAG swift -> SPEED {8-12}%",
-    "modifierName": "Swift Legend"
+    "modifier": "WHILE -> RANK w-age1 1; WHILE -> RANK w-flowing 1"
   },
   {
     "slot": "legs",
@@ -4404,8 +4253,7 @@
     "class": "wizard",
     "defenseMin": 20,
     "defenseMax": 28,
-    "modifier": "ONCOMBO IF TAG ragecaller -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG ragecaller AND PREVTAG ragecaller -> SPEED {8-12}%",
-    "modifierName": "Ragecaller Legend"
+    "modifier": "WHILE IF TAG hexblade -> TAGAS spellblade; ONCONNECT EVERY 2 IF TAG spellblade -> APPLY brittle 1"
   },
   {
     "slot": "legs",
@@ -4433,8 +4281,7 @@
     "class": "barbarian",
     "defenseMin": 20,
     "defenseMax": 28,
-    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> APPLY expose 1; WHILE -> DAMAGE {5-8}% PER TARGET expose",
-    "modifierName": "Expose Legend"
+    "modifier": "ONSTATUSAPPLY:expose -> MINT RAGE 1; ONCASH:RAGE -> APPLY expose 1"
   },
   {
     "slot": "legs",
@@ -4462,8 +4309,7 @@
     "class": "warrior",
     "defenseMin": 28,
     "defenseMax": 38,
-    "modifier": "ONCOMBO EVERY 2 IF TAG warbrute -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
-    "modifierName": "Haste Legend"
+    "modifier": "ONSTATUSAPPLY:rattle -> MINT DRAG 1; ONCASH:DRAG -> APPLY rattle 1"
   },
   {
     "slot": "legs",
@@ -4491,8 +4337,7 @@
     "class": "warrior",
     "defenseMin": 20,
     "defenseMax": 26,
-    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> APPLY rattle 1; WHILE -> DAMAGE {5-8}% PER TARGET rattle",
-    "modifierName": "Rattle Legend"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK w-flowcrest 1"
   },
   {
     "slot": "legs",
@@ -4520,8 +4365,7 @@
     "class": "warrior",
     "defenseMin": 33,
     "defenseMax": 45,
-    "modifier": "ONCOMBO IF TAG spellblade -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG spellblade AND PREVTAG spellblade -> SPEED {8-12}%",
-    "modifierName": "Spellblade Legend"
+    "modifier": "WHILE IF TAG swift -> TAGAS verb; ONCONNECT EVERY 2 IF TAG verb -> APPLY slow 1"
   },
   {
     "slot": "legs",
@@ -4549,8 +4393,7 @@
     "class": "barbarian",
     "defenseMin": 31,
     "defenseMax": 41,
-    "modifier": "ONCOMBO IF TAG ravager -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG ravager AND PREVTAG ravager -> SPEED {8-12}%",
-    "modifierName": "Ravager Legend"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK b-knuckle 1"
   },
   {
     "slot": "legs",
@@ -4578,8 +4421,7 @@
     "class": "barbarian",
     "defenseMin": 27,
     "defenseMax": 37,
-    "modifier": "ONCOMBO EVERY 2 IF TAG ragecaller -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
-    "modifierName": "Haste Legend"
+    "modifier": "WHILE IF TAG ragecaller -> TAGAS warbrute; ONCONNECT EVERY 2 IF TAG warbrute -> APPLY stagger 1"
   },
   {
     "slot": "feet",
@@ -4607,8 +4449,7 @@
     "class": "rogue",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE IF CLASS rogue -> DAMAGE {4-8}%",
-    "modifierName": "Rogue Knack"
+    "modifier": "WHILE -> POTENCY acid {10-20}%"
   },
   {
     "slot": "feet",
@@ -4636,8 +4477,7 @@
     "class": "barbarian",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF CLASS barbarian -> SPEED {3-6}%",
-    "modifierName": "Barbarian Knack"
+    "modifier": "ONCONNECT EVERY 3 IF CLASS barbarian -> APPLY burn 1"
   },
   {
     "slot": "feet",
@@ -4665,8 +4505,7 @@
     "class": "rogue",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE -> POTENCY poison {12-20}%",
-    "modifierName": "Poison Knack"
+    "modifier": "ONCOMBO IF ACTION ENRAGE -> MINT TROPHY 1"
   },
   {
     "slot": "feet",
@@ -4694,8 +4533,7 @@
     "class": "barbarian",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF CLASS barbarian -> DAMAGE {4-8}%",
-    "modifierName": "Barbarian Knack"
+    "modifier": "WHILE -> POTENCY bleed {10-20}%"
   },
   {
     "slot": "feet",
@@ -4723,8 +4561,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE IF CLASS wizard -> DAMAGE {4-8}%",
-    "modifierName": "Wizard Knack"
+    "modifier": "WHILE IF ACTION EMPOWERED -> TAGAS focus"
   },
   {
     "slot": "feet",
@@ -4752,8 +4589,7 @@
     "class": "warrior",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE IF CLASS warrior -> SPEED {3-6}%",
-    "modifierName": "Warrior Knack"
+    "modifier": "ONCOMBO IF ACTION CLEAVE_THROUGH -> MINT STREAK 1"
   },
   {
     "slot": "feet",
@@ -4781,8 +4617,7 @@
     "class": "warrior",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF CLASS warrior -> DAMAGE {4-8}%",
-    "modifierName": "Warrior Knack"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION CODA -> APPLY stagger 1"
   },
   {
     "slot": "feet",
@@ -4810,8 +4645,7 @@
     "class": "wizard",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE -> POTENCY acid {12-20}%",
-    "modifierName": "Acid Knack"
+    "modifier": "ONCONNECT EVERY 3 IF CLASS wizard -> APPLY acid 1"
   },
   {
     "slot": "feet",
@@ -4839,8 +4673,7 @@
     "class": "warrior",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE -> POTENCY bleed {12-20}%",
-    "modifierName": "Bleed Knack"
+    "modifier": "WHILE IF ACTION COMBO_END_HEAL -> TAGAS warbrute"
   },
   {
     "slot": "feet",
@@ -4868,8 +4701,7 @@
     "class": "barbarian",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE -> POTENCY bleed {12-20}%",
-    "modifierName": "Bleed Knack"
+    "modifier": "ONCOMBO IF ACTION COILED_STRIKE -> MINT CRISIS 1"
   },
   {
     "slot": "feet",
@@ -4897,8 +4729,7 @@
     "class": "barbarian",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF TAG status -> SPEED {5-9}%",
-    "modifierName": "Affliction Habit"
+    "modifier": "WHILE IF CLASS barbarian -> TAGAS ragecaller"
   },
   {
     "slot": "feet",
@@ -4926,8 +4757,7 @@
     "class": "wizard",
     "defenseMin": 4,
     "defenseMax": 6,
-    "modifier": "WHILE IF TAG spellblade AND PREVTAG ragecaller -> DAMAGE {10-16}%",
-    "modifierName": "Spellblade Habit"
+    "modifier": "ONSTATUSAPPLY:burn EVERY 2 -> APPLY rattle 1"
   },
   {
     "slot": "feet",
@@ -4955,8 +4785,7 @@
     "class": "wizard",
     "defenseMin": 4,
     "defenseMax": 6,
-    "modifier": "WHILE IF TAG hexblade -> DAMAGE {6-12}%",
-    "modifierName": "Hexblade Habit"
+    "modifier": "WHILE IF CLASS wizard -> TAGAS ragecaller"
   },
   {
     "slot": "feet",
@@ -4984,8 +4813,7 @@
     "class": "rogue",
     "defenseMin": 3,
     "defenseMax": 5,
-    "modifier": "WHILE IF TAG rogue -> DAMAGE {6-12}%",
-    "modifierName": "Rogue Habit"
+    "modifier": "WHILE IF CLASS rogue -> TAGAS finisher"
   },
   {
     "slot": "feet",
@@ -5013,8 +4841,7 @@
     "class": "rogue",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF TAG status -> SPEED {5-9}%",
-    "modifierName": "Affliction Habit"
+    "modifier": "ONCONNECT EVERY 2 IF TAG hexblade -> APPLY expose 1"
   },
   {
     "slot": "feet",
@@ -5042,8 +4869,7 @@
     "class": "barbarian",
     "defenseMin": 3,
     "defenseMax": 5,
-    "modifier": "WHILE IF TAG barbarian AND PREVTAG warbrute -> DAMAGE {10-16}%",
-    "modifierName": "Barbarian Habit"
+    "modifier": "ONCONNECT EVERY 2 IF TAG status -> APPLY brittle 1"
   },
   {
     "slot": "feet",
@@ -5071,8 +4897,7 @@
     "class": "warrior",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE IF TAG verb -> DAMAGE {6-12}%",
-    "modifierName": "Verbal Habit"
+    "modifier": "ONCOMBO EVERY 2 IF TAG warbrute -> ADD haste 1"
   },
   {
     "slot": "feet",
@@ -5100,8 +4925,7 @@
     "class": "warrior",
     "defenseMin": 4,
     "defenseMax": 6,
-    "modifier": "WHILE IF TAG warrior -> SPEED {5-9}%",
-    "modifierName": "Warrior Habit"
+    "modifier": "ONSTATUSAPPLY:bleed EVERY 2 -> APPLY rattle 1"
   },
   {
     "slot": "feet",
@@ -5129,8 +4953,7 @@
     "class": "warrior",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE IF TAG swift AND PREVTAG warrior -> DAMAGE {10-16}%",
-    "modifierName": "Swift Habit"
+    "modifier": "WHILE IF CLASS warrior -> TAGAS duelist"
   },
   {
     "slot": "feet",
@@ -5158,8 +4981,7 @@
     "class": "barbarian",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE IF TAG bludgeon -> DAMAGE {6-12}%",
-    "modifierName": "Bludgeon Habit"
+    "modifier": "ONCOMBO EVERY 2 IF TAG barbarian -> ADD haste 1"
   },
   {
     "slot": "feet",
@@ -5187,8 +5009,7 @@
     "class": "barbarian",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "ONCOMBO EVERY 2 IF TAG warbrute -> ADD harden 1",
-    "modifierName": "Harden Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG bludgeon -> MINT TRIUMPH 1"
   },
   {
     "slot": "feet",
@@ -5216,8 +5037,7 @@
     "class": "barbarian",
     "defenseMin": 8,
     "defenseMax": 12,
-    "modifier": "ONCONNECT EVERY 2 IF TAG ravager -> MINT TRIUMPH {1-2}",
-    "modifierName": "Triumph Technique"
+    "modifier": "ONCASH:RAGE -> APPLY expose 1"
   },
   {
     "slot": "feet",
@@ -5245,8 +5065,7 @@
     "class": "rogue",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "ONCONNECT EVERY 2 IF TAG ravager -> MINT GRAZE {1-2}",
-    "modifierName": "Graze Technique"
+    "modifier": "ONCASH:GRAZE -> APPLY brittle 1"
   },
   {
     "slot": "feet",
@@ -5274,8 +5093,7 @@
     "class": "wizard",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "ONCONNECT EVERY 2 IF TAG store -> MINT CHAIN {1-2}",
-    "modifierName": "Chain Technique"
+    "modifier": "ONCASH:CHAIN -> APPLY weaken 1"
   },
   {
     "slot": "feet",
@@ -5303,8 +5121,7 @@
     "class": "barbarian",
     "defenseMin": 8,
     "defenseMax": 10,
-    "modifier": "ONCONNECT EVERY 2 IF TAG ragecaller -> APPLY stagger 1",
-    "modifierName": "Stagger Technique"
+    "modifier": "WHILE -> RANK b-scar 1"
   },
   {
     "slot": "feet",
@@ -5332,8 +5149,7 @@
     "class": "barbarian",
     "defenseMin": 5,
     "defenseMax": 7,
-    "modifier": "ONCONNECT IF TAG status -> NEXT DAMAGE {12-20}%",
-    "modifierName": "Affliction Technique"
+    "modifier": "WHILE -> SETCOUNT 1"
   },
   {
     "slot": "feet",
@@ -5361,8 +5177,7 @@
     "class": "warrior",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> APPLY slow 1",
-    "modifierName": "Slow Technique"
+    "modifier": "WHILE -> RANK w-flowing 1"
   },
   {
     "slot": "feet",
@@ -5390,8 +5205,7 @@
     "class": "warrior",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "ONCONNECT IF TAG duelist -> NEXT DAMAGE {12-20}%",
-    "modifierName": "Duelist Technique"
+    "modifier": "WHILE -> SETCOUNT 1"
   },
   {
     "slot": "feet",
@@ -5419,8 +5233,7 @@
     "class": "barbarian",
     "defenseMin": 6,
     "defenseMax": 8,
-    "modifier": "ONCOMBO EVERY 2 IF TAG barbarian -> ADD haste 1",
-    "modifierName": "Haste Technique"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> MINT CRISIS 1"
   },
   {
     "slot": "feet",
@@ -5448,8 +5261,7 @@
     "class": "barbarian",
     "defenseMin": 5,
     "defenseMax": 7,
-    "modifier": "ONCONNECT EVERY 2 IF TAG bludgeon -> MINT RAGE {1-2}",
-    "modifierName": "Rage Technique"
+    "modifier": "ONCASH:TRIUMPH -> APPLY stagger 1"
   },
   {
     "slot": "feet",
@@ -5477,8 +5289,7 @@
     "class": "warrior",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "ONCOMBO IF TAG spellblade -> NEXT AMP {20-30}% IFTAG swift",
-    "modifierName": "Spellblade Mastery"
+    "modifier": "ONSTOREFULL:BEAT -> ADD fortify 2"
   },
   {
     "slot": "feet",
@@ -5506,8 +5317,7 @@
     "class": "warrior",
     "defenseMin": 9,
     "defenseMax": 13,
-    "modifier": "WHILE IF TAG verb AND NEXTTAG warbrute -> SPEED {12-18}%",
-    "modifierName": "Verbal Mastery"
+    "modifier": "WHILE IF TAG duelist -> TAGAS spellblade"
   },
   {
     "slot": "feet",
@@ -5535,8 +5345,7 @@
     "class": "barbarian",
     "defenseMin": 14,
     "defenseMax": 20,
-    "modifier": "ONCOMBO IF TAG warbrute -> NEXT AMP {20-30}% IFTAG ravager",
-    "modifierName": "Warbrute Mastery"
+    "modifier": "ONTAKEHIT -> COUNTAS ONCOMBO"
   },
   {
     "slot": "feet",
@@ -5564,8 +5373,7 @@
     "class": "barbarian",
     "defenseMin": 14,
     "defenseMax": 20,
-    "modifier": "WHILE IF TAG ravager AND NEXTTAG ragecaller -> SPEED {12-18}%",
-    "modifierName": "Ravager Mastery"
+    "modifier": "ONSTOREFULL:RAGE -> ADD harden 2"
   },
   {
     "slot": "feet",
@@ -5593,8 +5401,7 @@
     "class": "rogue",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "ONCRITICAL IF TAG duelist -> APPLY brittle 2",
-    "modifierName": "Brittle Mastery"
+    "modifier": "WHILE IF TARGET brittle -> EXEMPT STREAK"
   },
   {
     "slot": "feet",
@@ -5622,8 +5429,7 @@
     "class": "barbarian",
     "defenseMin": 13,
     "defenseMax": 17,
-    "modifier": "ONCRITICAL IF TAG ragecaller -> APPLY brittle 2",
-    "modifierName": "Brittle Mastery"
+    "modifier": "WHILE IF TAG ravager -> TAGAS status"
   },
   {
     "slot": "feet",
@@ -5651,8 +5457,7 @@
     "class": "wizard",
     "defenseMin": 15,
     "defenseMax": 21,
-    "modifier": "ONCOMBO IF TAG wizard -> NEXT AMP {20-30}% IFTAG hexblade",
-    "modifierName": "Wizard Mastery"
+    "modifier": "ONSTOREFULL:LENS -> ADD haste 2"
   },
   {
     "slot": "feet",
@@ -5680,8 +5485,7 @@
     "class": "warrior",
     "defenseMin": 11,
     "defenseMax": 15,
-    "modifier": "ONCRITICAL IF TAG warrior -> APPLY stagger 2",
-    "modifierName": "Stagger Mastery"
+    "modifier": "ONCRITICAL IF TAG spellblade -> APPLY slow 2"
   },
   {
     "slot": "feet",
@@ -5709,8 +5513,7 @@
     "class": "rogue",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "ONCONNECT IF TAG hexblade AND TARGET brittle -> NEXT DAMAGE {20-30}%",
-    "modifierName": "Hexblade Mastery"
+    "modifier": "ONMISS -> COUNTAS ONCRITICAL"
   },
   {
     "slot": "feet",
@@ -5738,8 +5541,7 @@
     "class": "barbarian",
     "defenseMin": 8,
     "defenseMax": 12,
-    "modifier": "ONCONNECT IF TAG status AND HP<50 -> NEXT DAMAGE {20-30}%",
-    "modifierName": "Affliction Mastery"
+    "modifier": "ONCRITICAL IF TAG ragecaller -> APPLY brittle 2"
   },
   {
     "slot": "feet",
@@ -5767,8 +5569,7 @@
     "class": "rogue",
     "defenseMin": 14,
     "defenseMax": 18,
-    "modifier": "ONCOMBO IF TAG finisher -> NEXT AMP {20-30}% IFTAG duelist",
-    "modifierName": "Finisher Mastery"
+    "modifier": "ONSTOREFULL:SWING -> ADD focus 2"
   },
   {
     "slot": "feet",
@@ -5796,8 +5597,7 @@
     "class": "wizard",
     "defenseMin": 17,
     "defenseMax": 23,
-    "modifier": "ONCOMBO EVERY 2 IF TAG focus -> ADD haste 1; WHILE IF haste>=2 -> CRIT +{1-2}",
-    "modifierName": "Haste Legend"
+    "modifier": "WHILE -> RANK z-age1 1; WHILE -> RANK z-clarity 1"
   },
   {
     "slot": "feet",
@@ -5825,8 +5625,7 @@
     "class": "rogue",
     "defenseMin": 14,
     "defenseMax": 18,
-    "modifier": "ONCONNECT EVERY 2 IF TAG rogue -> APPLY mark 1; WHILE -> DAMAGE {5-8}% PER TARGET mark",
-    "modifierName": "Mark Legend"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK r-cut 1"
   },
   {
     "slot": "feet",
@@ -5854,8 +5653,7 @@
     "class": "rogue",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "ONCOMBO IF TAG status -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG status AND PREVTAG status -> SPEED {8-12}%",
-    "modifierName": "Affliction Legend"
+    "modifier": "WHILE IF TAG finisher -> TAGAS hexblade; ONCONNECT EVERY 2 IF TAG hexblade -> APPLY mark 1"
   },
   {
     "slot": "feet",
@@ -5883,8 +5681,7 @@
     "class": "barbarian",
     "defenseMin": 17,
     "defenseMax": 23,
-    "modifier": "ONCONNECT EVERY 2 IF TAG barbarian -> APPLY expose 1; WHILE -> DAMAGE {5-8}% PER TARGET expose",
-    "modifierName": "Expose Legend"
+    "modifier": "WHILE -> RANK b-trance 1; WHILE -> RANK b-blood 1"
   },
   {
     "slot": "feet",
@@ -5912,8 +5709,7 @@
     "class": "barbarian",
     "defenseMin": 20,
     "defenseMax": 26,
-    "modifier": "ONCOMBO IF TAG bludgeon -> NEXT DAMAGE {12-18}% FOR 2 RAMP; WHILE IF TAG bludgeon AND PREVTAG bludgeon -> SPEED {8-12}%",
-    "modifierName": "Bludgeon Legend"
+    "modifier": "ONSTATUSAPPLY:expose -> MINT CRISIS 1; ONCASH:CRISIS -> APPLY expose 1"
   },
   {
     "slot": "feet",
@@ -5941,8 +5737,7 @@
     "class": "barbarian",
     "defenseMin": 10,
     "defenseMax": 14,
-    "modifier": "ONCOMBO EVERY 2 IF TAG warbrute -> ADD harden 1; WHILE IF harden>=2 -> CRIT +{1-2}",
-    "modifierName": "Harden Legend"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK b-age1 1"
   },
   {
     "slot": "feet",
@@ -5970,8 +5765,7 @@
     "class": "rogue",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "ONCOMBO EVERY 2 IF TAG ravager -> ADD focus 1; WHILE IF focus>=2 -> CRIT +{1-2}",
-    "modifierName": "Focus Legend"
+    "modifier": "WHILE -> RANK r-draught 1; WHILE -> RANK r-insight 1"
   },
   {
     "slot": "feet",
@@ -5999,8 +5793,7 @@
     "class": "barbarian",
     "defenseMin": 20,
     "defenseMax": 26,
-    "modifier": "ONCONNECT EVERY 2 IF TAG ravager -> APPLY stagger 1; WHILE -> DAMAGE {5-8}% PER TARGET stagger",
-    "modifierName": "Stagger Legend"
+    "modifier": "WHILE IF TAG status -> TAGAS bludgeon; ONCONNECT EVERY 2 IF TAG bludgeon -> APPLY stagger 1"
   },
   {
     "slot": "feet",
@@ -6028,8 +5821,7 @@
     "class": "warrior",
     "defenseMin": 12,
     "defenseMax": 16,
-    "modifier": "ONCOMBO EVERY 2 IF TAG swift -> ADD fortify 1; WHILE IF fortify>=2 -> CRIT +{1-2}",
-    "modifierName": "Fortify Legend"
+    "modifier": "WHILE -> RANK w-hitagi 1; WHILE -> RANK w-march 1"
   },
   {
     "slot": "feet",
@@ -6057,7 +5849,6 @@
     "class": "warrior",
     "defenseMin": 13,
     "defenseMax": 17,
-    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> APPLY rattle 1; WHILE -> DAMAGE {5-8}% PER TARGET rattle",
-    "modifierName": "Rattle Legend"
+    "modifier": "ONSTATUSAPPLY:stagger -> MINT DRAG 1; ONCASH:DRAG -> APPLY stagger 1"
   }
 ]

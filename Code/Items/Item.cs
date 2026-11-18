@@ -330,10 +330,6 @@ namespace RPGGame
         [JsonPropertyName("implicitRule")]
         public string ImplicitRule { get; set; } = "";
 
-        /// <summary>The modifier's name from the catalog (subject + tier word, e.g. "Cleave Mastery"); empty on old items.</summary>
-        [JsonPropertyName("implicitName")]
-        public string ImplicitName { get; set; } = "";
-
         /// <summary>The rarity the item dropped as before any rarity roll-up; line values were rolled at this rarity.
         /// Empty when it did not roll up.</summary>
         [JsonPropertyName("dropRarity")]

@@ -299,6 +299,9 @@ namespace RPGGame
             if (isCharacterActive && customUIManager is CanvasUICoordinator canvasUIClear)
             {
                 canvasUIClear.ClearCurrentEnemy();
+                // Also drop the combat repaint callback (it still holds the dead enemy); otherwise reveal ticks repaint
+                // the enemy panel while board frames repaint the room panel, and the right panel flickers between them.
+                Dispatcher.UIThread.Post(canvasUIClear.EndCombatRenderPath);
             }
 
             // Restore exploration state only after combat UI / victory messaging is finished — early restore made

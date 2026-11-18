@@ -532,8 +532,7 @@ data copy or removed knobs (`adjust_rarity_weight`, `adjust_rarity_bonuses`, `en
 - Balance pass (everything moved; night-v45i was measured on the old loot).
 - ~~Naming pass~~ (done 2026-11-15, §14: every tier has its own name).
 - ~~Implicit scaling with item level~~ (replaced 2026-11-15, §14: base modifiers are fixed per base and scale by tier).
-- Google Sheets sync: the new catalog columns (`damageMin` / `damageMax` / `class`, and since 2026-11-15 `modifier` /
-  `modifierName`) are not on the sheets yet, so a sheet pull would drop them.
+- Google Sheets sync: the new catalog columns (`damageMin` / `damageMax` / `class`, and since 2026-11-15 `modifier`) are not on the sheets yet, so a sheet pull would drop them.
 - Old `Modifications.json` / `StatBonuses.json` rows remain the templates the families clone (their own values are no
   longer used for rolls).
 - `ITEMSTATS --samples N` prints full rolled items for eyeballing.
@@ -557,7 +556,7 @@ values beat anything a rarer item can roll.
 
 **Base modifiers are fixed per base (stage 6).** Every base, starters included, has one modifier written into its
 catalog row by `Scripts/build-item-mods.py`: `modifier` (CrossWires WHILE rule(s), `;`-separated, `{lo-hi}` for each
-rolled value) and `modifierName`. Only the values roll, so to get a specific mechanic you find that base again. There is
+rolled value); the old `modifierName` was retired 2026-11-17 as flavor only. Only the values roll, so to get a specific mechanic you find that base again. There is
 no per-rarity chance any more (the Settings row and `rarityChance` are gone). Complexity grows with the tier:
 
 | Tier | Shape | Example |

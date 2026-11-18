@@ -655,10 +655,11 @@ namespace RPGGame
                 if (owner == null || !owner.Nodes.Any(n =>
                         string.Equals(n.Id, node.Id, StringComparison.OrdinalIgnoreCase)))
                     continue;
+                int rank = kv.Value + CrossWires.SkillRankBonus(hero, kv.Key);
                 if (node.DamageModPerRank > 0)
-                    dmgMod += node.DamageModPerRank * kv.Value;
+                    dmgMod += node.DamageModPerRank * rank;
                 if (node.HealOnHitPerRank > 0)
-                    heal += node.HealOnHitPerRank * kv.Value;
+                    heal += node.HealOnHitPerRank * rank;
             }
 
             if (dmgMod > 0)

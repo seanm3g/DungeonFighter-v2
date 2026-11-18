@@ -111,7 +111,7 @@ namespace RPGGame
         {
             // Initialize components
             Stats = new CharacterStats(level);
-            Effects = new CharacterEffects();
+            Effects = new CharacterEffects { Owner = this };
             Equipment = new CharacterEquipment();
             Progression = new CharacterProgression(level);
             Actions = new CharacterActions();
