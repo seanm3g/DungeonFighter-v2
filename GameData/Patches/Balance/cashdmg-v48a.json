@@ -1,0 +1,26 @@
+{
+  "base": "night-v47-6b",
+  "combat": {
+    "materialConvertPaysDamage": true,
+    "materialConvertPrimaryStatPerUnit": {
+      "RAGE": 0,
+      "TRIUMPH": 0,
+      "CRISIS": 0,
+      "BEAT": 0,
+      "DRAG": 0,
+      "STREAK": 0,
+      "GRAZE": 0,
+      "TROPHY": 0,
+      "SWING": 0,
+      "CHAIN": 0,
+      "LENS": 0,
+      "CONTACT": 0,
+      "GRIT": 0,
+      "ENIGMA": 0,
+      "ODDITY": 0,
+      "OMEN": 0,
+      "KINDLING": 0,
+      "FRAY": 0
+    }
+  }
+}
