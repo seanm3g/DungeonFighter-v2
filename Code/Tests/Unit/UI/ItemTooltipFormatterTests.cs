@@ -10,7 +10,16 @@ namespace RPGGame.Tests.Unit.UI
 {
     public static class ItemTooltipFormatterTests
     {
+        /// <summary>These cover the pre-2.2 tooltip layout (Rebuild 2.2 put the item card first); run with the card off.</summary>
         public static void RunAllTests()
+        {
+            bool oldCard = RPGGame.UI.ItemCard.Enabled;
+            RPGGame.UI.ItemCard.Enabled = false;
+            try { RunAllTestsLegacyLayout(); }
+            finally { RPGGame.UI.ItemCard.Enabled = oldCard; }
+        }
+
+        private static void RunAllTestsLegacyLayout()
         {
             Console.WriteLine("=== ItemTooltipFormatter Tests ===\n");
             int run = 0, passed = 0, failed = 0;

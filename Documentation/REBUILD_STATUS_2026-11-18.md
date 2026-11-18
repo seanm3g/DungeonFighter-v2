@@ -40,7 +40,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | 2.1 Commons are plain | done, 1 question | `ed0a8603` | 15269 passed / 0 failed |
 | 2.5 Charms off | done | `16aebda5` | 15273 passed / 0 failed |
 | 2.3 No gear changes mid-dungeon | done | `5a18d94a` | 15277 passed / 0 failed |
-| 2.4 Dungeon end: staged loot reveal | done, 2 questions | (this commit) | 15293 passed / 0 failed |
+| 2.4 Dungeon end: staged loot reveal | done, 2 questions | `76f45d1a` | 15293 passed / 0 failed |
+| 2.2 Item card reading order | done | (this commit) | 15304 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -279,6 +280,21 @@ approval), so the visual result is unverified. Please look at one fight first th
   `AgentGameplayTests.AdvanceToDungeonSelection` walks the reveal first.
 - MCP walk: a Wizard, 4 dungeons: three single-Common reveals, e.g. "vs Leather Armor: −2 Defense +3 AGI +2 INT ·
   Wood 0 → 1 · breaks your Leather set (4 → 3) · Sidegrade: +3 AGI, but −2 Defense" → Keep; two upgrades → Equip.
+
+### 2.2 The item card reading order — done (layout settled 2026-11-18)
+- New `ItemCard` (`Code/UI/ItemCard.cs`), switch `ItemCard.Enabled` (default on). Every item tooltip now opens with:
+  name; `Uncommon head · Iron · T2`; **the comparison** ("vs Leather Helmet: +17 Defense", one line per attribute,
+  computed on a copy of the hero; a worn piece says "Gives: +8 Defense"); "breaks your Leather set (…)" when it
+  does; ▸ its action; ◆ its modifier (via `RuleText`); the **next set step only** ("Iron 0/5 — wear 2 to start storing
+  CRISIS"); requirements; then "Alt: details". Holding Alt (the existing `HoverTooltipDetailState` toggle) adds the old
+  full breakdown under a "Details" header. MCP's `get_item_details` shows card + details.
+- Nothing before its rung: the set line waits for the MaterialSets unlock unless this piece would start a set. To make
+  that mean something, **starter pieces no longer count toward the MaterialSets first event** (the Leather kit is
+  already a set on every new hero, so the rung fired on turn one). Comparisons are cached per item until the worn
+  gear changes (hover repaints don't re-copy the hero).
+- Tests: new `ItemCardTests`. `ItemTooltipFormatterTests`, `LeftPanelTooltipBuilderTests` and
+  `ItemRollerTests.TestCombatImplicitShowsInTooltip` check the pre-2.2 layout and now run with the card off.
+- **Not checked by eye** on the canvas (tooltip width, wrapping).
 
 ## Questions for the user
 - **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the

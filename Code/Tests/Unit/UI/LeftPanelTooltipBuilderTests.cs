@@ -9,7 +9,16 @@ namespace RPGGame.Tests.Unit.UI
     public static class LeftPanelTooltipBuilderTests
     {
         /// <summary>Charms are off since Rebuild 2.5 (D4.7); these cover the switched-off slot with it on.</summary>
+        /// <summary>These cover the pre-2.2 tooltip layout (Rebuild 2.2 put the item card first); run with the card off.</summary>
         public static void RunAllTests()
+        {
+            bool oldCard = RPGGame.UI.ItemCard.Enabled;
+            RPGGame.UI.ItemCard.Enabled = false;
+            try { RunAllTestsLegacyLayout(); }
+            finally { RPGGame.UI.ItemCard.Enabled = oldCard; }
+        }
+
+        private static void RunAllTestsLegacyLayout()
         {
             bool oldCharms = GameConfiguration.Instance.LootSystem.CharmsEnabled;
             GameConfiguration.Instance.LootSystem.CharmsEnabled = true;

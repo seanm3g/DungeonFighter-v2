@@ -32,9 +32,25 @@ namespace RPGGame
 
             bool equipBlocked = ItemRendererHelper.IsEquipBlockedForCharacter(item, character);
 
+            // Rebuild 2.2: the card's fixed reading order first (comparison, one line per attribute, action, modifier,
+            // the next set step, requirements); the full breakdown below sits behind the Alt toggle.
+            if (RPGGame.UI.ItemCard.Enabled)
+            {
+                lines.AddRange(RPGGame.UI.ItemCard.BuildLines(character, item, equipBlocked));
+                if (!includeExtendedDetails)
+                {
+                    AddLine(lines, new List<ColoredText> { new ColoredText("  Alt: details", AsciiArtAssets.Colors.DarkGray) });
+                    return Trim(lines, maxLines);
+                }
+                AddBlank(lines);
+                AddLine(lines, SectionHeader("Details"));
+            }
+            else
+            {
             // --- Primary (always) ---
             AddLine(lines, ItemDisplayColoredText.FormatFullItemName(item));
             AddLine(lines, BuildRarityLine(item, includeExtendedDetails));
+            }
             if (maxLines <= lines.Count) return Trim(lines, maxLines);
 
             var tags = Data.GameDataTagHelper.NormalizeDistinct(item.Tags);

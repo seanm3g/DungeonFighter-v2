@@ -404,6 +404,14 @@ namespace RPGGame.Tests.Unit.Data
 
         private static void TestCombatImplicitShowsInTooltip()
         {
+            bool oldCard = RPGGame.UI.ItemCard.Enabled;
+            RPGGame.UI.ItemCard.Enabled = false; // checks the pre-2.2 layout
+            try { TestCombatImplicitShowsInTooltipLegacy(); }
+            finally { RPGGame.UI.ItemCard.Enabled = oldCard; }
+        }
+
+        private static void TestCombatImplicitShowsInTooltipLegacy()
+        {
             var item = Roll(new ItemRollRequest { ItemLevel = 20, AllowRollUps = false }, 200)
                 .Select(x => x.Item)
                 .FirstOrDefault(i => !string.IsNullOrWhiteSpace(i.ImplicitRule));

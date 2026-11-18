@@ -129,11 +129,14 @@ namespace RPGGame
         public bool OnStripLengthChanged(int slots) =>
             slots >= 2 && Unlock(GameSystem.Combos, $"strip has {slots} slots");
 
-        /// <summary>The worn gear changed. Two worn pieces of one material opens MaterialSets.</summary>
+        /// <summary>
+        /// The worn gear changed. Two worn pieces of one material opens MaterialSets. Starter pieces don't count: the
+        /// Leather kit every hero starts in is already a set, and the rung arrives with found gear (Rebuild 2.2).
+        /// </summary>
         public bool OnEquipmentChanged(IEnumerable<Item?> worn)
         {
             var best = worn
-                .Where(i => i != null && !string.IsNullOrWhiteSpace(i.Material))
+                .Where(i => i != null && !string.IsNullOrWhiteSpace(i.Material) && !CommonItemRules.IsStarter(i))
                 .GroupBy(i => i!.Material.Trim(), StringComparer.OrdinalIgnoreCase)
                 .OrderByDescending(g => g.Count())
                 .FirstOrDefault();
