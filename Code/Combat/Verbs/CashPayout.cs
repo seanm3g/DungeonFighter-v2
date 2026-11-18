@@ -33,7 +33,7 @@ namespace RPGGame
             new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
             {
                 [Heal] = 0.75,         // % max HP per unit (2.0 out-healed L20 enemies: ACTIONVALUE 2026-11-18)
-                [HealCapKey] = 4.0,    // most % max HP one cash can heal
+                [HealCapKey] = 2.0,    // most % max HP one cash can heal
                 ["temphp"] = 5.0,      // % max HP per unit
                 ["attribute"] = 2.0,   // % of the attribute per unit
                 ["harden"] = 0.5, ["fortify"] = 0.5, ["focus"] = 0.34, ["haste"] = 0.5,
