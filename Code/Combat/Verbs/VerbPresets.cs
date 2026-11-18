@@ -48,6 +48,13 @@ namespace RPGGame
         public double Rate { get; init; } = 100;
         /// <summary>Second number in the spec: INVEST's delay in hero actions (default 2).</summary>
         public int Delay { get; init; } = 2;
+        /// <summary>
+        /// CASH payout (<c>CASH ATTUNED 100 INTO harden</c>): <c>DAMAGE</c> (default, % of the hit), <c>HEAL</c> (% max HP),
+        /// an attribute (<c>STR</c> / <c>AGI</c> / <c>TEC</c> / <c>INT</c>, or <c>PRIMARY</c> = the cashed material's class stat)
+        /// for the rest of the fight, or any store id (<c>temphp</c>, <c>harden</c>, <c>haste</c>, <c>bleed</c>, ...): hero
+        /// resources land on the hero, statuses on the target. Per-unit rates: <see cref="CombatConfig.CashIntoPerUnit"/>.
+        /// </summary>
+        public string Into { get; init; } = CashPayout.Damage;
 
         public static VerbSpec? Parse(string? raw)
         {
@@ -77,7 +84,17 @@ namespace RPGGame
             double rate = kind == VerbKind.Apply ? 1 : kind == VerbKind.Release ? 0 : 100; // APPLY's number is a stack count
             int delay = 2;
             int numbers = 0;
-            foreach (string part in parts.Skip(1))
+            string into = CashPayout.Damage;
+            var rest = parts.Skip(1).ToList();
+            int intoAt = rest.FindIndex(p => p.Equals("INTO", StringComparison.OrdinalIgnoreCase));
+            if (intoAt >= 0)
+            {
+                if (kind != VerbKind.Cash || intoAt != rest.Count - 2 || !CashPayout.IsValid(rest[^1]))
+                    return null;
+                into = CashPayout.Normalize(rest[^1]);
+                rest = rest.Take(intoAt).ToList();
+            }
+            foreach (string part in rest)
             {
                 if (double.TryParse(part.TrimEnd('%'), NumberStyles.Float, CultureInfo.InvariantCulture, out double r))
                 {
@@ -89,7 +106,7 @@ namespace RPGGame
                     store = part;
                 }
             }
-            return new VerbSpec { Kind = kind, Store = store, Rate = rate, Delay = delay };
+            return new VerbSpec { Kind = kind, Store = store, Rate = rate, Delay = delay, Into = into };
         }
     }
 
@@ -159,6 +176,8 @@ namespace RPGGame
             {
                 case VerbKind.Cash:
                 {
+                    if (spec.Into != CashPayout.Damage)
+                        return 0;
                     string? id = ResolveStore(hero, spec.Store);
                     return id == null ? 0 : CashDamagePercent(hero, target, id) * share;
                 }
@@ -238,7 +257,14 @@ namespace RPGGame
                 case VerbKind.Cash:
                 {
                     string? id = ResolveStore(hero, spec.Store);
-                    return id == null ? 0 : Cash(hero, target, id, share);
+                    if (id == null)
+                        return 0;
+                    if (spec.Into == CashPayout.Damage)
+                        return Cash(hero, target, id, share);
+                    int spent = Stores.SpendAll(Holder(hero, target, id), id);
+                    CashPayout.Pay(hero, target, id, spent, share, spec.Into);
+                    RPGGame.Combat.Events.HeroEventHub.OnCash(hero, id, spent);
+                    return spent;
                 }
                 case VerbKind.Detonate:
                 {
@@ -404,7 +430,9 @@ namespace RPGGame
             string rate = spec.Rate.ToString("0.#", CultureInfo.InvariantCulture);
             return spec.Kind switch
             {
-                VerbKind.Cash => $"Cashes {store} at {rate}%",
+                VerbKind.Cash => spec.Into == CashPayout.Damage
+                    ? $"Cashes {store} at {rate}%"
+                    : $"Cashes {store} into {CashPayout.Describe(hero, store, spec.Into, spec.Rate / 100.0)}",
                 VerbKind.Detonate => $"Detonates the target's largest status at {rate}%",
                 VerbKind.Liquidate => $"Cashes every material store at {rate}%",
                 VerbKind.Scale => $"Scales with {store} at {rate}% (not spent)",

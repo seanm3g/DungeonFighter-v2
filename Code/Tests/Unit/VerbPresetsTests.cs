@@ -52,6 +52,8 @@ namespace RPGGame.Tests.Unit
                 TestStatusActions();
                 TestInvestPaysBackLater();
                 TestPalmBanksRoll();
+                TestCashIntoParse();
+                TestCashIntoPayouts(combat);
                 TestPresetsInData();
             }
             finally
@@ -333,11 +335,89 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(banked && face == 17, $"next roll becomes the palmed 17 (got {face})", ref _run, ref _passed, ref _failed);
         }
 
+        private static void TestCashIntoParse()
+        {
+            TestBase.SetCurrentTestName(nameof(TestCashIntoParse));
+            var harden = VerbSpec.Parse("CASH ATTUNED 100 INTO harden");
+            TestBase.AssertTrue(harden != null && harden.Kind == VerbKind.Cash && harden.Store == "ATTUNED" && harden.Into == "harden",
+                "CASH ATTUNED 100 INTO harden", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("TEC", VerbSpec.Parse("CASH RAGE INTO tech")?.Into ?? "", "TECH normalizes to TEC", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(CashPayout.Damage, VerbSpec.Parse("CASH ATTUNED 75")?.Into ?? "", "no INTO = damage", ref _run, ref _passed, ref _failed);
+            TestBase.AssertNull(VerbSpec.Parse("CASH ATTUNED INTO nonsense"), "unknown payout is null", ref _run, ref _passed, ref _failed);
+            TestBase.AssertNull(VerbSpec.Parse("DETONATE INTO harden"), "INTO only on CASH", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestCashIntoPayouts(CombatConfig combat)
+        {
+            TestBase.SetCurrentTestName(nameof(TestCashIntoPayouts));
+            var saved = combat.CashIntoPerUnit;
+            bool paysDamage = combat.MaterialConvertPaysDamage;
+            try
+            {
+                combat.CashIntoPerUnit = null; // defaults
+                combat.MaterialConvertPaysDamage = true;
+                Character Fresh(string name)
+                {
+                    var h = Hero(name, "Bone", "Bone");
+                    h.Effects.AddMaterialKeyword("RAGE", 6);
+                    return h;
+                }
+                var foe = new Character("IntoFoe", 5);
+
+                var dmg = Fresh("IntoDamage");
+                TestBase.AssertEqual(0.0, VerbPresets.GetDamagePercent(dmg, foe, VerbSpec.Parse("CASH ATTUNED 100 INTO harden")!),
+                    "a non-damage payout adds no hit damage", ref _run, ref _passed, ref _failed);
+
+                var hard = Fresh("IntoHarden");
+                TestBase.AssertEqual(6, VerbPresets.OnConnect(hard, foe, Verb("GRIT TEETH", "CASH ATTUNED 100 INTO harden")), "spends 6 RAGE", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(0, hard.Effects.GetMaterialKeyword("RAGE"), "RAGE empty", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(2, Stores.Get(hard, "harden"), "6 RAGE x 0.34 = 2 Harden", ref _run, ref _passed, ref _failed);
+
+                var bleed = Fresh("IntoBleed");
+                VerbPresets.OnConnect(bleed, foe, Verb("BLOODLET", "CASH ATTUNED 100 INTO bleed"));
+                TestBase.AssertEqual(3, Stores.Get(foe, "bleed"), "6 RAGE x 0.5 = 3 Bleed on the target", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(0, Stores.Get(bleed, "bleed"), "not on the hero", ref _run, ref _passed, ref _failed);
+
+                var heal = Fresh("IntoHeal");
+                int max = heal.GetEffectiveMaxHealth();
+                heal.CurrentHealth = max / 2;
+                VerbPresets.OnConnect(heal, foe, Verb("RESTORE", "CASH ATTUNED 100 INTO HEAL"));
+                int expectHeal = (int)Math.Round(max * 0.12);
+                TestBase.AssertEqual(Math.Min(max, max / 2 + expectHeal), heal.CurrentHealth, "6 RAGE x 2% = 12% max HP healed", ref _run, ref _passed, ref _failed);
+
+                var temp = Fresh("IntoTemp");
+                VerbPresets.OnConnect(temp, foe, Verb("BULWARK", "CASH ATTUNED 100 INTO temphp"));
+                TestBase.AssertEqual((int)Math.Round(temp.GetEffectiveMaxHealth() * 0.18), temp.TemporaryHP ?? 0, "6 RAGE x 3% = 18% max HP temp", ref _run, ref _passed, ref _failed);
+
+                var stat = Fresh("IntoStat");
+                int before = stat.GetEffectiveStrength();
+                VerbPresets.OnConnect(stat, foe, Verb("SURGE", "CASH ATTUNED 100 INTO PRIMARY"));
+                int after = stat.GetEffectiveStrength();
+                TestBase.AssertTrue(after > before, $"Bone cashes into STR for the fight ({before} -> {after})", ref _run, ref _passed, ref _failed);
+
+                combat.CashIntoPerUnit = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase) { ["harden"] = 1.0 };
+                var patched = Fresh("IntoPatched");
+                VerbPresets.OnConnect(patched, foe, Verb("GRIT TEETH", "CASH ATTUNED 100 INTO harden"));
+                TestBase.AssertEqual(Math.Min(6, Stores.Get(patched, "harden")), Stores.Get(patched, "harden"), "patch rate applies (capped by Harden's max)", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(Stores.Get(patched, "harden") > 2, "patch rate 1.0 beats the default", ref _run, ref _passed, ref _failed);
+
+                var empty = Hero("IntoEmpty", "Bone", "Bone");
+                TestBase.AssertEqual(0, VerbPresets.OnConnect(empty, foe, Verb("GRIT TEETH", "CASH ATTUNED 100 INTO harden")), "nothing to spend", ref _run, ref _passed, ref _failed);
+                TestBase.AssertEqual(0, Stores.Get(empty, "harden"), "and nothing paid", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                combat.CashIntoPerUnit = saved;
+                combat.MaterialConvertPaysDamage = paysDamage;
+            }
+        }
+
         private static void TestPresetsInData()
         {
             TestBase.SetCurrentTestName(nameof(TestPresetsInData));
             foreach (string name in new[] { "CASH IN", "DETONATE", "LIQUIDATE", "RECKONING", "INDEX",
-                         "MARK", "BARRIER", "DISTILL", "TRANSMUTE", "INVEST", "PALM" })
+                         "MARK", "BARRIER", "DISTILL", "TRANSMUTE", "INVEST", "PALM",
+                         "RESTORE", "SURGE", "BULWARK", "GRIT TEETH", "CENTER", "BLOODLET", "QUICKEN", "IGNITE", "LAY BARE", "STEEL NERVE" })
             {
                 var data = ActionLoader.GetActionData(name);
                 TestBase.AssertTrue(data != null && VerbSpec.Parse(data.Verb) != null, $"{name} loads with a valid verb", ref _run, ref _passed, ref _failed);

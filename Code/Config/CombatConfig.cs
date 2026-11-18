@@ -245,6 +245,11 @@ namespace RPGGame
         public double StatusExposeArmorStripMax { get; set; } = 0.30;
         /// <summary>Verb presets (DETONATE, CASH on a status): % of the hit paid per status unit spent.</summary>
         public double VerbStatusCashPercentPerUnit { get; set; } = 8.0;
+        /// <summary>
+        /// CASH ... INTO payouts: amount per store unit spent, by payout (<c>HEAL</c> and <c>temphp</c> in % max HP,
+        /// <c>attribute</c> in % of the stat, store ids in stacks). Missing keys use <see cref="CashPayout.DefaultRates"/>.
+        /// </summary>
+        public Dictionary<string, double>? CashIntoPerUnit { get; set; }
         /// <summary>SCALE presets (RECKONING): most % damage a store can add without being spent. 0 = uncapped.</summary>
         public double VerbScaleMaxPercent { get; set; } = 100.0;
         /// <summary>Listener affix: share of the set's normal mint per trigger (min 1). See <see cref="ListenerAffix"/>.</summary>
