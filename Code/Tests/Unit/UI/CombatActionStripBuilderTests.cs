@@ -1,3 +1,4 @@
+﻿using System.Linq;
 using System;
 using System.Collections.Generic;
 using RPGGame;
@@ -749,6 +750,17 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
         }
 
+        /// <summary>
+        /// Appending puts an action at the end of the strip (playtest 2026-11-18), after the weapon's own actions; these
+        /// fixtures read slot 0, so they keep only the actions they added.
+        /// </summary>
+        private static void KeepOnlyInCombo(Character character, params Action[] keep)
+        {
+            foreach (var a in character.GetComboActions().ToList())
+                if (!keep.Contains(a))
+                    character.Actions.RemoveFromCombo(a);
+        }
+
         private static Character CreateCharacterWithComboAction(double damageMultiplier = 1.0)
         {
             var character = TestDataBuilders.Character().WithName("Test").WithStats(10, 10, 10, 10).Build();
@@ -760,6 +772,7 @@ namespace RPGGame.Tests.Unit.UI
             action.IsComboAction = true;
             character.AddAction(action, 1.0);
             character.Actions.AddToCombo(action);
+            KeepOnlyInCombo(character, action);
             return character;
         }
 
@@ -776,6 +789,7 @@ namespace RPGGame.Tests.Unit.UI
             action.RollMods.ComboThresholdAdjustment = 1;
             character.AddAction(action, 1.0);
             character.Actions.AddToCombo(action);
+            KeepOnlyInCombo(character, action);
             return character;
         }
 
@@ -799,6 +813,7 @@ namespace RPGGame.Tests.Unit.UI
             };
             character.AddAction(action, 1.0);
             character.Actions.AddToCombo(action);
+            KeepOnlyInCombo(character, action);
             return character;
         }
 
@@ -816,6 +831,7 @@ namespace RPGGame.Tests.Unit.UI
             action.ComboRouting.IsFinisher = isFinisher;
             character.AddAction(action, 1.0);
             character.Actions.AddToCombo(action);
+            KeepOnlyInCombo(character, action);
             return character;
         }
 
@@ -917,6 +933,7 @@ namespace RPGGame.Tests.Unit.UI
 
             character.AddAction(action, 1.0);
             character.Actions.AddToCombo(action);
+            KeepOnlyInCombo(character, action);
             return character;
         }
 
@@ -937,6 +954,7 @@ namespace RPGGame.Tests.Unit.UI
             character.AddAction(action2, 1.0);
             character.Actions.AddToCombo(action1);
             character.Actions.AddToCombo(action2);
+            KeepOnlyInCombo(character, action1, action2);
             return character;
         }
 
@@ -945,6 +963,7 @@ namespace RPGGame.Tests.Unit.UI
             var character = TestDataBuilders.Character().WithName("Test").WithStats(10, 10, 10, 10).Build();
             var weapon = TestDataBuilders.Weapon().WithBaseDamage(5).Build();
             character.EquipItem(weapon, "weapon");
+            var added = new List<Action>();
             for (int i = 0; i < 3; i++)
             {
                 var action = TestDataBuilders.CreateMockAction($"Action{i + 1}", ActionType.Attack);
@@ -953,7 +972,9 @@ namespace RPGGame.Tests.Unit.UI
                 action.IsComboAction = true;
                 character.AddAction(action, 1.0);
                 character.Actions.AddToCombo(action);
+                added.Add(action);
             }
+            KeepOnlyInCombo(character, added.ToArray());
             return character;
         }
     }
