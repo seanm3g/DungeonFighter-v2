@@ -454,6 +454,14 @@ namespace RPGGame
         /// </summary>
         public bool ComboAmplifierLinearSlots { get; set; }
 
+        /// <summary>
+        /// Rebuild 1.3 (D2.3, D0.10): one AMP formula. AMP = INT curve × gear AMP, and strip slot k (1-based) deals
+        /// AMP^(k−1). While true, INT potency (<see cref="CombatConfig.IntelligenceAmpPerPoint"/>), the Mythic animal set's
+        /// AMP bonus, <see cref="ComboSlotDamagePercentPerStep"/> and <see cref="ComboAmplifierLinearSlots"/> are ignored.
+        /// False restores the old stack (kept until the step 12 cleanup).
+        /// </summary>
+        public bool SingleAmpFormula { get; set; } = true;
+
         /// <summary>AMP added per effective INT above <see cref="ComboAmplifierMaxTech"/> (0 = AMP stops at the cap).</summary>
         public double ComboAmplifierOverflowPerPoint { get; set; }
 

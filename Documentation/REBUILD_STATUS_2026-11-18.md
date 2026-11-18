@@ -8,6 +8,14 @@ Branch `claude/rebuild-steps-0-2-c250d7` (worktree `rebuild-steps-0-2-c250d7`), 
 tests filed under `EnemyLevelCaption_ShowsHeroDelta`: "Mid with +25% deals more than unbuffed mid" and
 "Finisher gets its own +25%"). Every run below is compared with that.
 
+**Which balance patch runs (important for every number below):** this worktree had no `GameData/PatchProfile.json`
+(gitignored), so the first test run created one pointing at the old shipped default `7-30-26`, and the walk showed
+193-HP level 1 enemies. Your main checkout runs `night-v47-6b`, which is gitignored too. I copied `night-v47-6b` and
+its base chain (`night-v47-1..5`, `lowhp10-l11soft`, `lowhp10`, `slotrise-v46*`) from the main checkout into this
+worktree's ignored `GameData/Patches/Balance/`, unchanged, and pointed this worktree's `PatchProfile.json` at it. No
+patch file is edited or committed. \*With `night-v47-6b` active, the 2 baseline failures pass, so from 1.3 on the
+comparison point is 0 failures.
+
 **Test-run side effect (pre-existing):** a full `--run-tests` rewrites `GameData/Patches/Balance/7-30-26.json`.
 I restore it with `git checkout` after every run; it never goes into a commit. Worth a fix later.
 
@@ -17,7 +25,9 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 |---|---|---|---|
 | 0.2 Dev build flag | done | `4cc9a3dd` | 15128 passed / 2 failed (baseline) |
 | 0.3 System unlocks | done | `395338b1` | 15169 passed / 2 failed (baseline) |
-| 0.4 Text pipeline + braces | done | (this commit) | 15187 passed / 2 failed (baseline) |
+| 0.4 Text pipeline + braces | done | `c38b786d` | 15187 passed / 2 failed (baseline) |
+| Step 0 MCP walk | done | — | see "Step 0 walk" |
+| 1.3 One AMP formula | done | (this commit) | 15196 passed / 0 failed* |
 
 ## Step 0 — Foundation
 
@@ -65,6 +75,28 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 - Tests: new `RuleTextTests` (14 checks), including a sweep over all 210 skill nodes and 150 rolled items' full
   tooltips (levels 1–30) asserting no `{` or `}` reaches the card.
 - Not changed: the wording of `CrossWires.Describe` itself (the one renderer still owns the sentences).
+
+### Step 0 walk (MCP, this worktree's build) — done
+- The `dungeonfighter` MCP server in this session runs the **main checkout** (`.mcp.json` points at its
+  `Scripts/mcp-server.ps1`), not this worktree. So I built this worktree with its own `Scripts/mcp-server.ps1
+  -BuildOnly` (into `Code/bin/_mcp/`) and drove that `DF.exe MCP` over stdio with a small client
+  (`get_agent_context` → recommended choice → `handle_input`), 24 steps from New Game.
+- Seen: main menu → Training Ground offer → path intro → weapon choice → the inventory with a random extra item →
+  hub → three dungeons → death at level 4 (Dense Brush L4, a Demonic Living Wall Crawler). Level 1 fights were
+  **one swing** against 3-HP enemies (D0.4 wants about 2). The death screen offered the clone, labelled "dev build",
+  as expected for a Debug build. The item compare card showed the starter Leather Armor's modifier ("CRIT HEAL also
+  counts as a [status] action") with no braces; Commons losing their modifier is step 2.
+
+## Step 1 — Rung 1: dice, one slot, the board
+
+### 1.3 One AMP formula — done
+- New switch `comboSystem.singleAmpFormula` (default **true**, no patch change). While on: AMP = INT curve × gear AMP
+  and slot k deals AMP^(k−1) for heroes and enemies; INT potency (`combat.intelligenceAmpPerPoint`, 0.005 in the
+  active chain), the Mythic animal set's AMP bonus, `comboSlotDamagePercentPerStep` and `comboAmplifierLinearSlots`
+  are ignored. False brings the old stack back (deleted in step 12).
+- Kept: gear AMP mods, cadence AMP_MOD grants and skill-tree AMP (skills are step 9).
+- Tests: new `SingleAmpFormulaTests`; `BuildGlueTests.TestIntelligenceAmp` now switches the flag off to keep
+  covering the legacy path (its expectation changed with D2.3).
 
 ## Questions for the user
 _(none yet)_

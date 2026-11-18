@@ -200,6 +200,9 @@ namespace RPGGame.Tests.Unit.Combat
         {
             var combat = GameConfiguration.Instance.Combat;
             double old = combat.IntelligenceAmpPerPoint;
+            // Rebuild 1.3 (D2.3) switched INT potency off; this covers the legacy path behind the switch.
+            bool oldSingle = GameConfiguration.Instance.ComboSystem.SingleAmpFormula;
+            GameConfiguration.Instance.ComboSystem.SingleAmpFormula = false;
             try
             {
                 var hero = TestDataBuilders.Character().WithName("IntHero").Build();
@@ -213,6 +216,7 @@ namespace RPGGame.Tests.Unit.Combat
             }
             finally
             {
+                GameConfiguration.Instance.ComboSystem.SingleAmpFormula = oldSingle;
                 combat.IntelligenceAmpPerPoint = old;
             }
         }

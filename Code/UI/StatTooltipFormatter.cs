@@ -422,7 +422,7 @@ namespace RPGGame
                 curve = $"Base = 1 + ({kneeAmp:0.00} − 1) × ({i} ÷ {kneeInt})^{comboCfg.ComboAmplifierCurveExponent:0.##}; reaches {kneeAmp:0.00}× at INT {kneeInt} and {maxAmp:0.00}× at INT {maxInt}.";
             AddNoteLine(lines, curve);
 
-            double mythicPct = AnimalSetController.GetAmpBonusPct(c);
+            double mythicPct = GameConfiguration.Instance.ComboSystem.SingleAmpFormula ? 0 : AnimalSetController.GetAmpBonusPct(c);
             if (mythicPct > 0)
                 AddNoteLine(lines, $"Mythic animal set: base × (1 + {mythicPct:0.#}%).");
 

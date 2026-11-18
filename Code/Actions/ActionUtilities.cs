@@ -231,6 +231,8 @@ namespace RPGGame
             if (slot <= 0)
                 return 1.0;
             var combo = GameConfiguration.Instance.ComboSystem;
+            if (combo.SingleAmpFormula)
+                return Math.Pow(baseAmp, slot);
             double mult = combo.ComboAmplifierLinearSlots ? 1.0 + (baseAmp - 1.0) * slot : Math.Pow(baseAmp, slot);
             if (hero && combo.ComboSlotDamagePercentPerStep > 0)
                 mult *= 1.0 + slot * combo.ComboSlotDamagePercentPerStep / 100.0;

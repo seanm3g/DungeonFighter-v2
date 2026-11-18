@@ -207,7 +207,7 @@ namespace RPGGame
         public double GetIntelligenceAmpMultiplier()
         {
             var combat = GameConfiguration.Instance.Combat;
-            if (_character is Enemy || combat.IntelligenceAmpPerPoint <= 0)
+            if (_character is Enemy || combat.IntelligenceAmpPerPoint <= 0 || GameConfiguration.Instance.ComboSystem.SingleAmpFormula)
                 return 1.0;
             int cap = combat.StrengthDamageMaxStat > 0 ? combat.StrengthDamageMaxStat : int.MaxValue;
             int intel = Math.Max(0, GetEffectiveIntelligence());
