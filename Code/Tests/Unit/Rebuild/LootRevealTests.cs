@@ -34,6 +34,8 @@ namespace RPGGame.Tests.Unit.Rebuild
                 TestBase.AssertTrue(rareEntry.Beats.Any(b => b.StartsWith("vs ")), "It compares against what you wear", ref _run, ref _passed, ref _failed);
                 TestBase.AssertTrue(rareEntry.Beats.Any(b => b.Contains("Defense")), $"One line per attribute ({string.Join(" | ", rareEntry.Beats)})", ref _run, ref _passed, ref _failed);
 
+                // Q5: beats are animated on screen (headless and in tests the buffer doesn't type, so beats land at once).
+                TestBase.AssertTrue(LootRevealSession.AnimatedBeats, "Reveal beats animate by default (Q5)", ref _run, ref _passed, ref _failed);
                 // Q4: Salvage is off. S does nothing, the prompt has no Salvage, a Salvage choice keeps the item.
                 TestBase.AssertFalse(LootRevealSession.SalvageEnabled, "Salvage is switched off by default (Q4)", ref _run, ref _passed, ref _failed);
                 TestBase.AssertTrue(!LootRevealSession.ChoicePrompt.Contains("Salvage") && session.Entries.All(x => x.Suggested != LootChoice.Salvage),

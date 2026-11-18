@@ -332,11 +332,61 @@ namespace RPGGame.UI.Avalonia
             var colored = new List<List<ColoredText>>();
             foreach (string line in lines)
                 colored.Add(RPGGame.UI.Avalonia.Renderers.DungeonCompletionRenderer.ColorRevealLine(line));
-            dm.Buffer.AddRange(colored, UIMessageType.OutcomeSummary);
+            // Q5: lines already on screen finish; the new beat types in as an animation (see StartLootRevealAnimation).
             dm.Buffer.FinishReveals();
+            dm.Buffer.AddRange(colored, UIMessageType.OutcomeSummary);
+            if (!StartLootRevealAnimation(dm.Buffer, lines))
+                dm.Buffer.FinishReveals();
             if (_dungeonCompletionRenderDungeon != null && _dungeonCompletionRenderPlayer != null)
                 RenderDungeonCompletion(_dungeonCompletionRenderDungeon, _dungeonCompletionRenderPlayer, _dungeonCompletionRenderXpGained,
                     _dungeonCompletionRenderLoot, _dungeonCompletionRenderLevelUps, _dungeonCompletionRenderItemsFound);
+        }
+
+        private global::Avalonia.Threading.DispatcherTimer? _lootRevealTimer;
+        private RPGGame.UI.Avalonia.Display.DisplayBuffer? _lootRevealBuffer;
+
+        /// <summary>True while a loot reveal beat is still typing in on the completion screen.</summary>
+        public bool IsLootRevealAnimating => _lootRevealBuffer?.HasActiveReveal == true;
+
+        /// <summary>Shows the beat being typed in full now (a Continue press during the animation skips it).</summary>
+        public void FinishLootRevealAnimation()
+        {
+            _lootRevealBuffer?.FinishReveals();
+            RerenderCompletionOrDeathScreenAfterScroll();
+        }
+
+        /// <summary>
+        /// Rebuild Q5 (answered 2026-11-18): Continue still advances each reveal beat, and each beat plays as an
+        /// animation: its lines type in on the completion screen (the buffer's own line reveal) while a ~30 fps clock
+        /// repaints it, with one last paint once the beat is whole. A drop line (Uncommon and up) plays the loot cue.
+        /// REVIEW: per-rarity glow and sound are placeholders (the drop line keeps its rarity color; every rarity uses
+        /// <c>Loot_ItemPickup</c>). Returns false when the buffer isn't typing (instant log, tests, MCP).
+        /// </summary>
+        private bool StartLootRevealAnimation(RPGGame.UI.Avalonia.Display.DisplayBuffer buffer, List<string> lines)
+        {
+            if (!RPGGame.LootReveal.LootRevealSession.AnimatedBeats || !buffer.HasActiveReveal)
+                return false;
+            if (lines.Any(l => l.StartsWith("An Uncommon") || l.StartsWith("A RARE") || l.StartsWith("An EPIC")
+                               || l.StartsWith("A LEGENDARY") || l.StartsWith("A MYTHIC")))
+                RPGGame.Audio.AudioCues.Trigger(RPGGame.Audio.AudioCue.Loot_ItemPickup);
+            _lootRevealBuffer = buffer;
+            if (_lootRevealTimer == null)
+            {
+                _lootRevealTimer = new global::Avalonia.Threading.DispatcherTimer(global::Avalonia.Threading.DispatcherPriority.Render)
+                {
+                    Interval = TimeSpan.FromMilliseconds(33)
+                };
+                _lootRevealTimer.Tick += (_, _) =>
+                {
+                    bool active = _lootRevealBuffer?.HasActiveReveal == true;
+                    if (!active || stateManager?.CurrentState != GameState.DungeonCompletion)
+                        _lootRevealTimer!.Stop();
+                    RerenderCompletionOrDeathScreenAfterScroll();
+                };
+            }
+            if (!_lootRevealTimer.IsEnabled)
+                _lootRevealTimer.Start();
+            return true;
         }
 
         public void AppendDungeonCompletionSummaryToBuffer(
@@ -360,12 +410,17 @@ namespace RPGGame.UI.Avalonia
                 levelUpInfos,
                 itemsFoundDuringRun),
                 UIMessageType.OutcomeSummary);
-            // Rebuild 2.4: the first loot item's opening beats follow the summary.
-            if (RPGGame.LootReveal.LootRevealSession.Active is { } reveal)
-                foreach (string line in reveal.TakeNewLines())
-                    dm.Buffer.Add(DungeonCompletionRenderer.ColorRevealLine(line), UIMessageType.OutcomeSummary);
-            // The completion screen paints once (no reveal clock): typed-in lines would stay blank.
+            // The summary paints at once; typed-in lines would wait on a clock this screen doesn't run.
             dm.Buffer.FinishReveals();
+            // Rebuild 2.4: the first loot item's opening beats follow the summary, animated (Q5).
+            if (RPGGame.LootReveal.LootRevealSession.Active is { } reveal)
+            {
+                var first = reveal.TakeNewLines();
+                foreach (string line in first)
+                    dm.Buffer.Add(DungeonCompletionRenderer.ColorRevealLine(line), UIMessageType.OutcomeSummary);
+                if (!StartLootRevealAnimation(dm.Buffer, first))
+                    dm.Buffer.FinishReveals();
+            }
         }
 
         /// <summary>

@@ -265,7 +265,7 @@ approval), so the visual result is unverified. Please look at one fight first th
 - Loot already arrives only at the end (dungeon rewards are awarded on completion; room searches give consumables).
 - Tests: new `DungeonGearLockTests`.
 
-### 2.4 Dungeon end: summary, staged reveal, Equip / Keep / Salvage — done (Salvage switched off after Q4)
+### 2.4 Dungeon end: summary, staged reveal, Equip / Keep / Salvage — done (Salvage switched off after Q4, beats animated after Q5)
 - New `Code/Game/LootReveal/LootReveal.cs`: `LootRevealBuilder` builds each item's beats and verdict;
   `LootRevealSession` walks them. Switch: `LootRevealSession.Enabled` (default on; off = the old silent bag).
 - Flow: the completion summary shows first (stats, XP, level-ups; its loot list becomes "Loot: N items to reveal").
@@ -333,8 +333,14 @@ approval), so the visual result is unverified. Please look at one fight first th
   the MCP choices), nothing suggests Salvage, S is ignored, and a Salvage choice that still arrives keeps the item.
   True restores the old discard. No save data involved. The inventory's own "discard" (not called Salvage) and
   trade-up are untouched; tell me if discard should go too.
-- **Q5 (reveal pacing):** beats advance on Continue. Do you want them on a timer (higher rarities slower), with
-  Continue as skip? That needs the per-rarity glow and sound you described; I left both for a review pass.
+- **Q5 (reveal pacing) — answered "yes, continue to reveal it, but have that be an animation". Done:** Continue still
+  advances each beat; each beat now plays as an animation on the completion screen: its lines type in (the log's own
+  line reveal, which this screen used to skip) while a ~30 fps clock repaints it
+  (`CanvasUICoordinator.StartLootRevealAnimation`). A press during the animation finishes it first, then the next
+  press advances. The first item's opening beats animate too. Switch `LootRevealSession.AnimatedBeats` (default true).
+  Headless, MCP and tests don't type, so beats land at once there. **REVIEW (placeholders):** a drop line (Uncommon
+  and up) plays `Loot_ItemPickup` for every rarity; there's no glow yet beyond the drop line's rarity color, and every
+  rarity types at the same speed (only Rare and up get the "..." beat). **Not checked by eye** (no screen access).
 - **Q6 (sets and the starter kit) — answered "yes".** Starter pieces keep not counting toward the first set event
   (the 2.2 change stands). Nothing to change.
 - **Q7 (crit amplifies "other effects", D2.5) — answered "yes". Done:** new `CritAmplifier` (`Code/Combat/CritAmplifier.cs`)

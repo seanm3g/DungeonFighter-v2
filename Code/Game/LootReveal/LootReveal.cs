@@ -300,6 +300,12 @@ namespace RPGGame.LootReveal
         /// </summary>
         public static bool SalvageEnabled { get; set; } = false;
 
+        /// <summary>
+        /// Rebuild Q5 (answered 2026-11-18): switch, default true. Each beat Continue reveals plays as an animation (its
+        /// lines type in) instead of appearing at once; a press during the animation finishes it. False = instant beats.
+        /// </summary>
+        public static bool AnimatedBeats { get; set; } = true;
+
         private readonly Character hero;
         private readonly List<string> log = new();
 

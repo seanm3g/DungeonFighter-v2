@@ -48,6 +48,12 @@ namespace RPGGame
             // Rebuild 2.4 (D4.5): the summary is up; now the loot reveals item by item, then Equip / Keep / Salvage.
             if (RPGGame.LootReveal.LootRevealSession.Active is { } reveal)
             {
+                // Q5: a press while a beat is still animating finishes it first.
+                if (UIManager.GetCustomUIManager() is RPGGame.UI.Avalonia.CanvasUICoordinator animCanvas && animCanvas.IsLootRevealAnimating)
+                {
+                    animCanvas.FinishLootRevealAnimation();
+                    return;
+                }
                 if (!reveal.HandleInput(input))
                     ShowMessageEvent?.Invoke(reveal.AwaitingChoice
                         ? (RPGGame.LootReveal.LootRevealSession.SalvageEnabled ? "Press E to equip, K to keep or S to salvage." : "Press E to equip or K to keep.")
