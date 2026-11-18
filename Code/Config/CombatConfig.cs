@@ -426,6 +426,17 @@ namespace RPGGame
         public bool ResetChainOnNormalHit { get; set; } = true;
 
         /// <summary>
+        /// Rebuild Q1 (D2.1, answered 2026-11-18): a plain HIT always resets the chain, whatever a balance patch sets
+        /// <see cref="ResetChainOnNormalHit"/> to. A static code switch, so no patch or overlay can undo it; set false
+        /// only to let the patch value decide again.
+        /// </summary>
+        public static bool PlainHitAlwaysResetsChain { get; set; } = true;
+
+        /// <summary>The value combat uses: the D2.1 rule wins over the patch's <see cref="ResetChainOnNormalHit"/>.</summary>
+        public static bool EffectiveResetChainOnNormalHit(ComboSystemConfig? config) =>
+            PlainHitAlwaysResetsChain || (config?.ResetChainOnNormalHit ?? true);
+
+        /// <summary>
         /// True: a swing that succeeds on its combo roll gives a free action — the next strip slot rolls right away, before
         /// anyone else acts — until a roll fails or the strip ends. Time is priced by <see cref="ComboChainGrowth"/>.
         /// Applies to heroes and enemies.

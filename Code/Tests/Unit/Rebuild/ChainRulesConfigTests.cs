@@ -28,9 +28,18 @@ namespace RPGGame.Tests.Unit.Rebuild
             TestBase.AssertTrue(live.MissBelowComboMidChain, "Active: no HIT band mid-chain", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(1, live.ComboThresholdRisePerSlot, "Active: +1 per link", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(Math.Abs(live.ComboChainGrowth - 0.25) < 1e-9, $"Active: g = 0.25 (is {live.ComboChainGrowth})", ref _run, ref _passed, ref _failed);
-            // D2.1 says a plain HIT resets the chain. The active patch may say otherwise; report it rather than fail
-            // (patches are out of scope tonight; see the status note's questions).
+            // D2.1 (Q1): a plain HIT resets the chain even when the active patch turns the knob off.
             Console.WriteLine($"  (info) active comboSystem.resetChainOnNormalHit = {live.ResetChainOnNormalHit}");
+            TestBase.AssertTrue(ComboSystemConfig.EffectiveResetChainOnNormalHit(live), "Active: a plain HIT resets the chain (D2.1 wins over the patch)", ref _run, ref _passed, ref _failed);
+            var patchOff = new ComboSystemConfig { ResetChainOnNormalHit = false };
+            TestBase.AssertTrue(ComboSystemConfig.EffectiveResetChainOnNormalHit(patchOff), "A patch value of false can't undo D2.1", ref _run, ref _passed, ref _failed);
+            bool old = ComboSystemConfig.PlainHitAlwaysResetsChain;
+            try
+            {
+                ComboSystemConfig.PlainHitAlwaysResetsChain = false;
+                TestBase.AssertTrue(!ComboSystemConfig.EffectiveResetChainOnNormalHit(patchOff), "Switch off: the patch value decides again", ref _run, ref _passed, ref _failed);
+            }
+            finally { ComboSystemConfig.PlainHitAlwaysResetsChain = old; }
 
             TestBase.PrintSummary("ChainRulesConfig Tests", _run, _passed, _failed);
         }

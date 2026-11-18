@@ -438,7 +438,7 @@ namespace RPGGame.Actions.Execution
                     }
                 }
                 else if ((selected.Type == ActionType.Attack || selected.Type == ActionType.Spell)
-                         && (GameConfiguration.Instance.ComboSystem?.ResetChainOnNormalHit ?? true))
+                         && ComboSystemConfig.EffectiveResetChainOnNormalHit(GameConfiguration.Instance.ComboSystem))
                 {
                     // A completed normal (non-combo) attack breaks the chain â€” start the combo sequence over
                     // (comboSystem.resetChainOnNormalHit = false keeps the chain until a miss).

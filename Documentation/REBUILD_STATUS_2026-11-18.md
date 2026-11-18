@@ -126,7 +126,7 @@ end first. Every cut system sits behind a switch (listed per sub-step); nothing 
 - Tests: the three legacy gate tests in `ActionSequenceTests` now run with the switch on; a new one checks an INT 1
   hero routes by default.
 
-### 1.6 Chain rules confirmed — done, with one question
+### 1.6 Chain rules confirmed — done (Q1 answered: a plain HIT resets the chain over the patch)
 - Checked in code and in the active config: a combo roll earns a free action (`freeActionOnComboHit`), no HIT band
   mid-chain (`missBelowComboMidChain`), +1 per link from slot 2 (`comboThresholdRisePerSlot` 1, start slot 2),
   g = 0.25 (`comboChainGrowth`), and no loop (`CombatTurnHandlerSimplified` ends the chain when the step wraps to
@@ -318,10 +318,13 @@ approval), so the visual result is unverified. Please look at one fight first th
 - Seen but out of scope: Uncommon modifiers still name actions you don't have ("On connect (every 2) with BARRIER");
   self-contained modifiers are step 6. Heroes still die around level 3–4 in the walks (balance comes later).
 
-## Questions for the user
-- **Q1 (chain reset, D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off (from
-  `slotrise-v46a`). Should a plain HIT reset the chain as D2.1 says? If yes, the fix is one line in the next patch
-  (`"resetChainOnNormalHit": true`), or I can make the rule code-only and ignore the patch value. Which do you want?
+## Questions for the user (answered 2026-11-18)
+- **Q1 (chain reset, D2.1) — answered "isn't this the same thing?" (yes). Done:** the rule now wins over the patch.
+  New static code switch `ComboSystemConfig.PlainHitAlwaysResetsChain` (default true; a static, so no patch or overlay
+  can set it) makes `ComboSystemConfig.EffectiveResetChainOnNormalHit` true whatever `comboSystem.resetChainOnNormalHit`
+  says; combat reads only that. No patch file was edited (`night-v47-6b` still says false; it no longer matters).
+  Setting the switch false lets the patch value decide again. `ChainRulesConfigTests` checks the active config and a
+  patch value of false.
 - **Q2 (first 60 seconds):** the flow names a "name rolled (reroll allowed)" step. Names are rolled today but there
   is no reroll. Do you want a reroll on the class-card screen (one key, one line), or is the auto-rolled name enough?
 - **Q3 (the second slot):** with actions starting at Uncommon (D5.6), slot 2 (open from level 2) stays empty until an
