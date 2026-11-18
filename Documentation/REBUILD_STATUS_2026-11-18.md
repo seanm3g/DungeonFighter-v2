@@ -171,8 +171,7 @@ end first. Every cut system sits behind a switch (listed per sub-step); nothing 
   Barbarian "Short and heavy: big hits that build Stagger" / Stagger, Warrior "Steady: Guard setups that turn into
   tempo" / Guard, Rogue "Many quick hits that stack Bleed" / Bleed, Wizard "Composition: cards that change the cards
   after them" / Burn. Guard and Stagger only become real statuses in step 5. No Fernis line (step 3).
-- Not done: "name rolled (reroll allowed)". Names are already rolled automatically; there is no reroll button yet.
-  See Q2.
+- Dropped (Q2 answered "no"): the "name rolled (no reroll, Q2)" step. Names roll automatically; no reroll.
 - Tests: `GameInitializerTests` now expects an empty starting bag (its expectation changed with the decision).
 - MCP walk: New → offer → skip → weapon 1 → the first dungeon ran inside the same `handle_input`, then the
   completion screen. Confirmed three times.
@@ -325,13 +324,10 @@ approval), so the visual result is unverified. Please look at one fight first th
   says; combat reads only that. No patch file was edited (`night-v47-6b` still says false; it no longer matters).
   Setting the switch false lets the patch value decide again. `ChainRulesConfigTests` checks the active config and a
   patch value of false.
-- **Q2 (first 60 seconds):** the flow names a "name rolled (reroll allowed)" step. Names are rolled today but there
-  is no reroll. Do you want a reroll on the class-card screen (one key, one line), or is the auto-rolled name enough?
-- **Q3 (the second slot):** with actions starting at Uncommon (D5.6), slot 2 (open from level 2) stays empty until an
-  Uncommon drops; every walk showed "1/2 slots" for several dungeons. The ladder has the strip lighting up across two
-  cards around level 2–3. Should something guarantee a second action by then (an early Uncommon, a class action at
-  level 2, the Training Ground's reward), or is waiting for the first Uncommon the intended pace? (The reveal now
-  calls out "brings X for your empty strip slot".)
+- **Q2 (first 60 seconds) — answered "no".** No name reroll: the auto-rolled name stays, and the reroll step is
+  dropped from the flow. Nothing to build.
+- **Q3 (the second slot) — answered "no".** No guarantee: waiting for the first Uncommon is the intended pace. The
+  reveal's "brings X for your empty strip slot" call-out stays. Nothing to build.
 - **Q4 (salvage) — answered "remove salvage." Done (switched off, not deleted):** new switch
   `LootRevealSession.SalvageEnabled` (default false). The reveal offers only Equip / Keep (footer buttons, the prompt,
   the MCP choices), nothing suggests Salvage, S is ignored, and a Salvage choice that still arrives keeps the item.
@@ -339,9 +335,8 @@ approval), so the visual result is unverified. Please look at one fight first th
   trade-up are untouched; tell me if discard should go too.
 - **Q5 (reveal pacing):** beats advance on Continue. Do you want them on a timer (higher rarities slower), with
   Continue as skip? That needs the per-rarity glow and sound you described; I left both for a review pass.
-- **Q6 (sets and the starter kit):** the starter Leather kit is already a 4-piece set, so "two pieces of one
-  material" fired the MaterialSets rung on every new hero. I made starter pieces not count toward that first event
-  (2.2), so the set line waits for found gear. Is that the intent?
+- **Q6 (sets and the starter kit) — answered "yes".** Starter pieces keep not counting toward the first set event
+  (the 2.2 change stands). Nothing to change.
 - **Q7 (crit amplifies "other effects", D2.5) — answered "yes". Done:** new `CritAmplifier` (`Code/Combat/CritAmplifier.cs`)
   opens a scope for the critting actor while its hit resolves (after the same-swing mods); inside it the actor's
   effects scale by the crit's applications (x2 today). Amplified: heal actions and heal bundles; the action's own
