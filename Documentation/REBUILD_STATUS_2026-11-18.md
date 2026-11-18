@@ -27,7 +27,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | 0.3 System unlocks | done | `395338b1` | 15169 passed / 2 failed (baseline) |
 | 0.4 Text pipeline + braces | done | `c38b786d` | 15187 passed / 2 failed (baseline) |
 | Step 0 MCP walk | done | — | see "Step 0 walk" |
-| 1.3 One AMP formula | done | (this commit) | 15196 passed / 0 failed* |
+| 1.3 One AMP formula | done | `aa2064d1` | 15196 passed / 0 failed* |
+| 1.4 INT 10 routing gate removed | done | (this commit) | 15196 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -97,6 +98,12 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 - Kept: gear AMP mods, cadence AMP_MOD grants and skill-tree AMP (skills are step 9).
 - Tests: new `SingleAmpFormulaTests`; `BuildGlueTests.TestIntelligenceAmp` now switches the flag off to keep
   covering the legacy path (its expectation changed with D2.3).
+
+### 1.4 INT 10 routing gate — done
+- New switch `comboSystem.intelligenceRoutingGate` (default **false**). `ActionUtilities.UsesOrderedComboSequence` is
+  now true for everyone, so strip routing (jump / repeat / loop cards) works at any INT; true restores the gate.
+- Tests: the three legacy gate tests in `ActionSequenceTests` now run with the switch on; a new one checks an INT 1
+  hero routes by default.
 
 ## Questions for the user
 _(none yet)_

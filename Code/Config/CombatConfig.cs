@@ -462,6 +462,12 @@ namespace RPGGame
         /// </summary>
         public bool SingleAmpFormula { get; set; } = true;
 
+        /// <summary>
+        /// Rebuild 1.4 (D2.6): strip routing (jump / repeat / loop cards) always works. True restores the old
+        /// INT gate (<see cref="LootSystemConfig.ComboSequenceIntelligenceThreshold"/>, below which routing was ignored).
+        /// </summary>
+        public bool IntelligenceRoutingGate { get; set; }
+
         /// <summary>AMP added per effective INT above <see cref="ComboAmplifierMaxTech"/> (0 = AMP stops at the cap).</summary>
         public double ComboAmplifierOverflowPerPoint { get; set; }
 

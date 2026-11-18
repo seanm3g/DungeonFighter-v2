@@ -80,7 +80,8 @@ namespace RPGGame
         /// still follows <c>ComboStep % stripLength</c> in normal combat, with salt-based override for lab/catalog previews.
         /// </summary>
         public static bool UsesOrderedComboSequence(Character character) =>
-            character.GetEffectiveIntelligence() >= GetComboSequenceIntelligenceThreshold();
+            !GameConfiguration.Instance.ComboSystem.IntelligenceRoutingGate
+            || character.GetEffectiveIntelligence() >= GetComboSequenceIntelligenceThreshold();
 
         public static int GetComboSequenceIntelligenceThreshold()
         {

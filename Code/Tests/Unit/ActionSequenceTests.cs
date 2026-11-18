@@ -75,9 +75,20 @@ namespace RPGGame.Tests.Unit
             TestFullSequenceFlowWithFailure();
             TestSequenceResetAndRestart();
 
-            TestComboStripIndexRespectsIntelligenceThreshold();
-            TestComboStripIndexSingleSlotLowIntDoesNotThrow();
-            TestLowIntIgnoresComboRoutingOnComboStepAdvance();
+            // Rebuild 1.4 (D2.6) removed the INT 10 routing gate; these cover the legacy gate behind its switch.
+            bool oldGate = GameConfiguration.Instance.ComboSystem.IntelligenceRoutingGate;
+            GameConfiguration.Instance.ComboSystem.IntelligenceRoutingGate = true;
+            try
+            {
+                TestComboStripIndexRespectsIntelligenceThreshold();
+                TestComboStripIndexSingleSlotLowIntDoesNotThrow();
+                TestLowIntIgnoresComboRoutingOnComboStepAdvance();
+            }
+            finally
+            {
+                GameConfiguration.Instance.ComboSystem.IntelligenceRoutingGate = oldGate;
+            }
+            TestLowIntRoutesWithoutTheGate();
             TestGetComboSlotForPendingBonusesUsesSelectedComboAction();
 
             TestBase.PrintSummary("Action Sequence Tests", _testsRun, _testsPassed, _testsFailed);
@@ -855,6 +866,17 @@ namespace RPGGame.Tests.Unit
         #endregion
 
         #region Combo INT threshold (sequence discipline)
+
+        /// <summary>Rebuild 1.4 (D2.6): with the gate gone, a low-INT hero's strip routing works.</summary>
+        private static void TestLowIntRoutesWithoutTheGate()
+        {
+            Console.WriteLine("--- Testing low INT uses strip routing once the INT gate is removed ---");
+            var lo = TestDataBuilders.Character().WithName("NoGateLo").WithStats(10, 10, 10, 1).Build();
+            TestBase.AssertTrue(!GameConfiguration.Instance.ComboSystem.IntelligenceRoutingGate,
+                "The INT routing gate is off by default", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(ActionUtilities.UsesOrderedComboSequence(lo),
+                "INT 1 uses strip routing (no INT gate)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
 
         private static void TestComboStripIndexRespectsIntelligenceThreshold()
         {
