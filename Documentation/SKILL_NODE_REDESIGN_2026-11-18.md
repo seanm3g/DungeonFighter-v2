@@ -95,9 +95,9 @@ fight. `materialConvertPrimaryStatPerUnit` also paid that stat *alongside* damag
 `cashdmg-v48a` turns damage on and zeroes the stat rates. The two cash nodes in this draft (Wrath Unbound, War Drum)
 pay damage on the next action for the same reason.
 
-Open: existing ONCASH nodes that grant a hero status on a cash: Mithril Flow (Focus), Victor's Guard and
-Stormcaller's Pact (Harden), Arcane Drill (Haste), Drummer's Focus and Focused Chain (Focus). Status-on-enemy cash
-nodes (Shatter, Marked Edge, Hex Thief) set up damage and fit the rule as they are.
+Decided (user, 2026-11-18): existing ONCASH nodes that grant a hero status on a cash stay as they are: Mithril Flow
+(Focus), Victor's Guard and Stormcaller's Pact (Harden), Arcane Drill (Haste), Drummer's Focus and Focused Chain
+(Focus). The rule covers the cash-in action's own payout, not side effects that skill nodes hang on a cash.
 
 ## Not decided here
 
