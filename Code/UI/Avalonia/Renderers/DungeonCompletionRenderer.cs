@@ -348,10 +348,12 @@ namespace RPGGame.UI.Avalonia.Renderers
 
 
 
-            // Rebuild 2.4: while a loot choice is due, the footer offers Equip / Keep / Salvage instead of Continue.
+            // Rebuild 2.4: while a loot choice is due, the footer offers Equip / Keep (Salvage only if switched back on, Q4) instead of Continue.
             if (RPGGame.LootReveal.LootRevealSession.Active is { AwaitingChoice: true } reveal)
             {
-                var choices = new[] { ("e", "EQUIP"), ("k", "KEEP"), ("s", "SALVAGE") };
+                var choices = RPGGame.LootReveal.LootRevealSession.SalvageEnabled
+                    ? new[] { ("e", "EQUIP"), ("k", "KEEP"), ("s", "SALVAGE") }
+                    : new[] { ("e", "EQUIP"), ("k", "KEEP") };
                 int bw = 13, gap = 2, total = choices.Length * bw + (choices.Length - 1) * gap;
                 int bx = textAreaLeft + System.Math.Max(0, (textAreaWidth - total) / 2);
                 int by = menuStartY - 1;

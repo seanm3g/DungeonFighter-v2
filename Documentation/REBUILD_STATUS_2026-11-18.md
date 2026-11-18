@@ -266,7 +266,7 @@ approval), so the visual result is unverified. Please look at one fight first th
 - Loot already arrives only at the end (dungeon rewards are awarded on completion; room searches give consumables).
 - Tests: new `DungeonGearLockTests`.
 
-### 2.4 Dungeon end: summary, staged reveal, Equip / Keep / Salvage — done
+### 2.4 Dungeon end: summary, staged reveal, Equip / Keep / Salvage — done (Salvage switched off after Q4)
 - New `Code/Game/LootReveal/LootReveal.cs`: `LootRevealBuilder` builds each item's beats and verdict;
   `LootRevealSession` walks them. Switch: `LootRevealSession.Enabled` (default on; off = the old silent bag).
 - Flow: the completion summary shows first (stats, XP, level-ups; its loot list becomes "Loot: N items to reveal").
@@ -332,8 +332,11 @@ approval), so the visual result is unverified. Please look at one fight first th
   cards around level 2–3. Should something guarantee a second action by then (an early Uncommon, a class action at
   level 2, the Training Ground's reward), or is waiting for the first Uncommon the intended pace? (The reveal now
   calls out "brings X for your empty strip slot".)
-- **Q4 (salvage):** what does Salvage give? Tonight it discards the item. Phase 4 says "trade-up (5 → 1) stays as the
-  salvage sink": should salvaged items feed trade-up instead of vanishing?
+- **Q4 (salvage) — answered "remove salvage." Done (switched off, not deleted):** new switch
+  `LootRevealSession.SalvageEnabled` (default false). The reveal offers only Equip / Keep (footer buttons, the prompt,
+  the MCP choices), nothing suggests Salvage, S is ignored, and a Salvage choice that still arrives keeps the item.
+  True restores the old discard. No save data involved. The inventory's own "discard" (not called Salvage) and
+  trade-up are untouched; tell me if discard should go too.
 - **Q5 (reveal pacing):** beats advance on Continue. Do you want them on a timer (higher rarities slower), with
   Continue as skip? That needs the per-rarity glow and sound you described; I left both for a review pass.
 - **Q6 (sets and the starter kit):** the starter Leather kit is already a 4-piece set, so "two pieces of one

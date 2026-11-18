@@ -31,7 +31,7 @@ namespace RPGGame.LootReveal
         public List<string> Beats { get; }
         public LootVerdict Verdict { get; }
         public string VerdictLine { get; }
-        /// <summary>The choice the screen pre-marks: Equip for an upgrade or an empty slot, Salvage for a worse Common, else Keep.</summary>
+        /// <summary>The choice the screen pre-marks: Equip for an upgrade or an empty slot, else Keep (Salvage for a worse Common only while Salvage is on).</summary>
         public LootChoice Suggested { get; }
         /// <summary>Commons reveal fast and in a batch: all their beats at once.</summary>
         public bool Fast { get; }
@@ -40,7 +40,7 @@ namespace RPGGame.LootReveal
     /// <summary>
     /// Rebuild 2.4 (D4.5, Phase 4 proposal 6): the end-of-dungeon loot moment. Each item reveals in steps, higher
     /// rarities taking longer; one comparison against what you wear (one line per attribute, a set gained or broken);
-    /// then a verdict and Equip / Keep / Salvage.
+    /// then a verdict and Equip / Keep (Salvage is switched off, Q4).
     /// </summary>
     public static class LootRevealBuilder
     {
@@ -156,7 +156,7 @@ namespace RPGGame.LootReveal
 
             var suggested = verdict is LootVerdict.Upgrade or LootVerdict.NewSlot && item.MeetsRequirements(hero)
                 ? LootChoice.Equip
-                : verdict == LootVerdict.Worse && rank == 0 ? LootChoice.Salvage
+                : verdict == LootVerdict.Worse && rank == 0 && LootRevealSession.SalvageEnabled ? LootChoice.Salvage
                 : LootChoice.Keep;
             return new LootRevealEntry(item, slot, beats, verdict, why, suggested, fast: rank == 0);
         }
@@ -294,6 +294,12 @@ namespace RPGGame.LootReveal
         /// <summary>Switch: false skips the reveal and keeps the old completion screen (loot just lands in the bag).</summary>
         public static bool Enabled { get; set; } = true;
 
+        /// <summary>
+        /// Rebuild Q4 (answered 2026-11-18, "remove salvage."): switch, default false. Off, the reveal offers only Equip /
+        /// Keep, S does nothing and <see cref="LootChoice.Salvage"/> keeps the item. True restores the old discard.
+        /// </summary>
+        public static bool SalvageEnabled { get; set; } = false;
+
         private readonly Character hero;
         private readonly List<string> log = new();
 
@@ -370,7 +376,7 @@ namespace RPGGame.LootReveal
                     else
                         result = $"Couldn't equip {e.Item.Name}: {why ?? "requirements"}. Kept it.";
                     break;
-                case LootChoice.Salvage:
+                case LootChoice.Salvage when SalvageEnabled:
                     hero.Inventory.Remove(e.Item);
                     result = $"Salvaged {e.Item.Name}.";
                     break;
@@ -392,7 +398,7 @@ namespace RPGGame.LootReveal
         private int emittedBeats;
         private bool emittedPrompt;
 
-        public const string ChoicePrompt = "[E] Equip   [K] Keep   [S] Salvage";
+        public static string ChoicePrompt => SalvageEnabled ? "[E] Equip   [K] Keep   [S] Salvage" : "[E] Equip   [K] Keep";
 
         /// <summary>
         /// The lines not yet printed, for a screen that appends to its log: results of decided items, the next item's
@@ -442,12 +448,12 @@ namespace RPGGame.LootReveal
                 {
                     case "e": Choose(LootChoice.Equip); return true;
                     case "k": Choose(LootChoice.Keep); return true;
-                    case "s": Choose(LootChoice.Salvage); return true;
+                    case "s" when SalvageEnabled: Choose(LootChoice.Salvage); return true;
                     case "1": case "enter": case "continue": case "": Choose(e.Suggested); return true;
                     default: return false;
                 }
             }
-            if (key is "1" or "enter" or "continue" or "" or "e" or "k" or "s")
+            if (key is "1" or "enter" or "continue" or "" or "e" or "k" || (key == "s" && SalvageEnabled))
             {
                 Advance();
                 return true;
@@ -469,7 +475,7 @@ namespace RPGGame.LootReveal
             lines.Add($"LOOT {Index + 1} of {Entries.Count}");
             lines.AddRange(e.Beats.Take(BeatsShown));
             if (AwaitingChoice)
-                lines.Add($"[E] Equip   [K] Keep   [S] Salvage      (suggested: {e.Suggested})");
+                lines.Add($"{ChoicePrompt}      (suggested: {e.Suggested})");
             return lines;
         }
     }

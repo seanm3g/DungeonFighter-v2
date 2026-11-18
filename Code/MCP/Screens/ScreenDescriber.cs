@@ -482,7 +482,8 @@ namespace RPGGame.MCP.Screens
                 {
                     rv.Choices.Add(new AgentChoice { Input = "e", Label = $"Equip {entry.Item.Name}", Recommended = entry.Suggested == RPGGame.LootReveal.LootChoice.Equip });
                     rv.Choices.Add(new AgentChoice { Input = "k", Label = $"Keep {entry.Item.Name} in the bag", Recommended = entry.Suggested == RPGGame.LootReveal.LootChoice.Keep });
-                    rv.Choices.Add(new AgentChoice { Input = "s", Label = $"Salvage {entry.Item.Name}", Recommended = entry.Suggested == RPGGame.LootReveal.LootChoice.Salvage });
+                    if (RPGGame.LootReveal.LootRevealSession.SalvageEnabled)
+                        rv.Choices.Add(new AgentChoice { Input = "s", Label = $"Salvage {entry.Item.Name}", Recommended = entry.Suggested == RPGGame.LootReveal.LootChoice.Salvage });
                 }
                 else
                 {

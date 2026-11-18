@@ -50,7 +50,7 @@ namespace RPGGame
             {
                 if (!reveal.HandleInput(input))
                     ShowMessageEvent?.Invoke(reveal.AwaitingChoice
-                        ? "Press E to equip, K to keep or S to salvage."
+                        ? (RPGGame.LootReveal.LootRevealSession.SalvageEnabled ? "Press E to equip, K to keep or S to salvage." : "Press E to equip or K to keep.")
                         : "Press Continue to see the rest of this item.");
                 if (UIManager.GetCustomUIManager() is RPGGame.UI.Avalonia.CanvasUICoordinator revealCanvas && stateManager.CurrentPlayer != null)
                     revealCanvas.AppendLootRevealLines(stateManager.CurrentPlayer, reveal.TakeNewLines());

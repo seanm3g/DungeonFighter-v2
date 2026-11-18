@@ -4,7 +4,7 @@ using RPGGame.LootReveal;
 
 namespace RPGGame.Tests.Unit.Rebuild
 {
-    /// <summary>Rebuild 2.4 (D4.5): summary, then a staged reveal per item, then Equip / Keep / Salvage.</summary>
+    /// <summary>Rebuild 2.4 (D4.5): summary, then a staged reveal per item, then Equip / Keep (Salvage off, Q4).</summary>
     public static class LootRevealTests
     {
         private static int _run, _passed, _failed;
@@ -34,8 +34,13 @@ namespace RPGGame.Tests.Unit.Rebuild
                 TestBase.AssertTrue(rareEntry.Beats.Any(b => b.StartsWith("vs ")), "It compares against what you wear", ref _run, ref _passed, ref _failed);
                 TestBase.AssertTrue(rareEntry.Beats.Any(b => b.Contains("Defense")), $"One line per attribute ({string.Join(" | ", rareEntry.Beats)})", ref _run, ref _passed, ref _failed);
 
+                // Q4: Salvage is off. S does nothing, the prompt has no Salvage, a Salvage choice keeps the item.
+                TestBase.AssertFalse(LootRevealSession.SalvageEnabled, "Salvage is switched off by default (Q4)", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(!LootRevealSession.ChoicePrompt.Contains("Salvage") && session.Entries.All(x => x.Suggested != LootChoice.Salvage),
+                    "No Salvage in the prompt or as a suggestion", ref _run, ref _passed, ref _failed);
+                TestBase.AssertFalse(session.HandleInput("s"), "S is ignored while Salvage is off", ref _run, ref _passed, ref _failed);
                 string first = session.Choose(LootChoice.Salvage);
-                TestBase.AssertTrue(!hero.Inventory.Contains(common) && first.StartsWith("Salvaged"), "Salvage removes the item from the bag", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(hero.Inventory.Contains(common) && first.StartsWith("Kept"), "A Salvage choice keeps the item while Salvage is off", ref _run, ref _passed, ref _failed);
                 TestBase.AssertFalse(session.AwaitingChoice, "The Rare stages its beats", ref _run, ref _passed, ref _failed);
                 int steps = 0;
                 while (!session.AwaitingChoice && steps++ < 20)
@@ -50,6 +55,19 @@ namespace RPGGame.Tests.Unit.Rebuild
                 var lines = session.TakeNewLines();
                 TestBase.AssertTrue(lines.Any(l => l.StartsWith("Equipped")), "The screen prints what happened", ref _run, ref _passed, ref _failed);
                 TestBase.AssertTrue(LootRevealSession.Start(hero, Array.Empty<Item>()) == null, "No loot, no reveal", ref _run, ref _passed, ref _failed);
+
+                // The switch back on restores the old discard.
+                LootRevealSession.SalvageEnabled = true;
+                try
+                {
+                    var scrap = TestDataBuilders.Armor().WithType(ItemType.Head).WithName("Scrap Cap").Build();
+                    scrap.Rarity = "Common";
+                    hero.Inventory.Add(scrap);
+                    var s2 = LootRevealSession.Start(hero, new Item[] { scrap })!;
+                    string salvaged = s2.Choose(LootChoice.Salvage);
+                    TestBase.AssertTrue(!hero.Inventory.Contains(scrap) && salvaged.StartsWith("Salvaged"), "Switch on: Salvage removes the item", ref _run, ref _passed, ref _failed);
+                }
+                finally { LootRevealSession.SalvageEnabled = false; }
 
                 // Mock 3: a piece that drops the Leather set from 3 to 2 loses Lucky: a sidegrade, keep for now.
                 var three = new Character("Lucky Three", 3);
