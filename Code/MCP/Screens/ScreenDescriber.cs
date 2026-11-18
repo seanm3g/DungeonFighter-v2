@@ -415,10 +415,17 @@ namespace RPGGame.MCP.Screens
             if (!string.IsNullOrEmpty(handler?.StatusMessage))
                 view.Body.Add($"Status: {handler!.StatusMessage}");
             int selected = handler?.SelectedIndex ?? 0;
+            int revealedTier = SkillTreeService.RevealedMaxTier(progression, nodes);
+            int hidden = 0;
 
             for (int i = 0; i < nodes.Count; i++)
             {
                 var n = nodes[i];
+                if (!SkillTreeService.IsRevealed(progression, n, revealedTier))
+                {
+                    hidden++;
+                    continue;
+                }
                 var state = SkillTreeService.GetNodeState(progression, n);
                 int rank = progression.GetSkillRank(n.Id);
                 string rankText = n.MaxRank > 1 ? $" rank {rank}/{n.MaxRank}" : (rank > 0 ? " learned" : "");
@@ -428,6 +435,9 @@ namespace RPGGame.MCP.Screens
                 string unlock = string.IsNullOrEmpty(n.UnlockActionName) ? "" : $" Unlocks action {n.UnlockActionName}.";
                 view.Body.Add($"  {i + 1}. {n.Name} (tier {n.Tier}, {n.Branch}, cost {n.Cost}, {state}{rankText}){rail}{sel}: {effect}{unlock}");
             }
+
+            if (hidden > 0)
+                view.Body.Add($"  ... {hidden} more skill(s) further up this tree, shown as you reach them.");
 
             var available = Enumerable.Range(0, nodes.Count)
                 .Where(i => SkillTreeService.GetNodeState(progression, nodes[i]) == SkillTreeService.NodeViewState.Available)

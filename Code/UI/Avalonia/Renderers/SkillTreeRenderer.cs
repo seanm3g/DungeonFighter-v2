@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -388,6 +388,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             var nodes = model.AllNodes;
             selectedIndex = Math.Clamp(selectedIndex, 0, nodes.Count - 1);
+            revealedMaxTier = SkillTreeService.RevealedMaxTier(player.Progression, model.PrimaryNodes);
             var depth = DepthInfo.For(player.Progression, tree, primary.Value);
             var layout = GetLayout(model);
 
@@ -530,6 +531,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             string depthText = depth.NextTier is int nt
                 ? $"{AsciiArtAssets.UIElements.ArrowRight} Tier {nt} skills open at {depth.Gate(nt)} {primary} pts · {depth.Gate(nt) - depth.Points} to go"
                 : $"{LearnedGlyph} Every tier open ({depth.Points} {primary} pts)";
+            int hiddenCount = model.PrimaryNodes.Count(n => !IsRevealedForBox(player, n));
+            if (hiddenCount > 0)
+                depthText += $" · {hiddenCount} more skills revealed as you go";
             canvas.AddText(left, y + 1, Truncate(depthText, width), depth.NextTier != null ? AsciiArtAssets.Colors.Yellow : AsciiArtAssets.Colors.Green);
 
             if (model.HasRail && model.SecondaryPath != null)
@@ -806,6 +810,14 @@ namespace RPGGame.UI.Avalonia.Renderers
             int rank = player.Progression.GetSkillRank(node.Id);
             int maxRank = Math.Max(1, node.MaxRank);
             bool tierClosed = depth != null && !depth.IsOpen(node.Tier) && rank == 0;
+            if (!IsRevealedForBox(player, node))
+            {
+                // Beyond the next tier: an unnamed closed box keeps the tree's shape without showing what's in it.
+                DrawCard(x, y, w, selected ? AsciiArtAssets.Colors.Gold : ClosedLook.Border, ClosedLook.Fill, selected ? 3 : 1);
+                canvas.AddText(x + 1, y, Truncate("? ? ?", w - 2), ClosedLook.Name);
+                canvas.AddText(x + 1, y + 1, Truncate("later", w - 2), ClosedLook.Status);
+                return;
+            }
             var look = LookFor(state, tierClosed);
             if (isRail && !tierClosed && state != SkillTreeService.NodeViewState.Locked && state != SkillTreeService.NodeViewState.WrongPath)
                 look = look with { Name = AsciiArtAssets.Colors.Magenta };
@@ -841,6 +853,12 @@ namespace RPGGame.UI.Avalonia.Renderers
                 DisplayText = node.Name
             });
         }
+
+        /// <summary>Cached per draw: the highest tier shown by name for the tree being drawn.</summary>
+        private int revealedMaxTier = int.MaxValue;
+
+        private bool IsRevealedForBox(Character player, SkillTreeNodeDefinition node) =>
+            SkillTreeService.IsRevealed(player.Progression, node, revealedMaxTier);
 
         /// <summary>
         /// A skill card: fill bleeds <see cref="cardBleed"/> pixels past its text rows and the border is drawn as
@@ -922,6 +940,16 @@ namespace RPGGame.UI.Avalonia.Renderers
                 return;
 
             var node = model.AllNodes[Math.Clamp(selectedIndex, 0, model.AllNodes.Count - 1)];
+            if (!IsRevealedForBox(player, node))
+            {
+                DrawCard(x, y, width, ClosedLook.Border, DetailFill, 1, height);
+                canvas.AddText(x + 2, y, "NOT YET REVEALED", AsciiArtAssets.Colors.Gray);
+                int hy = y + 2;
+                foreach (var line in TextWrapper.WrapText("Learn skills closer to the root to reveal this part of the tree.", Math.Max(8, width - 4)))
+                    if (hy < y + height - 1)
+                        canvas.AddText(x + 2, hy++, line, AsciiArtAssets.Colors.Gray);
+                return;
+            }
             bool onRail = model.IsRailIndex(selectedIndex);
             var state = SkillTreeService.GetNodeState(player.Progression, node);
             var ownerPath = SkillTreeService.FindOwnerPath(node);

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Data;
@@ -215,6 +215,36 @@ namespace RPGGame
                 .ThenBy(n => n.Branch, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(n => n.Name, StringComparer.OrdinalIgnoreCase)
                 .ToList();
+
+        /// <summary>
+        /// Playtest 2026-11-18: a low-level hero sees learned and learnable nodes plus the next tier up; deeper nodes
+        /// stay hidden (shown as a count) until the hero reaches them. Returns the highest tier shown.
+        /// </summary>
+        public static int RevealedMaxTier(CharacterProgression progression, IReadOnlyList<SkillTreeNodeDefinition> nodes)
+        {
+            if (nodes.Count == 0)
+                return int.MaxValue;
+            int frontier = int.MinValue;
+            foreach (var n in nodes)
+            {
+                if (progression.GetSkillRank(n.Id) > 0)
+                    frontier = Math.Max(frontier, n.Tier);
+                else
+                {
+                    var st = GetNodeState(progression, n);
+                    if (st == NodeViewState.Available || st == NodeViewState.Unaffordable)
+                        frontier = Math.Max(frontier, n.Tier);
+                }
+            }
+            if (frontier == int.MinValue)
+                frontier = nodes.Min(n => n.Tier);
+            int next = nodes.Where(n => n.Tier > frontier).Select(n => n.Tier).DefaultIfEmpty(frontier).Min();
+            return next;
+        }
+
+        /// <summary>True when <paramref name="node"/> is shown by name (see <see cref="RevealedMaxTier"/>).</summary>
+        public static bool IsRevealed(CharacterProgression progression, SkillTreeNodeDefinition node, int revealedMaxTier) =>
+            node.Tier <= revealedMaxTier || progression.GetSkillRank(node.Id) > 0;
 
         public enum NodeViewState
         {
