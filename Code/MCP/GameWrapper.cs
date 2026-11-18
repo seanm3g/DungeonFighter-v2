@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using RPGGame.MCP.Models;
@@ -102,7 +102,10 @@ namespace RPGGame.MCP
 
             var inputContext = AgentChoiceBuilder.ResolveInputContext(_game);
             if (IsLikelyDungeonEntry(_game, input, inputContext))
+            {
                 _pendingRunBaseline = CaptureRunBaseline(_game, input, inputContext);
+                _combatLog.ResetRoomCount();
+            }
 
             _combatLog.EnsureSubscribed();
             try
@@ -119,9 +122,12 @@ namespace RPGGame.MCP
             if (_pendingRunBaseline != null &&
                 (_game.CurrentState == GameState.DungeonCompletion || _game.CurrentState == GameState.Death))
             {
-                McpToolState.LastRunSummary = BuildRunSummary(_game, _pendingRunBaseline);
+                McpToolState.LastRunSummary = BuildRunSummary(_game, _pendingRunBaseline, _combatLog.RoomsCleared);
                 _pendingRunBaseline = null;
             }
+            // A new hero (or the main menu) shouldn't show the previous hero's run.
+            if (_game.CurrentState is GameState.MainMenu or GameState.WeaponSelection or GameState.TrainingGroundOffer)
+                McpToolState.LastRunSummary = null;
 
             return snapshot;
         }
@@ -201,22 +207,17 @@ namespace RPGGame.MCP
             };
         }
 
-        private static DungeonRunSummary BuildRunSummary(GameCoordinator game, DungeonRunBaseline baseline)
+        private static DungeonRunSummary BuildRunSummary(GameCoordinator game, DungeonRunBaseline baseline, int roomsClearedSeen)
         {
             var player = game.CurrentPlayer;
             bool died = game.CurrentState == GameState.Death;
-            int roomsCleared = 0;
             int totalRooms = game.CurrentDungeon?.Rooms?.Count ?? 0;
-
-            if (game.CurrentDungeon?.Rooms != null && game.CurrentRoom != null)
-            {
-                int idx = game.CurrentDungeon.Rooms.IndexOf(game.CurrentRoom);
-                roomsCleared = died ? Math.Max(0, idx) : totalRooms;
-            }
+            // The dungeon is often gone by the time the run ends, so count the RoomCleared events this run produced.
+            int roomsCleared = roomsClearedSeen;
+            if (!died && totalRooms == 0)
+                totalRooms = roomsCleared;
             else if (!died)
-            {
-                roomsCleared = totalRooms;
-            }
+                roomsCleared = Math.Max(roomsCleared, totalRooms);
 
             return new DungeonRunSummary
             {

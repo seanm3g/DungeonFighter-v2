@@ -27,6 +27,11 @@ namespace RPGGame.MCP
             public bool Combo, Crit, Hit, Miss, ChainBreak;
         }
 
+        /// <summary>Rooms cleared since the last <see cref="ResetRoomCount"/> (one dungeon run).</summary>
+        public int RoomsCleared { get; private set; }
+
+        public void ResetRoomCount() => RoomsCleared = 0;
+
         public McpCombatLog(OutputCapture output, Func<Character?> hero)
         {
             _output = output;
@@ -37,7 +42,7 @@ namespace RPGGame.MCP
             _onStatus = OnStatus;
             // The game already writes "<enemy> has been defeated!"; just close the last swing first.
             _onDied = _ => Flush();
-            _onRoomCleared = e => { Flush(); _output.WriteLine("  Room cleared."); };
+            _onRoomCleared = e => { Flush(); RoomsCleared++; _output.WriteLine("  Room cleared."); };
         }
 
         /// <summary>

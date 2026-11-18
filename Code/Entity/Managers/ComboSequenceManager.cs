@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -55,6 +55,9 @@ namespace RPGGame
 
                 if (!alreadyInCombo)
                 {
+                    // Append means the end: a fresh action carries ComboOrder 0 (or a stale value from an earlier strip)
+                    // and the sort would put it first. Openers / finishers still move to their ends in the reorder.
+                    action.ComboOrder = ComboSequence.Count == 0 ? 1 : ComboSequence.Max(a => a.ComboOrder) + 1;
                     ComboSequence.Add(action);
                     ReorderComboSequence();
                 }
