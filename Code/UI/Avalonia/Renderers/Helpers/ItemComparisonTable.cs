@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -165,7 +165,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
 
         private static string FormatNumber(double value, string unit, bool signed)
         {
-            string body = Math.Abs(value).ToString("0.##", CultureInfo.InvariantCulture);
+            // Big values drop their decimals ("+35%" not "+35.22%") so a value never runs into the next column.
+            double abs = Math.Abs(value);
+            string body = abs.ToString(abs >= 10 ? "0" : "0.##", CultureInfo.InvariantCulture);
             string sign = value < 0 ? "-" : (signed && value > 0 ? "+" : "");
             return sign + body + unit;
         }

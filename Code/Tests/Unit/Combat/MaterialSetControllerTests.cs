@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
@@ -236,7 +236,7 @@ namespace RPGGame.Tests.Unit.Combat
             var leatherLines = MaterialSetController.FormatSetStatusLines(leather, leather.Equipment.Head).ToList();
             TestBase.AssertTrue(leatherLines.Any(l => l.Contains("Lucky", StringComparison.OrdinalIgnoreCase)),
                 "Leather tooltip describes Lucky status", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("Leather 3/3", leatherLines[0],
+            TestBase.AssertEqual("Leather 3/5", leatherLines[0],
                 "Leather HUD quantity is n/3", ref _run, ref _passed, ref _failed);
         }
 
@@ -488,8 +488,8 @@ namespace RPGGame.Tests.Unit.Combat
                 (new ChestItem("Vest", 1, 1), "Leather"));
             TestBase.AssertEqual(1, MaterialSetController.GetFormingSets(leatherTwo).Count,
                 "2 Leather pieces form the luck set HUD", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("Leather 2/3", MaterialSetController.FormatFormingSetHudLine("Leather", 2),
-                "Leather HUD uses /3", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Leather 2/5", MaterialSetController.FormatFormingSetHudLine("Leather", 2),
+                "Leather HUD counts out of 5", ref _run, ref _passed, ref _failed);
             TestBase.AssertFalse(LeatherSetBonus.HasLuckAdvantage(leatherTwo),
                 "2 Leather does not unlock luck yet", ref _run, ref _passed, ref _failed);
 
@@ -499,8 +499,8 @@ namespace RPGGame.Tests.Unit.Combat
                 (new FeetItem("Boots", 1, 1), "Leather"));
             TestBase.AssertTrue(LeatherSetBonus.HasLuckAdvantage(leatherThree),
                 "3 Leather unlocks luck", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("Leather 3/3", MaterialSetController.FormatFormingSetHudLine("Leather", 3),
-                "3 Leather HUD is Leather 3/3", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Leather 3/5", MaterialSetController.FormatFormingSetHudLine("Leather", 3),
+                "3 Leather HUD is Leather 3/5", ref _run, ref _passed, ref _failed);
 
             var mixed = EquipPieces(
                 (new HeadItem("G1", 1, 1), "Gold"),

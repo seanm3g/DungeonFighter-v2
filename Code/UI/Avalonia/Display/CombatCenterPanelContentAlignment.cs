@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RPGGame;
 using RPGGame.UI.ColorSystem;
@@ -112,7 +112,8 @@ namespace RPGGame.UI.Avalonia.Display
                 return true;
 
             // Enemy encounter headline from EnemyInfoBuilder: "A {name} appears." / "A {name} with {weapon} appears."
-            if (t.StartsWith("A ", StringComparison.Ordinal) && t.EndsWith(" appears.", StringComparison.Ordinal))
+            if ((t.StartsWith("A ", StringComparison.Ordinal) || t.StartsWith("An ", StringComparison.Ordinal))
+                && t.EndsWith(" appears.", StringComparison.Ordinal))
                 return true;
 
             // Post-combat summary (EnemyEncounterHandler): "{Enemy} has been defeated!" — must center so it is not

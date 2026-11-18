@@ -82,9 +82,10 @@ namespace RPGGame
             line != null && (string.Equals(line, LuckyStatusName, StringComparison.Ordinal)
                 || line.StartsWith(LuckyStatusName + " ", StringComparison.Ordinal));
 
-        /// <summary>Compact HUD line, e.g. <c>Leather 3/3</c>.</summary>
+        /// <summary>Compact HUD line, e.g. <c>Leather 3/5</c>.</summary>
         public static string FormatHudLine(int count) =>
-            $"{MaterialName} {Math.Max(0, count)}/{LuckUnlockCount}";
+            // Out of 5 like every material: each piece from the third adds a Lucky roll, so 5 is the full set.
+            $"{MaterialName} {Math.Max(0, count)}/5";
 
         public static string FormatHudLine(Character? hero) =>
             FormatHudLine(CountEquipped(hero));

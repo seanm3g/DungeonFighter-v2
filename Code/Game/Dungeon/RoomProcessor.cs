@@ -1,4 +1,4 @@
-namespace RPGGame
+﻿namespace RPGGame
 {
     using System;
     using System.Threading.Tasks;
@@ -111,7 +111,9 @@ namespace RPGGame
                     displayManager.AddCombatEvent(explorationMessageMarkup, stateManager.CurrentPlayer, UIMessageType.Environmental);
                 }
                 
-                if (explorationResult.EnvironmentInfo != null)
+                // The discovery line is also the exploration message (printed above); don't print it twice.
+                if (explorationResult.EnvironmentInfo != null
+                    && !string.Equals(explorationResult.EnvironmentInfo, explorationResult.Message, StringComparison.Ordinal))
                 {
                     // Apply keyword coloring to environment info
                     var environmentInfoColored = KeywordColorSystem.Colorize(explorationResult.EnvironmentInfo);

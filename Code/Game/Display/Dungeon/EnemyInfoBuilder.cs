@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.UI;
 using RPGGame.UI.ColorSystem;
@@ -20,7 +20,7 @@ namespace RPGGame.Display.Dungeon
                 throw new ArgumentNullException(nameof(enemy));
 
             var encounteredBuilder = new ColoredTextBuilder();
-            encounteredBuilder.Add("A ", Colors.White);
+            encounteredBuilder.Add(RPGGame.Utils.EnglishArticle.For(enemy.Name) + " ", Colors.White);
             EntityColorHelper.AppendEnemyNameColored(encounteredBuilder, enemy);
             if (enemy.Weapon != null)
             {

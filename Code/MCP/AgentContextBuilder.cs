@@ -120,7 +120,7 @@ namespace RPGGame.MCP
 
             if (player != null)
             {
-                sb.Append($"{player.Name} is level {player.Level} at {player.CurrentHealth}/{player.MaxHealth} HP");
+                sb.Append($"{player.Name} is level {player.Level} at {player.CurrentHealth}/{player.GetEffectiveMaxHealth()} HP");
                 if (player.Weapon != null)
                     sb.Append($" wielding {player.Weapon.Name}");
                 sb.Append(". ");

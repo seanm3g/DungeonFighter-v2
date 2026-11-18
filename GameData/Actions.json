@@ -1,4 +1,4 @@
-[
+﻿[
   {
     "action": "PUNCH",
     "dps": "100%",
@@ -348,7 +348,7 @@
   },
   {
     "action": "READ BOOK",
-    "description": "Next turn: \u002B5 INT.",
+    "description": "\u002B3 INT for the rest of the dungeon.",
     "rarity": "COMMON",
     "tier": 1,
     "dps": "100%",
@@ -356,9 +356,9 @@
     "damage": "90%",
     "speed": "0.90",
     "block": "100",
-    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
-    "heroINT": "5",
-    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022INT\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
+    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
+    "heroINT": "3",
+    "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022INT\u0022,\u0022value\u0022:3}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
     "tags": "common, class, wizard"
   },
   {

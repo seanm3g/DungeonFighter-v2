@@ -1245,9 +1245,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                     _ => AsciiArtAssets.Colors.DarkGray
                 };
                 canvas.AddText(x, y, TruncateTo(row.Label, labelCol - 1), ColorPalette.Info.GetColor());
-                canvas.AddText(x + labelCol, y, TruncateTo(row.NewText, valueCol).PadLeft(valueCol), AsciiArtAssets.Colors.White);
-                canvas.AddText(x + labelCol + valueCol, y, TruncateTo(row.WornText, valueCol).PadLeft(valueCol), AsciiArtAssets.Colors.Gray);
-                canvas.AddText(x + labelCol + valueCol * 2, y, TruncateTo(row.ChangeText, valueCol).PadLeft(valueCol), changeColor);
+                canvas.AddText(x + labelCol, y, TruncateTo(row.NewText, valueCol - 1).PadLeft(valueCol), AsciiArtAssets.Colors.White);
+                canvas.AddText(x + labelCol + valueCol, y, TruncateTo(row.WornText, valueCol - 1).PadLeft(valueCol), AsciiArtAssets.Colors.Gray);
+                canvas.AddText(x + labelCol + valueCol * 2, y, TruncateTo(row.ChangeText, valueCol - 1).PadLeft(valueCol), changeColor);
                 y++;
                 currentLineCount++;
             }

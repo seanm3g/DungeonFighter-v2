@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -158,6 +158,15 @@ namespace RPGGame.UI
             int withIt = worn ? count : count + 1;
             if (!hero.Unlocks.IsUnlocked(GameSystem.MaterialSets) && withIt < 2)
                 return null;
+            if (string.Equals(mat, LeatherSetBonus.MaterialName, StringComparison.OrdinalIgnoreCase))
+            {
+                // Leather's ladder is Lucky: on at 3 pieces, one Lucky roll per piece each fight up to 5.
+                string leatherNext = count < LeatherSetBonus.LuckUnlockCount
+                    ? $"wear {LeatherSetBonus.LuckUnlockCount} for Lucky"
+                    : count < 5 ? $"Lucky on {count} rolls a fight, +1 per piece"
+                    : "Lucky on 5 rolls a fight (full set)";
+                return $"{mat} {count}/5 — {leatherNext}";
+            }
             string store = Data.MaterialBuildsLoader.FindByMaterial(mat)?.Keyword ?? "";
             string next = count < 2
                 ? $"wear 2 to start{(store.Length > 0 ? $" storing {store.ToUpperInvariant()}" : " the set")}"
