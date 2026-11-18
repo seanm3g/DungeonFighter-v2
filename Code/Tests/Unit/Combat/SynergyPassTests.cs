@@ -151,17 +151,17 @@ namespace RPGGame.Tests.Unit.Combat
             Check(new CadenceTiming { IfTag = "focus" }.TagGateHolds(spell, hero), "a cadence IFTAG gate accepts the aliased action");
 
             // RANK: deepens a learned node only.
-            var ranked = MakeHero("Rank");
-            ranked.Weapon!.Material = "Bone";
-            ranked.Weapon.ImplicitRule = "WHILE -> RANK b-kin 2";
-            Check(CrossWires.EffectiveSkillRank(ranked, "b-kin") == 0, "RANK does nothing on an unlearned node");
-            double before = SkillEffectRouter.Instance.GetSkillAttributeBonus(ranked, "STR");
-            ranked.Progression.LearnedSkillRanks["b-kin"] = 1;
-            Check(CrossWires.EffectiveSkillRank(ranked, "b-kin") == 3 && ranked.Progression.GetSkillRank("b-kin") == 1,
+            // Steady March (WHILE IF WEAPON sword -> AGI 1, 5 ranks) since Tribal Kinship became a rank-1 mint rule (2026-11-18).
+            var ranked = MakeHero("Rank", WeaponType.Sword);
+            ranked.Weapon!.ImplicitRule = "WHILE -> RANK w-march 2";
+            Check(CrossWires.EffectiveSkillRank(ranked, "w-march") == 0, "RANK does nothing on an unlearned node");
+            double before = SkillEffectRouter.Instance.GetSkillAttributeBonus(ranked, "AGI");
+            ranked.Progression.LearnedSkillRanks["w-march"] = 1;
+            Check(CrossWires.EffectiveSkillRank(ranked, "w-march") == 3 && ranked.Progression.GetSkillRank("w-march") == 1,
                 "worn RANK 2 on a rank-1 node: effective rank 3, learned rank stays 1");
-            double power = GameConfiguration.Instance.SkillTrees.GetNode("b-kin")?.Power ?? 1;
-            int expected = (int)Math.Round(CrossWires.WornCount(ranked, "barbarian") * 3 * power);
-            Check(SkillEffectRouter.Instance.GetSkillAttributeBonus(ranked, "STR") - before == expected,
+            double power = GameConfiguration.Instance.SkillTrees.GetNode("w-march")?.Power ?? 1;
+            int expected = (int)Math.Round(3 * power);
+            Check(SkillEffectRouter.Instance.GetSkillAttributeBonus(ranked, "AGI") - before == expected,
                 "the node's rule scales by the effective rank");
 
             // SETCOUNT: the piece counts twice toward its material set.
@@ -193,12 +193,13 @@ namespace RPGGame.Tests.Unit.Combat
             var stat = new RulePer { Kind = "stat", Arg = "STR", Div = 5 };
             Check(Math.Abs(CrossWires.PerValue(hero, null, stat) - Math.Floor(hero.GetEffectiveStrength() / 5.0)) < 1e-9, "PER STAT STR 5 = floor(STR / 5)");
 
-            double before = SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR");
-            hero.Progression.LearnedSkillRanks["b-kin"] = 3;
-            double power = GameConfiguration.Instance.SkillTrees.GetNode("b-kin")?.Power ?? 1;
-            int expected = (int)Math.Round(CrossWires.WornCount(hero, "barbarian") * 3 * power);
-            Check(SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR") - before == expected,
-                "Tribal Kinship rule: STR per worn piece x rank x power");
+            var sword = MakeHero("PerSword", WeaponType.Sword);
+            double before = SkillEffectRouter.Instance.GetSkillAttributeBonus(sword, "AGI");
+            sword.Progression.LearnedSkillRanks["w-march"] = 3;
+            double power = GameConfiguration.Instance.SkillTrees.GetNode("w-march")?.Power ?? 1;
+            int expected = (int)Math.Round(3 * power);
+            Check(SkillEffectRouter.Instance.GetSkillAttributeBonus(sword, "AGI") - before == expected,
+                "Steady March rule: AGI x rank x power");
 
             // Attribute rules reading attributes do not recurse.
             hero.Progression.LearnedSkillRanks["b-gut"] = 3;

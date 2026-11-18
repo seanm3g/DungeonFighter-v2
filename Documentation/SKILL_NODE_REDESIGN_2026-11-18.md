@@ -1,6 +1,6 @@
 # Dead skill nodes → rules (draft for review, 2026-11-18)
 
-**Status: draft, nothing changed in `GameData/SkillTrees.json` yet.**
+**Status: implemented on branch `claude/skill-node-rules-2026-11-18` (unbalanced, not merged).** Saves with more ranks than a node's new max are clamped on load and the extra points return to the tree (`CharacterSerializer`).
 
 ## Problem
 
@@ -20,14 +20,13 @@ statuses, stores, combo rules — instead of adding a stat trickle.
 
 - Only existing verbs and events are used ([[minimize-new-mechanics]]).
 - Every redesigned node becomes **rank 1, power 1.0**, so the number on the card is the number in play.
-- Every rule below was run through `CrossWireRule.Parse` and parses. Behaviour (when each event fires, which way CRIT
-  moves) gets checked when this is implemented.
+- Every rule below was run through `CrossWireRule.Parse` and parses. CRIT widens the crit range (same path as Glass Cannon).
 
 Three outcomes:
 
-- **Rule**: replaced by the rule shown (30 nodes).
-- **Fix value**: the node already changes a system; only its number is raised (2 nodes).
-- **Keep**: the node scales with a stat or store and is live at the levels where it unlocks (8 nodes).
+- **Rule**: replaced by the rule shown (27 nodes).
+- **Fix value**: the node already changes a system; only its number is raised (2 nodes: Second Wind, Resonance).
+- **Keep**: the node scales with a stat or store and is live at the levels where it unlocks (11 nodes: 4 Synthesis, Spell Memory, 6 hybrid actions).
 
 ## Shared patterns (one per class, same shape)
 

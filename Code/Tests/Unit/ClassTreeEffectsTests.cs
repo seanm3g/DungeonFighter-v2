@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using RPGGame.Combat.Events;
 
 namespace RPGGame.Tests.Unit
@@ -67,11 +68,10 @@ namespace RPGGame.Tests.Unit
         {
             var hero = MakeHero("Kin", WeaponType.Mace, 50);
             hero.Weapon!.Material = "Bone";
-            int before = SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR");
-            hero.Progression.LearnedSkillRanks["b-kin"] = 5;
-            int after = SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR");
-            TestBase.AssertEqual((int)Math.Round(1 * 5 * Power("b-kin")), after - before,
-                "Tribal Kinship: STR = Barbarian pieces x rank x power",
+            hero.Progression.LearnedSkillRanks["b-kin"] = 1;
+            var rule = CrossWires.LearnedNodeRules(hero).Where(x => x.Node.Id == "b-kin").Select(x => x.Rule).FirstOrDefault();
+            TestBase.AssertTrue(rule != null && rule.When == "ONFIRSTHIT" && rule.Verb == "MINT" && rule.Store == "RAGE",
+                "Tribal Kinship: the first hit each fight mints RAGE per Barbarian piece",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -93,12 +93,12 @@ namespace RPGGame.Tests.Unit
         private static void TestTitanRaisesStrengthCap()
         {
             var hero = MakeHero("Titan", WeaponType.Mace, 80);
-            TestBase.AssertEqual(0, SkillEffectRouter.StrengthCapBonus(hero), "no cap bonus without Titan",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
             hero.Progression.LearnedSkillRanks["b-titan"] = 1;
-            TestBase.AssertEqual((int)Math.Round(50 * Power("b-titan")), SkillEffectRouter.StrengthCapBonus(hero),
-                "Titan raises the STR damage cap by 50 x power",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var rules = CrossWires.LearnedNodeRules(hero).Where(x => x.Node.Id == "b-titan").Select(x => x.Rule).ToList();
+            TestBase.AssertTrue(rules.Any(r => r.Verb == "EXEMPT" && r.Store == "COMBO"),
+                "Titan: misses against a Staggered enemy don't end the combo", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(rules.Any(r => r.When == "ONCRITICAL" && r.Verb == "APPLY" && r.Store == "stagger"),
+                "Titan: crits apply Stagger", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestPerfectAimAndArchmage()
@@ -106,9 +106,9 @@ namespace RPGGame.Tests.Unit
             var rogue = MakeHero("Aim", WeaponType.Dagger, 80);
             double critBefore = CrossWires.Passive(rogue, "CRIT");
             rogue.Progression.LearnedSkillRanks["r-aim"] = 1;
-            double expected = Math.Floor(rogue.GetEffectiveTechnique() / 25.0) * Power("r-aim");
+            double expected = rogue.GetEffectiveTechnique() >= 100 ? 2 : 1;
             TestBase.AssertTrue(Math.Abs(CrossWires.Passive(rogue, "CRIT") - critBefore - expected) < 1e-6,
-                "Perfect Aim (rule WHILE -> CRIT 1 PER STAT TEC 25): crit bonus from TEC",
+                "Perfect Aim: +1 crit range, +1 more at 100+ TEC",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var wizard = MakeHero("Arch", WeaponType.Wand, 80);
@@ -136,24 +136,21 @@ namespace RPGGame.Tests.Unit
         private static void TestArcaneWeave()
         {
             var hero = MakeHero("Weave", WeaponType.Wand, 50);
-            var spell = new Action { Name = "TEST_SPELL", Type = ActionType.Attack };
-            double before = CrossWires.Passive(hero, "AMP", null, spell);
-            hero.Progression.LearnedSkillRanks["z-weave"] = 5;
-            double expected = Math.Floor(hero.GetEffectiveIntelligence() / 10.0) * 2.0 * 5 * Power("z-weave");
-            TestBase.AssertTrue(Math.Abs(CrossWires.Passive(hero, "AMP", null, spell) - before - expected) < 1e-6,
-                "Arcane Weave (rule): AMP from INT with a Wand",
+            hero.Progression.LearnedSkillRanks["z-weave"] = 1;
+            var rule = CrossWires.LearnedNodeRules(hero).Where(x => x.Node.Id == "z-weave").Select(x => x.Rule).FirstOrDefault();
+            TestBase.AssertTrue(rule != null && rule.Verb == "POTENCY" && rule.Store == "burn" && Math.Abs(rule.Amount - 25) < 1e-6,
+                "Arcane Weave: with a Wand, Burn ticks 25% harder",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestBoneWrathHeals()
         {
             var hero = MakeHero("Wrath", WeaponType.Mace, 80);
-            hero.Progression.LearnedSkillRanks["b-wrath"] = 3;
-            hero.TakeDamage(hero.MaxHealth / 2);
-            int before = hero.CurrentHealth;
-            // Rule ONCASH:RAGE -> HEAL 1 PER SPENT: any RAGE spend (BONE WRATH's convert raises ONCASH with the units spent).
-            HeroEventHub.OnCash(hero, "RAGE", 10);
-            TestBase.AssertTrue(hero.CurrentHealth > before, "Wrath Unbound: spending RAGE heals per RAGE spent",
+            hero.Progression.LearnedSkillRanks["b-wrath"] = 1;
+            // 2026-11-18: cashing pays damage, so Wrath Unbound is ONCASH:RAGE -> NEXT DAMAGE 3% PER SPENT (no heal).
+            var rule = CrossWires.LearnedNodeRules(hero).Where(x => x.Node.Id == "b-wrath").Select(x => x.Rule).FirstOrDefault();
+            TestBase.AssertTrue(rule != null && rule.When.StartsWith("ONCASH", StringComparison.OrdinalIgnoreCase) && rule.Verb == "NEXT" && rule.Store == "DAMAGE",
+                "Wrath Unbound: spending RAGE adds damage to the next action",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

@@ -183,7 +183,9 @@ namespace RPGGame.Tests.Unit.UI
             var hero = MakeBareHero("AgeHero");
             hero.Progression.BarbarianPoints = 50;
             hero.Progression.EnsureSkillTreeRootsGranted();
-            hero.Progression.LearnedSkillRanks["b-age1"] = 5;
+            // Steel Knuckle (WHILE IF harden>=1 AND WEAPON mace -> DAMAGE 3%, 5 ranks): First Steel Age became a tag rule (2026-11-18).
+            hero.Progression.LearnedSkillRanks["b-knuckle"] = 5;
+            Stores.Add(hero, "harden", 1);
 
             var weapon = TestDataBuilders.Weapon()
                 .WithName("BoneMace")
@@ -198,9 +200,9 @@ namespace RPGGame.Tests.Unit.UI
             slam.DamageMultiplier = 1.0;
             AddCombo(hero, slam);
 
-            // 8% per item per rank x the node's power (SkillTrees.json).
-            string ageName = GameConfiguration.Instance.SkillTrees.GetNode("b-age1")?.Name ?? "First Bronze Age";
-            double agePct = 8.0 * 5 * (GameConfiguration.Instance.SkillTrees.GetNode("b-age1")?.Power ?? 1.0);
+            // 3% per rank x the node's power (SkillTrees.json).
+            string ageName = GameConfiguration.Instance.SkillTrees.GetNode("b-knuckle")?.Name ?? "Steel Knuckle";
+            double agePct = 3.0 * 5 * (GameConfiguration.Instance.SkillTrees.GetNode("b-knuckle")?.Power ?? 1.0);
             var lines = ActionCardExternalBonusCollector.BuildLines(hero, slam, 0);
             TestBase.AssertTrue(lines.Any(l =>
                     l.Text.IndexOf(ageName, StringComparison.OrdinalIgnoreCase) >= 0

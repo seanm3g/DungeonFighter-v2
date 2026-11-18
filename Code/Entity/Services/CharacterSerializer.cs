@@ -130,8 +130,15 @@ namespace RPGGame.Entity.Services
             var skillTrees = GameConfiguration.Instance.SkillTrees;
             if (skillTrees != null && skillTrees.Trees.Count > 0)
                 foreach (string id in character.Progression.LearnedSkillRanks.Keys.ToList())
-                    if (skillTrees.GetNode(id) == null)
+                {
+                    var node = skillTrees.GetNode(id);
+                    if (node == null)
                         character.Progression.LearnedSkillRanks.Remove(id);
+                    // A node whose max rank dropped (2026-11-18 rule redesign: 5-rank nodes became rank 1) keeps its max;
+                    // spent points are summed from ranks, so the extra points come back to the tree.
+                    else if (node.MaxRank > 0 && character.Progression.LearnedSkillRanks[id] > node.MaxRank)
+                        character.Progression.LearnedSkillRanks[id] = node.MaxRank;
+                }
             character.Progression.EnsureSkillTreeRootsGranted();
             character.Effects.ComboStep = saveData.ComboStep;
             character.Effects.ComboBonus = saveData.ComboBonus;

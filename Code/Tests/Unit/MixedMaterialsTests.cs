@@ -100,12 +100,12 @@ namespace RPGGame.Tests.Unit
         {
             TestBase.SetCurrentTestName(nameof(TestKinshipCountsOnlyOwnMaterials));
             var hero = MakeHero("MixKin", WeaponType.Mace, 50);
-            hero.Progression.LearnedSkillRanks["b-kin"] = 5;
+            // 2026-11-18: Tribal Kinship is ONFIRSTHIT -> MINT RAGE 1 PER WORN barbarian; PER WORN counts class pieces.
             hero.Weapon!.Material = "Glass";
-            int glass = SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR");
+            int glass = CrossWires.WornCount(hero, "barbarian");
             hero.Weapon!.Material = "Bone";
-            int bone = SkillEffectRouter.Instance.GetSkillAttributeBonus(hero, "STR");
-            TestBase.AssertEqual((int)Math.Round(1 * 5 * Power("b-kin")), bone - glass,
+            int bone = CrossWires.WornCount(hero, "barbarian");
+            TestBase.AssertEqual(1, bone - glass,
                 "Tribal Kinship counts a Bone piece, not a Glass one", ref _run, ref _passed, ref _failed);
         }
     }

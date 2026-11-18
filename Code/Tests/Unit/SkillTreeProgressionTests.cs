@@ -172,8 +172,13 @@ namespace RPGGame.Tests.Unit
         private static void TestMultiRankSink()
         {
             Console.WriteLine("--- Multi-rank sink up to maxRank ---");
+            // 2026-11-18: First Steel Age became a rank-1 rule; the sink mechanism is checked by lifting its cap in memory.
             var age1 = GameConfiguration.Instance.SkillTrees?.GetNode("b-age1");
-            int maxRank = age1?.MaxRank ?? 5;
+            int savedMax = age1?.MaxRank ?? 1;
+            if (age1 != null) age1.MaxRank = 3;
+            try
+            {
+            int maxRank = age1?.MaxRank ?? 3;
             TestBase.AssertTrue(maxRank >= 2, "age1 should allow multi-rank sink",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
@@ -201,6 +206,11 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.MaxRankReached, capped,
                 "cannot exceed maxRank",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                if (age1 != null) age1.MaxRank = savedMax;
+            }
 
             var might = GameConfiguration.Instance.SkillTrees?.GetNode("b-might");
             TestBase.AssertEqual(1, might?.Cost ?? -1, "action cost is 1",
