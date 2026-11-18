@@ -159,7 +159,7 @@ namespace RPGGame
         /// <summary>Forced baseline action used by the pre-weapon Training Ground tutorial.</summary>
         public const string TrainingGroundTutorialActionName = "PUNCH";
 
-        public const int TrainingDummyMaxHealth = 6; // playtest 2026-11-18: about the scripted swings' damage, so the lesson stays short
+        public const int TrainingDummyMaxHealth = 9; // playtest 2026-11-18: survives the early beats (hit, combo, its own counters); the last scripted crit finishes it
         public const int TrainingDummyDamage = 1;
 
         /// <summary>Direct-stat dummy: <see cref="Enemy.GetTotalAttackSpeed"/> seconds baseline (scaled by action length in combat).</summary>

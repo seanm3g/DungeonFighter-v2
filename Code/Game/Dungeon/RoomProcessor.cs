@@ -93,7 +93,9 @@
             bool enemyGetsFirstAttack = false;
             bool skipCombat = false;
             
-            if (explorationManager != null && stateManager.CurrentPlayer != null)
+            // The Training Ground is a scripted lesson: no exploration roll, so a hazard can never seal the room and skip it.
+            bool trainingGround = PreWeaponTrainingFlow.IsTrainingGroundDungeonName(stateManager.CurrentDungeon?.Name);
+            if (explorationManager != null && stateManager.CurrentPlayer != null && !trainingGround)
             {
                 var explorationResult = explorationManager.ExploreRoom(
                     room,

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Tests;
@@ -165,11 +165,13 @@ namespace RPGGame.Tests.Unit.World
             TestBase.AssertEqual(6, script.Events.Count,
                 "Training Ground tutorial covers every result in six rolls",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(heroBeats.Select(e => e.Roll).SequenceEqual(new[] { 10, 3, 1, 20 }),
-                "Hero beats: hit, Lucky rescue, critical miss, critical",
+            TestBase.AssertTrue(heroBeats.Select(e => e.Roll).SequenceEqual(new[] { 10, 16, 1, 20 }),
+                "Hero beats: hit, combo, critical miss, critical",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(heroBeats[1].LuckRoll is int rescue && rescue >= 14 && heroBeats[2].LuckRoll == 1,
-                "Lucky die rescues the third beat into a combo and stays 1 on the critical miss",
+            // The hero wears no Leather in the Training Ground, so the script has no Lucky die or Lucky note.
+            TestBase.AssertTrue(script.Events.All(e => e.LuckRoll == null)
+                    && !script.Events.SelectMany(e => e.Notes).Any(n => n.RequiresLucky),
+                "No Lucky beats in the Training Ground",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(dummyBeats.Select(e => e.Roll).SequenceEqual(new[] { 15, 4 }) && dummyBeats.All(e => e.LuckRoll == null),
                 "Dummy beats: a combo that fires SWAY, then a miss",
@@ -182,15 +184,14 @@ namespace RPGGame.Tests.Unit.World
             TestBase.AssertTrue(firstRollFoci.SequenceEqual(new[]
                 {
                     TutorialCoachFocus.None, TutorialCoachFocus.Timeline, TutorialCoachFocus.TurnOrb, TutorialCoachFocus.Board,
-                    TutorialCoachFocus.Branches, TutorialCoachFocus.Die, TutorialCoachFocus.Die, TutorialCoachFocus.ChosenBranch,
+                    TutorialCoachFocus.Branches, TutorialCoachFocus.Die, TutorialCoachFocus.ChosenBranch,
                     TutorialCoachFocus.HeroStrip, TutorialCoachFocus.Board
                 }),
-                "First roll walks the board: timeline, turn, middle, odds, roll, result, box taken, strip, damage",
+                "First roll walks the board: timeline, turn, middle, odds, result, box taken, strip, damage",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(dummyBeats[0].Notes[0].Focus == TutorialCoachFocus.EnemyStrip
-                    && script.Events.SelectMany(e => e.Notes).Any(n => n.Focus == TutorialCoachFocus.StatusEffects && n.RequiresLucky)
                     && !script.Events.SelectMany(e => e.Notes).Any(n => n.Focus == TutorialCoachFocus.Sequence && n.Step == RPGGame.Combat.Sequence.CombatSequenceStepKind.Damage),
-                "Enemy strip opens the dummy's turn, Lucky is pointed out, and no note walks the damage math",
+                "Enemy strip opens the dummy's turn, and no note walks the damage math",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var stripDummy = new Enemy(GameConstants.TrainingDummyEnemyName, 1, GameConstants.TrainingDummyMaxHealth,
@@ -219,7 +220,7 @@ namespace RPGGame.Tests.Unit.World
             TestBase.AssertTrue(script.TryConsumeForActor(hero, out var heroFirst) && heroFirst?.Roll == 10,
                 "Hero still gets its first beat",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(script.TryConsumeForActor(hero, out var heroSecond) && heroSecond?.Roll == 3,
+            TestBase.AssertTrue(script.TryConsumeForActor(hero, out var heroSecond) && heroSecond?.Roll == 16,
                 "Hero acting twice in a row takes its next beat",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(script.TryConsumeForActor(stripDummy, out var dummySecond) && dummySecond?.Roll == 4

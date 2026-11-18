@@ -79,7 +79,8 @@ namespace RPGGame
             // Nothing before the first turn: the board is explained on the first roll, in the order it plays out.
             var intro = Array.Empty<TutorialCoachNote>();
 
-            // Six rolls cover every result. Hero: hit, Lucky rescue into a combo, critical miss, critical (the kill).
+            // Six rolls cover every result. Hero: hit, combo, critical miss, critical (the kill). No Lucky beats: the hero
+            // wears no Leather in the Training Ground (the starter armor comes with the weapon), so Lucky can't fire here.
             // Dummy (its own queue, between the hero's turns): a combo that fires SWAY, then a miss that resets its strip.
             var events = new[]
             {
@@ -87,7 +88,6 @@ namespace RPGGame
                     TrainingGroundTutorialActor.Hero,
                     10,
                     "You breathe, plant your feet, and drive into the target. A 10 is a clean hit: reliable, plain, and enough to move the fight forward.",
-                    luckRoll: 3,
                     notes: new[]
                     {
                         // First roll, walked through as it plays: timeline, whose turn, the board, the odds, then (below)
@@ -112,12 +112,8 @@ namespace RPGGame
                             "Each box on the right is one way this swing can go, with the die faces it needs: a miss, a plain hit, "
                             + "or your combo action. The higher the face, the better the result.",
                             TutorialCoachFocus.Branches, Attacker),
-                        Note("THE ROLL",
-                            "Now the d20 is thrown. You are Lucky (your Leather armor), so two dice roll: {die1} and {die2}. "
-                            + "You keep the higher one.",
-                            TutorialCoachFocus.Die, Roll, lucky: true),
                         Note("THE RESULT",
-                            "You keep {kept}. That lands in the hit band ({hit}-{hitmax}), so the die reads HIT.",
+                            "The d20 is thrown and shows {kept}. That lands in the hit band ({hit}-{hitmax}), so the die reads HIT.",
                             TutorialCoachFocus.Die, Outcome),
                         Note("HIT",
                             "The box the roll landed on lights up and the rest fade. A plain hit is a basic strike: it deals damage, "
@@ -140,7 +136,7 @@ namespace RPGGame
                         Note("ENEMY ACTIONS",
                             "Now the dummy acts. Across the very top is its action strip: its moves, in the order it uses them. "
                             + "The dummy has two, SWAY and the slower, heavier REBOUND. The card marked NEXT is what it tries this turn. "
-                            + "Enemies roll the same d20 against their own bands, with no Lucky die.",
+                            + "Enemies roll the same d20 against their own bands.",
                             TutorialCoachFocus.EnemyStrip, Attacker),
                         Note("ENEMY COMBO",
                             "A {kept} is in the combo band, so the dummy's lit card fires: SWAY, the first card on its strip.",
@@ -156,20 +152,10 @@ namespace RPGGame
                     }),
                 new TrainingGroundTutorialEvent(
                     TrainingGroundTutorialActor.Hero,
-                    3,
-                    "You follow the dummy's motion instead of resetting, and the second die opens the combo path.",
-                    luckRoll: 16,
+                    16,
+                    "You follow the dummy's motion instead of resetting, and the roll opens the combo path.",
                     notes: new[]
                     {
-                        Note("LUCKY SAVES YOU",
-                            "The first die is a {die1}, a miss on its own. Lucky's second die is a {die2}, so you keep {kept}. "
-                            + "That second chance is what the Leather set buys you.",
-                            TutorialCoachFocus.Die, Roll, lucky: true),
-                        Note("LUCKY",
-                            "Check STATUS EFFECTS: you are Lucky. Wearing 3 or more Leather pieces grants it: your first rolls each fight "
-                            + "roll two d20 and keep the higher, one roll per Leather piece. The count beside Lucky shows what's left. "
-                            + "Below 3 Leather pieces Lucky goes away.",
-                            TutorialCoachFocus.StatusEffects, Roll, lucky: true),
                         Note("COMBO",
                             "{kept} reaches the combo band ({combo}+). Instead of a plain strike, the lit card on your strip fires.",
                             TutorialCoachFocus.ChosenBranch, Outcome),
@@ -193,12 +179,8 @@ namespace RPGGame
                     TrainingGroundTutorialActor.Hero,
                     1,
                     "You get greedy after the combo and trip over your own stance. The natural 1 is a critical miss: momentum can become a mistake if you lose control.",
-                    luckRoll: 1,
                     notes: new[]
                     {
-                        Note("SNAKE EYES",
-                            "Both dice show {kept}. Lucky can't help when there is no better die to keep.",
-                            TutorialCoachFocus.Die, Roll, lucky: true),
                         Note("CRITICAL MISS",
                             "A {critmiss} is a critical miss. Like a miss your combo resets, and the fumble also makes this action take "
                             + "twice as long, so your next turn comes later. Watch the timeline reshuffle.",
@@ -208,12 +190,8 @@ namespace RPGGame
                     TrainingGroundTutorialActor.Hero,
                     20,
                     "You settle, see the final opening, and drive PUNCH straight through it. The natural 20 is both combo and crit, breaking the dummy apart.",
-                    luckRoll: 7,
                     notes: new[]
                     {
-                        Note("A NATURAL 20",
-                            "{die1} and {die2}: keep the {kept}.",
-                            TutorialCoachFocus.Die, Roll, lucky: true),
                         Note("CRITICAL",
                             "A {crit} is a critical hit, and it is in the combo band too: your strip card fires and its damage is multiplied.",
                             TutorialCoachFocus.Die, Outcome)
@@ -223,8 +201,8 @@ namespace RPGGame
             var outro = new[]
             {
                 Note("TRAINING COMPLETE",
-                    "You've seen every result: hit, miss, combo, critical miss and critical, how Lucky's second die can turn a miss "
-                    + "into a combo, and how an enemy's strip fires and resets. Next you'll choose a weapon, which brings new cards to your strip.")
+                    "You've seen every result: hit, miss, combo, critical miss and critical, and how an enemy's strip fires and "
+                    + "resets. Next you'll choose a weapon, which brings new cards to your strip.")
             };
 
             return new TrainingGroundTutorialScript(events, intro, outro);
