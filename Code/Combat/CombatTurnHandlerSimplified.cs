@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Combat;
@@ -374,6 +374,11 @@ namespace RPGGame
             bool freeAction = false)
         {
             var tutorialApplied = ApplyTrainingGroundTutorialEvent(player, tutorialScript, player);
+            // The script's last hero beat is the critical hit that ends the lesson ("the kill"). PUNCH is too weak to
+            // finish the dummy by itself, and a dummy left standing turned the tutorial into a long random fight.
+            if (tutorialApplied && tutorialScript!.HasNoneLeftFor(player)
+                && PreWeaponTrainingFlow.IsTrainingDummy(currentEnemy) && currentEnemy.IsAlive && currentEnemy.CurrentHealth > 1)
+                currentEnemy.CurrentHealth = 1;
             try
             {
                 // Use the new ColoredText system to execute the action

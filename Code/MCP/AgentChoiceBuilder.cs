@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.MCP.Models;
@@ -201,7 +201,8 @@ namespace RPGGame.MCP
 
                 if (!isCustom && !isReset)
                 {
-                    int delta = Math.Abs(d.MinLevel - playerLevel);
+                    // Closest to the hero's level; on a tie prefer the harder one (an L2 hero picks L3 over L1).
+                    int delta = Math.Abs(d.MinLevel - playerLevel) * 2 + (d.MinLevel < playerLevel ? 1 : 0);
                     if (delta < bestDelta)
                     {
                         bestDelta = delta;

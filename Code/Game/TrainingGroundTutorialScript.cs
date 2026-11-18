@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace RPGGame
@@ -103,6 +103,15 @@ namespace RPGGame
         public IReadOnlyList<TutorialCoachNote> OutroNotes { get; }
 
         public void Reset() => Array.Clear(consumed);
+
+        /// <summary>True when <paramref name="actor"/> has no untaken beat left.</summary>
+        public bool HasNoneLeftFor(Actor actor)
+        {
+            for (int i = 0; i < events.Count; i++)
+                if (!consumed[i] && events[i].Matches(actor))
+                    return false;
+            return true;
+        }
 
         /// <summary>Takes <paramref name="actor"/>'s next untaken beat; false when it has none left.</summary>
         public bool TryConsumeForActor(Actor actor, out TrainingGroundTutorialEvent? tutorialEvent)
