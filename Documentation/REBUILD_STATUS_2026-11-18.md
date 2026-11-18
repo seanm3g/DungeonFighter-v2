@@ -33,7 +33,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | 1.5 Crit amplifies effects | done | `5d8bd70a` | 15213 passed / 0 failed |
 | 1.7 Simple / detailed log | done | `1f99d974` | 15217 passed / 0 failed |
 | 1.8 First 60 seconds | done | `cf810c72` | 15220 passed / 0 failed |
-| 1.9 Level 1 fights ~2 swings | done | (this commit) | 15220 passed / 0 failed |
+| 1.9 Level 1 fights ~2 swings | done | `0b27b695` | 15220 passed / 0 failed |
+| 1.2 Audio split | done | (this commit) | 15235 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -170,6 +171,18 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
   I tried 0.12 first: still one swing (8–9 HP).
 - MCP walk at 0.2, three fresh Barbarians, first dungeon: fights took 2, 2, 2, 3, 1, 1 hero swings. No sims run.
 - Tests: new `FirstFightsTests` (switch defaults, the floor raises level 1 only, level 2 unchanged).
+
+### 1.2 Audio split — done
+- Hero hits keep their sounds (rising combo notes, the strike jingle on the last slot, crit). Enemy hits on you now
+  split: a plain hit plays `Combat_HeroHurt` (as before); an enemy **combo** link plays new cues
+  `Combat_EnemyChainStep1..3`, low thuds that deepen for three links and then hold (your chain climbs seven notes),
+  at volume 0.6 / 0.65 / 0.7. Unbound, they fall back to `Combat_HeroHurt`.
+- Assets: three new synthesized files, `GameData/Audio/SFX/enemy_thud1..3.wav` (a pitch-dropping sine thud with a
+  short noise transient). **REVIEW:** placeholders; swap in real impact sounds when you have them. The bindings ship
+  in code (`AudioConfig.DefaultBindingFor`) because audio patches are gitignored; your own audio patch still wins.
+- Tests: new `AudioSplitTests`. `AudioCueDispatcherTests`' enemy-hit test now uses a plain hit (an enemy combo hit
+  plays its thud by design). Also fixed here: `AgentGameplayTests.AdvanceToDungeonSelection` still typed the old
+  path-intro and inventory inputs; it now follows the 1.8 flow (offer → weapon → first dungeon → selection).
 
 ## Questions for the user
 - **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the

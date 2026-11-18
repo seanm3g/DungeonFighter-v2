@@ -262,9 +262,21 @@ namespace RPGGame.Audio
                 if (cue == AudioCue.None) continue;
                 string key = cue.ToString();
                 if (!CueMap.ContainsKey(key))
-                    CueMap[key] = new AudioCueBinding();
+                    CueMap[key] = DefaultBindingFor(cue);
             }
         }
+
+        /// <summary>
+        /// Shipped binding for a cue no audio patch mentions yet. Rebuild 1.2 (D9.6): the enemy chain thuds ship with the
+        /// game, a little quieter than the hero's chain. Everything else starts unbound.
+        /// </summary>
+        public static AudioCueBinding DefaultBindingFor(AudioCue cue) => cue switch
+        {
+            AudioCue.Combat_EnemyChainStep1 => new AudioCueBinding { File = "SFX/enemy_thud1.wav", Volume = 0.6f, RateLimitMs = 80 },
+            AudioCue.Combat_EnemyChainStep2 => new AudioCueBinding { File = "SFX/enemy_thud2.wav", Volume = 0.65f, RateLimitMs = 80 },
+            AudioCue.Combat_EnemyChainStep3 => new AudioCueBinding { File = "SFX/enemy_thud3.wav", Volume = 0.7f, RateLimitMs = 80 },
+            _ => new AudioCueBinding()
+        };
 
         /// <summary>Persists cue bindings to the active audio patch and bus prefs to general settings.</summary>
         public bool Save()

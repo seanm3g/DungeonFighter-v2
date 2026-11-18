@@ -53,14 +53,30 @@ namespace RPGGame.Actions.Execution
 
         private static AudioCue ResolveHitCue(Actor source, Actor target, bool isCombo, bool isCritical)
         {
-            if (source is Enemy && target is Character and not Enemy)
-                return AudioCue.Combat_HeroHurt;
+            if (source is Enemy enemySource && target is Character and not Enemy)
+                return isCombo ? ResolveEnemyChainCue(enemySource) : AudioCue.Combat_HeroHurt;
 
             if (isCritical) return AudioCue.Combat_CriticalHit;
             if (!isCombo) return AudioCue.Combat_Hit;
             return source is Character hero and not Enemy
                 ? ResolveComboStepCue(hero)
                 : AudioCue.Combat_ComboComplete;
+        }
+
+        /// <summary>0-based link of each enemy's last combo hit on the hero.</summary>
+        private static readonly ConditionalWeakTable<Character, StrongBox<int>> enemyChainLinkByEnemy = new();
+
+        /// <summary>
+        /// Rebuild 1.2 (D9.6): the enemy's chain sounds like you being hit, a thud per link that deepens for three links
+        /// and then holds (it escalates less than the hero's seven notes). A chain (re)starts on the strip's first slot.
+        /// </summary>
+        internal static AudioCue ResolveEnemyChainCue(Enemy enemy)
+        {
+            int count = enemy.GetComboActions().Count;
+            int slot = count <= 0 ? 0 : ((enemy.ComboStep % count) + count) % count;
+            var link = enemyChainLinkByEnemy.GetValue(enemy, _ => new StrongBox<int>(-1));
+            link.Value = slot == 0 || link.Value < 0 ? 0 : link.Value + 1;
+            return AudioCueExtensions.EnemyChainCueForLink(link.Value);
         }
 
         /// <summary>0-based note of each hero's last combo hit; the melody climbs one note per chained hit.</summary>

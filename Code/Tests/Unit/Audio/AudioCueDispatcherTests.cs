@@ -628,9 +628,9 @@ namespace RPGGame.Tests.Unit.Audio
                 ActionEventPublisher.PublishActionHit(
                     new Enemy(name: "Goblin", level: 1, maxHealth: 100, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0),
                     new Character("Hero", 1),
-                    new RPGGame.Action(name: "Savage Combo"),
+                    new RPGGame.Action(name: "Savage Swing"),
                     rollValue: 20,
-                    isCombo: true,
+                    isCombo: false, // Rebuild 1.2: an enemy combo hit plays its chain thud; a plain hit plays hero-hurt
                     isCritical: true);
                 AudioCues.CommitQueued();
 

@@ -148,11 +148,12 @@ namespace RPGGame.Tests.Unit.MCP
         {
             var game = wrapper.Game!;
             await StartNewGameFromMenu(game);
-            await game.HandleInput("2"); // skip training
-            await game.HandleInput("1"); // path intro
-            await game.HandleInput("1"); // weapon
-            await game.HandleInput("0"); // leave the starter inventory -> game loop
-            await game.HandleInput("1"); // enter dungeons
+            await game.HandleInput("2"); // skip training (Rebuild 1.8: no path intro)
+            await game.HandleInput("1"); // weapon: the first dungeon runs straight away (Rebuild 1.8)
+            if (game.CurrentState == GameState.DungeonCompletion)
+                await game.HandleInput("1"); // dungeon selection
+            else if (game.CurrentState == GameState.GameLoop)
+                await game.HandleInput("1"); // enter dungeons
         }
 
         private static int FindCustomDungeonMenuInput(GameCoordinator game)

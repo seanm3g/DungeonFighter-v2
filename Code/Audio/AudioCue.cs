@@ -78,6 +78,14 @@ namespace RPGGame.Audio
         Combat_ComboFinish5,
         Combat_ComboFinish6,
         Combat_ComboFinish7,
+
+        /// <summary>
+        /// Rebuild 1.2 (D9.6): the enemy's chain hitting you, link 1 / 2 / 3+. Thuds and impacts (you being hit), not the
+        /// hero's rising strike notes, and a little quieter so your chain stays the star. Unbound → <see cref="Combat_HeroHurt"/>.
+        /// </summary>
+        Combat_EnemyChainStep1,
+        Combat_EnemyChainStep2,
+        Combat_EnemyChainStep3,
     }
 
     /// <summary>
@@ -114,8 +122,17 @@ namespace RPGGame.Audio
                 or AudioCue.Combat_ComboFinish4 or AudioCue.Combat_ComboFinish5
                 or AudioCue.Combat_ComboFinish6 or AudioCue.Combat_ComboFinish7 => AudioCue.Combat_ComboComplete,
             AudioCue.Combat_ComboComplete => AudioCue.Combat_Hit,
+            AudioCue.Combat_EnemyChainStep1 or AudioCue.Combat_EnemyChainStep2 or AudioCue.Combat_EnemyChainStep3 => AudioCue.Combat_HeroHurt,
             AudioCue.Combat_CriticalHit => AudioCue.Combat_Hit,
             _ => AudioCue.None
+        };
+
+        /// <summary>Enemy chain cue for a 0-based link (links past the third share step 3: the enemy escalates less).</summary>
+        public static AudioCue EnemyChainCueForLink(int link) => link switch
+        {
+            <= 0 => AudioCue.Combat_EnemyChainStep1,
+            1 => AudioCue.Combat_EnemyChainStep2,
+            _ => AudioCue.Combat_EnemyChainStep3
         };
 
         /// <summary>Step cue for a 0-based combo strip slot (slots past the seventh share step 7).</summary>

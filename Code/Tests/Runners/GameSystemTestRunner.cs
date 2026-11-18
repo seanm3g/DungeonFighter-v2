@@ -30,6 +30,7 @@ namespace RPGGame.Tests.Runners
             ("CritAmplifiesEffects", () => CritAmplifiesEffectsTests.RunAllTests()),
             ("CombatLogLevel", () => CombatLogLevelTests.RunAllTests()),
             ("FirstFights", () => FirstFightsTests.RunAllTests()),
+            ("AudioSplit", () => AudioSplitTests.RunAllTests()),
             ("GameInitializer", () => GameInitializerTests.RunAllTests()),
             ("GameInitializationManager", () => GameInitializationManagerTests.RunAllTests()),
             ("GameLoader", () => GameLoaderTests.RunAllTests()),
