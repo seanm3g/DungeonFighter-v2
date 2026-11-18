@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Runtime.CompilerServices;
 using RPGGame.Audio;
 using RPGGame.Combat.Events;
@@ -109,7 +109,7 @@ namespace RPGGame.Actions.Execution
         /// <summary>
         /// Publishes action miss event
         /// </summary>
-        public static CombatEvent PublishActionMiss(Actor source, Actor target, Action action, int rollValue, bool isCriticalMiss = false)
+        public static CombatEvent PublishActionMiss(Actor source, Actor target, Action action, int rollValue, bool isCriticalMiss = false, bool isChainBreak = false)
         {
             var missEvent = new CombatEvent(CombatEventType.ActionMiss, source)
             {
@@ -117,7 +117,8 @@ namespace RPGGame.Actions.Execution
                 Action = action,
                 RollValue = rollValue,
                 IsMiss = true,
-                IsCriticalMiss = isCriticalMiss
+                IsCriticalMiss = isCriticalMiss,
+                IsChainBreak = isChainBreak
             };
             CombatEventBus.Instance.Publish(missEvent);
             AudioCues.QueueForPunchline(isCriticalMiss ? AudioCue.Combat_CriticalMiss : AudioCue.Combat_Miss);

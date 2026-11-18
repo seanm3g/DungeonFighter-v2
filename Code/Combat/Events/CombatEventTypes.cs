@@ -1,4 +1,4 @@
-using RPGGame;
+﻿using RPGGame;
 
 namespace RPGGame.Combat.Events
 {
@@ -42,6 +42,8 @@ namespace RPGGame.Combat.Events
         public bool IsCritical { get; set; }
         public bool IsCriticalMiss { get; set; }
         public bool IsMiss { get; set; }
+        /// <summary>The miss was a free chain roll that fell short of the next combo threshold (D2.8): the chain ends.</summary>
+        public bool IsChainBreak { get; set; }
         public double HealthPercentage { get; set; }
         public string? StatusEffectType { get; set; }
         public string? StatType { get; set; }

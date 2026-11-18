@@ -1,4 +1,4 @@
-using Avalonia.Media;
+﻿using Avalonia.Media;
 using RPGGame;
 using RPGGame.Actions;
 using RPGGame.Combat.Sequence;
@@ -1342,7 +1342,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             else if (miss)
             {
-                title = act.Swing!.IsCriticalMiss ? "CRIT MISS" : "MISS";
+                title = act.Swing!.IsCriticalMiss ? "CRIT MISS" : act.Swing.IsChainBreak ? "CHAIN ENDS" : "MISS";
                 sub = "combo resets to 1";
                 color = act.Swing.IsCriticalMiss ? ThresholdDisplayFormatting.D20ThresholdBarColors.CritMiss : AsciiArtAssets.Colors.Red;
             }
@@ -1421,7 +1421,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                         _ when swing.Source is Environment => swing.Outcome == CombatSequenceSwingOutcome.Miss ? "QUIET" : "STRIKES!",
                         CombatSequenceSwingOutcome.Combo => "ACTION!",
                         CombatSequenceSwingOutcome.Hit => "HIT",
-                        _ => "MISS"
+                        _ => swing.IsChainBreak ? "CHAIN ENDS" : "MISS"
                     };
                     if (swing.IsCritical)
                         word = "CRIT " + word;
@@ -1452,33 +1452,14 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         private void DrawRollRuler(CombatSequenceThresholds bands, CombatSequenceSwingInfo swing, double centerX, int row, int clampX, int clampW)
         {
-            var segments = RPGGame.UI.ComboBoardModel.Ruler(bands, swing.Roll);
-            var parts = new List<(string Text, Color Color)>();
-            foreach (var s in segments)
-            {
-                if (parts.Count > 0)
-                    parts.Add((" │ ", AsciiArtAssets.Colors.DarkGray));
-                Color lit = s.Band switch
-                {
-                    RPGGame.UI.ComboBoardModel.RulerBand.CritMiss => AsciiArtAssets.Colors.Red,
-                    RPGGame.UI.ComboBoardModel.RulerBand.Miss => AsciiArtAssets.Colors.Gray,
-                    RPGGame.UI.ComboBoardModel.RulerBand.Hit => AsciiArtAssets.Colors.White,
-                    RPGGame.UI.ComboBoardModel.RulerBand.Combo => AsciiArtAssets.Colors.Gold,
-                    _ => AsciiArtAssets.Colors.Gold
-                };
-                parts.Add(s.Marked ? ($"[{s.Label}: {swing.Roll}]", lit) : (s.Label, AsciiArtAssets.Colors.DarkGray));
-            }
-            if (RPGGame.UI.ComboBoardModel.HasExtraDie(swing.Source))
-                parts.Add(("  2d20", AsciiArtAssets.Colors.Cyan));
-            int total = parts.Sum(p => p.Text.Length);
-            if (total > clampW)
+            // The roll ladder beside the die already lights the band the roll landed in, so the board keeps only the
+            // extra-die tag here. A full ruler row ran under the NOW card and the ladder (it was clamped to the whole
+            // board) and read as "2020". ComboBoardModel.RulerText still serves the text log.
+            if (!RPGGame.UI.ComboBoardModel.HasExtraDie(swing.Source))
                 return;
-            int rx = Math.Clamp((int)Math.Round(centerX - total / 2.0), clampX, clampX + clampW - total);
-            foreach (var (text, color) in parts)
-            {
-                canvas.AddText(rx, row, text, color);
-                rx += text.Length;
-            }
+            const string tag = "2d20";
+            int rx = Math.Clamp((int)Math.Round(centerX - tag.Length / 2.0), clampX, clampX + clampW - tag.Length);
+            canvas.AddText(rx, row, tag, AsciiArtAssets.Colors.Cyan);
         }
 
         private static string? PickNumber(string text, bool first)

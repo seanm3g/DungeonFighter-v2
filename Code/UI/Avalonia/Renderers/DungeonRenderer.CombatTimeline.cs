@@ -1,4 +1,4 @@
-using Avalonia.Media;
+﻿using Avalonia.Media;
 using RPGGame;
 using RPGGame.Combat.Sequence;
 using RPGGame.UI.Avalonia.Layout;
@@ -587,7 +587,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 return (act.Action.Name ?? "?", BoardHazardColor);
             return act.Swing switch
             {
-                { Outcome: CombatSequenceSwingOutcome.Miss } s => (s.IsCriticalMiss ? "CRIT MISS" : "MISS", AsciiArtAssets.Colors.Red),
+                { Outcome: CombatSequenceSwingOutcome.Miss } s => (s.IsCriticalMiss ? "CRIT MISS" : s.IsChainBreak ? "CHAIN ENDS" : "MISS", AsciiArtAssets.Colors.Red),
                 { Outcome: CombatSequenceSwingOutcome.Hit } s => (s.IsCritical ? "CRIT HIT" : "HIT", AsciiArtAssets.Colors.White),
                 _ => (act.Action.Name ?? "ATTACK", BoardComboBorder)
             };

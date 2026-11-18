@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame.Actions.RollModification;
@@ -65,7 +65,7 @@ namespace RPGGame.Combat.Sequence
             if (!result.Hit)
             {
                 beats.Add(Compare(total, "<", hitMin, ColorPalette.Miss));
-                beats.Add(Plain("MISS", ColorPalette.Miss));
+                beats.Add(Plain(result.IsChainBreak ? "CHAIN ENDS" : "MISS", ColorPalette.Miss));
                 return beats;
             }
 

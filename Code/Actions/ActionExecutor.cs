@@ -45,6 +45,10 @@ namespace RPGGame
         /// <summary>Ladder values used to classify this swing (snapshotted at resolution).</summary>
         public int? ResolvedCritMissThreshold { get; set; }
         public int? ResolvedHitThreshold { get; set; }
+        /// <summary>The roll was a free chain roll (combo step above 0, no plain-hit band, D2.8). A miss on it ends the chain.</summary>
+        public bool WasMidChain { get; set; }
+        /// <summary>A missed free chain roll that wasn't a crit miss: the log says "chain ends", not "misses".</summary>
+        public bool IsChainBreak => WasMidChain && !Hit && !IsCriticalMiss;
         public int? ResolvedComboThreshold { get; set; }
         public int? ResolvedCritThreshold { get; set; }
         /// <summary>Damage formula pieces for the sequence HUD (null when not captured, e.g. multi-hit).</summary>
@@ -198,7 +202,7 @@ namespace RPGGame
             }
             else
             {
-                var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, result.MultiDiceRollDetail);
+                var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, result.MultiDiceRollDetail, result.IsChainBreak);
                 return (missText, missRollInfo);
             }
         }
@@ -257,7 +261,7 @@ namespace RPGGame
             }
             else
             {
-                var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, result.MultiDiceRollDetail);
+                var (missText, missRollInfo) = CombatResults.FormatMissMessageColored(source, target, result.SelectedAction, result.ModifiedBaseRoll, result.RollBonus, result.BaseRoll, result.MultiDiceRollDetail, result.IsChainBreak);
                 string missString = ColoredTextRenderer.RenderAsMarkup(missText) + "\n" + ColoredTextRenderer.RenderAsMarkup(missRollInfo);
                 missString = AppendStructureRollLine(missString, result);
                 results.Add(missString);

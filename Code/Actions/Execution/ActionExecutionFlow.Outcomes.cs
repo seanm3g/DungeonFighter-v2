@@ -1,4 +1,4 @@
-using RPGGame;
+﻿using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Actions;
 using RPGGame.Actions.Conditional;
@@ -512,7 +512,7 @@ namespace RPGGame.Actions.Execution
                     enemyForFumble.Effects.AccumulatePendingActionCadenceBank(payload, layers);
                 }
             }
-            var missEvent = ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction!, result.AttackRoll, result.IsCriticalMiss);
+            var missEvent = ActionEventPublisher.PublishActionMiss(source, target, result.SelectedAction!, result.AttackRoll, result.IsCriticalMiss, result.IsChainBreak);
             if (result.SelectedAction != null)
             {
                 CombatEffectsSimplified.ApplyStatusEffects(

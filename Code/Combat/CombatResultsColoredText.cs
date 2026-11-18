@@ -108,7 +108,8 @@ namespace RPGGame
             int roll, 
             int rollBonus,
             int naturalRoll,
-            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
+            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default,
+            bool chainBreak = false)
         {
             int totalRoll = roll + rollBonus;
             var outcome = CombatOutcome.CreateMiss(action, totalRoll, naturalRoll);
@@ -124,6 +125,12 @@ namespace RPGGame
                 punchBuilder.Add("CRITICAL", ColorPalette.Critical);
                 punchBuilder.AddSpace();
                 punchBuilder.Add("MISS", missColor);
+            }
+            else if (chainBreak)
+            {
+                // A free chain roll that didn't reach the next combo threshold ends the chain (D2.8, D2.10); it is
+                // not a whiff, so the log says so instead of "misses".
+                punchBuilder.Add("the chain ends", missColor);
             }
             else
             {

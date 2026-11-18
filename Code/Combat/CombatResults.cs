@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RPGGame.Actions.RollModification;
 using RPGGame.Combat.Calculators;
@@ -188,9 +188,9 @@ namespace RPGGame
         /// </summary>
         public static (List<ColoredText> missText, List<ColoredText> rollInfo) FormatMissMessageColored(
             Actor attacker, Actor target, Action action, int roll, int rollBonus, int naturalRoll,
-            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default)
+            Actions.RollModification.MultiDiceRollDetail multiDiceDetail = default, bool chainBreak = false)
         {
-            return CombatResultsColoredText.FormatMissMessageColored(attacker, target, action, roll, rollBonus, naturalRoll, multiDiceDetail);
+            return CombatResultsColoredText.FormatMissMessageColored(attacker, target, action, roll, rollBonus, naturalRoll, multiDiceDetail, chainBreak);
         }
         
         /// <summary>

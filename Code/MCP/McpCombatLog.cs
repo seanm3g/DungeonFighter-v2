@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RPGGame.Combat.Events;
 
@@ -24,7 +24,7 @@ namespace RPGGame.MCP
             public Actor? Target;
             public string ActionName = "";
             public int Roll;
-            public bool Combo, Crit, Hit, Miss;
+            public bool Combo, Crit, Hit, Miss, ChainBreak;
         }
 
         public McpCombatLog(OutputCapture output, Func<Character?> hero)
@@ -33,7 +33,7 @@ namespace RPGGame.MCP
             _hero = hero;
             _onExecuted = OnExecuted;
             _onHit = e => { if (Matches(e)) { _pending!.Hit = true; _pending.Combo |= e.IsCombo; _pending.Crit |= e.IsCritical; } };
-            _onMiss = e => { if (Matches(e)) _pending!.Miss = true; };
+            _onMiss = e => { if (Matches(e)) { _pending!.Miss = true; _pending.ChainBreak |= e.IsChainBreak; } };
             _onStatus = OnStatus;
             // The game already writes "<enemy> has been defeated!"; just close the last swing first.
             _onDied = _ => Flush();
@@ -106,7 +106,7 @@ namespace RPGGame.MCP
 
             var hero = _hero();
             string who = p.Source is Enemy ? p.Source.Name : p.Source is Character ? "Hero" : $"[Room] {p.Source?.Name}";
-            string outcome = p.Miss && !p.Hit ? "miss" : p.Crit ? "CRIT" : p.Combo ? "COMBO" : p.Hit ? "hit" : "";
+            string outcome = p.Miss && !p.Hit ? (p.ChainBreak ? "chain ends" : "miss") : p.Crit ? "CRIT" : p.Combo ? "COMBO" : p.Hit ? "hit" : "";
             string roll = p.Roll > 0 ? $" roll {p.Roll}" : "";
             string actionName = p.ActionName.Length > 0 ? p.ActionName : "attack";
             var parts = new List<string> { $"{who}: {actionName}{roll}{(outcome.Length > 0 ? " " + outcome : "")}" };

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using RPGGame.Combat.Calculators;
 using RPGGame.Combat.UI;
 using RPGGame.UI.ColorSystem;
@@ -198,7 +198,7 @@ namespace RPGGame.Combat.Sequence
                 && result.ResolvedHitThreshold is int hit && result.ResolvedCritMissThreshold is int critMiss)
                 thresholds = new CombatSequenceThresholds(crit, combo, hit + 1, critMiss);
             var swing = new CombatSequenceSwingInfo(source, selected, roll, outcome, result.IsCritical, result.Hit ? result.Damage : 0, thresholds,
-                isCriticalMiss: !result.Hit && result.IsCriticalMiss);
+                isCriticalMiss: !result.Hit && result.IsCriticalMiss, isChainBreak: result.IsChainBreak);
             for (int i = firstStep; i < steps.Count; i++)
                 steps[i].Swing = swing;
         }

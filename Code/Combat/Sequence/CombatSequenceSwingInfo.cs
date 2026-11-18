@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame.Combat.Sequence
@@ -22,9 +22,10 @@ namespace RPGGame.Combat.Sequence
     public sealed class CombatSequenceSwingInfo
     {
         public CombatSequenceSwingInfo(Actor source, Action action, int roll, CombatSequenceSwingOutcome outcome, bool isCritical, int damage,
-            CombatSequenceThresholds? thresholds = null, bool isCriticalMiss = false)
+            CombatSequenceThresholds? thresholds = null, bool isCriticalMiss = false, bool isChainBreak = false)
         {
             Thresholds = thresholds;
+            IsChainBreak = isChainBreak;
             IsCriticalMiss = isCriticalMiss;
             Source = source;
             Action = action;
@@ -43,6 +44,8 @@ namespace RPGGame.Combat.Sequence
         public CombatSequenceSwingOutcome Outcome { get; }
         public bool IsCritical { get; }
         public bool IsCriticalMiss { get; }
+        /// <summary>A missed free chain roll (D2.8): the board says CHAIN ENDS instead of MISS.</summary>
+        public bool IsChainBreak { get; }
         public int Damage { get; }
 
         /// <summary>Thresholds in force for this roll (null when execution did not record them).</summary>

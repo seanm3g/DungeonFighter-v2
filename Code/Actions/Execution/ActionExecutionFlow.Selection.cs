@@ -1,4 +1,4 @@
-using RPGGame;
+﻿using RPGGame;
 using RPGGame.ActionInteractionLab;
 using RPGGame.Actions.Conditional;
 using RPGGame.Actions.RollModification;
@@ -395,6 +395,8 @@ namespace RPGGame.Actions.Execution
             result.RollBonus = ActionUtilities.CalculateRollBonus(source, result.SelectedAction, consumeRollBonus);
             result.AttackRoll = result.ModifiedBaseRoll + result.RollBonus;
             result.NaturalRollValue = result.ModifiedBaseRoll;
+            result.WasMidChain = source is Character { ComboStep: > 0 }
+                && (GameConfiguration.Instance.ComboSystem?.MissBelowComboMidChain ?? true);
             int hitThreshold = thresholdManager.GetHitThreshold(source);
             int criticalMissThreshold = thresholdManager.GetCriticalMissThreshold(source);
             int critThresholdRoll = CombatCalculator.GetCritThresholdEvaluationRoll(
