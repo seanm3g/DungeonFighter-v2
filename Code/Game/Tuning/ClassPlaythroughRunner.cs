@@ -120,8 +120,13 @@ namespace RPGGame.Tuning
             using var recorder = new PlaythroughFightRecorder(trace);
             var smart = SmartPolicy ? new PlaythroughSmartPolicy(trace) : null;
             var rules = !SmartPolicy && RulesPolicy ? new PlaythroughRulesPolicy(trace) : null;
+            bool straightInBefore = FirstSixtySeconds.StraightIntoFirstDungeon;
             try
             {
+                // A mid-game start (DUNGEONSIM --start-level) raises the hero at the hub, so the weapon pick must not drop
+                // the level-1 hero straight into a dungeon pinned at the start level (Rebuild 1.8 flow).
+                if (StartAtLevel > 1)
+                    FirstSixtySeconds.StraightIntoFirstDungeon = false;
                 // DUNGEONSIM measures one level: offer its dungeons at exactly that level, not anywhere in the region band.
                 if (HoldLevel && StartAtLevel > 1)
                     DungeonManagerWithRegistry.HeadlessFixedDungeonLevel = StartAtLevel;
@@ -318,6 +323,7 @@ namespace RPGGame.Tuning
             }
             finally
             {
+                FirstSixtySeconds.StraightIntoFirstDungeon = straightInBefore;
                 DungeonExitChoiceHandler.HeadlessExitPolicy = null;
                 DungeonManagerWithRegistry.HeadlessFixedDungeonLevel = null;
                 session?.Dispose();
