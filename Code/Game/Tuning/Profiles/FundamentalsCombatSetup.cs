@@ -56,6 +56,13 @@ namespace RPGGame.Tuning.Profiles
             character.EquipItem(weapon, "weapon");
             if (string.Equals(config.Gear, "typical", StringComparison.OrdinalIgnoreCase))
                 EquipTypicalGear(character, weaponType, level);
+            // SEQLAB --material Bone: every worn piece is that material, so the hero forms its set and mints its store.
+            if (!string.IsNullOrWhiteSpace(ForcedMaterial))
+            {
+                foreach (var worn in new Item?[] { character.Weapon, character.Head, character.Body, character.Legs, character.Feet })
+                    if (worn != null)
+                        worn.Material = ForcedMaterial;
+            }
             // STATVALUE: synthetic stat lines on the weapon to price one stat in isolation. The typical-gear weapon is a
             // shared cached item, so the lines are removed again once the hero is serialized (else every later row inherits them).
             var syntheticStatLines = new List<StatBonus>();
@@ -127,6 +134,9 @@ namespace RPGGame.Tuning.Profiles
 
         /// <summary>Stat lines added to the fundamentals hero's weapon (STATVALUE).</summary>
         public static List<StatBonus> ExtraWeaponStatBonuses { get; } = new();
+
+        /// <summary>SEQLAB / ACTIONVALUE <c>--material</c>: every worn piece takes this material (null = gear as rolled).</summary>
+        public static string? ForcedMaterial { get; set; }
 
         private static readonly Dictionary<(WeaponType, int), List<Item>> TypicalGearCache = new();
 

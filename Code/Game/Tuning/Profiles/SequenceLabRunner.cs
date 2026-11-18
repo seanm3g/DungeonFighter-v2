@@ -120,6 +120,7 @@ namespace RPGGame.Tuning.Profiles
         {
             FundamentalsMatrixRunner.ApplySetFlags(args);
             Gear = TuningCliArgs.GetFlagValue(args, "--gear") ?? "none";
+            FundamentalsCombatSetup.ForcedMaterial = TuningCliArgs.GetFlagValue(args, "--material");
             string weapon = TuningCliArgs.GetFlagValue(args, "--weapon", "-w") ?? "Sword";
             string enemy = TuningCliArgs.GetFlagValue(args, "--enemy") ?? "Goblin";
             int level = TuningCliArgs.GetIntFlag(args, "--level") ?? 1;
@@ -163,6 +164,7 @@ namespace RPGGame.Tuning.Profiles
         {
             FundamentalsMatrixRunner.ApplySetFlags(args);
             Gear = TuningCliArgs.GetFlagValue(args, "--gear") ?? "none";
+            FundamentalsCombatSetup.ForcedMaterial = TuningCliArgs.GetFlagValue(args, "--material");
             int level = TuningCliArgs.GetIntFlag(args, "--level") ?? 1;
             int encounters = TuningCliArgs.GetIntFlag(args, "--encounters", "-e") ?? 150;
             int seed = TuningCliArgs.GetSeedFlag(args) ?? 1;
