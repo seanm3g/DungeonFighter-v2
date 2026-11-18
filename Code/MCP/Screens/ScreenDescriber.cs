@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Handlers.Inventory;
@@ -179,6 +179,8 @@ namespace RPGGame.MCP.Screens
 
             view.Body.Add($"Action sequence ({hero.GetComboActions().Count}/{ComboSequenceMaxHelper.GetEffectiveMax(hero)} slots): "
                 + string.Join(" > ", hero.GetComboActions().Select(a => a.Name)));
+            if (StripSlotPrompt.HintLine(hero) is { } stripHint)
+                view.Body.Add(stripHint);
 
             view.Choices.Add(new AgentChoice { Input = "1", Label = "Equip an item (opens the bag picker, then a side-by-side comparison)", Recommended = inventory.Count > 0 });
             view.Choices.Add(new AgentChoice { Input = HubTabBar.ActionsToken, Label = "Edit the action sequence (combo strip)" });
@@ -536,6 +538,8 @@ namespace RPGGame.MCP.Screens
             }
             var combo = hero.GetComboActions();
             lines.Add($"Action sequence ({combo.Count}/{ComboSequenceMaxHelper.GetEffectiveMax(hero)}): {string.Join(" > ", combo.Select(a => a.Name))}");
+            if (StripSlotPrompt.HintLine(hero) is { } stripHint)
+                lines.Add(stripHint);
             int points = AvailableSkillPoints(hero);
             if (points > 0)
                 lines.Add($"Unspent skill points: {points}.");

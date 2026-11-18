@@ -1,4 +1,4 @@
-namespace RPGGame.UI.Avalonia.Renderers.Inventory
+﻿namespace RPGGame.UI.Avalonia.Renderers.Inventory
 {
     using System;
     using System.Collections.Generic;
@@ -78,6 +78,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         {
             bool tradeUpDisabled = character != null && active != HubTab.TradeUp
                 && !InventoryTradeUpHandler.CanTradeUp(character.Inventory);
+            // An open strip slot with a spare action to fill it marks the Actions tab (prompt only, nothing auto-fills).
+            bool actionsPrompt = character != null && active != HubTab.Actions && StripSlotPrompt.ShouldPrompt(character);
             Color frame = frameColor ?? PanelJoin.Border(AsciiArtAssets.Colors.Cyan);
             double baseY = y + 1.5;
             double frameLeft = joinedFrame ? PanelJoin.CenterFrameLeft : LayoutConstants.CENTER_PANEL_X;
@@ -92,10 +94,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             {
                 bool isActive = tab == active;
                 bool disabled = locked || (tradeUpDisabled && tab == HubTab.TradeUp);
-                string text = $"  {label}  ";
+                bool marked = actionsPrompt && tab == HubTab.Actions;
+                string text = marked ? $" •{label}  " : $"  {label}  ";
                 if (cx + text.Length > right)
                     break;
-                Color color = isActive
+                Color color = isActive || marked
                     ? AsciiArtAssets.Colors.Gold
                     : disabled ? AsciiArtAssets.Colors.DarkGray : AsciiArtAssets.Colors.Gray;
                 canvas.AddText(cx, y, text, color);

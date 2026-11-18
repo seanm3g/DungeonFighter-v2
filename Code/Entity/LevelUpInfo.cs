@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace RPGGame
 {
@@ -16,6 +16,8 @@ namespace RPGGame
         public string? ClassPointsInfo { get; set; }
         public string? ClassUpgradeInfo { get; set; }
         public int ActionSlotIncrease { get; set; }
+        /// <summary>Set when the hero has an open strip slot and a spare action for it (<see cref="StripSlotPrompt"/>).</summary>
+        public string? StripHint { get; set; }
         public bool HasWeapon { get; set; }
         /// <summary>Available Skill Points on the weapon path after this level-up award.</summary>
         public int SkillPointsAvailable { get; set; }

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Avalonia.Media;
 using RPGGame;
 using RPGGame.UI.ColorSystem;
@@ -37,6 +37,8 @@ namespace RPGGame.UI.ColorSystem.Applications
                     lines.Add(BuildUnspentSkillPointsHint());
                 if (info.ActionSlotIncrease > 0)
                     lines.Add(BuildActionSlotLine(info.ActionSlotIncrease));
+                if (!string.IsNullOrEmpty(info.StripHint))
+                    lines.Add(ColoredTextBuilder.Start().Add(info.StripHint, ColorPalette.Gold).Build());
                 if (!string.IsNullOrEmpty(info.ClassUpgradeInfo))
                     lines.Add(BuildNextUpgradesLine(info.ClassUpgradeInfo));
             }

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using RPGGame.Audio;
 using RPGGame.Combat.Calculators;
@@ -206,7 +206,8 @@ namespace RPGGame
                 ActionSlotIncrease = actionSlotIncrease,
                 HasWeapon = true,
                 AwardedSkillPoint = true,
-                SkillPointsAvailable = available
+                SkillPointsAvailable = available,
+                StripHint = StripSlotPrompt.HintLine(_character)
             };
             
             // Build class points info
