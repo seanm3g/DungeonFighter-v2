@@ -214,7 +214,11 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         /// <summary>Equipped slot the inventory description pane shows (gold frame); set by the inventory screen state.</summary>
         public static string? SelectedSlot { get; set; }
 
-        private static readonly (string Slot, string Label, int Col, int Row)[] Slots =
+        /// <summary>The paper doll's tiles; the charm tile only while charms are on (Rebuild 2.5).</summary>
+        private static (string Slot, string Label, int Col, int Row)[] Slots =>
+            LootSystemConfig.CharmSlotOn ? AllSlots : AllSlots.Where(s => s.Slot != "charm").ToArray();
+
+        private static readonly (string Slot, string Label, int Col, int Row)[] AllSlots =
         {
             ("head", "Head", 1, 0),
             ("weapon", "Weapon", 0, 1),

@@ -12,7 +12,11 @@ namespace RPGGame.MCP.Screens
     /// </summary>
     public static class McpText
     {
-        public static readonly string[] EquipSlots = { "weapon", "head", "body", "legs", "feet", "charm" };
+        private static readonly string[] AllEquipSlots = { "weapon", "head", "body", "legs", "feet", "charm" };
+        private static readonly string[] EquipSlotsNoCharm = { "weapon", "head", "body", "legs", "feet" };
+
+        /// <summary>The equipment slots in play (no charm while charms are off, Rebuild 2.5).</summary>
+        public static string[] EquipSlots => LootSystemConfig.CharmSlotOn ? AllEquipSlots : EquipSlotsNoCharm;
 
         /// <summary>Full item tooltip as plain lines (name, rarity, stats, lines, base modifier, triggers, requirements).</summary>
         public static List<string> ItemLines(Character? hero, Item? item, string slotLabel = "Inventory", int maxLines = 40)

@@ -10,7 +10,16 @@ namespace RPGGame.Tests.Unit.Combat
     {
         private static int _run, _passed, _failed;
 
+        /// <summary>Charms are off since Rebuild 2.5 (D4.7); these cover the switched-off slot with it on.</summary>
         public static void RunAllTests()
+        {
+            bool oldCharms = GameConfiguration.Instance.LootSystem.CharmsEnabled;
+            GameConfiguration.Instance.LootSystem.CharmsEnabled = true;
+            try { RunAllTestsWithCharms(); }
+            finally { GameConfiguration.Instance.LootSystem.CharmsEnabled = oldCharms; }
+        }
+
+        private static void RunAllTestsWithCharms()
         {
             Console.WriteLine("=== Charm Slot + Animal Ladder Tests ===\n");
             _run = _passed = _failed = 0;

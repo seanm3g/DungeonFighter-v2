@@ -154,6 +154,12 @@ namespace RPGGame.Entity.Services
             character.Equipment.Weapon = ItemTypeConverter.ConvertItemToProperType(saveData.Weapon) as WeaponItem;
             character.Equipment.Feet = ItemTypeConverter.ConvertItemToProperType(saveData.Feet);
             character.Equipment.Charm = ItemTypeConverter.ConvertItemToProperType(saveData.Charm);
+            // Rebuild 2.5 save migration: with charms off, an equipped charm moves to the bag (the slot is off).
+            if (!LootSystemConfig.CharmSlotOn && character.Equipment.Charm != null)
+            {
+                character.Equipment.Inventory.Add(character.Equipment.Charm);
+                character.Equipment.Charm = null;
+            }
 
             // New characters have an empty strip; rebuild the pool, then restore the saved order
             // (or fall back to InitializeDefaultCombo inside RebuildCharacterActions).

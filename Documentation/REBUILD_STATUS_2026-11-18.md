@@ -37,7 +37,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | 1.2 Audio split | done | `28dc087f` | 15235 passed / 0 failed |
 | 1.1 The board | done, not seen on screen | `df423b8a` | 15253 passed / 0 failed |
 | Step 1 MCP walk | done | — | see "Step 1 walk" |
-| 2.1 Commons are plain | done, 1 question | (this commit) | 15269 passed / 0 failed |
+| 2.1 Commons are plain | done, 1 question | `ed0a8603` | 15269 passed / 0 failed |
+| 2.5 Charms off | done | (this commit) | 15273 passed / 0 failed |
 
 ## Step 0 — Foundation
 
@@ -231,6 +232,18 @@ approval), so the visual result is unverified. Please look at one fight first th
 - Tests: new `CommonItemRulesTests` (migration, starters, a new hero's kit). `ItemRollerTests` updated where the
   decision changed them: Commons no longer "always an action" or "carry the base modifier", and the "Common = its
   action + one suffix" check is now "stats and a material only".
+
+### 2.5 Charms off — done
+- New switch `lootSystem.charmsEnabled` (default **false**). While off: no charm drops (`LootGenerator.TryRollCharmLoot`),
+  the charm slot refuses gear ("Charms are off for now."), the inventory paper doll and the MCP slot lists drop the
+  charm tile, and a loaded save's equipped charm moves to the bag (the Phase 10 migration row). `Charms.json` and the
+  charm code stay for step 12.
+- Not hidden yet: the inventory's slot filter still cycles through "charm" (it just finds nothing). Small, left for
+  step 12's cleanup.
+- Tests: new `CharmsOffTests` (no drops in 400 rolls, the slot refuses, MCP, save migration). The two charm suites
+  (`CharmAndAnimalLadderTests`, `LeftPanelTooltipBuilderTests`) now run with charms switched on.
+- A `StableManagerTests` play-by-play check failed once in this run's first pass and passed 3/3 on rerun: flaky
+  (it depends on a room having a fight), not caused by this change.
 
 ## Questions for the user
 - **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the

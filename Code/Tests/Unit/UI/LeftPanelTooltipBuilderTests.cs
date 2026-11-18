@@ -8,7 +8,16 @@ namespace RPGGame.Tests.Unit.UI
 {
     public static class LeftPanelTooltipBuilderTests
     {
+        /// <summary>Charms are off since Rebuild 2.5 (D4.7); these cover the switched-off slot with it on.</summary>
         public static void RunAllTests()
+        {
+            bool oldCharms = GameConfiguration.Instance.LootSystem.CharmsEnabled;
+            GameConfiguration.Instance.LootSystem.CharmsEnabled = true;
+            try { RunAllTestsWithCharms(); }
+            finally { GameConfiguration.Instance.LootSystem.CharmsEnabled = oldCharms; }
+        }
+
+        private static void RunAllTestsWithCharms()
         {
             // Rules under test use fixed numbers; keep the active balance patch out of them.
             using var codeDefaults = RPGGame.Tests.TestConfigScope.CodeDefaults();
@@ -139,6 +148,7 @@ namespace RPGGame.Tests.Unit.UI
 
             var boots = new FeetItem("Striders", tier: 1, armor: 2) { ExtraActionSlots = 2 };
             c.EquipItem(boots, "feet");
+            GameConfiguration.Instance.LootSystem.CharmsEnabled = true; // config may have reloaded since RunAllTests set it
             var equippedCharm = new CharmItem("Menagerie Charm", tier: 1);
             c.EquipItem(equippedCharm, "charm");
             TestBase.AssertTrue(ReferenceEquals(c.Equipment.GetSlotItem("charm"), equippedCharm),

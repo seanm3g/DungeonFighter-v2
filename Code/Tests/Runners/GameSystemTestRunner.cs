@@ -33,6 +33,7 @@ namespace RPGGame.Tests.Runners
             ("AudioSplit", () => AudioSplitTests.RunAllTests()),
             ("ComboBoardModel", () => ComboBoardModelTests.RunAllTests()),
             ("CommonItemRules", () => CommonItemRulesTests.RunAllTests()),
+            ("CharmsOff", () => CharmsOffTests.RunAllTests()),
             ("GameInitializer", () => GameInitializerTests.RunAllTests()),
             ("GameInitializationManager", () => GameInitializationManagerTests.RunAllTests()),
             ("GameLoader", () => GameLoaderTests.RunAllTests()),

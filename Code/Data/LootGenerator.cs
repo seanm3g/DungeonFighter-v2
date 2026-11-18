@@ -77,7 +77,7 @@ namespace RPGGame
         /// </summary>
         public static CharmItem? TryRollCharmLoot(Random? rng = null)
         {
-            if (CharmsLoader.GetAll().Count == 0)
+            if (!LootSystemConfig.CharmSlotOn || CharmsLoader.GetAll().Count == 0)
                 return null;
             rng ??= RandomUtility.Ambient;
             if (rng.NextDouble() >= 0.05)

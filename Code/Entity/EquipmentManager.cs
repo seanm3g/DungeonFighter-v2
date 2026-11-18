@@ -32,6 +32,11 @@ namespace RPGGame
             bool ignoreAttributeRequirements = false)
         {
             replacedItem = null;
+            if (!LootSystemConfig.CharmSlotOn && (string.Equals(slot, "charm", StringComparison.OrdinalIgnoreCase) || item.Type == ItemType.Charm))
+            {
+                failureReason = "Charms are off for now.";
+                return false;
+            }
             failureReason = ignoreAttributeRequirements ? null : item.GetEquipBlockedReason(_character);
             if (failureReason != null)
                 return false;

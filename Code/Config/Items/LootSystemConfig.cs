@@ -15,6 +15,15 @@ namespace RPGGame
         /// <summary>Hard cap on combo sequence length after gear ExtraActionSlots (catalog + affix + StatBonuses), class-tier upgrades, and Wand intrinsic bonus (<see cref="ComboSequenceMaxHelper"/>).</summary>
         public int ComboSequenceAbsoluteMax { get; set; } = 8;
 
+        /// <summary>
+        /// Rebuild 2.5 (D4.7): charms are cut for now. While false no charm drops, the charm slot is hidden and refuses
+        /// gear, and a loaded save's equipped charm moves to the bag. True brings the old slot back.
+        /// </summary>
+        public bool CharmsEnabled { get; set; }
+
+        /// <summary>True when the charm slot is in the game (see <see cref="CharmsEnabled"/>).</summary>
+        public static bool CharmSlotOn => GameConfiguration.Instance?.LootSystem?.CharmsEnabled ?? false;
+
         /// <summary>INT threshold for combo sequence unlocks (see <see cref="GameConstants.ComboSequenceIntelligenceThreshold"/>).</summary>
         public int ComboSequenceIntelligenceThreshold { get; set; } = 10;
 
