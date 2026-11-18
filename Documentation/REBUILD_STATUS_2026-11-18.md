@@ -28,7 +28,8 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 | 0.4 Text pipeline + braces | done | `c38b786d` | 15187 passed / 2 failed (baseline) |
 | Step 0 MCP walk | done | — | see "Step 0 walk" |
 | 1.3 One AMP formula | done | `aa2064d1` | 15196 passed / 0 failed* |
-| 1.4 INT 10 routing gate removed | done | (this commit) | 15196 passed / 0 failed |
+| 1.4 INT 10 routing gate removed | done | `f3fe9d30` | 15196 passed / 0 failed |
+| 1.6 Chain rules confirmed | done, 1 question | (this commit) | ChainRulesConfig 10/10 |
 
 ## Step 0 — Foundation
 
@@ -105,5 +106,17 @@ I restore it with `git checkout` after every run; it never goes into a commit. W
 - Tests: the three legacy gate tests in `ActionSequenceTests` now run with the switch on; a new one checks an INT 1
   hero routes by default.
 
+### 1.6 Chain rules confirmed — done, with one question
+- Checked in code and in the active config: a combo roll earns a free action (`freeActionOnComboHit`), no HIT band
+  mid-chain (`missBelowComboMidChain`), +1 per link from slot 2 (`comboThresholdRisePerSlot` 1, start slot 2),
+  g = 0.25 (`comboChainGrowth`), and no loop (`CombatTurnHandlerSimplified` ends the chain when the step wraps to
+  slot 1; only cards loop). New `ChainRulesConfigTests` pins the code defaults and the active values.
+- **Mismatch:** D2.1 says a plain HIT resets the chain "as today", and the code default is `true`, but the active
+  chain sets `comboSystem.resetChainOnNormalHit = false` (from `slotrise-v46a`, inherited by `night-v47-6b`). I did
+  not change the patch (out of scope). In practice a turn's chain already resets on a failed bonus roll and at the
+  strip end, so this only matters when a rule keeps the chain alive across turns (EXEMPT COMBO). See Q1.
+
 ## Questions for the user
-_(none yet)_
+- **Q1 (D2.1):** the active patch chain turns `comboSystem.resetChainOnNormalHit` off. Should a plain HIT reset the
+  chain as D2.1 says? If yes, the fix is one line in the next patch (`"resetChainOnNormalHit": true`) or I can make
+  the rule code-only and ignore the patch value. Which do you want?

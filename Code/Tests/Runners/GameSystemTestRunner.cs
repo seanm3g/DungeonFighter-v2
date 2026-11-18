@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Runners
             ("SystemUnlocks", () => SystemUnlocksTests.RunAllTests()),
             ("RuleText", () => RuleTextTests.RunAllTests()),
             ("SingleAmpFormula", () => SingleAmpFormulaTests.RunAllTests()),
+            ("ChainRulesConfig", () => ChainRulesConfigTests.RunAllTests()),
             ("GameInitializer", () => GameInitializerTests.RunAllTests()),
             ("GameInitializationManager", () => GameInitializationManagerTests.RunAllTests()),
             ("GameLoader", () => GameLoaderTests.RunAllTests()),
