@@ -205,11 +205,10 @@ namespace RPGGame
                 if (combatEvent.Type == CombatEventType.ActionHit && !combatEvent.IsMiss)
                 {
                     MaterialSetController.SpendConvertBank(heroSynth, action);
-                    VerbPresets.OnConnect(heroSynth, target, action, combatEvent.NaturalRollValue, combatEvent.IsCritical);
+                    VerbPresets.OnConnect(heroSynth, target, action);
                 }
                 if (combatEvent.Type == CombatEventType.ActionHit || combatEvent.Type == CombatEventType.ActionMiss)
                 {
-                    VerbPresets.TickInvestments(heroSynth);
                     ActionCost.Pay(heroSynth, action);
                     AffixTemplates.PayActionCosts(heroSynth);
                 }

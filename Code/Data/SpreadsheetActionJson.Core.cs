@@ -79,7 +79,7 @@ namespace RPGGame.Data
         [JsonPropertyName("scaleFormula")]
         public string ScaleFormula { get; set; } = "";
 
-        /// <summary>Verb preset spec (<c>CASH ATTUNED 75</c>, <c>DETONATE 100</c>, …); see <see cref="RPGGame.VerbSpec"/>.</summary>
+        /// <summary>Verb preset spec (<c>CASH FULLEST 75</c>, <c>DETONATE 100</c>, …); see <see cref="RPGGame.VerbSpec"/>.</summary>
         [JsonPropertyName("verb")]
         public string Verb { get; set; } = "";
 

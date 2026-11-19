@@ -474,6 +474,16 @@ namespace RPGGame
                 { "WHIRLWIND", "WHETSTONE" },
                 // Vulnerability folded into Expose (2026-11-11): the VULNERABILITY action was an EXPOSE duplicate.
                 { "VULNERABILITY", "EXPOSE" },
+                // Retired verbs (D6.4, 2026-11-19): CASH IN and DETONATE are the generic verbs; the rest load as the nearest one.
+                { "LIQUIDATE", "CASH IN" },
+                { "RECKONING", "CASH IN" },
+                { "INDEX", "CASH IN" },
+                { "MARK", "CASH IN" },
+                { "TRANSMUTE", "CASH IN" },
+                { "INVEST", "CASH IN" },
+                { "PALM", "CASH IN" },
+                { "BARRIER", "BULWARK" },
+                { "DISTILL", "DETONATE" },
             };
 
             if (_actions == null)

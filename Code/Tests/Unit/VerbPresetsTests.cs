@@ -35,23 +35,13 @@ namespace RPGGame.Tests.Unit
                 combat.VerbScaleMaxPercent = 100;
                 combat.MaterialConvertMaxUnits = 0;
 
-                TestAttunementDominantMaterial();
-                TestAttunementTieGoesToWeapon();
+                TestFullestStore();
                 TestSpecParse();
-                TestCashInAttuned(combat);
-                TestReckoningScalesWithoutSpending();
+                TestCashInFullest(combat);
                 TestDetonateSpendsLargestStatus();
-                TestLiquidateSpendsEveryMint();
-                TestIndexCountsDistinctMaterials();
-                TestDamageCalculatorAddsVerbBonus();
-                TestApplyMark();
-                TestBarrier();
-                TestDistill();
-                TestTransmute();
-                TestTransmuteRunsConversions(combat);
+                TestDamageCalculatorAddsVerbBonus(combat);
                 TestStatusActions();
-                TestInvestPaysBackLater();
-                TestPalmBanksRoll();
+                TestRetiredVerbsLoadAsReplacements();
                 TestCashIntoParse();
                 TestCashIntoPayouts(combat);
                 TestPresetsInData();
@@ -82,27 +72,27 @@ namespace RPGGame.Tests.Unit
         private static Action Verb(string name, string spec) =>
             new() { Name = name, Verb = spec, DamageMultiplier = 1.0, Type = ActionType.Attack };
 
-        private static void TestAttunementDominantMaterial()
+        private static void TestFullestStore()
         {
-            TestBase.SetCurrentTestName(nameof(TestAttunementDominantMaterial));
-            var hero = Hero("AttuneHero", "Bone", "Glass", "Glass", "Glass");
-            TestBase.AssertEqual("Glass", Attunement.GetMaterial(hero) ?? "", "3 Glass beats 1 Bone weapon", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("GRAZE", Attunement.GetKeyword(hero) ?? "", "attuned keyword is the material's mint", ref _run, ref _passed, ref _failed);
-            TestBase.AssertNull(Attunement.GetMaterial(new Character("Naked", 1)), "no gear, no attunement", ref _run, ref _passed, ref _failed);
-        }
-
-        private static void TestAttunementTieGoesToWeapon()
-        {
-            TestBase.SetCurrentTestName(nameof(TestAttunementTieGoesToWeapon));
-            var hero = Hero("TieHero", "Bone", "Glass", "Glass", "Bone");
-            TestBase.AssertEqual("Bone", Attunement.GetMaterial(hero) ?? "", "2-2 tie goes to the weapon's material", ref _run, ref _passed, ref _failed);
+            TestBase.SetCurrentTestName(nameof(TestFullestStore));
+            var hero = Hero("FullHero", "Bone", "Glass", "Glass", "Glass");
+            TestBase.AssertNull(FullestStore.GetKeyword(hero), "every store empty: nothing to cash", ref _run, ref _passed, ref _failed);
+            hero.Effects.AddMaterialKeyword("RAGE", 3);
+            hero.Effects.AddMaterialKeyword("GRAZE", 2);
+            TestBase.AssertEqual("RAGE", FullestStore.GetKeyword(hero) ?? "", "3 RAGE beats 2 GRAZE, whatever you wear most",
+                ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("Bone", FullestStore.GetMaterial(hero) ?? "", "its material", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(2, FullestStore.CountDistinctMaterials(hero), "Bone, Glass", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestSpecParse()
         {
             TestBase.SetCurrentTestName(nameof(TestSpecParse));
-            var cash = VerbSpec.Parse("CASH ATTUNED 75");
-            TestBase.AssertTrue(cash != null && cash.Kind == VerbKind.Cash && cash.Store == "ATTUNED" && cash.Rate == 75, "CASH ATTUNED 75", ref _run, ref _passed, ref _failed);
+            var cash = VerbSpec.Parse("CASH FULLEST 75");
+            TestBase.AssertTrue(cash != null && cash.Kind == VerbKind.Cash && cash.Store == "FULLEST" && cash.Rate == 75, "CASH FULLEST 75", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("FULLEST", VerbSpec.Parse("CASH ATTUNED 75")?.Store ?? "", "ATTUNED reads as FULLEST", ref _run, ref _passed, ref _failed);
+            foreach (string retired in new[] { "LIQUIDATE 50", "SCALE ATTUNED 50", "INDEX 8", "BARRIER 8", "DISTILL 50", "TRANSMUTE 75", "INVEST ATTUNED 200 2", "PALM" })
+                TestBase.AssertNull(VerbSpec.Parse(retired), $"retired verb {retired} no longer parses", ref _run, ref _passed, ref _failed);
             var det = VerbSpec.Parse("detonate");
             TestBase.AssertTrue(det != null && det.Kind == VerbKind.Detonate && det.Rate == 100, "verb only: rate 100", ref _run, ref _passed, ref _failed);
             var cashBleed = VerbSpec.Parse("CASH bleed 50%");
@@ -111,10 +101,10 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertNull(VerbSpec.Parse(""), "empty is null", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestCashInAttuned(CombatConfig combat)
+        private static void TestCashInFullest(CombatConfig combat)
         {
-            TestBase.SetCurrentTestName(nameof(TestCashInAttuned));
-            var cashIn = Verb("CASH IN", "CASH ATTUNED 75");
+            TestBase.SetCurrentTestName(nameof(TestCashInFullest));
+            var cashIn = Verb("CASH IN", "CASH FULLEST 75");
             var foe = new Character("CashFoe", 5);
 
             combat.MaterialConvertPaysDamage = true;
@@ -122,7 +112,7 @@ namespace RPGGame.Tests.Unit
             hero.Effects.AddMaterialKeyword("RAGE", 4);
             double pct = VerbPresets.GetDamagePercent(hero, foe, VerbPresets.GetSpec(cashIn)!);
             TestBase.AssertTrue(Math.Abs(pct - 15) < 1e-9, $"4 RAGE x 5% x 75% = 15% (got {pct})", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(4, VerbPresets.OnConnect(hero, foe, cashIn), "connect spends the attuned bank", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(4, VerbPresets.OnConnect(hero, foe, cashIn), "connect spends the fullest bank", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, hero.Effects.GetMaterialKeyword("RAGE"), "RAGE is empty after cashing", ref _run, ref _passed, ref _failed);
 
             combat.MaterialConvertPaysDamage = false;
@@ -136,23 +126,8 @@ namespace RPGGame.Tests.Unit
             mixed.Effects.AddMaterialKeyword("RAGE", 3);
             mixed.Effects.AddMaterialKeyword("GRAZE", 2);
             VerbPresets.OnConnect(mixed, foe, cashIn);
-            TestBase.AssertEqual(0, mixed.Effects.GetMaterialKeyword("GRAZE"), "Glass-attuned CASH IN spends GRAZE", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(3, mixed.Effects.GetMaterialKeyword("RAGE"), "and leaves RAGE alone", ref _run, ref _passed, ref _failed);
-        }
-
-        private static void TestReckoningScalesWithoutSpending()
-        {
-            TestBase.SetCurrentTestName(nameof(TestReckoningScalesWithoutSpending));
-            var reckoning = Verb("RECKONING", "SCALE ATTUNED 50");
-            var hero = Hero("ReckonHero", "Bone", "Bone");
-            hero.Effects.AddMaterialKeyword("RAGE", 4);
-            var spec = VerbPresets.GetSpec(reckoning)!;
-            double pct = VerbPresets.GetDamagePercent(hero, null, spec);
-            TestBase.AssertTrue(Math.Abs(pct - 10) < 1e-9, $"4 RAGE x 5% x 50% = 10% (got {pct})", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(0, VerbPresets.OnConnect(hero, null, reckoning), "SCALE spends nothing", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(4, hero.Effects.GetMaterialKeyword("RAGE"), "RAGE kept", ref _run, ref _passed, ref _failed);
-            hero.Effects.AddMaterialKeyword("RAGE", 1000);
-            TestBase.AssertEqual(100.0, VerbPresets.GetDamagePercent(hero, null, spec), "capped at VerbScaleMaxPercent", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, mixed.Effects.GetMaterialKeyword("RAGE"), "CASH IN spends the fullest store (RAGE 3) though Glass is worn most", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(2, mixed.Effects.GetMaterialKeyword("GRAZE"), "and leaves GRAZE alone", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestDetonateSpendsLargestStatus()
@@ -173,110 +148,32 @@ namespace RPGGame.Tests.Unit
                 "nothing to detonate, no bonus", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestLiquidateSpendsEveryMint()
-        {
-            TestBase.SetCurrentTestName(nameof(TestLiquidateSpendsEveryMint));
-            var liquidate = Verb("LIQUIDATE", "LIQUIDATE 50");
-            var hero = Hero("LiqHero", "Bone", "Glass");
-            hero.Effects.AddMaterialKeyword("RAGE", 2);
-            hero.Effects.AddMaterialKeyword("GRAZE", 3);
-            TestBase.AssertEqual(5, VerbPresets.OnConnect(hero, null, liquidate), "spends RAGE and GRAZE", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(0, hero.Effects.GetMaterialKeyword("RAGE") + hero.Effects.GetMaterialKeyword("GRAZE"), "both empty", ref _run, ref _passed, ref _failed);
-        }
-
-        private static void TestIndexCountsDistinctMaterials()
-        {
-            TestBase.SetCurrentTestName(nameof(TestIndexCountsDistinctMaterials));
-            var index = Verb("INDEX", "INDEX 8");
-            var hero = Hero("IndexHero", "Bone", "Glass", "Glass", "Iron");
-            TestBase.AssertEqual(3, Attunement.CountDistinctMaterials(hero), "Bone, Glass, Iron", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(24.0, VerbPresets.GetDamagePercent(hero, null, VerbPresets.GetSpec(index)!), "3 x 8%", ref _run, ref _passed, ref _failed);
-        }
-
-        private static void TestDamageCalculatorAddsVerbBonus()
+        private static void TestDamageCalculatorAddsVerbBonus(CombatConfig combat)
         {
             TestBase.SetCurrentTestName(nameof(TestDamageCalculatorAddsVerbBonus));
-            var hero = Hero("CalcHero", "Bone", "Glass", "Iron");
+            combat.MaterialConvertPaysDamage = true;
+            var hero = Hero("CalcHero", "Bone", "Bone", "Iron");
+            hero.Effects.AddMaterialKeyword("RAGE", 10);
             var foe = new Character("CalcFoe", 1);
             var plain = new Action { Name = "PLAIN", DamageMultiplier = 1.0, Type = ActionType.Attack };
-            var index = Verb("INDEX", "INDEX 50");
+            var cash = Verb("CASH IN", "CASH FULLEST 100");
             int a = DamageCalculator.CalculateDamage(hero, foe, plain, 1.0, 1.0, 0, 10, showWeakenedMessage: false);
-            int b = DamageCalculator.CalculateDamage(hero, foe, index, 1.0, 1.0, 0, 10, showWeakenedMessage: false);
-            TestBase.AssertTrue(b > a, $"INDEX hits harder than the same action without a verb ({b} > {a})", ref _run, ref _passed, ref _failed);
+            int b = DamageCalculator.CalculateDamage(hero, foe, cash, 1.0, 1.0, 0, 10, showWeakenedMessage: false);
+            TestBase.AssertTrue(b > a, $"CASH IN hits harder than the same action without a verb ({b} > {a})", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestApplyMark()
-        {
-            TestBase.SetCurrentTestName(nameof(TestApplyMark));
-            var spec = VerbSpec.Parse("APPLY mark");
-            TestBase.AssertTrue(spec != null && spec.Rate == 1, "APPLY defaults to 1 stack", ref _run, ref _passed, ref _failed);
-            var hero = Hero("MarkHero", "Bone");
-            var foe = new Character("MarkFoe", 5);
-            VerbPresets.OnConnect(hero, foe, Verb("MARK", "APPLY mark 1"));
-            TestBase.AssertTrue(foe.IsMarked, "target is marked", ref _run, ref _passed, ref _failed);
-            TestBase.AssertFalse(hero.IsMarked, "hero is not", ref _run, ref _passed, ref _failed);
-        }
+        /// <summary>A connect with the card: its APPLY verb runs as the card's rule (ActionRules).</summary>
+        private static void Connect(Character hero, Actor foe, Action action) =>
+            RPGGame.Combat.Rules.ActionRules.Dispatch(action,
+                new RPGGame.Combat.Events.CombatEvent(RPGGame.Combat.Events.CombatEventType.ActionHit, hero) { Target = foe, Action = action },
+                hero, foe, new List<string>());
 
-        private static void TestBarrier()
+        private static void TestRetiredVerbsLoadAsReplacements()
         {
-            TestBase.SetCurrentTestName(nameof(TestBarrier));
-            var hero = Hero("BarrierHero", "Bone");
-            int expected = (int)Math.Round(hero.GetEffectiveMaxHealth() * 0.08);
-            VerbPresets.OnConnect(hero, null, Verb("BARRIER", "BARRIER 8"));
-            TestBase.AssertEqual(Math.Max(1, expected), hero.TemporaryHP ?? 0, "temp HP = 8% max HP", ref _run, ref _passed, ref _failed);
-        }
-
-        private static void TestDistill()
-        {
-            TestBase.SetCurrentTestName(nameof(TestDistill));
-            var hero = Hero("DistillHero", "Glass", "Glass");
-            var foe = new Character("DistillFoe", 5);
-            foe.BurnIntensity = 6;
-            TestBase.AssertEqual(6, VerbPresets.OnConnect(hero, foe, Verb("DISTILL", "DISTILL 50")), "spends 6 burn", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(0, foe.BurnIntensity, "burn gone", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(3, hero.Effects.GetMaterialKeyword("GRAZE"), "3 GRAZE (50%) into the Glass mint", ref _run, ref _passed, ref _failed);
-        }
-
-        private static void TestTransmute()
-        {
-            TestBase.SetCurrentTestName(nameof(TestTransmute));
-            var hero = Hero("TransHero", "Bone", "Bone", "Glass");
-            hero.Effects.AddMaterialKeyword("RAGE", 2);
-            hero.Effects.AddMaterialKeyword("GRAZE", 4);
-            TestBase.AssertEqual(4, VerbPresets.OnConnect(hero, null, Verb("TRANSMUTE", "TRANSMUTE 75")), "spends the 4 GRAZE", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(5, hero.Effects.GetMaterialKeyword("RAGE"), "2 + floor(4 x 0.75) = 5 RAGE", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(0, hero.Effects.GetMaterialKeyword("GRAZE"), "GRAZE empty", ref _run, ref _passed, ref _failed);
-        }
-
-        private static void TestTransmuteRunsConversions(CombatConfig combat)
-        {
-            TestBase.SetCurrentTestName(nameof(TestTransmuteRunsConversions));
-            ConversionTable.Reload();
-            double saved = combat.TransmuteUnownedRowRate;
-            try
-            {
-                combat.TransmuteUnownedRowRate = 0;
-                var owner = Hero("EdgeOwner", "Bone", "Bone");
-                owner.Progression.LearnedSkillRanks["r-edge"] = 1;
-                var foe = new Character("TransFoe", 5) { PoisonPercentOfMaxHealth = 3.0 };
-                VerbPresets.OnConnect(owner, foe, Verb("TRANSMUTE", "TRANSMUTE 75"));
-                TestBase.AssertEqual(2, foe.PendingBleedFromHits, "owned Envenomed Edge row runs: 2 bleed", ref _run, ref _passed, ref _failed);
-                TestBase.AssertEqual(0, foe.PendingAcidFromHits, "unowned rows skipped at rate 0", ref _run, ref _passed, ref _failed);
-                TestBase.AssertTrue(Math.Abs(foe.PoisonPercentOfMaxHealth - 2.0) < 1e-9, "1% poison spent", ref _run, ref _passed, ref _failed);
-
-                combat.TransmuteUnownedRowRate = 1.0;
-                var plain = Hero("NoRowsHero", "Bone", "Bone");
-                var foe2 = new Character("TransFoe2", 5) { PoisonPercentOfMaxHealth = 3.0 };
-                VerbPresets.OnConnect(plain, foe2, Verb("TRANSMUTE", "TRANSMUTE 75"));
-                TestBase.AssertEqual(1, foe2.PendingAcidFromHits, "unowned Venom Mace row converts (rate 1)", ref _run, ref _passed, ref _failed);
-                TestBase.AssertEqual(2, foe2.PendingBleedFromHits, "then unowned Envenomed Edge on what's left", ref _run, ref _passed, ref _failed);
-                TestBase.AssertTrue(Math.Abs(foe2.PoisonPercentOfMaxHealth - 1.0) < 1e-9, "2% poison spent over two rows", ref _run, ref _passed, ref _failed);
-                TestBase.AssertTrue(ConversionTable.OwnsAny(owner) && !ConversionTable.OwnsAny(plain), "OwnsAny", ref _run, ref _passed, ref _failed);
-            }
-            finally
-            {
-                combat.TransmuteUnownedRowRate = saved;
-            }
+            TestBase.SetCurrentTestName(nameof(TestRetiredVerbsLoadAsReplacements));
+            foreach (var (old, now) in new[] { ("LIQUIDATE", "CASH IN"), ("RECKONING", "CASH IN"), ("INDEX", "CASH IN"), ("MARK", "CASH IN"),
+                         ("TRANSMUTE", "CASH IN"), ("INVEST", "CASH IN"), ("PALM", "CASH IN"), ("BARRIER", "BULWARK"), ("DISTILL", "DETONATE") })
+                TestBase.AssertEqual(now, ActionLoader.ResolveActionName(old) ?? "", $"a saved {old} loads as {now}", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestStatusActions()
@@ -284,17 +181,17 @@ namespace RPGGame.Tests.Unit
             TestBase.SetCurrentTestName(nameof(TestStatusActions));
             var hero = Hero("StatusHero", "Bone");
             var foe = new Character("StatusFoe", 5);
-            VerbPresets.OnConnect(hero, foe, Verb("VENOM COAT", "APPLY poison 6"));
+            Connect(hero, foe, Verb("VENOM COAT", "APPLY poison 6"));
             TestBase.AssertTrue(Math.Abs(foe.PoisonPercentOfMaxHealth - 1.5) < 1e-9, "VENOM COAT: 1.5% poison", ref _run, ref _passed, ref _failed);
-            VerbPresets.OnConnect(hero, foe, Verb("OPEN VEIN", "APPLY bleed 2"));
+            Connect(hero, foe, Verb("OPEN VEIN", "APPLY bleed 2"));
             TestBase.AssertEqual(2, foe.PendingBleedFromHits, "OPEN VEIN: 2 bleed queued", ref _run, ref _passed, ref _failed);
-            VerbPresets.OnConnect(hero, foe, Verb("STOKE", "APPLY burn 2"));
+            Connect(hero, foe, Verb("STOKE", "APPLY burn 2"));
             TestBase.AssertEqual(2, foe.PendingBurnFromHits, "STOKE: 2 burn queued", ref _run, ref _passed, ref _failed);
-            VerbPresets.OnConnect(hero, foe, Verb("CORRODE", "APPLY acid 1"));
+            Connect(hero, foe, Verb("CORRODE", "APPLY acid 1"));
             TestBase.AssertEqual(1, foe.PendingAcidFromHits, "CORRODE: 1 acid queued", ref _run, ref _passed, ref _failed);
-            VerbPresets.OnConnect(hero, foe, Verb("DAZE", "APPLY stun 1"));
+            Connect(hero, foe, Verb("DAZE", "APPLY stun 1"));
             TestBase.AssertTrue(foe.IsStunned && foe.StunTurnsRemaining >= 1, "DAZE: stunned", ref _run, ref _passed, ref _failed);
-            VerbPresets.OnConnect(hero, foe, Verb("BRACE", "APPLY fortify 2"));
+            Connect(hero, foe, Verb("BRACE", "APPLY fortify 2"));
             TestBase.AssertEqual(2, Stores.Get(hero, "fortify"), "BRACE: 2 Fortify on the hero", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, Stores.Get(foe, "fortify"), "BRACE: not on the target", ref _run, ref _passed, ref _failed);
             Stores.Add(foe, "weaken", 1);
@@ -308,38 +205,11 @@ namespace RPGGame.Tests.Unit
             }
         }
 
-        private static void TestInvestPaysBackLater()
-        {
-            TestBase.SetCurrentTestName(nameof(TestInvestPaysBackLater));
-            var spec = VerbSpec.Parse("INVEST ATTUNED 200 2");
-            TestBase.AssertTrue(spec != null && spec.Rate == 200 && spec.Delay == 2, "rate then delay", ref _run, ref _passed, ref _failed);
-            var hero = Hero("InvestHero", "Bone", "Bone");
-            hero.Effects.AddMaterialKeyword("RAGE", 3);
-            VerbPresets.OnConnect(hero, null, Verb("INVEST", "INVEST ATTUNED 200 2"));
-            TestBase.AssertEqual(0, hero.Effects.GetMaterialKeyword("RAGE"), "RAGE spent now", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(6, VerbPresets.GetPendingInvestment(hero, "RAGE"), "6 pending", ref _run, ref _passed, ref _failed);
-            VerbPresets.TickInvestments(hero); // the INVEST action itself
-            VerbPresets.TickInvestments(hero);
-            TestBase.AssertEqual(0, hero.Effects.GetMaterialKeyword("RAGE"), "not yet after 1 more action", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(6, VerbPresets.TickInvestments(hero), "pays 6 after 2 more actions", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(6, hero.Effects.GetMaterialKeyword("RAGE"), "RAGE back doubled", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(0, VerbPresets.GetPendingInvestment(hero, "RAGE"), "nothing pending", ref _run, ref _passed, ref _failed);
-        }
-
-        private static void TestPalmBanksRoll()
-        {
-            TestBase.SetCurrentTestName(nameof(TestPalmBanksRoll));
-            var hero = Hero("PalmHero", "Bone");
-            VerbPresets.OnConnect(hero, null, Verb("PALM", "PALM"), naturalRoll: 17);
-            bool banked = RPGGame.Actions.Conditional.CombatTriggerContext.TryConsumePendingReplaceRollFace(hero, out int face);
-            TestBase.AssertTrue(banked && face == 17, $"next roll becomes the palmed 17 (got {face})", ref _run, ref _passed, ref _failed);
-        }
-
         private static void TestCashIntoParse()
         {
             TestBase.SetCurrentTestName(nameof(TestCashIntoParse));
             var harden = VerbSpec.Parse("CASH ATTUNED 100 INTO harden");
-            TestBase.AssertTrue(harden != null && harden.Kind == VerbKind.Cash && harden.Store == "ATTUNED" && harden.Into == "harden",
+            TestBase.AssertTrue(harden != null && harden.Kind == VerbKind.Cash && harden.Store == "FULLEST" && harden.Into == "harden",
                 "CASH ATTUNED 100 INTO harden", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("TEC", VerbSpec.Parse("CASH RAGE INTO tech")?.Into ?? "", "TECH normalizes to TEC", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(CashPayout.Damage, VerbSpec.Parse("CASH ATTUNED 75")?.Into ?? "", "no INTO = damage", ref _run, ref _passed, ref _failed);
@@ -422,8 +292,7 @@ namespace RPGGame.Tests.Unit
         private static void TestPresetsInData()
         {
             TestBase.SetCurrentTestName(nameof(TestPresetsInData));
-            foreach (string name in new[] { "CASH IN", "DETONATE", "LIQUIDATE", "RECKONING", "INDEX",
-                         "MARK", "BARRIER", "DISTILL", "TRANSMUTE", "INVEST", "PALM",
+            foreach (string name in new[] { "CASH IN", "DETONATE",
                          "RESTORE", "SURGE", "BULWARK", "GRIT TEETH", "CENTER", "BLOODLET", "QUICKEN", "IGNITE", "LAY BARE", "STEEL NERVE" })
             {
                 var data = ActionLoader.GetActionData(name);

@@ -6,48 +6,36 @@ using RPGGame.Data;
 
 namespace RPGGame
 {
-    /// <summary>Verb shapes the store-reading presets use (Documentation/BUILD_SYSTEM_CONDENSED.md §4).</summary>
+    /// <summary>
+    /// Verb shapes of the <c>verb</c> column (Documentation/BUILD_SYSTEM_CONDENSED.md §4). Since 2026-11-19 (D6.4) the
+    /// generic verbs are CASH IN and DETONATE; LIQUIDATE, RECKONING, INDEX, MARK, BARRIER, DISTILL, TRANSMUTE, INVEST and
+    /// PALM are retired (their actions load as CASH IN / BULWARK / DETONATE, ActionLoader aliases).
+    /// </summary>
     public enum VerbKind
     {
         None,
-        /// <summary>Spend a store for its cash effect (CASH IN, a store-named cash).</summary>
+        /// <summary>Spend a store for its cash effect (CASH IN = your fullest store; a store-named cash).</summary>
         Cash,
         /// <summary>Spend the target's largest spendable status (DETONATE).</summary>
         Detonate,
-        /// <summary>Spend every hero mint (LIQUIDATE).</summary>
-        Liquidate,
-        /// <summary>Damage grows with a store without spending it (RECKONING).</summary>
-        Scale,
-        /// <summary>Damage grows with the number of distinct materials worn (INDEX).</summary>
-        Index,
-        /// <summary>Add stacks to a store (MARK: <c>APPLY mark 1</c>).</summary>
+        /// <summary>Add stacks to a store (<c>APPLY burn 2</c>): runs as an action-owned rule
+        /// (<see cref="RPGGame.Combat.Rules.ActionRules"/>), parsed here for the bot's pricing.</summary>
         Apply,
-        /// <summary>Temporary HP worth rate% of max HP (BARRIER).</summary>
-        Barrier,
-        /// <summary>Spend the target's largest status into your attuned mint at rate% (DISTILL).</summary>
-        Distill,
-        /// <summary>Run the conversion table on the target (owned rows always, unowned at half rate), then spend every other mint into your attuned mint at rate% (TRANSMUTE).</summary>
-        Transmute,
-        /// <summary>Spend your attuned mint now; it comes back at rate% after <see cref="VerbSpec.Delay"/> of your actions (INVEST).</summary>
-        Invest,
-        /// <summary>Bank this attack's natural roll: your next roll becomes it (PALM).</summary>
-        Palm,
         /// <summary>Pull every queued buff (TURN grants and later strip-slot grants) onto this swing at +rate% (RELEASE).</summary>
         Release
     }
 
     /// <summary>
-    /// Parsed <c>verb</c> column: <c>VERB [store] [rate%]</c>, e.g. <c>CASH ATTUNED 75</c>, <c>SCALE ATTUNED 50</c>,
-    /// <c>DETONATE 100</c>, <c>LIQUIDATE 50</c>, <c>INDEX 8</c>. Store defaults to ATTUNED; rate defaults to 100.
+    /// Parsed <c>verb</c> column: <c>VERB [store] [rate%]</c>, e.g. <c>CASH FULLEST 75</c>, <c>CASH stagger 100</c>,
+    /// <c>DETONATE 100</c>, <c>APPLY burn 2</c>, <c>RELEASE 25</c>. Store defaults to FULLEST (ATTUNED reads the same);
+    /// rate defaults to 100.
     /// </summary>
     public sealed class VerbSpec
     {
         public VerbKind Kind { get; init; }
-        public string Store { get; init; } = Attunement.StoreToken;
-        /// <summary>Percent: share of the store's cash (CASH / DETONATE / LIQUIDATE / SCALE) or % damage per material (INDEX).</summary>
+        public string Store { get; init; } = FullestStore.StoreToken;
+        /// <summary>Percent: share of the store's cash (CASH / DETONATE); APPLY's stack count; RELEASE's bonus.</summary>
         public double Rate { get; init; } = 100;
-        /// <summary>Second number in the spec: INVEST's delay in hero actions (default 2).</summary>
-        public int Delay { get; init; } = 2;
         /// <summary>
         /// CASH payout (<c>CASH ATTUNED 100 INTO harden</c>): <c>DAMAGE</c> (default, % of the hit), <c>HEAL</c> (% max HP),
         /// an attribute (<c>STR</c> / <c>AGI</c> / <c>TEC</c> / <c>INT</c>, or <c>PRIMARY</c> = the cashed material's class stat)
@@ -65,24 +53,15 @@ namespace RPGGame
             {
                 "CASH" => VerbKind.Cash,
                 "DETONATE" => VerbKind.Detonate,
-                "LIQUIDATE" => VerbKind.Liquidate,
-                "SCALE" => VerbKind.Scale,
-                "INDEX" => VerbKind.Index,
                 "APPLY" => VerbKind.Apply,
-                "BARRIER" => VerbKind.Barrier,
-                "DISTILL" => VerbKind.Distill,
-                "TRANSMUTE" => VerbKind.Transmute,
-                "INVEST" => VerbKind.Invest,
-                "PALM" => VerbKind.Palm,
                 "RELEASE" => VerbKind.Release,
                 _ => VerbKind.None
             };
             if (kind == VerbKind.None)
                 return null;
 
-            string store = Attunement.StoreToken;
+            string store = FullestStore.StoreToken;
             double rate = kind == VerbKind.Apply ? 1 : kind == VerbKind.Release ? 0 : 100; // APPLY's number is a stack count
-            int delay = 2;
             int numbers = 0;
             string into = CashPayout.Damage;
             var rest = parts.Skip(1).ToList();
@@ -99,24 +78,22 @@ namespace RPGGame
                 if (double.TryParse(part.TrimEnd('%'), NumberStyles.Float, CultureInfo.InvariantCulture, out double r))
                 {
                     if (numbers++ == 0) rate = Math.Max(0, r);
-                    else delay = Math.Max(1, (int)Math.Round(r));
                 }
                 else
                 {
                     store = part;
                 }
             }
-            return new VerbSpec { Kind = kind, Store = store, Rate = rate, Delay = delay, Into = into };
+            return new VerbSpec { Kind = kind, Store = FullestStore.IsToken(store) ? FullestStore.StoreToken : store, Rate = rate, Into = into };
         }
     }
 
     /// <summary>
-    /// Store-reading verb presets: CASH IN, DETONATE, LIQUIDATE, RECKONING, INDEX. Damage is added in
+    /// Store-reading verb presets: CASH IN and DETONATE. Damage is added in
     /// <see cref="RPGGame.Combat.Calculators.DamageCalculator.CalculateDamage"/> before armor (reading stores as they stand);
     /// the spend happens on connect (<see cref="OnConnect"/>), after the hit, like material converts.
     /// <para>Cash per unit: a mint pays its convert (primary stat, plus convert damage when the patch pays damage);
-    /// a status pays <see cref="CombatConfig.VerbStatusCashPercentPerUnit"/> % of the hit per unit.
-    /// SCALE reads the same per-unit damage without spending, capped at <see cref="CombatConfig.VerbScaleMaxPercent"/>.</para>
+    /// a status pays <see cref="CombatConfig.VerbStatusCashPercentPerUnit"/> % of the hit per unit.</para>
     /// </summary>
     public static class VerbPresets
     {
@@ -139,13 +116,13 @@ namespace RPGGame
             }
         }
 
-        /// <summary>Resolves a spec's store id for this hero (ATTUNED → the attuned mint). Null when nothing resolves.</summary>
+        /// <summary>Resolves a spec's store id for this hero (FULLEST → the fullest material store). Null when nothing resolves.</summary>
         public static string? ResolveStore(Character? hero, string? store)
         {
             if (string.IsNullOrWhiteSpace(store))
                 return null;
-            if (string.Equals(store, Attunement.StoreToken, StringComparison.OrdinalIgnoreCase))
-                return Attunement.GetKeyword(hero);
+            if (FullestStore.IsToken(store))
+                return FullestStore.GetKeyword(hero);
             return Stores.TryGet(store, out var def) ? def.Id : null;
         }
 
@@ -186,20 +163,6 @@ namespace RPGGame
                     string? id = LargestTargetStatus(target);
                     return id == null ? 0 : CashDamagePercent(hero, target, id) * share;
                 }
-                case VerbKind.Liquidate:
-                    return HeroMints(hero).Sum(id => CashDamagePercent(hero, target, id)) * share;
-                case VerbKind.Scale:
-                {
-                    string? id = ResolveStore(hero, spec.Store);
-                    if (id == null)
-                        return 0;
-                    var holder = Holder(hero, target, id);
-                    double pct = Stores.Get(holder, id) * DamagePercentPerUnit(id, forScale: true) * share;
-                    double cap = combat.VerbScaleMaxPercent;
-                    return cap > 0 ? Math.Min(cap, pct) : pct;
-                }
-                case VerbKind.Index:
-                    return Attunement.CountDistinctMaterials(hero) * spec.Rate;
                 default:
                     return 0;
             }
@@ -222,8 +185,7 @@ namespace RPGGame
         /// <summary>
         /// % of the hit per unit: a mint uses its convert rate (<see cref="CombatConfig.MaterialConvertPercentByKeyword"/>,
         /// else 5 × <see cref="CombatConfig.MaterialConvertPercentPerUnit"/>); statuses and resources use
-        /// <see cref="CombatConfig.VerbStatusCashPercentPerUnit"/>. SCALE reads mints at their convert rate even when the
-        /// patch turns convert damage off (it never spends, so it is its own payout).
+        /// <see cref="CombatConfig.VerbStatusCashPercentPerUnit"/>.
         /// </summary>
         public static double DamagePercentPerUnit(string storeId, bool forScale)
         {
@@ -242,9 +204,7 @@ namespace RPGGame
         // ------------------------------------------------------------------ spend
 
         /// <summary>Spends what the verb cashes, after a connecting hit. Returns units spent.</summary>
-        /// <param name="naturalRoll">This attack's natural die face (PALM banks it); 0 when unknown.</param>
-        /// <param name="isCritical">This connect was a critical (conversion rows with repeatOnCrit repeat).</param>
-        public static int OnConnect(Character hero, Actor? target, Action? action, int naturalRoll = 0, bool isCritical = false)
+        public static int OnConnect(Character hero, Actor? target, Action? action)
         {
             if (hero is Enemy)
                 return 0;
@@ -271,117 +231,9 @@ namespace RPGGame
                     string? id = LargestTargetStatus(target);
                     return id == null ? 0 : Cash(hero, target, id, share);
                 }
-                case VerbKind.Liquidate:
-                    return HeroMints(hero).ToList().Sum(id => Cash(hero, target, id, share));
-                case VerbKind.Apply:
-                {
-                    string? id = ResolveStore(hero, spec.Store);
-                    if (id == null)
-                        return 0;
-                    int stacks = Math.Max(1, (int)Math.Round(spec.Rate));
-                    return Stores.Add(Holder(hero, target, id), id, stacks);
-                }
-                case VerbKind.Barrier:
-                {
-                    int hp = (int)Math.Round(hero.GetEffectiveMaxHealth() * share);
-                    return Stores.Add(hero, "temphp", Math.Max(1, hp));
-                }
-                case VerbKind.Distill:
-                {
-                    string? from = LargestTargetStatus(target);
-                    string? into = Attunement.GetKeyword(hero);
-                    if (from == null || into == null)
-                        return 0;
-                    int spent = Stores.SpendAll(target, from);
-                    Stores.Add(hero, into, (int)Math.Floor(spent * share + 1e-9));
-                    RPGGame.Combat.Events.HeroEventHub.OnCash(hero, from, spent);
-                    return spent;
-                }
-                case VerbKind.Transmute:
-                {
-                    int converted = target == null ? 0 : ConversionTable.Transmute(hero, target, isCritical);
-                    string? into = Attunement.GetKeyword(hero);
-                    if (into == null)
-                        return converted;
-                    int spent = 0;
-                    foreach (string id in HeroMints(hero).Where(id => !string.Equals(id, into, StringComparison.OrdinalIgnoreCase)).ToList())
-                    {
-                        int n = Stores.SpendAll(hero, id);
-                        spent += n;
-                        RPGGame.Combat.Events.HeroEventHub.OnCash(hero, id, n);
-                    }
-                    Stores.Add(hero, into, (int)Math.Floor(spent * share + 1e-9));
-                    return spent + converted;
-                }
-                case VerbKind.Invest:
-                {
-                    string? id = ResolveStore(hero, spec.Store);
-                    if (id == null || !Stores.TryGet(id, out var def) || def.Kind != StoreKind.Mint)
-                        return 0;
-                    int spent = Stores.SpendAll(hero, id);
-                    RPGGame.Combat.Events.HeroEventHub.OnCash(hero, id, spent);
-                    if (spent > 0)
-                        Investments(hero).Add(new Investment(id, (int)Math.Floor(spent * share + 1e-9), spec.Delay + 1));
-                    return spent;
-                }
-                case VerbKind.Palm:
-                {
-                    if (naturalRoll < 1 || naturalRoll > 20)
-                        return 0;
-                    RPGGame.Actions.Conditional.CombatTriggerContext.SetPendingReplaceRollFace(hero, naturalRoll);
-                    return 1;
-                }
                 default:
                     return 0;
             }
-        }
-
-        // ------------------------------------------------------------------ investments (INVEST)
-
-        private sealed class Investment
-        {
-            public Investment(string store, int payout, int actionsLeft)
-            {
-                Store = store;
-                Payout = payout;
-                ActionsLeft = actionsLeft;
-            }
-
-            public string Store { get; }
-            public int Payout { get; }
-            public int ActionsLeft { get; set; }
-        }
-
-        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Character, List<Investment>> _investments = new();
-
-        private static List<Investment> Investments(Character hero) => _investments.GetOrCreateValue(hero);
-
-        /// <summary>Units invested and not yet paid back, per store.</summary>
-        public static int GetPendingInvestment(Character hero, string store) =>
-            _investments.TryGetValue(hero, out var list)
-                ? list.Where(i => string.Equals(i.Store, store, StringComparison.OrdinalIgnoreCase)).Sum(i => i.Payout)
-                : 0;
-
-        /// <summary>
-        /// Counts down investments on each hero action (hit or miss); pays matured ones back into their store.
-        /// The INVEST action itself counts as the first tick, so a delay of 2 pays out after two more actions.
-        /// Returns units paid back.
-        /// </summary>
-        public static int TickInvestments(Character hero)
-        {
-            if (!_investments.TryGetValue(hero, out var list) || list.Count == 0)
-                return 0;
-            int paid = 0;
-            for (int i = list.Count - 1; i >= 0; i--)
-            {
-                var inv = list[i];
-                inv.ActionsLeft--;
-                if (inv.ActionsLeft > 0)
-                    continue;
-                paid += Stores.Add(hero, inv.Store, inv.Payout);
-                list.RemoveAt(i);
-            }
-            return paid;
         }
 
         private static int Cash(Character hero, Actor? target, string storeId, double share)
@@ -395,9 +247,6 @@ namespace RPGGame
         }
 
         // ------------------------------------------------------------------ helpers
-
-        private static IEnumerable<string> HeroMints(Character hero) =>
-            Stores.All.Where(s => s.Kind == StoreKind.Mint && s.Read(hero) > 0).Select(s => s.Id);
 
         /// <summary>Target's spendable status with the most units (ties: registry order). Null when none.</summary>
         public static string? LargestTargetStatus(Actor? target)
@@ -426,7 +275,9 @@ namespace RPGGame
             var spec = GetSpec(action);
             if (spec == null)
                 return null;
-            string store = hero != null ? ResolveStore(hero, spec.Store) ?? "attuned store" : spec.Store;
+            string store = FullestStore.IsToken(spec.Store)
+                ? (hero != null ? FullestStore.GetKeyword(hero) : null) ?? "your fullest store"
+                : spec.Store;
             string rate = spec.Rate.ToString("0.#", CultureInfo.InvariantCulture);
             return spec.Kind switch
             {
@@ -434,15 +285,8 @@ namespace RPGGame
                     ? $"Cashes {store} at {rate}%"
                     : $"Cashes {store} into {CashPayout.Describe(hero, store, spec.Into, spec.Rate / 100.0)}",
                 VerbKind.Detonate => $"Detonates the target's largest status at {rate}%",
-                VerbKind.Liquidate => $"Cashes every material store at {rate}%",
-                VerbKind.Scale => $"Scales with {store} at {rate}% (not spent)",
-                VerbKind.Index => $"+{rate}% damage per distinct material worn",
-                VerbKind.Apply => $"Applies {store}",
-                VerbKind.Barrier => $"Temporary HP worth {rate}% of max HP",
-                VerbKind.Distill => $"Moves the target's largest status into {store} at {rate}%",
-                VerbKind.Transmute => $"Runs your status conversions on the target (unowned ones at half rate), then moves your other material stores into {store} at {rate}%",
-                VerbKind.Invest => $"Spends {store}; it returns at {rate}% after {spec.Delay} actions",
-                VerbKind.Palm => "Banks this roll: your next roll becomes it",
+                VerbKind.Apply => $"Applies {store} {rate}",
+                VerbKind.Release => $"Every queued buff lands on this action at +{rate}%",
                 _ => null
             };
         }

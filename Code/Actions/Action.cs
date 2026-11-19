@@ -52,7 +52,7 @@ namespace RPGGame
         public string KeywordScale { get; set; } = "";
         /// <summary>ACTIONS DU — source override for convert add (<c>keyword</c>/<c>bank</c> or <c>material</c>/<c>count</c>).</summary>
         public string ScaleFormula { get; set; } = "";
-        /// <summary>Verb preset spec (<c>CASH ATTUNED 75</c>, <c>SCALE ATTUNED 50</c>, …); see <see cref="VerbPresets"/>.</summary>
+        /// <summary>Verb preset spec (<c>CASH FULLEST 75</c>, <c>DETONATE 100</c>, …); see <see cref="VerbPresets"/>.</summary>
         public string Verb { get; set; } = "";
         /// <summary>Cost paid when the action resolves (<c>HP 5</c> = 5% max HP); see <see cref="ActionCost"/>.</summary>
         public string Cost { get; set; } = "";

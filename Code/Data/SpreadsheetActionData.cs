@@ -83,7 +83,7 @@ namespace RPGGame.Data
         public string KeywordScale { get; set; } = "";
         /// <summary>ACTIONS column DU — convert add source (`keyword`/`bank` or `material`/`count`).</summary>
         public string ScaleFormula { get; set; } = "";
-        /// <summary>Verb preset spec (<c>CASH ATTUNED 75</c>); JSON only, no sheet column yet.</summary>
+        /// <summary>Verb preset spec (<c>CASH FULLEST 75</c>); JSON only, no sheet column yet.</summary>
         public string Verb { get; set; } = "";
         /// <summary>Action cost (<c>HP 5</c>); JSON only, no sheet column yet.</summary>
         public string Cost { get; set; } = "";

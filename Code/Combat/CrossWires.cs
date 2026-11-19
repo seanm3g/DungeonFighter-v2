@@ -118,6 +118,8 @@ namespace RPGGame
         public bool Listener { get; init; }
         /// <summary>HEAL n HP: a flat heal (HEAL n alone is % of max HP).</summary>
         public bool Flat { get; init; }
+        /// <summary>APPLY from an action card's trigger bundle: uses the card's status settings (<see cref="Combat.Rules.ActionRules"/>).</summary>
+        public bool CardStatus { get; init; }
 
         public bool IsPassive => When.Equals("WHILE", StringComparison.OrdinalIgnoreCase);
 
@@ -1056,7 +1058,7 @@ namespace RPGGame
             "ROLL" => evt?.NaturalRollValue ?? 0,
             "LASTROLL" => LastRoll(hero),
             "EXTRAHITS" => ExtraHits(hero, evt?.Action ?? action),
-            "DISTINCT" => Attunement.CountDistinctMaterials(hero),
+            "DISTINCT" => FullestStore.CountDistinctMaterials(hero),
             "TURN" => HeroEventHub.FightTurns(hero),
             "HITSTREAK" => hero.Effects.MaterialConsecutiveConnects,
             "STR" or "AGI" or "TEC" or "INT" => AttributeValue(hero, key),

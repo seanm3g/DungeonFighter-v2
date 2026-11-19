@@ -342,9 +342,8 @@ namespace RPGGame.Tuning
 
         /// <summary>
         /// Gear-aware score for a verb preset: the weight from <see cref="SynergyData.VerbWeights"/> when the preset
-        /// has something to work with. Attuned-store verbs (Cash, Scale, Invest, Distill) need the attuned material's
-        /// set formed; Liquidate / Transmute need two formed sets; Index scales with distinct materials past 2;
-        /// Detonate, Apply, Barrier and Palm always count. 0 for non-verb actions.
+        /// has something to work with. CASH IN (your fullest store) needs a formed set; a status CASH needs an owned applier
+        /// of that status; Detonate an owned status applier; Release a turn-grant source. 0 for non-verb actions.
         /// </summary>
         public static double VerbSynergy(Character hero, string actionName)
         {
@@ -352,18 +351,12 @@ namespace RPGGame.Tuning
             if (spec == null || !Data.VerbWeights.TryGetValue(spec.Kind.ToString(), out double w) || w == 0)
                 return 0;
             var formed = FormedSets(hero);
-            string? attuned = Attunement.GetMaterial(hero);
-            bool attunedFormed = attuned != null
-                && formed.Any(s => string.Equals(s.Material, attuned, StringComparison.OrdinalIgnoreCase));
             return spec.Kind switch
             {
                 // Status payoffs (TOPPLE: CASH stagger) need an owned applier of that status, not a formed set.
-                VerbKind.Cash or VerbKind.Scale when IsStatusStore(spec.Store) => OwnsApplierOf(hero, actionName, spec.Store) ? w : 0,
-                VerbKind.Cash or VerbKind.Scale or VerbKind.Invest or VerbKind.Distill => attunedFormed ? w : 0,
+                VerbKind.Cash when IsStatusStore(spec.Store) => OwnsApplierOf(hero, actionName, spec.Store) ? w : 0,
+                VerbKind.Cash => formed.Count > 0 ? w : 0,
                 VerbKind.Release => OwnsTurnGrantSource(hero, actionName) ? w : 0,
-                VerbKind.Liquidate => formed.Count >= 2 ? w : 0,
-                VerbKind.Transmute => formed.Count >= 2 || ConversionTable.OwnsAny(hero) ? w : 0,
-                VerbKind.Index => w * Math.Max(0, Attunement.CountDistinctMaterials(hero) - 2),
                 VerbKind.Apply => StatusUsed(hero, Features(actionName)) ? w : w * Data.UnusedApplyShare,
                 VerbKind.Detonate => OwnsStatusApplier(hero, actionName) ? w : 0,
                 _ => w
@@ -373,7 +366,7 @@ namespace RPGGame.Tuning
         private static readonly string[] DotStatuses = { "bleed", "burn", "poison", "acid" };
 
         private static bool IsStatusStore(string store) =>
-            !string.Equals(store, Attunement.StoreToken, StringComparison.OrdinalIgnoreCase)
+            !FullestStore.IsToken(store)
             && Stores.TryGet(store, out var def) && def.Kind is StoreKind.Status or StoreKind.Resource;
 
         /// <summary>True when another owned action applies <paramref name="status"/> (fx:&lt;status&gt;).</summary>
@@ -478,7 +471,7 @@ namespace RPGGame.Tuning
                     int sources = others.Count(HasGrant);
                     delta += sources == 0 ? -VerbSynergy(hero, action) : w * 0.25 * (sources - 1);
                 }
-                else if (spec.Kind is VerbKind.Cash or VerbKind.Scale && IsStatusStore(spec.Store)
+                else if (spec.Kind is VerbKind.Cash && IsStatusStore(spec.Store)
                          && !others.Any(o => Features(o).ContainsKey("fx:" + spec.Store.ToLowerInvariant())))
                     delta -= VerbSynergy(hero, action);
             }
@@ -502,7 +495,7 @@ namespace RPGGame.Tuning
             foreach (string a in strip)
             {
                 var spec = VerbSpec.Parse(ActionLoader.GetActionData(a)?.Verb);
-                if (spec is not { Kind: VerbKind.Cash or VerbKind.Scale } || !IsStatusStore(spec.Store))
+                if (spec is not { Kind: VerbKind.Cash } || !IsStatusStore(spec.Store))
                     continue;
                 string fx = "fx:" + spec.Store.ToLowerInvariant();
                 int lastApplier = s.FindLastIndex(o => o != a && Features(o).ContainsKey(fx));

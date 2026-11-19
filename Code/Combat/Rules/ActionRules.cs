@@ -29,6 +29,7 @@ namespace RPGGame.Combat.Rules
         private sealed class Holder
         {
             public object? For;
+            public string Verb = "";
             public IReadOnlyList<CrossWireRule> Rules = Array.Empty<CrossWireRule>();
         }
 
@@ -47,17 +48,22 @@ namespace RPGGame.Combat.Rules
         public static IReadOnlyList<CrossWireRule> For(Action? action)
         {
             var bundles = action?.Triggers?.Bundles;
-            if (action == null || bundles == null || bundles.Count == 0)
+            string verb = action?.Verb ?? "";
+            if (action == null || ((bundles == null || bundles.Count == 0) && verb.Length == 0))
                 return Array.Empty<CrossWireRule>();
             var holder = _cache.GetOrCreateValue(action);
-            if (!ReferenceEquals(holder.For, bundles))
+            object key = (object?)bundles ?? verb;
+            if (!ReferenceEquals(holder.For, key) || holder.Verb != verb)
             {
                 var list = new List<CrossWireRule>();
-                foreach (var bundle in bundles)
+                foreach (var bundle in bundles ?? new List<ActionTriggerBundle>())
                     if (bundle != null && bundle.IsEnabled)
                         list.AddRange(Convert(action, bundle));
+                if (FromVerb(action) is { } verbRule)
+                    list.Add(verbRule);
                 holder.Rules = list;
-                holder.For = bundles;
+                holder.For = key;
+                holder.Verb = verb;
                 foreach (string raw in Unsupported(action))
                     RPGGame.DebugLogger.WriteCombatDebug("ActionRules",
                         $"{action.Name}: trigger mechanic '{raw}' has no rule form and is ignored");
@@ -134,10 +140,31 @@ namespace RPGGame.Combat.Rules
                 }
                 else if (StatusIds.Contains(id))
                 {
-                    yield return Make("APPLY", id, bundle.Value ?? 0,
+                    var status = Make("APPLY", id, bundle.Value ?? 0,
                         bundle.Value is > 0 ? $"APPLY {id} {bundle.Value.Value:0.##}" : $"APPLY {id} (card)");
+                    yield return new CrossWireRule
+                    {
+                        When = status.When, Verb = status.Verb, Store = status.Store, Amount = status.Amount, Scope = status.Scope,
+                        Source = status.Source, Text = status.Text, CardStatus = true
+                    };
                 }
             }
+        }
+
+        /// <summary>The card's <c>APPLY store n</c> verb as a rule: <c>ONCONNECT -> APPLY status n</c> on the target, or
+        /// <c>ONCONNECT -> ADD resource n</c> on the hero (haste, fortify, …), as the verb preset did.</summary>
+        public static CrossWireRule? FromVerb(Action action)
+        {
+            var spec = VerbPresets.GetSpec(action);
+            if (spec is not { Kind: VerbKind.Apply } || !Stores.TryGet(spec.Store, out var def))
+                return null;
+            int n = Math.Max(1, (int)Math.Round(spec.Rate));
+            string verb = def.Kind == StoreKind.Status ? "APPLY" : "ADD";
+            return new CrossWireRule
+            {
+                When = "ONCONNECT", Verb = verb, Store = def.Id, Amount = n, Source = action.Name ?? "action",
+                Text = $"ONCONNECT -> {verb} {def.Id} {n}"
+            };
         }
 
         /// <summary>Mechanic ids on enabled bundles that <see cref="Convert"/> has no rule form for (tests keep this empty
@@ -231,8 +258,12 @@ namespace RPGGame.Combat.Rules
                         amount = Math.Max(1, (int)Math.Round(rule.Amount));
                     return HealFlat(source, amount, messages);
                 }
-                case "APPLY":
+                case "APPLY" when rule.CardStatus:
                     return ApplyCardStatus(rule.Store, rule.Amount > 0 ? rule.Amount : null, action, source, target, messages);
+                case "APPLY":
+                    return !ReferenceEquals(source, target) && Stores.Add(target, rule.Store, (int)Math.Round(rule.Amount)) > 0;
+                case "ADD":
+                    return Stores.Add(source, rule.Store, (int)Math.Round(rule.Amount)) > 0;
             }
             return false;
         }

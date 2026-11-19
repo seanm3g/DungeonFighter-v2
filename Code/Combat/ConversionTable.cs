@@ -92,32 +92,11 @@ namespace RPGGame
             }
         }
 
-        /// <summary>
-        /// TRANSMUTE: every row in file order, both phases. Owned rows run as on a connect; unowned rows convert with
-        /// chance <see cref="CombatConfig.TransmuteUnownedRowRate"/> (their own "power" chance is skipped, since the hero
-        /// has no rank). Returns passes that converted.
-        /// </summary>
-        public static int Transmute(Character hero, Actor target, bool isCritical)
-        {
-            double unowned = GameConfiguration.Instance.Combat.TransmuteUnownedRowRate;
-            int done = 0;
-            foreach (var row in Rows)
-            {
-                if (!row.Requires.All(s => IsUp(target, s)))
-                    continue;
-                if (SkillRanks.GetScaledRank(hero, row.Owner) > 0)
-                    done += ApplyRow(hero, target, row, isCritical);
-                else if (RandomUtility.NextDouble() < unowned)
-                    done += ApplyRow(hero, target, row, isCritical, ignoreChance: true);
-            }
-            return done;
-        }
-
-        /// <summary>True when the hero owns at least one row (TRANSMUTE runs those at full rate).</summary>
+        /// <summary>True when the hero owns at least one row.</summary>
         public static bool OwnsAny(Character hero) => Rows.Any(r => SkillRanks.GetScaledRank(hero, r.Owner) > 0);
 
         /// <summary>Runs one row (ownership already checked). Returns passes that converted.</summary>
-        /// <param name="ignoreChance">Skip the row's own chance roll (TRANSMUTE already rolled for an unowned row).</param>
+        /// <param name="ignoreChance">Skip the row's own chance roll.</param>
         public static int ApplyRow(Character hero, Actor target, ConversionRow row, bool isCritical, bool ignoreChance = false)
         {
             if (!row.Requires.All(s => IsUp(target, s)))

@@ -1682,7 +1682,7 @@ OPEN VEIN                                    payoff · Rogue
 | **16 materials** (12 class + Leather + Stone, Strange, Celestial); Wood, Cloth and Unknown become cosmetic | D4.3, D4.8 | `MaterialBuilds.json`, item catalogs |
 | **A material creates its currency** (names kept); **consumers spend or scale**; every amount has a turn / fight / dungeon scope; banked until dungeon exit | D6.2, D6.7, D6.9, D6.10 | `Stores`, `MaterialSetController` |
 | **The three materials of a class reward different triggers** | D6.3 | material data |
-| **Verbs: CASH IN (fullest store) and DETONATE only**; attunement goes | D6.4, D6.6 | `Code/Combat/Verbs/`, `Actions.json` |
+| **Verbs: CASH IN (fullest store) and DETONATE only**; attunement goes (done 2026-11-19, one-rule-engine step 5) | D6.4, D6.6 | `Code/Combat/Verbs/`, `Actions.json` |
 
 ### Step 9 — Skills and classes
 
