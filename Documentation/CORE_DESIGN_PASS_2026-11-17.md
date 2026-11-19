@@ -1161,6 +1161,48 @@ plan (Phase 10).
   the **fight** or the **dungeon**), set by whatever granted it, and that's the limit. Store banking for the
   dungeon (D6.7) is the longest scope.
 
+### Resolution order (added 2026-11-18)
+
+**Today (from code).** The order is an accident of the call sites. One landed swing runs, in
+`CombatEffectsSimplified.ApplyStatusEffects`: same-swing trigger bundles (before damage), damage, item on-hit
+statuses, the action's statuses, POTENCY, enemy affix statuses, post-damage trigger bundles, the streak counter,
+equipped-item triggers, convert spends (cash before mint), verb presets, costs, then material minting
+(`MaterialSetController.TryMintFromEvent`). Within one event, listeners run as **material sets (file order) →
+Listener affixes → skill nodes in the order you learned them → items Head, Body, Legs, Feet, Weapon**
+(`CrossWires.Collect`). A rule-raised event (`HeroEventHub.Raise`) resolves **immediately**, before the remaining
+listeners, up to 3 levels deep, and deeper raises are dropped silently. Enemies have no hub.
+
+**Decision log (2026-11-18)**
+- **D6.11** **Events within one chain link follow the beat (2a):** turn start (before the first roll) → the roll
+  (crit, crit miss or miss; a miss stops here) → hit → damage → the card's own effects (each status applied raises
+  *status applied*) → action → kill. Then the next bonus roll. After the last link: *chain end* or *chain
+  complete*. `WHILE` passives are never events: they are read as queries whenever a number is computed (damage,
+  bands, speed).
+- **D6.12** **Within one event, gains resolve before spends.** Phase 1: every rule that adds (MINT, ADD, APPLY,
+  granted amounts). Phase 2: everything else (spends, CASH, damage, heals, NEXT grants). A rule's IF is checked
+  when the rule resolves, so a phase 2 rule sees every phase 1 gain from the same event. Ties within a phase go by
+  **owner**:
+  1. the action card that fired,
+  2. the item that granted that card,
+  3. other worn items: Weapon, Head, Body, Legs, Feet,
+  4. material sets, in a fixed material order,
+  5. skill nodes in **tree order** (Core, then material branches, then Rite; by tier, then node position), never
+     learn order,
+  6. inside one owner, the order the rules are written on the card.
+- **D6.13** **Follow-up events queue.** An event raised by a rule's effect (cash GRAZE, CRISIS full, a status
+  applied by a card) waits until every rule on the current event has resolved, then resolves in turn (first in,
+  first out). The queue drains before the swing moves on to its next beat step, so the log reads top to bottom in
+  the order things happened.
+- **D6.14** **Two generations of follow-ups.** The beat step's event is generation 0; rule-raised events may reach
+  generation 2 (enough for spend RAGE → mint CRISIS → CRISIS full → its rule). A generation 3 event is dropped
+  **and logged** ("the trigger chain stops here"). The existing loop guards stay: a status applied by a rule doesn't
+  raise *status applied*, and aliases are one hop.
+- **D6.15** **The acting side resolves first, then the other side.** When the hero hits, the hero's *hit* rules
+  resolve, then the enemy's *take hit* rules; on the enemy's swing it's the reverse. Room and dungeon rules resolve
+  last. Enemies use the same engine and the same order (the mirror, D0.11).
+- **D6.16** **Every resolved rule records its owner and generation**, so the detailed log can show the trigger
+  chain and step 5 of the beat ("what it triggered") can name the top source.
+
 **Phase 6 closed (2026-11-18).**
 
 ---
@@ -1623,6 +1665,7 @@ OPEN VEIN                                    payoff · Rogue
 | Work | Decisions | Touches |
 |---|---|---|
 | **Merge the trigger paths** (action trigger bundles, material earn rules, CrossWires, Listener affixes, hub events) into one engine on **11 events** | D6.1, D6.5 | `TriggerEvents`, `HeroEventHub`, `CrossWires`, `ActionTriggerGate`, `MaterialSetController` |
+| **Fixed resolution order:** beat-ordered events per link, gains before spends, owner tie-break (tree order, not learn order), a FIFO follow-up queue drained per beat step, generation cap 2 with a log line, acting side first, enemies on the same engine; tests that pin each rule | D6.11–D6.16 | the merged engine, `CrossWires.Collect`, `HeroEventHub.Raise`, `CombatEffectsSimplified.ApplyStatusEffects`, combat log |
 | **Self-contained Uncommon modifiers**; RANK / TAGAS / SETCOUNT modifiers move to Epic; rules scoped by rarity | D4.2, D6.5 | `Weapons.json`, `Armor.json`, `Scripts/build-item-mods.py`, `BaseModifierRoller` |
 
 ### Step 7 — Loot depth
