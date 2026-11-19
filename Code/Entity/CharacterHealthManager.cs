@@ -87,7 +87,7 @@ namespace RPGGame
             }
             if (character.FortifyArmorBonus is int fortifyBonus && fortifyBonus > 0)
                 max += fortifyBonus;
-            max += SkillEffectRouter.Instance.GetSkillArmorBonus(character);
+            max += CrossWires.ArmorFlat(character); // WHILE -> ARMOR n (flat), e.g. Level 2 - Barbarian
             if (character is not Enemy)
             {
                 double rulePct = CrossWires.Passive(character, "ARMOR");
@@ -190,12 +190,6 @@ namespace RPGGame
             if (shieldUsed)
             {
                 character.Effects.LastShieldReduction = originalAmount - amount;
-            }
-
-            if (amount > 0 && character is not Enemy)
-            {
-                bool armorAbsorbed = character.Effects.LastArmorAbsorbed > 0 || shieldUsed;
-                SkillEffectRouter.Instance.NotifyHeroTookDamage(character, amount, armorAbsorbed);
             }
 
             // Check for health milestones and leadership changes

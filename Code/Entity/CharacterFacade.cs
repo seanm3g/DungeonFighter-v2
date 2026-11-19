@@ -194,7 +194,7 @@ namespace RPGGame
             var combat = GameConfiguration.Instance.Combat;
             if (_character is Enemy || combat.StrengthDamagePerPoint <= 0)
                 return 1.0;
-            int cap = combat.StrengthDamageMaxStat > 0 ? combat.StrengthDamageMaxStat + SkillEffectRouter.StrengthCapBonus(_character) : int.MaxValue;
+            int cap = combat.StrengthDamageMaxStat > 0 ? combat.StrengthDamageMaxStat : int.MaxValue;
             int str = Math.Max(0, GetDamageAttributeValue());
             double counted = Math.Min(str, cap);
             // Overflow: STR past the cap still counts at a reduced share, so STR stays worth collecting late.
@@ -214,8 +214,7 @@ namespace RPGGame
             double counted = Math.Min(intel, cap);
             if (intel > cap && combat.StrengthOverflowEfficiency > 0)
                 counted += (intel - cap) * combat.StrengthOverflowEfficiency;
-            // Archmage (wizard Rite) raises INT's AMP potency for wizards only.
-            return 1.0 + counted * combat.IntelligenceAmpPerPoint * SkillEffectRouter.ArchmageDurationMultiplier(_character);
+            return 1.0 + counted * combat.IntelligenceAmpPerPoint;
         }
 
         // === ACTION MANAGEMENT ===

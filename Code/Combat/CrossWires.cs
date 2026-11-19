@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using RPGGame.Actions.Conditional;
 using RPGGame.Combat.Events;
 using RPGGame.Data;
 
@@ -111,9 +112,14 @@ namespace RPGGame
 
         public bool IsPassive => When.Equals("WHILE", StringComparison.OrdinalIgnoreCase);
 
-        public static readonly string[] TriggeredVerbs = { "MINT", "ADD", "APPLY", "HEAL", "REFLECT", "BUFF", "NEXT" };
+        /// <summary>Triggered verbs. SPEND store n|all takes from a store (raising ONCASH); NEXTROLL n makes your next natural
+        /// roll that face (2026-11-18).</summary>
+        public static readonly string[] TriggeredVerbs = { "MINT", "ADD", "APPLY", "HEAL", "REFLECT", "BUFF", "NEXT", "SPEND", "NEXTROLL" };
+        /// <summary>Passive verbs. ARMOR n% scales armor, ARMOR n (no %) adds flat armor. DROP who n% (a class tag or a
+        /// material): that share of armor drops take that material. MINTBONUS who n: +n to each mint of that currency
+        /// (a keyword, a material, or a class tag for its three materials).</summary>
         public static readonly string[] PassiveStats =
-            { "DAMAGE", "ARMOR", "SPEED", "HIT", "COMBO", "CRIT", "POTENCY", "AMP", "MULTIHIT", "STR", "AGI", "TEC", "INT" };
+            { "DAMAGE", "ARMOR", "SPEED", "HIT", "COMBO", "CRIT", "POTENCY", "AMP", "MULTIHIT", "STR", "AGI", "TEC", "INT", "DROP", "MINTBONUS" };
         /// <summary>Passive attribute stats (folded into the effective attribute getters).</summary>
         public static readonly string[] AttributeStats = { "STR", "AGI", "TEC", "INT" };
         /// <summary>What NEXT can grant on your next roll(s).</summary>
@@ -124,7 +130,9 @@ namespace RPGGame
         public static readonly string[] BuffStats = { "STR", "AGI", "TECH", "TEC", "INT", "HIT", "COMBO", "CRIT", "ACCURACY" };
         public static readonly string[] Exemptions = { "STREAK", "COMBO" };
         internal static readonly string[] SelfKeys =
-            { "HP", "STEP", "SLOT", "SLOTS", "EXTRASLOTS", "SPENT", "LENGTH", "ROLL", "DISTINCT", "TURN", "HITSTREAK", "STR", "AGI", "TEC", "INT" };
+            { "HP", "STEP", "SLOT", "SLOTS", "EXTRASLOTS", "SPENT", "LENGTH", "ROLL", "LASTROLL", "EXTRAHITS", "DISTINCT", "TURN", "HITSTREAK", "STR", "AGI", "TEC", "INT" };
+        /// <summary>SPEND's amount for "all".</summary>
+        public const double SpendAllAmount = 1_000_000;
         private static readonly Regex Compare = new(@"^([A-Za-z_]+)(>=|<=|>|<|=)(-?[0-9]+(?:\.[0-9]+)?)$", RegexOptions.Compiled);
 
         public static CrossWireRule? Parse(string? spec, string source = "")
@@ -232,7 +240,32 @@ namespace RPGGame
             // [IFTAG tag] | STAT n, each optionally followed by PER <source> [n].
             string store = "";
             int amountAt = 1;
-            if (verb is "MINT" or "ADD" or "APPLY" or "BUFF" or "POTENCY" or "NEXT")
+            if (verb == "SPEND")
+            {
+                // SPEND store n|all: no PER, no FOR.
+                if (right.Length != 3)
+                    return null;
+                double n = SpendAllAmount;
+                if (!right[2].Equals("all", StringComparison.OrdinalIgnoreCase)
+                    && (!TryAmount(right[2], out n, out bool spendPct) || spendPct || n < 1))
+                    return null;
+                return new CrossWireRule
+                {
+                    When = left[0], Every = every, Once = once, Chance = chance, Conditions = conds,
+                    Verb = verb, Store = KeyOf(right[1]), Amount = n, Source = source, Text = spec.Trim()
+                };
+            }
+            if (verb == "NEXTROLL")
+            {
+                if (right.Length != 2 || !TryAmount(right[1], out double face, out bool facePct) || facePct || face < 1 || face > 20)
+                    return null;
+                return new CrossWireRule
+                {
+                    When = left[0], Every = every, Once = once, Chance = chance, Conditions = conds,
+                    Verb = verb, Amount = face, Source = source, Text = spec.Trim()
+                };
+            }
+            if (verb is "MINT" or "ADD" or "APPLY" or "BUFF" or "POTENCY" or "NEXT" or "DROP" or "MINTBONUS")
             {
                 if (right.Length < 3)
                     return null;
@@ -610,6 +643,10 @@ namespace RPGGame
         /// <param name="whenMatches">Already gated for take-hit vs own events, aliases included (MaterialSetController).</param>
         internal static void OnCombatEvent(Character hero, Func<string, bool> whenMatches, bool takeHitOnly, CombatEvent? evt = null)
         {
+            // LASTROLL: the natural roll of the hero's latest own swing (hit or miss), read until the next one.
+            if (!takeHitOnly && evt != null && ReferenceEquals(evt.Source, hero)
+                && evt.Type is CombatEventType.ActionHit or CombatEventType.ActionMiss or CombatEventType.ActionCritical)
+                _lastRolls.GetOrCreateValue(hero).Value = Math.Max(0, evt.NaturalRollValue);
             foreach (var rule in Active(hero))
             {
                 if (rule.IsPassive || rule.Verb == "COUNTAS" || !TriggerEvents.TryGet(rule.When, out var def) || !def.Emitted)
@@ -622,9 +659,24 @@ namespace RPGGame
         /// <summary>New fight: EVERY counters restart.</summary>
         public static void ResetFight(Character? hero)
         {
-            if (hero != null)
-                _everyCounters.Remove(hero);
+            if (hero == null)
+                return;
+            _everyCounters.Remove(hero);
+            _lastRolls.Remove(hero);
+            Stores.ResetFightCounters(hero);
         }
+
+        private static readonly ConditionalWeakTable<Character, StrongBox<int>> _lastRolls = new();
+
+        /// <summary>Natural roll of the hero's latest own swing this fight (0 before the first).</summary>
+        public static int LastRoll(Character hero) => _lastRolls.TryGetValue(hero, out var box) ? box.Value : 0;
+
+        /// <summary>Hits past the first on <paramref name="action"/> (its multi-hit count, banked and gear multi-hit).</summary>
+        public static int ExtraHits(Character hero, Action? action) =>
+            action == null
+                ? 0
+                : Math.Max(0, action.Advanced.MultiHitCount - 1) + (int)hero.Effects.ConsumedMultiHitMod
+                    + ActionUtilities.GetGearMultiHitBonus(hero, action);
 
         private static void Fire(Character hero, CrossWireRule rule, int eventAmount, CombatEvent? evt, bool takeHit = false)
         {
@@ -653,6 +705,22 @@ namespace RPGGame
             }
             if (rule.Chance > 0 && rule.Chance < 1 && RandomUtility.NextDouble() >= rule.Chance)
                 return;
+
+            // SPEND and NEXTROLL read their written number (no rank scaling, PER or crit amplification).
+            double written = rule.Scale > 0 ? rule.Amount / rule.Scale : rule.Amount;
+            if (rule.Verb == "NEXTROLL")
+            {
+                CombatTriggerContext.SetPendingReplaceRollFace(hero, (int)Math.Round(written));
+                return;
+            }
+            if (rule.Verb == "SPEND")
+            {
+                int max = written >= CrossWireRule.SpendAllAmount ? int.MaxValue : (int)Math.Round(written);
+                int spent = Stores.Spend(hero, rule.Store, max);
+                if (spent > 0)
+                    HeroEventHub.OnCash(hero, rule.Store, spent);
+                return;
+            }
 
             double perFactor = rule.Per == null ? 1.0 : PerValue(hero, target, rule.Per, eventAmount, evt, evt?.Action);
             if (perFactor <= 0)
@@ -783,7 +851,11 @@ namespace RPGGame
                 "target" => target == null ? 0 : Stores.Get(target, per.Arg),
                 "stat" => AttributeValue(hero, per.Arg),
                 "worn" => WornCount(hero, per.Arg),
-                "tags" => ActionUtilities.GetComboActions(hero).Count(a => HasTag(hero, a, per.Arg)),
+                // A class tag counts gear (tagged pieces, and class materials once the Core root is learned), strip
+                // actions and hybrid partners; any other tag counts strip actions.
+                "tags" => ClassTags.All.Contains(per.Arg, StringComparer.OrdinalIgnoreCase)
+                    ? ClassTags.Count(hero, per.Arg)
+                    : ActionUtilities.GetComboActions(hero).Count(a => HasTag(hero, a, per.Arg)),
                 "quality" => QualityCount(hero, per.Arg.Split('|', StringSplitOptions.RemoveEmptyEntries)),
                 _ => SelfValue(hero, per.Arg, eventAmount, evt, action)
             };
@@ -859,6 +931,8 @@ namespace RPGGame
             "SPENT" => eventAmount,
             "LENGTH" => (evt?.Action ?? action)?.Length ?? 0,
             "ROLL" => evt?.NaturalRollValue ?? 0,
+            "LASTROLL" => LastRoll(hero),
+            "EXTRAHITS" => ExtraHits(hero, evt?.Action ?? action),
             "DISTINCT" => Attunement.CountDistinctMaterials(hero),
             "TURN" => HeroEventHub.FightTurns(hero),
             "HITSTREAK" => hero.Effects.MaterialConsecutiveConnects,
@@ -1164,6 +1238,9 @@ namespace RPGGame
                 {
                     if (!rule.IsPassive || !rule.Verb.Equals(stat, StringComparison.OrdinalIgnoreCase))
                         continue;
+                    // ARMOR n% scales armor here; flat ARMOR n is summed by ArmorFlat.
+                    if (rule.Verb == "ARMOR" && !rule.Percent)
+                        continue;
                     bool readsAction = rule.Conditions.Any(c => c.ReadsAction);
                     if ((actionOnly && !readsAction) || (action == null && readsAction))
                         continue;
@@ -1186,6 +1263,75 @@ namespace RPGGame
                 if (attribute)
                     _attributeDepth--;
             }
+        }
+
+        /// <summary>Sum of passive <paramref name="verb"/> rules that pass <paramref name="pick"/> and hold now (no swing).</summary>
+        private static double SumPassive(Character hero, string verb, Func<CrossWireRule, bool> pick)
+        {
+            double sum = 0;
+            Actor? target = null;
+            bool resolved = false;
+            foreach (var rule in Collect(hero, TreesHavePassive()))
+            {
+                if (!rule.IsPassive || rule.Verb != verb || !pick(rule) || rule.Conditions.Any(c => c.ReadsAction))
+                    continue;
+                if (!resolved)
+                {
+                    target = HeroEventHub.CurrentTarget(hero);
+                    resolved = true;
+                }
+                if (!ConditionsHold(hero, target, rule))
+                    continue;
+                sum += rule.Amount * (rule.Per == null ? 1.0 : PerValue(hero, target, rule.Per));
+            }
+            return sum;
+        }
+
+        /// <summary>Flat armor from <c>WHILE -> ARMOR n</c> rules (no %), e.g. <c>ARMOR 1 PER LASTROLL</c>.</summary>
+        public static int ArmorFlat(Character? hero) =>
+            hero == null || hero is Enemy ? 0 : (int)Math.Round(SumPassive(hero, "ARMOR", r => !r.Percent));
+
+        /// <summary>
+        /// DROP rules: chance (0-1) that an armor drop takes a material, keyed by class tag (one of its three materials)
+        /// or material name. Chances for the same key add up, capped at 1.
+        /// </summary>
+        public static Dictionary<string, double> DropChances(Character? hero)
+        {
+            var map = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+            if (hero == null || hero is Enemy)
+                return map;
+            foreach (var rule in Collect(hero, TreesHavePassive()))
+            {
+                if (!rule.IsPassive || rule.Verb != "DROP" || rule.Conditions.Any(c => c.ReadsAction)
+                    || !ConditionsHold(hero, HeroEventHub.CurrentTarget(hero), rule))
+                    continue;
+                double share = rule.Amount * (rule.Per == null ? 1.0 : PerValue(hero, null, rule.Per)) / 100.0;
+                string key = rule.Store.ToLowerInvariant();
+                map[key] = Math.Min(1.0, map.GetValueOrDefault(key) + share);
+            }
+            return map;
+        }
+
+        /// <summary>
+        /// MINTBONUS rules: extra units on each mint of <paramref name="keyword"/> (rules name the keyword, its material, or
+        /// the class whose materials include it). Whole units.
+        /// </summary>
+        public static int MintBonus(Character? hero, string? keyword)
+        {
+            if (hero == null || hero is Enemy || string.IsNullOrWhiteSpace(keyword))
+                return 0;
+            var build = MaterialBuildsLoader.FindByKeyword(keyword);
+            string? material = build?.Material;
+            bool Names(CrossWireRule r)
+            {
+                string who = r.Store;
+                if (string.Equals(who, keyword, StringComparison.OrdinalIgnoreCase)
+                    || (material != null && string.Equals(who, material, StringComparison.OrdinalIgnoreCase)))
+                    return true;
+                return material != null && ClassTags.All.Contains(who, StringComparer.OrdinalIgnoreCase)
+                    && ClassTags.MaterialsOf(who).Any(m => string.Equals(m, material, StringComparison.OrdinalIgnoreCase));
+            }
+            return (int)Math.Floor(SumPassive(hero, "MINTBONUS", Names) + 1e-9);
         }
 
         /// <summary>Swing-scoped SPEED rules (IF ACTION / TAG / CLASS) for <paramref name="action"/>, in % (+ = faster), floored at -50.
@@ -1299,6 +1445,24 @@ namespace RPGGame
             }
             if (rule.Verb == "SETCOUNT")
                 return rule.Amount <= 1 ? "Counts twice toward its material set" : $"Counts {rule.Amount + 1:0} times toward its material set";
+            if (rule.IsPassive && rule.Verb == "DROP")
+            {
+                string lead = cond.Length > 0 ? $"While{cond}: " : "";
+                string who = ClassTags.All.Contains(rule.Store, StringComparer.OrdinalIgnoreCase)
+                    ? CultureInfo.InvariantCulture.TextInfo.ToTitleCase(rule.Store) + " materials ("
+                        + string.Join(" / ", ClassTags.MaterialsOf(rule.Store)) + ")"
+                    : CultureInfo.InvariantCulture.TextInfo.ToTitleCase(rule.Store);
+                return $"{lead}{rule.Amount:0.##}% of armor drops are {who}{per}";
+            }
+            if (rule.IsPassive && rule.Verb == "MINTBONUS")
+            {
+                string lead = cond.Length > 0 ? $"While{cond}: " : "";
+                string who = ClassTags.All.Contains(rule.Store, StringComparer.OrdinalIgnoreCase)
+                    ? string.Join(" / ", ClassTags.MaterialsOf(rule.Store)
+                        .Select(m => MaterialBuildsLoader.FindByMaterial(m)?.Keyword ?? m).Select(k => k.ToUpperInvariant()))
+                    : rule.Store.ToUpperInvariant();
+                return $"{lead}{sign}{rule.Amount:0.##} to each {who} earned{per}";
+            }
             if (rule.IsPassive && rule.Verb == "POTENCY")
             {
                 string lead = cond.Length > 0 ? $"While{cond}: " : "";
@@ -1328,6 +1492,10 @@ namespace RPGGame
                 "REFLECT" => $"deal {rule.Amount:0.##}% of it back",
                 "BUFF" => $"+{rule.Amount:0.##} {rule.Store.ToUpperInvariant()}{per} for the {rule.Scope}",
                 "NEXT" => DescribeNext(rule, per),
+                "NEXTROLL" => $"your next roll is a {rule.Amount / (rule.Scale > 0 ? rule.Scale : 1):0}",
+                "SPEND" => rule.Amount / (rule.Scale > 0 ? rule.Scale : 1) >= CrossWireRule.SpendAllAmount
+                    ? $"spend all {rule.Store}"
+                    : $"spend {rule.Amount / (rule.Scale > 0 ? rule.Scale : 1):0} {rule.Store}",
                 _ => $"{amount} {rule.Store}{per} on the target"
             };
             return $"{when}{gate}{cond}: {what}";
@@ -1386,6 +1554,8 @@ namespace RPGGame
                     "SLOT" => "x strip slot",
                     "SPENT" => $"per {step}spent",
                     "ROLL" => "x the roll",
+                    "LASTROLL" => "x your last natural roll",
+                    "EXTRAHITS" => $"per {step}extra hit",
                     "HITSTREAK" => $"per {step}hit in your streak",
                     "DISTINCT" => $"per {step}distinct material",
                     _ => $"per {step}{p.Arg}"
@@ -1415,7 +1585,9 @@ namespace RPGGame
                     "EXTRASLOTS" => $"extra strip slots{cmp}",
                     "SPENT" => $"spending{cmp}",
                     "LENGTH" => $"action length{cmp}",
-                    "ROLL" => $"roll{cmp}",
+                    "ROLL" => c.Op == "=" ? $"on a natural {c.Value:0}" : $"roll{cmp}",
+                    "LASTROLL" => $"last roll{cmp}",
+                    "EXTRAHITS" => $"extra hits{cmp}",
                     "DISTINCT" => $"materials worn{cmp}",
                     "TURN" => $"turn{cmp}",
                     "HITSTREAK" => $"hit streak{cmp}",

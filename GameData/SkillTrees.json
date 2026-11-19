@@ -65,9 +65,10 @@
           "requires": [],
           "effect": "Armor drops have a 50% chance to be a Barbarian material (Bone / Steel / Iron).",
           "payoff": "Loot bias toward your material/class tags.",
-          "customEffectId": "blood_market",
+          "customEffectId": "rule",
           "power": 1.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> DROP barbarian 50%"
         },
         {
           "id": "b-lvl2",
@@ -78,11 +79,12 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "Gain Defense equal to your natural dice roll x {1} until you next act.",
+          "effect": "Gain armor equal to your last natural roll, until you roll again.",
           "payoff": "Aggressive rolls still buy defense.",
-          "customEffectId": "iron_hide_roll",
+          "customEffectId": "rule",
           "power": 1.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> ARMOR 1 PER LASTROLL"
         },
         {
           "id": "b-puberty",
@@ -125,11 +127,12 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "+{1} Combo (lower combo threshold) per 2 Barbarian tags on gear and strip, whole steps.",
+          "effect": "+1 Combo (lower Action threshold) per 2 Barbarian tags on your gear and strip.",
           "payoff": "Tag-dense kits enter combo more often.",
-          "customEffectId": "heavy_cadence",
+          "customEffectId": "rule",
           "power": 1.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> COMBO 1 PER TAGS barbarian 2"
         },
         {
           "id": "b-stun",
@@ -324,12 +327,13 @@
           "type": "Mastery",
           "maxRank": 5,
           "cost": 1,
-          "customEffectId": "blood_synthesis",
+          "customEffectId": "rule",
           "power": 0.08572,
-          "effect": "Every 20 STR adds +{1} to each RAGE / CRISIS / TRIUMPH mint, per rank.",
+          "effect": "+{1} to each RAGE / CRISIS / TRIUMPH earned per 20 STR, per rank.",
           "payoff": "Strength feeds the materials.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> MINTBONUS barbarian 1 PER STAT STR 20"
         },
         {
           "id": "b-titan",
@@ -380,23 +384,6 @@
           "payoff": "Late points still count.",
           "requires": [],
           "damageModPerRank": 1,
-          "sharedWith": []
-        },
-        {
-          "name": "Living Alloy",
-          "type": "Rule",
-          "effect": "Harden and Fortify stacks count as Bronze items. A critical may consume one stack to repeat the current slot.",
-          "payoff": "Defense becomes material.",
-          "customEffectId": "living_alloy",
-          "id": "b-alloy",
-          "branch": "Confluence",
-          "tier": 19,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.0,
-          "requires": [
-            "b-wrath"
-          ],
           "sharedWith": []
         },
         {
@@ -760,9 +747,10 @@
           "requires": [],
           "effect": "Armor drops have a 50% chance to be a Warrior material (Bronze / Gold / Mithril).",
           "payoff": "Loot bias toward Bronze/Gold/Mithril.",
-          "customEffectId": "muster_hall",
+          "customEffectId": "rule",
           "power": 1.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> DROP warrior 50%"
         },
         {
           "id": "w-lvl2",
@@ -821,11 +809,12 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "+{1} Combo (lower combo threshold) per 2 Warrior tags on gear and strip, whole steps.",
+          "effect": "+1 Combo (lower Action threshold) per 2 Warrior tags on your gear and strip.",
           "payoff": "Tag-dense kits enter combo more often.",
-          "customEffectId": "drill_cadence",
+          "customEffectId": "rule",
           "power": 1.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> COMBO 1 PER TAGS warrior 2"
         },
         {
           "id": "w-hitagi",
@@ -911,21 +900,6 @@
           "crossWire": "ONBEAT -> ADD focus 1"
         },
         {
-          "name": "Flow State",
-          "type": "Rule",
-          "effect": "Three different actions connect without a miss: gain one reroll and exploding dice on the next action.",
-          "payoff": "Clean variety earns a reroll.",
-          "customEffectId": "flow_state",
-          "id": "w-flow",
-          "branch": "Bronze",
-          "tier": 16,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.44504,
-          "requires": [],
-          "sharedWith": []
-        },
-        {
           "id": "w-drum",
           "name": "War Drum",
           "branch": "Bronze",
@@ -982,9 +956,9 @@
         {
           "name": "Second Wind",
           "type": "Passive",
-          "effect": "Ending a combo without missing heals {8}% max HP and converts leftover Focus into Fortify.",
+          "effect": "When your combo ends: heal 8% max HP and turn all your Focus into Fortify.",
           "payoff": "Clean lines heal.",
-          "customEffectId": "second_wind",
+          "customEffectId": "rule",
           "id": "w-wind",
           "branch": "Gold",
           "tier": 16,
@@ -995,7 +969,8 @@
           "sharedWith": [],
           "excludes": [
             "w-hamstrung"
-          ]
+          ],
+          "crossWire": "ONCOMBOEND -> HEAL 8; ONCOMBOEND -> ADD fortify 1 PER focus; ONCOMBOEND -> SPEND focus all"
         },
         {
           "id": "w-sink-gold",
@@ -1057,12 +1032,13 @@
           "type": "Mastery",
           "maxRank": 5,
           "cost": 1,
-          "customEffectId": "drill_synthesis",
+          "customEffectId": "rule",
           "power": 0.05677,
-          "effect": "Every 20 AGI adds +{1} to each BEAT / DRAG / STREAK mint, per rank.",
+          "effect": "+{1} to each BEAT / DRAG / STREAK earned per 20 AGI, per rank.",
           "payoff": "Speed feeds the materials.",
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> MINTBONUS warrior 1 PER STAT AGI 20"
         },
         {
           "id": "w-flowcrest",
@@ -1454,9 +1430,10 @@
           "requires": [],
           "effect": "Armor drops have a 50% chance to be a Rogue material (Glass / Obsidian / Shadow).",
           "payoff": "Loot bias toward Glass/Obsidian/Shadow.",
-          "customEffectId": "black_market",
+          "customEffectId": "rule",
           "power": 1.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> DROP rogue 50%"
         },
         {
           "id": "r-lvl2",
@@ -1515,11 +1492,12 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "+{1} Combo (lower combo threshold) per 2 Rogue tags on gear and strip, whole steps.",
+          "effect": "+1 Combo (lower Action threshold) per 2 Rogue tags on your gear and strip.",
           "payoff": "Tag-dense kits enter combo more often.",
-          "customEffectId": "soft_cadence",
+          "customEffectId": "rule",
           "power": 1.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> COMBO 1 PER TAGS rogue 2"
         },
         {
           "id": "r-critmiss",
@@ -1530,11 +1508,12 @@
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "Crit miss with a Dagger: bank one miss salvage.",
+          "effect": "Crit miss with a Dagger: bank one miss salvage (your next miss hits instead).",
           "payoff": "Worst faces get one salvage.",
-          "customEffectId": "dagger_critmiss_reroll",
+          "customEffectId": "rule",
           "power": 1.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCRITICALMISS IF WEAPON dagger -> ADD salvage 1"
         },
         {
           "id": "r-streak",
@@ -1571,9 +1550,9 @@
         {
           "name": "Snake Eyes",
           "type": "Rule",
-          "effect": "Natural 2 and 12 grant Loaded. At 2 Loaded, replace the next roll with 20.",
+          "effect": "Natural 2s and 12s add Loaded. At 2 Loaded, your next roll is a 20.",
           "payoff": "Bad rolls load the dice.",
-          "customEffectId": "snake_eyes",
+          "customEffectId": "rule",
           "id": "r-snake",
           "branch": "Glass",
           "tier": 16,
@@ -1584,7 +1563,8 @@
           "sharedWith": [],
           "excludes": [
             "r-hairline"
-          ]
+          ],
+          "crossWire": "ONATTACK IF ROLL=2 -> ADD loaded 1; ONATTACK IF ROLL=12 -> ADD loaded 1; ONATTACK IF loaded>=2 -> NEXTROLL 20; ONATTACK IF loaded>=2 -> SPEND loaded 2"
         },
         {
           "id": "r-shatter",
@@ -1641,24 +1621,6 @@
           ]
         },
         {
-          "name": "Technical Debt",
-          "type": "Rule",
-          "effect": "Distinct action tags add Debt. Repeating a tag cashes all Debt into Expose stacks.",
-          "payoff": "Variety cashes into Expose.",
-          "customEffectId": "technical_debt",
-          "id": "r-debt",
-          "branch": "Shadow",
-          "tier": 15,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 0.25,
-          "requires": [],
-          "sharedWith": [],
-          "excludes": [
-            "r-setup"
-          ]
-        },
-        {
           "id": "r-sink-shadow",
           "name": "Shade",
           "branch": "Shadow",
@@ -1698,16 +1660,17 @@
           "type": "Mastery",
           "maxRank": 5,
           "cost": 1,
-          "customEffectId": "edge_synthesis",
+          "customEffectId": "rule",
           "power": 0.1289,
-          "effect": "Every 20 TEC adds +{1} to each GRAZE / SWING / TROPHY mint, per rank.",
+          "effect": "+{1} to each GRAZE / SWING / TROPHY earned per 20 TEC, per rank.",
           "payoff": "Technique feeds the materials.",
           "requires": [],
           "sharedWith": [],
           "excludes": [
             "r-xr-barbarian",
             "r-xr-wizard"
-          ]
+          ],
+          "crossWire": "WHILE -> MINTBONUS rogue 1 PER STAT TEC 20"
         },
         {
           "id": "r-aim",
@@ -1814,7 +1777,7 @@
           "type": "Mastery",
           "effect": "Multihit Dagger actions add +{1} Bleed per extra hit.",
           "payoff": "Volume becomes Bleed.",
-          "customEffectId": "dagger_mastery",
+          "customEffectId": "rule",
           "id": "r-mastery",
           "branch": "Obsidian",
           "tier": 16,
@@ -1822,7 +1785,8 @@
           "cost": 1,
           "power": 0.85,
           "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "ONCONNECT IF WEAPON dagger -> APPLY bleed 1 PER EXTRAHITS"
         },
         {
           "id": "r-sink-obsidian",
@@ -2011,9 +1975,7 @@
           "power": 1.0,
           "sharedWith": [],
           "crossWire": "ONSTATUSAPPLY:brittle -> NEXT DAMAGE 20%",
-          "excludes": [
-            "r-debt"
-          ]
+          "excludes": []
         },
         {
           "id": "r-al-glass",
@@ -2192,9 +2154,10 @@
           "requires": [],
           "effect": "Armor drops have a 50% chance to be a Wizard material (Willow / Silver / Crystal).",
           "payoff": "Loot bias toward Willow/Silver/Crystal.",
-          "customEffectId": "reagent_market",
+          "customEffectId": "rule",
           "power": 1.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> DROP wizard 50%"
         },
         {
           "id": "z-lvl2",
@@ -2247,18 +2210,19 @@
         },
         {
           "id": "z-combo",
-          "name": "Soft Cadence",
+          "name": "Weave Cadence",
           "branch": "Core",
           "tier": 7,
           "type": "Rule",
           "cost": 1,
           "maxRank": 1,
           "requires": [],
-          "effect": "+{1} Combo (lower combo threshold) per 2 Wizard tags on gear and strip, whole steps.",
+          "effect": "+1 Combo (lower Action threshold) per 2 Wizard tags on your gear and strip.",
           "payoff": "Tag-dense spells enter combo more often.",
-          "customEffectId": "soft_cadence_wiz",
+          "customEffectId": "rule",
           "power": 1.0,
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> COMBO 1 PER TAGS wizard 2"
         },
         {
           "id": "z-comboInt",
@@ -2325,24 +2289,6 @@
           "crossWire": "ONCONNECT IF WEAPON wand -> NEXT DAMAGE 2%",
           "excludes": [
             "z-tempo"
-          ]
-        },
-        {
-          "name": "Spell Memory",
-          "type": "Rule",
-          "effect": "Repeating a tag adds +{12}% AMP per rank; changing tags cashes the stack (+{12}% per stack per rank).",
-          "payoff": "Repetition builds AMP.",
-          "customEffectId": "spell_memory",
-          "id": "z-memory",
-          "branch": "Willow",
-          "tier": 14,
-          "maxRank": 5,
-          "cost": 1,
-          "power": 0.207,
-          "requires": [],
-          "sharedWith": [],
-          "excludes": [
-            "z-charged"
           ]
         },
         {
@@ -2491,27 +2437,13 @@
           "type": "Mastery",
           "maxRank": 5,
           "cost": 1,
-          "customEffectId": "weave_synthesis",
+          "customEffectId": "rule",
           "power": 0.18784,
-          "effect": "Every 20 INT adds +{1} to each CHAIN / LENS / CONTACT mint, per rank.",
+          "effect": "+{1} to each CHAIN / LENS / CONTACT earned per 20 INT, per rank.",
           "payoff": "Intelligence feeds the materials.",
           "requires": [],
-          "sharedWith": []
-        },
-        {
-          "id": "z-archmage",
-          "name": "Archmage",
-          "branch": "Rite",
-          "tier": 18,
-          "type": "Mastery",
-          "maxRank": 1,
-          "cost": 1,
-          "customEffectId": "archmage",
-          "power": 1.6,
-          "effect": "INT's bonus to AMP and to your status durations gains +{100}%.",
-          "payoff": "Your intellect hits harder and your spells linger.",
-          "requires": [],
-          "sharedWith": []
+          "sharedWith": [],
+          "crossWire": "WHILE -> MINTBONUS wizard 1 PER STAT INT 20"
         },
         {
           "name": "Mana Bleed",
@@ -2593,25 +2525,6 @@
           "payoff": "Late points still count.",
           "requires": [],
           "damageModPerRank": 1,
-          "sharedWith": []
-        },
-        {
-          "name": "Grand Equation",
-          "type": "Rule",
-          "effect": "Once per combo, natural roll + strip slot = 21 retriggers the opener with current elemental statuses.",
-          "payoff": "The math closes the fight.",
-          "customEffectId": "grand_equation",
-          "id": "z-equation",
-          "branch": "Confluence",
-          "tier": 19,
-          "maxRank": 1,
-          "cost": 1,
-          "power": 1.0,
-          "requires": [
-            "z-lash",
-            "z-refract",
-            "z-resonate"
-          ],
           "sharedWith": []
         },
         {
@@ -2898,9 +2811,7 @@
           "power": 1.0,
           "sharedWith": [],
           "crossWire": "ONCOMBO IF TAG focus -> NEXT AMP 40% IFTAG status",
-          "excludes": [
-            "z-memory"
-          ]
+          "excludes": []
         }
       ]
     },

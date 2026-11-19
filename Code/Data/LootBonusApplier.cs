@@ -21,7 +21,7 @@ namespace RPGGame
             _random = random;
         }
 
-        /// <summary>Market skill rules: a non-weapon drop may take one of the hero's three class materials.</summary>
+        /// <summary>DROP rules (Market nodes, items): a non-weapon drop may take a class's material or a named material.</summary>
         private string ApplyClassMaterialBias(string materialName, LootContext? context)
         {
             if (context?.ClassMaterialChance == null || context.ClassMaterialChance.Count == 0)
@@ -30,9 +30,18 @@ namespace RPGGame
             {
                 if (kv.Value <= 0 || _random.NextDouble() >= kv.Value)
                     continue;
-                if (ClassTags.WeaponOf(kv.Key) is WeaponType wt
-                    && ItemMaterialRules.TryPickFamilyMaterial(wt, _random, out string family))
-                    return family;
+                if (ClassTags.WeaponOf(kv.Key) is WeaponType wt)
+                {
+                    if (ItemMaterialRules.TryPickFamilyMaterial(wt, _random, out string family))
+                        return family;
+                    continue;
+                }
+                // A material name: use its catalog spelling when it's a known material.
+                var known = (_dataCache.Modifications ?? new List<Modification>()).FirstOrDefault(m =>
+                    m.GetPrefixCategory() == ModificationPrefixCategory.Material
+                    && string.Equals(m.Name?.Trim(), kv.Key, StringComparison.OrdinalIgnoreCase));
+                if (known?.Name != null)
+                    return known.Name.Trim();
             }
             return materialName;
         }

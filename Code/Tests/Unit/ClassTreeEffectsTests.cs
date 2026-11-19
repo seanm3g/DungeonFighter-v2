@@ -78,15 +78,18 @@ namespace RPGGame.Tests.Unit
         private static void TestSynthesisFeed()
         {
             var hero = MakeHero("Synth", WeaponType.Dagger, 50);
-            TestBase.AssertEqual(0, SkillEffectRouter.SynthesisFeedBonus(hero, "Glass"), "no feed without Edge Synthesis",
+            TestBase.AssertEqual(0, CrossWires.MintBonus(hero, "GRAZE"), "no feed without Edge Synthesis",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             hero.Progression.LearnedSkillRanks["r-synth"] = 5;
+            hero.Stats.Technique = 200;
             int tec = hero.GetEffectiveTechnique();
-            int expected = (int)Math.Floor(tec / (double)SkillEffectRouter.SynthesisStatPerMint * 5 * Power("r-synth"));
-            TestBase.AssertEqual(expected, SkillEffectRouter.SynthesisFeedBonus(hero, "Glass"),
-                "Edge Synthesis feeds Glass mints from TEC",
+            int expected = (int)Math.Floor(Math.Floor(tec / 20.0) * 5 * Power("r-synth") + 1e-9);
+            TestBase.AssertTrue(expected > 0, "test setup: enough TEC for a whole bonus unit",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, SkillEffectRouter.SynthesisFeedBonus(hero, "Bone"), "Edge Synthesis does not feed Barbarian materials",
+            TestBase.AssertEqual(expected, CrossWires.MintBonus(hero, "GRAZE"),
+                "Edge Synthesis (MINTBONUS rogue PER STAT TEC 20) feeds Glass's GRAZE mints",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(0, CrossWires.MintBonus(hero, "RAGE"), "Edge Synthesis does not feed Barbarian currencies",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -111,12 +114,8 @@ namespace RPGGame.Tests.Unit
                 "Perfect Aim: +1 crit range, +1 more at 100+ TEC",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            var wizard = MakeHero("Arch", WeaponType.Wand, 80);
-            TestBase.AssertEqual(1.0, SkillEffectRouter.ArchmageDurationMultiplier(wizard), "no Archmage, no duration change",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            wizard.Progression.LearnedSkillRanks["z-archmage"] = 1;
-            TestBase.AssertEqual(1.0 + Power("z-archmage"), SkillEffectRouter.ArchmageDurationMultiplier(wizard),
-                "Archmage multiplies INT's duration bonus",
+            TestBase.AssertTrue(GameConfiguration.Instance.SkillTrees.GetNode("z-archmage") == null,
+                "Archmage (a stat cap node) is cut (2026-11-18)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

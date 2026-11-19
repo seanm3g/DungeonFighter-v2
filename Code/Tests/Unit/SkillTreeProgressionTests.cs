@@ -311,9 +311,9 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(layout.BranchSeqs.SelectMany(s => s).All(i => layout.Top[i] < tipTop)
                     && layout.ForkRow > layout.TitleRow && layout.ForkRow < tipTop,
                 "branches fork above the trunk tip", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(layout.Confluence.Count > 0
-                    && layout.Confluence.All(c => layout.BranchSeqs.SelectMany(s => s).All(i => layout.Top[c] < layout.Top[i])),
-                "Confluence crowns the top", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // The Confluence nodes (Living Alloy, Grand Equation) were cut 2026-11-18; a tree may have none.
+            TestBase.AssertTrue(layout.Confluence.All(c => layout.BranchSeqs.SelectMany(s => s).All(i => layout.Top[c] < layout.Top[i])),
+                "Confluence (when a tree has one) crowns the top", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(model.HasRail && layout.RailBaseTop == layout.Top[trunk[0]]
                     && Enumerable.Range(model.PrimaryCount, model.RailNodes.Count).All(i => layout.Top[i] < layout.RailBaseTop),
                 "rail base sits level with the roots, its skills above", ref _testsRun, ref _testsPassed, ref _testsFailed);

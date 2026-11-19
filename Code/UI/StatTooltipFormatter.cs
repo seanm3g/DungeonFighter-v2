@@ -132,7 +132,7 @@ namespace RPGGame
             {
                 var combatCfg = GameConfiguration.Instance.Combat;
                 int strCap = combatCfg.StrengthDamageMaxStat > 0
-                    ? combatCfg.StrengthDamageMaxStat + SkillEffectRouter.StrengthCapBonus(c)
+                    ? combatCfg.StrengthDamageMaxStat
                     : int.MaxValue;
                 AddSection(lines, "Strength multiplies damage");
                 AddStatRow(lines, "Strength", strEff);

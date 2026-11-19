@@ -333,6 +333,58 @@ namespace RPGGame
                     if (a.TemporaryHP == null) a.TemporaryHPTurns = 0;
                     return n;
                 });
+
+            // Miss salvage: each charge turns one later miss into a hit (Second Chance, SALVAGE MISS).
+            yield return new StoreDef("salvage", "Miss salvage", StoreKind.Resource, StoreScope.Fight,
+                read: RPGGame.Actions.Conditional.CombatTriggerContext.GetMissSalvageCharges,
+                add: (a, n) =>
+                {
+                    RPGGame.Actions.Conditional.CombatTriggerContext.AddMissSalvageCharges(a, n);
+                    return n;
+                },
+                spend: (a, max) =>
+                {
+                    int n = 0;
+                    while (n < max && RPGGame.Actions.Conditional.CombatTriggerContext.TryConsumeMissSalvage(a))
+                        n++;
+                    return n;
+                });
+
+            foreach (var (id, label) in FightCounterIds)
+                yield return FightCounter(id, label);
+        }
+
+        // ------------------------------------------------------------------ fight counters
+
+        /// <summary>Plain fight-scoped tallies a skill's rules keep (Snake Eyes' Loaded). Cleared at fight start.</summary>
+        private static readonly (string Id, string Label)[] FightCounterIds = { ("loaded", "Loaded") };
+
+        private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<Actor, Dictionary<string, int>> _counters = new();
+
+        private static StoreDef FightCounter(string id, string label) =>
+            new(id, label, StoreKind.Resource, StoreScope.Fight,
+                read: a => _counters.TryGetValue(a, out var map) ? map.GetValueOrDefault(id) : 0,
+                add: (a, n) =>
+                {
+                    var map = _counters.GetOrCreateValue(a);
+                    map[id] = map.GetValueOrDefault(id) + n;
+                    return n;
+                },
+                spend: (a, max) =>
+                {
+                    if (!_counters.TryGetValue(a, out var map))
+                        return 0;
+                    int n = Math.Min(max, map.GetValueOrDefault(id));
+                    if (n > 0)
+                        map[id] -= n;
+                    return n;
+                });
+
+        /// <summary>New fight: clears the actor's fight counters.</summary>
+        public static void ResetFightCounters(Actor? actor)
+        {
+            if (actor != null)
+                _counters.Remove(actor);
         }
 
         private static StoreDef StackResource(string id, string label,

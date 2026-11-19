@@ -490,7 +490,7 @@ namespace RPGGame
             if (amount <= 0)
                 return 0;
             amount = Math.Max(1, (int)Math.Round(amount * CharmBonusController.GetMintMultiplier(hero)));
-            return amount + SkillEffectRouter.SynthesisFeedBonus(hero, build.Material);
+            return amount + CrossWires.MintBonus(hero, build.Keyword); // WHILE -> MINTBONUS rules (Synthesis nodes)
         }
 
         /// <summary>

@@ -38,7 +38,7 @@ namespace RPGGame.UI.Avalonia.Layout
                 case Kind.Combo:
                     AppendStoredLine(lines, snapshot.Combo, snapshot.DefaultCombo, "Action threshold tuning");
                     AppendShiftLine(lines, parts.Pending.SharedAccuracy, "Queued accuracy");
-                    AppendShiftLine(lines, parts.Pending.ComboDelta, "Queued ACTION");
+                    AppendShiftLine(lines, parts.Pending.ComboDelta - parts.CadenceComboSteps, "Queued ACTION");
                     AppendShiftLine(lines, parts.TechComboSteps, "TECH milestones");
                     AppendShiftLine(lines, parts.CadenceComboSteps, "Class cadence");
                     AppendShiftLine(lines, parts.EqCombo, "Gear ACTION");

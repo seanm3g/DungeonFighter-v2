@@ -180,9 +180,9 @@ namespace RPGGame.UI.Avalonia.Layout
                 dungeonCritMiss = dungeonBuffs.CritMissThresholdAdjustment;
             }
 
+            // Class cadence rules are COMBO rules now, already in pendingHud.ComboDelta (the tooltip splits them out).
             int cadenceCombo = ClassCadence.RuleSteps(actor as Character);
-
-            int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta + techMilestoneSteps.ComboSteps + cadenceCombo + eqCombo + dungeonCombo;
+            int comboRowShift = pendingHud.SharedAccuracy + pendingHud.ComboDelta + techMilestoneSteps.ComboSteps + eqCombo + dungeonCombo;
             int hitRowShift = pendingHud.SharedAccuracy + pendingHud.HitDelta + techMilestoneSteps.HitSteps + eqHit + dungeonHit;
             int critRowShift = pendingHud.CritDelta + techMilestoneSteps.CritSteps + eqCrit + dungeonCrit;
             // Crit-miss potions store the same delta passed to AdjustCriticalMissThreshold (add, not subtract).

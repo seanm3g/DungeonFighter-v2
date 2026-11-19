@@ -124,10 +124,8 @@ namespace RPGGame
             if (hero == null || string.IsNullOrWhiteSpace(classTag))
                 return 0;
             int count = CountOnGear(hero, classTag);
-            bool wandMastery = string.Equals(classTag, Wizard, StringComparison.OrdinalIgnoreCase)
-                && SkillEffectRouter.WandMasteryTagsStrip(hero);
             foreach (var action in hero.GetComboActions())
-                if (wandMastery || CrossWires.HasTag(hero, action, classTag))
+                if (CrossWires.HasTag(hero, action, classTag))
                     count++;
             return count;
         }
@@ -274,51 +272,40 @@ namespace RPGGame
 namespace RPGGame
 {
     /// <summary>
-    /// "+1 Combo per 2 class tags" rules (Heavy / Drill / Soft Cadence): combo-threshold steps from the hero's class
-    /// tags, × node power.
+    /// Class cadence. The "+1 Combo per 2 class tags" nodes (Heavy / Drill / Soft / Weave Cadence) are rules now
+    /// (<c>WHILE -> COMBO 1 PER TAGS barbarian 2</c>), applied with every other COMBO rule; this keeps Spellblade's
+    /// banked steps and the tooltip's view of those rules.
     /// </summary>
     public static class ClassCadence
     {
-        private static readonly (string Effect, string ClassTag)[] Rules =
-        {
-            ("heavy_cadence", ClassTags.Barbarian),
-            ("drill_cadence", ClassTags.Warrior),
-            ("soft_cadence", ClassTags.Rogue),
-            ("soft_cadence_wiz", ClassTags.Wizard)
-        };
-
-        /// <summary>Steps for the swing being resolved: the rules plus Spellblade's banked steps, which this spends.</summary>
+        /// <summary>Spellblade's banked combo steps for the swing being resolved (spends them).</summary>
         public static int ComboSteps(Character? hero)
         {
             if (hero == null || hero is Enemy)
                 return 0;
-            return RuleSteps(hero) + SkillEffectRouter.Instance.ConsumePendingComboSteps(hero);
+            return SkillEffectRouter.Instance.ConsumePendingComboSteps(hero);
         }
 
-        /// <summary>Steps from the learned cadence rules alone; read-only, safe for HUD previews.</summary>
+        /// <summary>Learned COMBO rules that scale with <paramref name="classTag"/>'s tags.</summary>
+        private static IEnumerable<CrossWireRule> CadenceRules(Character hero, string? classTag) =>
+            CrossWires.LearnedNodeRules(hero).Select(nr => nr.Rule)
+                .Where(r => r.IsPassive && r.Verb == "COMBO" && r.Per?.Kind == "tags"
+                    && ClassTags.All.Contains(r.Per.Arg, StringComparer.OrdinalIgnoreCase)
+                    && (classTag == null || string.Equals(r.Per.Arg, classTag, StringComparison.OrdinalIgnoreCase)));
+
+        /// <summary>Combo steps from the learned cadence rules alone (already in the hero's COMBO rule bonus).</summary>
         public static int RuleSteps(Character? hero)
         {
             if (hero == null || hero is Enemy)
                 return 0;
-            int steps = 0;
-            foreach (var (effect, classTag) in Rules)
-            {
-                double power = SkillRanks.GetPower(hero, effect);
-                if (power > 0)
-                    steps += (int)Math.Floor(ClassTags.Count(hero, classTag) / 2.0 * power);
-            }
-            return steps;
+            double steps = 0;
+            foreach (var rule in CadenceRules(hero, null))
+                steps += rule.Amount * CrossWires.PerValue(hero, null, rule.Per!);
+            return (int)Math.Round(steps);
         }
 
         /// <summary>Has <paramref name="hero"/> learned the cadence rule for <paramref name="classTag"/>?</summary>
-        public static bool HasRule(Character? hero, string classTag)
-        {
-            if (hero == null || hero is Enemy)
-                return false;
-            foreach (var (effect, tag) in Rules)
-                if (string.Equals(tag, classTag, StringComparison.OrdinalIgnoreCase) && SkillRanks.GetPower(hero, effect) > 0)
-                    return true;
-            return false;
-        }
+        public static bool HasRule(Character? hero, string classTag) =>
+            hero != null && hero is not Enemy && CadenceRules(hero, classTag).Any();
     }
 }

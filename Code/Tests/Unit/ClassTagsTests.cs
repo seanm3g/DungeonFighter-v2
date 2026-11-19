@@ -99,8 +99,8 @@ namespace RPGGame.Tests.Unit
             double power = GameConfiguration.Instance.SkillTrees.GetNode("w-loot")?.Power ?? 1.0;
             var ctx = LootContext.Create(hero);
             TestBase.AssertTrue(ctx.ClassMaterialChance.TryGetValue(ClassTags.Warrior, out double chance)
-                    && Math.Abs(chance - Math.Min(1.0, LootContext.MarketChancePerPower * power)) < 1e-9,
-                "Muster Hall biases drops toward Warrior materials",
+                    && Math.Abs(chance - Math.Min(1.0, 0.5 * power)) < 1e-9,
+                "Muster Hall (WHILE -> DROP warrior 50%) biases drops toward Warrior materials",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

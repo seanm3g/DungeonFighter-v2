@@ -193,6 +193,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "EnemyActionSequence", () => RPGGame.Tests.Unit.Combat.EnemyActionSequenceTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ClassTags", () => RPGGame.Tests.Unit.ClassTagsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ClassTreeEffects", () => RPGGame.Tests.Unit.ClassTreeEffectsTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "CustomNodeRules", () => RPGGame.Tests.Unit.CustomNodeRulesTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StatusTriggerSkill", () => RPGGame.Tests.Unit.StatusTriggerSkillTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "SynergyPass", () => RPGGame.Tests.Unit.Combat.SynergyPassTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "MixedMaterials", () => RPGGame.Tests.Unit.MixedMaterialsTests.RunAllTests()));
