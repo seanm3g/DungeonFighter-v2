@@ -110,6 +110,12 @@ namespace RPGGame
         public string Source { get; init; } = "";
         /// <summary>The rule text it was parsed from (EVERY counters key on it).</summary>
         public string Text { get; init; } = "";
+        /// <summary>A material set's earn rule (owner kind Set): mints the set's currency by the set's own amount
+        /// (pieces, feed material, charm, MINTBONUS) while 2+ pieces are worn. Built by <see cref="Combat.Rules.RuleBook"/>.</summary>
+        public MaterialBuildData? SetBuild { get; init; }
+        /// <summary>With <see cref="SetBuild"/>: a Listening prefix's mint (owned by the piece): <see cref="Amount"/> × the
+        /// listener share of the set's mint, only while the set is formed.</summary>
+        public bool Listener { get; init; }
 
         public bool IsPassive => When.Equals("WHILE", StringComparison.OrdinalIgnoreCase);
 
@@ -131,7 +137,7 @@ namespace RPGGame
         public static readonly string[] BuffStats = { "STR", "AGI", "TECH", "TEC", "INT", "HIT", "COMBO", "CRIT", "ACCURACY" };
         public static readonly string[] Exemptions = { "STREAK", "COMBO" };
         internal static readonly string[] SelfKeys =
-            { "HP", "STEP", "SLOT", "SLOTS", "EXTRASLOTS", "SPENT", "LENGTH", "ROLL", "LASTROLL", "EXTRAHITS", "DISTINCT", "TURN", "HITSTREAK", "STR", "AGI", "TEC", "INT" };
+            { "HP", "STEP", "SLOT", "SLOTS", "EXTRASLOTS", "SPENT", "LENGTH", "ROLL", "SLOTSLEFT", "LASTROLL", "EXTRAHITS", "DISTINCT", "TURN", "HITSTREAK", "STR", "AGI", "TEC", "INT" };
         /// <summary>SPEND's amount for "all".</summary>
         public const double SpendAllAmount = 1_000_000;
         private static readonly Regex Compare = new(@"^([A-Za-z_]+)(>=|<=|>|<|=)(-?[0-9]+(?:\.[0-9]+)?)$", RegexOptions.Compiled);
@@ -599,7 +605,8 @@ namespace RPGGame
         /// <paramref name="includeNodes"/> is false).</summary>
         private static List<CrossWireRule> Collect(Character hero, bool includeNodes) =>
             Combat.Rules.RuleBook.For(hero)
-                .Where(e => includeNodes || e.Owner.Kind != Combat.Rules.RuleOwnerKind.Skill)
+                .Where(e => e.Owner.Kind != Combat.Rules.RuleOwnerKind.Set
+                    && (includeNodes || e.Owner.Kind != Combat.Rules.RuleOwnerKind.Skill))
                 .Select(e => e.Rule)
                 .ToList();
 
@@ -617,7 +624,8 @@ namespace RPGGame
 
         /// <summary>Combat-pipeline events, matched with the minting path's WHEN check.</summary>
         /// <param name="whenMatches">Already gated for take-hit vs own events, aliases included (MaterialSetController).</param>
-        internal static void OnCombatEvent(Character hero, Func<string, bool> whenMatches, bool takeHitOnly, CombatEvent? evt = null)
+        /// <returns>True when a material set or a Listening piece minted.</returns>
+        internal static bool OnCombatEvent(Character hero, Func<string, bool> whenMatches, bool takeHitOnly, CombatEvent? evt = null)
         {
             // LASTROLL: the natural roll of the hero's latest own swing (hit or miss), read until the next one.
             if (!takeHitOnly && evt != null && ReferenceEquals(evt.Source, hero)
@@ -633,9 +641,14 @@ namespace RPGGame
                     matched.Add(entry);
             }
             string name = evt?.Type.ToString() ?? "event";
+            bool setMinted = false;
             foreach (var entry in RuleEngine.InOrder(matched, takeHitOnly ? null : evt?.Action, hero))
                 if (Fire(hero, entry.Rule, evt?.Damage ?? 0, evt, takeHitOnly))
+                {
                     RuleEngine.Record(hero, entry, name);
+                    setMinted |= entry.Rule.SetBuild != null;
+                }
+            return setMinted;
         }
 
         /// <summary>New fight: EVERY counters restart.</summary>
@@ -665,6 +678,8 @@ namespace RPGGame
         {
             if (rule.Verb == "COUNTAS")
                 return false;
+            if (rule.SetBuild != null)
+                return FireSetEarn(hero, rule, rule.SetBuild, evt);
             var target = takeHit ? evt?.Source ?? HeroEventHub.CurrentTarget(hero) : evt?.Target ?? HeroEventHub.CurrentTarget(hero);
             if (ReferenceEquals(target, hero))
                 target = HeroEventHub.CurrentTarget(hero);
@@ -781,6 +796,31 @@ namespace RPGGame
                     return true;
             }
             return false;
+        }
+
+        /// <summary>A set's earn rule: the set's mint amount while 2+ pieces are worn (no crit amplification, as before).</summary>
+        private static bool FireSetEarn(Character hero, CrossWireRule rule, MaterialBuildData build, CombatEvent? evt)
+        {
+            if (MaterialSetController.CountEquipped(hero, build.Material) < MaterialBuildData.StackUnlockCount)
+                return false;
+            int amount = MaterialSetController.ComputeMintPerTrigger(hero, build, includeMintBonus: false);
+            if (amount <= 0)
+                return false;
+            if (rule.Listener)
+            {
+                double share = GameConfiguration.Instance.Combat.ListenerMintShare;
+                int listened = Math.Max(1, (int)Math.Round(amount * share * Math.Max(1.0, rule.Amount)));
+                string label = TriggerEvents.Label(rule.When) ?? rule.When;
+                MaterialSetController.MintKeyword(hero, build.Keyword, listened, $"{rule.Source} · Listening: {label}");
+                return true;
+            }
+            string whenLabel = MaterialBuildData.FormatWhenLabel(build.Synthesis);
+            string? actionName = evt?.Action?.Name;
+            string cause = string.IsNullOrWhiteSpace(actionName) || actionName == "MaterialSynth"
+                ? whenLabel
+                : $"{actionName} · {whenLabel}";
+            MaterialSetController.MintKeyword(hero, build.Keyword, amount, cause);
+            return true;
         }
 
         /// <summary>Whole units from a scaled amount: the fraction is a chance for one more (0.5 = half the time).</summary>
@@ -915,6 +955,7 @@ namespace RPGGame
             "STEP" => hero.ComboStep,
             "SLOT" => StripSlot(hero, action),
             "SLOTS" => ActionUtilities.GetComboActions(hero).Count,
+            "SLOTSLEFT" => SlotsLeft(hero, action),
             "EXTRASLOTS" => Math.Max(0, ActionUtilities.GetComboActions(hero).Count - 1),
             "SPENT" => eventAmount,
             "LENGTH" => (evt?.Action ?? action)?.Length ?? 0,
@@ -991,6 +1032,13 @@ namespace RPGGame
         }
 
         /// <summary>1-based strip slot of <paramref name="action"/> (else the hero's current combo slot); 0 with no strip.</summary>
+        /// <summary>Strip slots after this action's (0 = the finisher; -1 with no strip).</summary>
+        private static double SlotsLeft(Character hero, Action? action)
+        {
+            int slots = ActionUtilities.GetComboActions(hero).Count;
+            return slots == 0 ? -1 : slots - StripSlot(hero, action);
+        }
+
         private static double StripSlot(Character hero, Action? action)
         {
             var combo = ActionUtilities.GetComboActions(hero);
@@ -1116,10 +1164,18 @@ namespace RPGGame
                     yield return rule;
             }
             foreach (var mod in item.Modifications ?? new List<Modification>())
-                if (mod != null)
-                    foreach (var rule in RulesOf(mod, item.Name))
-                        yield return rule;
+            {
+                if (mod == null)
+                    continue;
+                foreach (var rule in RulesOf(mod, item.Name))
+                    yield return rule;
+                foreach (var rule in AffixTemplates.Rules(item, mod))
+                    yield return rule;
+            }
         }
+
+        /// <summary>A rule from generated text (affix templates), cached like written rules.</summary>
+        internal static CrossWireRule? RuleFromText(string text, string source) => Cached(text, source);
 
         private static IEnumerable<string> BaseModifierParts(Item item) =>
             (item.ImplicitRule ?? "").Split(';').Select(p => p.Trim()).Where(p => p.Length > 0);
@@ -1188,8 +1244,8 @@ namespace RPGGame
             {
                 if (item == null || !string.Equals(ItemMaterialRules.RemapLegacyMaterial(item.Material), material, StringComparison.OrdinalIgnoreCase))
                     continue;
-                foreach (string part in BaseModifierParts(item))
-                    if (Cached(part, item.Name) is { Verb: "SETCOUNT" } r)
+                foreach (var r in ItemRules(item))
+                    if (r.Verb == "SETCOUNT")
                         n += (int)Math.Round(r.Amount);
             }
             return n;
@@ -1576,6 +1632,7 @@ namespace RPGGame
                     "STEP" => $"combo step{cmp}",
                     "SLOT" => $"in strip slot{cmp}",
                     "SLOTS" => $"strip length{cmp}",
+                    "SLOTSLEFT" => c.Op == "=" && Math.Abs(c.Value) < 1e-9 ? "on your strip's finisher" : $"strip slots after this{cmp}",
                     "EXTRASLOTS" => $"extra strip slots{cmp}",
                     "SPENT" => $"spending{cmp}",
                     "LENGTH" => $"action length{cmp}",

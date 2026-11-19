@@ -32,6 +32,7 @@ namespace RPGGame.Tests.Unit
             TestGenerationCap();
             TestTraceRecordsOwnerAndGeneration();
             TestCacheRebuildsOnChange();
+            TestAffixTemplatesAreItemRules();
 
             TestBase.PrintSummary("RuleEngineOrder Tests", _run, _passed, _failed);
         }
@@ -44,6 +45,24 @@ namespace RPGGame.Tests.Unit
             hero.Equipment.Body = new ChestItem(name + "Coat", 1, 1);
             CrossWires.ResetFight(hero);
             return hero;
+        }
+
+        private static void TestAffixTemplatesAreItemRules()
+        {
+            var helm = new HeadItem("TplHelm", 1, 1) { Material = "Glass" };
+            string Of(string effect, string? when = null)
+            {
+                var mod = new Modification { Name = effect, Effect = effect, RolledValue = 12, MinValue = 12, TriggerWhen = when ?? "" };
+                var rule = AffixTemplates.Rules(helm, mod).FirstOrDefault();
+                return rule == null ? "" : rule.Verb + (rule.IsPassive ? " passive" : "") + (rule.Listener ? " listener" : "");
+            }
+            TestBase.AssertEqual("MINTBONUS passive", Of(AffixTemplates.Tune), "TUNE is WHILE -> MINTBONUS", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("DAMAGE passive", Of(AffixTemplates.StoreCondition), "STORECOND is a gated DAMAGE rule", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("SETCOUNT passive", Of(AffixTemplates.CountsDouble), "COUNTSDOUBLE is WHILE -> SETCOUNT", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("DAMAGE passive", Of(AffixTemplates.Opener), "OPENER is IF SLOT=1 DAMAGE", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("DAMAGE passive", Of(AffixTemplates.Finisher), "FINISHER is IF SLOTSLEFT=0 DAMAGE", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("DAMAGE passive", Of(AffixTemplates.BloodPrice), "BLOODPRICE's damage is a DAMAGE rule", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("MINT listener", Of(ListenerAffix.EffectName, "ONCRITICAL"), "LISTEN is an item-owned mint", ref _run, ref _passed, ref _failed);
         }
 
         private static int LastForcedFace(Character hero) =>
@@ -97,10 +116,20 @@ namespace RPGGame.Tests.Unit
             hero.Weapon!.ImplicitRule = "ONSELFCOST -> NEXTROLL 4";
             hero.Equipment.Body!.ImplicitRule = "ONSELFCOST -> NEXTROLL 6";
             var swing = new Action { Name = "TEST_GRANTED", Type = ActionType.Attack };
-            var order = RuleEngine.InOrder(RuleBook.For(hero), swing, hero).Select(e => e.Owner.Name).ToList();
+            var itemRules = RuleBook.For(hero).Where(e => e.Owner.Kind == RuleOwnerKind.Item).ToList();
+            var order = RuleEngine.InOrder(itemRules, swing, hero).Select(e => e.Owner.Name).ToList();
             TestBase.AssertEqual("GrantCoat", order.FirstOrDefault() ?? "", "the item that granted the swing's card resolves first",
                 ref _run, ref _passed, ref _failed);
-            var plain = RuleEngine.InOrder(RuleBook.For(hero)).Select(e => e.Owner.Name).ToList();
+            var plain = RuleEngine.InOrder(itemRules).Select(e => e.Owner.Name).ToList();
+            // Material sets' earn rules sit after the items and before the skill nodes (D6.12), in MaterialBuilds.json order.
+            var book = RuleBook.For(hero);
+            var sets = book.Where(e => e.Owner.Kind == RuleOwnerKind.Set).ToList();
+            TestBase.AssertEqual(RPGGame.Data.MaterialBuildsLoader.GetAll().Count(b => !string.IsNullOrWhiteSpace(b.Keyword)),
+                sets.Count, "every material set has its earn rule in the book", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(sets.All(e => e.Owner.Order > RuleBook.ItemOrder + 4 && e.Owner.Order < RuleBook.SkillOrder),
+                "set owners sort between items and skills", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!CrossWires.Active(hero).Any(r => r.SetBuild != null),
+                "set earn rules stay out of the modifier rule list", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("GrantBlade", plain.FirstOrDefault() ?? "", "without a swing, slot order", ref _run, ref _passed, ref _failed);
         }
 

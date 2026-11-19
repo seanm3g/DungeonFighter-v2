@@ -49,17 +49,6 @@ namespace RPGGame.Combat.Events
 
         private static void Resolve(Character hero, string token, string? arg, int amount)
         {
-            foreach (var build in MaterialBuildsLoader.GetAll())
-            {
-                if (string.IsNullOrWhiteSpace(build.Keyword) || !Matches(build.WhenToken, token, arg))
-                    continue;
-                if (MaterialSetController.CountEquipped(hero, build.Material) < MaterialBuildData.StackUnlockCount)
-                    continue;
-                int mint = MaterialSetController.ComputeMintPerTrigger(hero, build);
-                if (mint > 0)
-                    MaterialSetController.MintKeyword(hero, build.Keyword, mint, MaterialBuildData.FormatWhenLabel(build.Synthesis));
-            }
-            ListenerAffix.MintFromHub(hero, token, arg);
             CrossWires.OnHub(hero, token, arg, amount);
             Raised?.Invoke(hero, token, arg);
         }

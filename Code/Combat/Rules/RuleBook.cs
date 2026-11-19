@@ -63,11 +63,12 @@ namespace RPGGame.Combat.Rules
     /// <list type="number">
     /// <item>worn items: Weapon, Head, Body, Legs, Feet (the item that granted the swing's card moves to the front at
     /// dispatch time, <see cref="RuleEngine"/>)</item>
+    /// <item>material sets' earn rules, in MaterialBuilds.json order</item>
     /// <item>skill nodes in tree order: Core, then the material branches, then Rite; by tier, then position in the tree;
     /// never learn order</item>
     /// </list>
-    /// Material sets still mint through <see cref="MaterialSetController"/> ahead of rules until their earn rules move
-    /// onto the engine.
+    /// Material sets sit between items and skills (their earn rules, <see cref="CrossWireRule.SetBuild"/>), in
+    /// MaterialBuilds.json order.
     /// </summary>
     public static class RuleBook
     {
@@ -132,6 +133,7 @@ namespace RPGGame.Combat.Rules
             {
                 long h = CrossWires.ModifierSignatureOf(hero);
                 h = h * 31 + RuntimeHelpers.GetHashCode(SkillTreeService.Trees);
+                h = h * 31 + RuntimeHelpers.GetHashCode(RPGGame.Data.MaterialBuildsLoader.GetAll());
                 return h;
             }
         }
@@ -147,6 +149,27 @@ namespace RPGGame.Combat.Rules
                 int i = 0;
                 foreach (var rule in CrossWires.ItemRules(item))
                     list.Add(new RuleEntry(rule, owner, i++));
+            }
+            // Material sets in their fixed MaterialBuilds.json order. Every set's earn rule is listed; the 2-piece gate is
+            // checked when it fires (set counts read rules, so they can't be read while the book is built).
+            int setIndex = 0;
+            foreach (var build in RPGGame.Data.MaterialBuildsLoader.GetAll())
+            {
+                int order = SetOrder + setIndex++;
+                if (string.IsNullOrWhiteSpace(build.WhenToken) || string.IsNullOrWhiteSpace(build.Keyword))
+                    continue;
+                var owner = new RuleOwner(RuleOwnerKind.Set, build.Material + " set", order);
+                var rule = new CrossWireRule
+                {
+                    When = build.WhenToken,
+                    Verb = "MINT",
+                    Store = build.Keyword,
+                    Amount = 1,
+                    Source = build.Material + " set",
+                    Text = build.Synthesis ?? "",
+                    SetBuild = build
+                };
+                list.Add(new RuleEntry(rule, owner, 0));
             }
             foreach (var (node, rules) in CrossWires.LearnedNodeRuleGroups(hero))
             {

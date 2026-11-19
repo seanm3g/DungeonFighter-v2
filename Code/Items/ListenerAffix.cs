@@ -13,7 +13,7 @@ namespace RPGGame
     /// (<see cref="Modification.TriggerWhen"/>) is rolled at loot time from the slot's event family (weapon = hit,
     /// head = dice, body = defense, legs = combo, feet = time). Loot-only (no reroll / craft; decision 3).
     /// Mints <see cref="CombatConfig.ListenerMintShare"/> of the set's normal mint per trigger, only while the
-    /// piece's material set is formed (2+ pieces).
+    /// piece's material set is formed (2+ pieces): an item-owned rule (<see cref="AffixTemplates.Rules"/>).
     /// </summary>
     public static class ListenerAffix
     {
@@ -67,58 +67,6 @@ namespace RPGGame
             string keyword = material.Length > 0 ? MaterialBuildsLoader.FindByMaterial(material)?.Keyword ?? "" : "";
             string store = keyword.Length > 0 ? keyword : "this piece's material currency";
             return $"Listening: {when} also mints {store} (set formed).";
-        }
-
-        /// <summary>Equipped pieces with a Listener and their listened event.</summary>
-        public static IEnumerable<(Item Item, Modification Mod)> Equipped(Character hero)
-        {
-            foreach (var item in MaterialSetController.EnumerateEquipped(hero))
-            {
-                if (item?.Modifications == null)
-                    continue;
-                foreach (var mod in item.Modifications)
-                    if (IsListener(mod) && !string.IsNullOrWhiteSpace(mod.TriggerWhen))
-                        yield return (item, mod);
-            }
-        }
-
-        /// <summary>Combat-pipeline events (ONCRITICAL, ONMISS, ONTAKEHIT, …): called from material minting.</summary>
-        /// <param name="whenMatches">Already gated for take-hit vs own events, aliases included (MaterialSetController).</param>
-        internal static bool MintFromCombatEvent(Character hero, Func<string, bool> whenMatches, bool takeHitOnly)
-        {
-            bool any = false;
-            foreach (var (item, mod) in Equipped(hero).ToList())
-            {
-                if (TriggerEvents.TryGet(mod.TriggerWhen, out var def) && !def.Emitted)
-                    continue; // hub events come through MintFromHub
-                if (whenMatches(mod.TriggerWhen))
-                    any |= Mint(hero, item, mod);
-            }
-            return any;
-        }
-
-        /// <summary>Hub events (ONBEAT, ONCASH, ONSTATUSAPPLY, …).</summary>
-        public static void MintFromHub(Character hero, string token, string? arg)
-        {
-            foreach (var (item, mod) in Equipped(hero).ToList())
-                if (HeroEventHub.Matches(mod.TriggerWhen, token, arg))
-                    Mint(hero, item, mod);
-        }
-
-        private static bool Mint(Character hero, Item item, Modification mod)
-        {
-            string material = MaterialBuildData.CanonicalMaterialName(ItemMaterialRules.RemapLegacyMaterial(item.Material));
-            var build = material.Length > 0 ? MaterialBuildsLoader.FindByMaterial(material) : null;
-            if (build == null || string.IsNullOrWhiteSpace(build.Keyword))
-                return false;
-            int full = MaterialSetController.ComputeMintPerTrigger(hero, build);
-            if (full <= 0)
-                return false; // set not formed
-            double share = GameConfiguration.Instance.Combat.ListenerMintShare;
-            int amount = Math.Max(1, (int)Math.Round(full * share * Math.Max(1.0, mod.RolledValue)));
-            string label = TriggerEvents.Label(mod.TriggerWhen) ?? mod.TriggerWhen;
-            MaterialSetController.MintKeyword(hero, build.Keyword, amount, $"{item.Name} · Listening: {label}");
-            return true;
         }
     }
 }

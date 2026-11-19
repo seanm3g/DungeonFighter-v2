@@ -56,7 +56,7 @@ namespace RPGGame
                 else if (partnerMaterials.Any(m => string.Equals(m, itemMat, StringComparison.OrdinalIgnoreCase)))
                     joiners++;
             }
-            return count > 0 ? count + joiners + AffixTemplates.ExtraSetCount(hero, key) + CrossWires.ExtraSetCount(hero, key) : 0;
+            return count > 0 ? count + joiners + CrossWires.ExtraSetCount(hero, key) : 0;
         }
 
         /// <summary>
@@ -441,29 +441,9 @@ namespace RPGGame
             bool Matches(string token) => Direct(token)
                 || (aliases.Count > 0 && aliases.Any(a => TriggerEvents.SameEvent(a.Store, token) && Direct(a.When)
                     && CrossWires.ConditionsHold(hero, aliasTarget, a, combatEvent.Damage, combatEvent)));
-            foreach (var build in MaterialBuildsLoader.GetAll())
-            {
-                int unlock = CountEquipped(hero, build.Material);
-                if (unlock < MaterialBuildData.StackUnlockCount)
-                    continue;
-                if (string.IsNullOrWhiteSpace(build.WhenToken) || string.IsNullOrWhiteSpace(build.Keyword))
-                    continue;
-                if (!Matches(build.WhenToken))
-                    continue;
-
-                int amount = ComputeMintPerTrigger(hero, build);
-                if (amount <= 0)
-                    continue;
-                string whenLabel = MaterialBuildData.FormatWhenLabel(build.Synthesis);
-                string cause = string.IsNullOrWhiteSpace(subject.Name) || subject.Name == "MaterialSynth"
-                    ? whenLabel
-                    : $"{subject.Name} · {whenLabel}";
-                MintKeyword(hero, build.Keyword, amount, cause);
-                any = true;
-            }
             Func<string, bool> matches = Matches;
-            any |= ListenerAffix.MintFromCombatEvent(hero, matches, takeHitOnly);
-            CrossWires.OnCombatEvent(hero, matches, takeHitOnly, combatEvent);
+            // Sets' earn rules and Listening prefixes resolve with item and skill rules in owner order (RuleBook).
+            any |= CrossWires.OnCombatEvent(hero, matches, takeHitOnly, combatEvent);
             return any;
         }
 
@@ -476,7 +456,7 @@ namespace RPGGame
         {
             if (amount <= 0 || string.IsNullOrWhiteSpace(keyword))
                 return;
-            amount += AffixTemplates.MintBonus(hero, keyword);
+            amount += CrossWires.MintBonus(hero, keyword); // WHILE -> MINTBONUS: Attuned (TUNE) pieces, Synthesis nodes
             int before = hero.Effects.GetMaterialKeyword(keyword);
             hero.Effects.AddMaterialKeyword(keyword, amount);
             RecordFightMint(hero, keyword, amount);
@@ -485,7 +465,9 @@ namespace RPGGame
         }
 
         /// <summary>Keyword minted each time the set's WHEN fires with the hero's current gear, charm and skills (0 below 2 pieces).</summary>
-        public static int ComputeMintPerTrigger(Character? hero, MaterialBuildData build)
+        /// <param name="includeMintBonus">Add MINTBONUS (what the player sees per trigger); the mint itself adds it in
+        /// <see cref="MintKeyword"/>, so earn rules pass false.</param>
+        public static int ComputeMintPerTrigger(Character? hero, MaterialBuildData build, bool includeMintBonus = true)
         {
             if (hero == null)
                 return 0;
@@ -493,7 +475,7 @@ namespace RPGGame
             if (amount <= 0)
                 return 0;
             amount = Math.Max(1, (int)Math.Round(amount * CharmBonusController.GetMintMultiplier(hero)));
-            return amount + CrossWires.MintBonus(hero, build.Keyword); // WHILE -> MINTBONUS rules (Synthesis nodes)
+            return includeMintBonus ? amount + CrossWires.MintBonus(hero, build.Keyword) : amount;
         }
 
         /// <summary>

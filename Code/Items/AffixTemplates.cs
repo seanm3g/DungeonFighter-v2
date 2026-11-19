@@ -37,7 +37,7 @@ namespace RPGGame
         private static string MaterialOf(Item item) =>
             MaterialBuildData.CanonicalMaterialName(ItemMaterialRules.RemapLegacyMaterial(item.Material));
 
-        private static IEnumerable<(Item Item, Modification Mod)> Equipped(Character hero, string effect)
+        internal static IEnumerable<(Item Item, Modification Mod)> Equipped(Character hero, string effect)
         {
             foreach (var item in MaterialSetController.EnumerateEquipped(hero))
             {
@@ -51,54 +51,59 @@ namespace RPGGame
 
         private static int Value(Modification mod) => Math.Max(1, (int)Math.Round(mod.RolledValue > 0 ? mod.RolledValue : mod.MinValue));
 
-        /// <summary>TUNE: extra currency per mint of <paramref name="keyword"/> from pieces of that material.</summary>
-        public static int MintBonus(Character hero, string keyword)
+        /// <summary>
+        /// The template as item rules (2026-11-18, one rule engine): they resolve with the piece's other rules in owner
+        /// order. TUNE = <c>WHILE -> MINTBONUS material n</c>; STORECOND = <c>WHILE IF KEYWORD&gt;=threshold -> DAMAGE n%</c>;
+        /// COUNTSDOUBLE = <c>WHILE -> SETCOUNT n</c>; OPENER = <c>WHILE IF SLOT=1 -> DAMAGE n%</c>; FINISHER =
+        /// <c>WHILE IF SLOTSLEFT=0 -> DAMAGE n%</c>; BLOODPRICE = <c>WHILE -> DAMAGE n%</c> (its HP cost is
+        /// <see cref="PayActionCosts"/>); LISTEN = a mint of the piece's currency on its rolled event.
+        /// </summary>
+        public static IEnumerable<CrossWireRule> Rules(Item item, Modification mod)
         {
-            var build = MaterialBuildsLoader.FindByKeyword(keyword);
-            if (build == null)
-                return 0;
-            return Equipped(hero, Tune)
-                .Where(e => string.Equals(MaterialOf(e.Item), build.Material, StringComparison.OrdinalIgnoreCase))
-                .Sum(e => Value(e.Mod));
-        }
-
-        /// <summary>COUNTSDOUBLE: extra set count for <paramref name="material"/> (each such piece counts its rolled value more:
-        /// Paired / Doubled +1, Redoubled +2).</summary>
-        public static int ExtraSetCount(Character hero, string material) =>
-            Equipped(hero, CountsDouble)
-                .Where(e => string.Equals(MaterialOf(e.Item), material, StringComparison.OrdinalIgnoreCase))
-                .Sum(e => Value(e.Mod));
-
-        /// <summary>STORECOND + OPENER + FINISHER + BLOODPRICE: outgoing damage percent for this action.</summary>
-        /// <param name="target">The defender, for passive rule conditions (TARGET / PREFIX); default the current target.</param>
-        public static double OutgoingDamagePercent(Character hero, Action? action, Actor? target = null)
-        {
-            double pct = CrossWires.Passive(hero, "DAMAGE", target, action);
-            int threshold = Math.Max(1, GameConfiguration.Instance.Combat.AffixConditionStoreThreshold);
-            foreach (var (item, mod) in Equipped(hero, StoreCondition))
+            string effect = mod.Effect?.Trim().ToUpperInvariant() ?? "";
+            if (effect.Length == 0)
+                yield break;
+            string n = Value(mod).ToString(System.Globalization.CultureInfo.InvariantCulture);
+            string material = MaterialOf(item);
+            string source = item.Name ?? "";
+            if (effect == ListenerAffix.EffectName)
             {
-                string? keyword = MaterialBuildsLoader.FindByMaterial(MaterialOf(item))?.Keyword;
-                if (!string.IsNullOrWhiteSpace(keyword) && hero.Effects.GetMaterialKeyword(keyword) >= threshold)
-                    pct += Value(mod);
-            }
-
-            if (action != null)
-            {
-                var strip = hero.ComboSequence;
-                if (strip != null && strip.Count > 0)
+                var build = material.Length > 0 ? MaterialBuildsLoader.FindByMaterial(material) : null;
+                if (build == null || string.IsNullOrWhiteSpace(build.Keyword) || string.IsNullOrWhiteSpace(mod.TriggerWhen))
+                    yield break;
+                yield return new CrossWireRule
                 {
-                    bool isOpener = string.Equals(strip[0]?.Name, action.Name, StringComparison.OrdinalIgnoreCase);
-                    bool isFinisher = string.Equals(strip[^1]?.Name, action.Name, StringComparison.OrdinalIgnoreCase);
-                    if (isOpener)
-                        pct += Equipped(hero, Opener).Sum(e => Value(e.Mod));
-                    if (isFinisher)
-                        pct += Equipped(hero, Finisher).Sum(e => Value(e.Mod));
-                }
+                    When = mod.TriggerWhen.Trim(),
+                    Verb = "MINT",
+                    Store = build.Keyword,
+                    Amount = Math.Max(1.0, mod.RolledValue),
+                    Source = source,
+                    Text = $"{mod.TriggerWhen} -> MINT {build.Keyword} (Listening)",
+                    SetBuild = build,
+                    Listener = true
+                };
+                yield break;
             }
-
-            pct += Equipped(hero, BloodPrice).Sum(e => Value(e.Mod));
-            return pct;
+            string? text = effect switch
+            {
+                Tune when material.Length > 0 => $"WHILE -> MINTBONUS {material} {n}",
+                StoreCondition => MaterialBuildsLoader.FindByMaterial(material)?.Keyword is { Length: > 0 } keyword
+                    ? $"WHILE IF {keyword}>={Math.Max(1, GameConfiguration.Instance.Combat.AffixConditionStoreThreshold)} -> DAMAGE {n}%"
+                    : null,
+                CountsDouble => $"WHILE -> SETCOUNT {n}",
+                Opener => $"WHILE IF SLOT=1 -> DAMAGE {n}%",
+                Finisher => $"WHILE IF SLOTSLEFT=0 -> DAMAGE {n}%",
+                BloodPrice => $"WHILE -> DAMAGE {n}%",
+                _ => null
+            };
+            if (text != null && CrossWires.RuleFromText(text, source) is { } rule)
+                yield return rule;
         }
+
+        /// <summary>Outgoing damage percent from passive DAMAGE rules (affix templates included) for this action.</summary>
+        /// <param name="target">The defender, for passive rule conditions (TARGET / PREFIX); default the current target.</param>
+        public static double OutgoingDamagePercent(Character hero, Action? action, Actor? target = null) =>
+            CrossWires.Passive(hero, "DAMAGE", target, action);
 
         /// <summary>BLOODPRICE: pays the per-action HP cost of each such piece (never the last HP). Returns HP paid.</summary>
         public static int PayActionCosts(Character hero)
