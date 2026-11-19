@@ -341,7 +341,7 @@ game punishes heroes who skip them. The steps below still apply for fundamentals
 | `enemySystem.damageCurve.anchors` | [] | Level → enemy damage multiplier table (log-interpolated). Flat per region band; solve with `bo-solve.py --level <band midpoint>`. |
 | `classBalance.<class>.damageCurve` | off | Hero level → extra class damage multiplier on top of `damageMultiplier` (same anchor format), for class parity that changes with level. Added 2026-11-03; see `classcurve-v1`. |
 | `enemySystem.healthCurve` | off | Level → enemy max HP multiplier (same anchor format). Solve with `median-curve-solve.py` (health pass, median build) to hold ~11 hero turns. |
-| `combat.strengthDamagePerPoint` | 0 | Hero damage × (1 + STR × this), STR capped at `strengthDamageMaxStat` (100). 0.025 ≈ +1 STR worth +1 AGI. When set, the primary stat no longer adds damage. 0 = legacy floor((STR + primary) × `attributeDamageScale`). |
+| `combat.strengthDamagePerPoint` | 0 | Hero damage × (1 + STR × this), uncapped (the STR / INT cap was removed 2026-11-18). 0.025 ≈ +1 STR worth +1 AGI. When set, the primary stat no longer adds damage. 0 = legacy floor((STR + primary) × `attributeDamageScale`). |
 | `combat.statusWeakenDamageMultiplier` | 0.5 | Weakened actor's damage on its next action. |
 | `combat.statusVulnerabilityDamagePerStack` | 0.15 | Extra damage taken per Vulnerability stack. |
 | `combat.statusHardenDefensePerStack` / `statusExposeDefensePerStack` | 0.15 | Defense added / removed per stack, in units of the DR constant K (Expose can push Defense below 0 = extra damage taken). |

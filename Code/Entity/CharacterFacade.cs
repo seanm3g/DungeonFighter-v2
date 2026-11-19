@@ -194,13 +194,8 @@ namespace RPGGame
             var combat = GameConfiguration.Instance.Combat;
             if (_character is Enemy || combat.StrengthDamagePerPoint <= 0)
                 return 1.0;
-            int cap = combat.StrengthDamageMaxStat > 0 ? combat.StrengthDamageMaxStat : int.MaxValue;
             int str = Math.Max(0, GetDamageAttributeValue());
-            double counted = Math.Min(str, cap);
-            // Overflow: STR past the cap still counts at a reduced share, so STR stays worth collecting late.
-            if (str > cap && combat.StrengthOverflowEfficiency > 0)
-                counted += (str - cap) * combat.StrengthOverflowEfficiency;
-            return 1.0 + counted * combat.StrengthDamagePerPoint;
+            return 1.0 + str * combat.StrengthDamagePerPoint;
         }
 
         /// <summary>Hero AMP multiplier from INT (1.0 for enemies or when off). See <see cref="CombatConfig.IntelligenceAmpPerPoint"/>.</summary>
@@ -209,12 +204,8 @@ namespace RPGGame
             var combat = GameConfiguration.Instance.Combat;
             if (_character is Enemy || combat.IntelligenceAmpPerPoint <= 0 || GameConfiguration.Instance.ComboSystem.SingleAmpFormula)
                 return 1.0;
-            int cap = combat.StrengthDamageMaxStat > 0 ? combat.StrengthDamageMaxStat : int.MaxValue;
             int intel = Math.Max(0, GetEffectiveIntelligence());
-            double counted = Math.Min(intel, cap);
-            if (intel > cap && combat.StrengthOverflowEfficiency > 0)
-                counted += (intel - cap) * combat.StrengthOverflowEfficiency;
-            return 1.0 + counted * combat.IntelligenceAmpPerPoint;
+            return 1.0 + intel * combat.IntelligenceAmpPerPoint;
         }
 
         // === ACTION MANAGEMENT ===

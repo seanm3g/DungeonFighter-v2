@@ -210,9 +210,12 @@ namespace RPGGame.Tests.Unit.Combat
                 TestBase.AssertTrue(Math.Abs(hero.GetIntelligenceAmpMultiplier() - 1.0) < 1e-9, "INT potency off = 1.0",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 combat.IntelligenceAmpPerPoint = 0.01;
-                double expected = 1.0 + Math.Min(hero.GetEffectiveIntelligence(), combat.StrengthDamageMaxStat) * 0.01;
+                double expected = 1.0 + hero.GetEffectiveIntelligence() * 0.01;
                 TestBase.AssertTrue(Math.Abs(hero.GetIntelligenceAmpMultiplier() - expected) < 1e-9, "INT potency = 1 + INT x rate",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
+                hero.Stats.Intelligence = 400;
+                TestBase.AssertTrue(Math.Abs(hero.GetIntelligenceAmpMultiplier() - (1.0 + hero.GetEffectiveIntelligence() * 0.01)) < 1e-9,
+                    "INT has no cap (removed 2026-11-18)", ref _testsRun, ref _testsPassed, ref _testsFailed);
             }
             finally
             {

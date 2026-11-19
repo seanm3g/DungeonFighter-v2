@@ -131,18 +131,11 @@ namespace RPGGame
             if (strMult != 1.0)
             {
                 var combatCfg = GameConfiguration.Instance.Combat;
-                int strCap = combatCfg.StrengthDamageMaxStat > 0
-                    ? combatCfg.StrengthDamageMaxStat
-                    : int.MaxValue;
                 AddSection(lines, "Strength multiplies damage");
                 AddStatRow(lines, "Strength", strEff);
                 AddDecimalStatRow(lines, "Damage multiplier", strMult, "0.00");
-                string capText = strCap == int.MaxValue ? "no cap" : $"cap {strCap}";
-                string overflowText = strEff > strCap && combatCfg.StrengthOverflowEfficiency > 0
-                    ? $" + ({strEff} − {strCap}) × {combatCfg.StrengthOverflowEfficiency:0.##} overflow"
-                    : "";
                 AddNoteLine(lines,
-                    $"Multiplier = 1 + min(STR {strEff}, {capText}){overflowText} × {combatCfg.StrengthDamagePerPoint:0.####} per point = {strMult:0.00}");
+                    $"Multiplier = 1 + damage stat × {combatCfg.StrengthDamagePerPoint:0.####} per point = {strMult:0.00} (no cap)");
                 AddBlank(lines);
             }
             else
@@ -175,7 +168,7 @@ namespace RPGGame
             AddSection(lines, "Where the numbers come from");
             AddNoteLine(lines, "Weapon: catalog damage (Weapons.json) plus its affixes. Equipment: Damage stat lines on all gear. Modifications: damage mods (ModificationTables.json).");
             AddNoteLine(lines, strMult != 1.0
-                ? "Tuning (balance patch): Combat.StrengthDamagePerPoint / StrengthDamageMaxStat / StrengthOverflowEfficiency."
+                ? "Tuning (balance patch): Combat.StrengthDamagePerPoint."
                 : "Tuning (balance patch): Combat.AttributeDamageScale.");
 
             return Trim(lines, maxLines);

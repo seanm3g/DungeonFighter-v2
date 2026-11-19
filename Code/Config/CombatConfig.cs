@@ -38,13 +38,12 @@ namespace RPGGame
         /// </summary>
         public double AttributeDamageScale { get; set; } = 0.05;
         /// <summary>
-        /// Hero damage × (1 + STR × this), STR capped at <see cref="StrengthDamageMaxStat"/> (0.0167 ≈ +1% per point at STR 40,
-        /// matching AGI's speed per point). When &gt; 0 heroes get no flat attribute damage (<see cref="AttributeDamageScale"/>).
-        /// 0 = legacy: floor((STR + primary) × AttributeDamageScale) flat.
+        /// Hero damage × (1 + STR × this), uncapped (0.0167 ≈ +1% per point at STR 40, matching AGI's speed per point).
+        /// When &gt; 0 heroes get no flat attribute damage (<see cref="AttributeDamageScale"/>).
+        /// 0 = legacy: floor((STR + primary) × AttributeDamageScale) flat. The STR / INT stat cap and its overflow share
+        /// were removed 2026-11-18 (old patches' strengthDamageMaxStat / strengthOverflowEfficiency keys are ignored).
         /// </summary>
         public double StrengthDamagePerPoint { get; set; }
-        /// <summary>STR above this adds no more damage (mirrors AgilityMax).</summary>
-        public int StrengthDamageMaxStat { get; set; } = 100;
         /// <summary>
         /// Material converts pay a percent of the hit instead of flat damage: each banked currency adds the action's
         /// <c>materialScale</c> × this percent of the hit (e.g. materialScale 5 × 1.0 = +5% per currency). 0 = legacy flat
@@ -128,13 +127,9 @@ namespace RPGGame
         /// (<see cref="MaterialSetController.GetSetAndConvertAgility"/>) always counts in full, so Warrior scales through its sets.
         /// </summary>
         public bool HeroAgilitySoftCapExemptsSets { get; set; }
-        /// <summary>Overflow: hero STR above the STR damage cap still counts at this share (0.5 = half value). 0 = off.</summary>
-        public double StrengthOverflowEfficiency { get; set; }
-
         /// <summary>
-        /// INT potency: hero AMP × (1 + INT × this), INT counted up to <see cref="StrengthDamageMaxStat"/> (overflow at
-        /// <see cref="StrengthOverflowEfficiency"/>). 0 = off (legacy: INT only gates strip slots, so points between
-        /// thresholds did nothing).
+        /// INT potency: hero AMP × (1 + INT × this), uncapped. 0 = off (legacy: INT only gates strip slots, so points
+        /// between thresholds did nothing).
         /// </summary>
         public double IntelligenceAmpPerPoint { get; set; }
         public double ArmorReductionFactor { get; set; } = 100.0;
