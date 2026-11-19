@@ -107,3 +107,30 @@ Decided (user, 2026-11-18): existing ONCASH nodes that grant a hero status on a 
   or the bot will skip these nodes.
 - **Freed points.** 5-rank nodes becoming rank 1 frees about 4 points per node. Either accept faster trees or slow
   skill point gain.
+
+## Tuning pass (2026-11-18, evening)
+
+Measured with DUNGEONSIM (synergy bot, cashdmg-v48a, seeds 7101-7102, all classes, L3-L73) against the same seeds before
+the redesign.
+
+| Version | Mean clear gap to target | Class spread |
+|---|---|---|
+| Before the redesign | 5.1 | 13.8 |
+| Redesign as first applied | 14.5 | 22.0 |
+| + Wrath Unbound heal back | 16.0 | 16.4 |
+| + rule nodes cost 2-3 points | 12.5 | 14.2 |
+| + the node cuts below (committed) | 10.6 | 13.8 |
+
+- **Barbarian late-game loss**: Wrath Unbound's heal on spending RAGE carried Barbarian at L53+ (L63 clear 25% without
+  it, 60% with). Spending RAGE now heals 0.3% max HP per RAGE *and* gives the next action +3% damage per RAGE. This is a
+  side effect on a cash, which the user kept for ONCASH nodes. Blood Price's per-connect heal made no difference.
+- **Freed points**: rule nodes that replaced 5-rank nodes cost 3 points, ones that replaced 3-rank nodes cost 2. This
+  brings L8-L28 back near the old pacing.
+- **Leave-one-out** (old node restored one at a time, that class at L33/48/63): the biggest new effects were Mana Bleed
+  (+12 clear), Slot Mind (+7), First Cut / First Glyph (+6.6 / +6.3), Swift Strike (+6), each Kinship (+3 to +6).
+  Cuts: Kinship mints 1 per 2 class pieces, Mana Bleed heals 1% per crit (was 3%), Slot Mind starts at slot 4, Swift
+  Strike Slows every 4th connect.
+- **Never picked by the bot** (delta exactly 0): Perfect Aim, Second Wind, Sigil Burn, Resonance. The synergy bot needs
+  weights for them before their value can be judged.
+- **Still open**: the branch is 5-14 clear points easier than before from L13 up (spread over many +2..+4 nodes:
+  skills now matter). Either cut further or re-solve enemy damage on top of this branch.

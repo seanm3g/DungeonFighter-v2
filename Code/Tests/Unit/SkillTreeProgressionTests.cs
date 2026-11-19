@@ -150,7 +150,9 @@ namespace RPGGame.Tests.Unit
                 "branch locked until the trunk tip is learned",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            var lean = new CharacterProgression { BarbarianPoints = 3 };
+            // 2026-11-18: First Steel Age (a rank-1 rule node) costs 3 points; the lean hero affords exactly the three steps.
+            int leanAge1Cost = Math.Max(1, GameConfiguration.Instance.SkillTrees?.GetNode("b-age1")?.Cost ?? 1);
+            var lean = new CharacterProgression { BarbarianPoints = 2 + leanAge1Cost };
             lean.EnsureSkillTreeRootsGranted();
             lean.TryLearnSkillNode("b-might", requirePrimaryPath: false);
             lean.TryLearnSkillNode("b-tribe", requirePrimaryPath: false);
@@ -159,7 +161,7 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqualEnum(CharacterProgression.LearnSkillResult.InsufficientPoints, paidLoot,
                 "Blood Market needs a point like every other step",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(3, lean.GetSpentSkillPoints(WeaponType.Mace), "Might, Level 1 and First Steel Age each cost a point",
+            TestBase.AssertEqual(2 + leanAge1Cost, lean.GetSpentSkillPoints(WeaponType.Mace), "Might, Level 1 and First Steel Age are paid for",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             p.TryLearnSkillNode(trunk[^1].Id, requirePrimaryPath: false);
@@ -175,7 +177,8 @@ namespace RPGGame.Tests.Unit
             // 2026-11-18: First Steel Age became a rank-1 rule; the sink mechanism is checked by lifting its cap in memory.
             var age1 = GameConfiguration.Instance.SkillTrees?.GetNode("b-age1");
             int savedMax = age1?.MaxRank ?? 1;
-            if (age1 != null) age1.MaxRank = 3;
+            int savedCost = age1?.Cost ?? 1;
+            if (age1 != null) { age1.MaxRank = 3; age1.Cost = 1; }
             try
             {
             int maxRank = age1?.MaxRank ?? 3;
@@ -209,7 +212,7 @@ namespace RPGGame.Tests.Unit
             }
             finally
             {
-                if (age1 != null) age1.MaxRank = savedMax;
+                if (age1 != null) { age1.MaxRank = savedMax; age1.Cost = savedCost; }
             }
 
             var might = GameConfiguration.Instance.SkillTrees?.GetNode("b-might");
