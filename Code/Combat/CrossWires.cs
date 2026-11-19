@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using RPGGame.Actions.Conditional;
 using RPGGame.Combat.Events;
+using RPGGame.Combat.Rules;
 using RPGGame.Data;
 
 namespace RPGGame
@@ -528,10 +529,22 @@ namespace RPGGame
         /// <summary>Learned skill nodes' rules (scaled by rank x power), with their node.</summary>
         public static IEnumerable<(SkillTreeNodeDefinition Node, CrossWireRule Rule)> LearnedNodeRules(Character hero)
         {
+            foreach (var (node, rules) in LearnedNodeRuleGroups(hero))
+                foreach (var rule in rules)
+                    yield return (node, rule);
+        }
+
+        /// <summary>
+        /// Each learned rule node with its rules in written order, amounts scaled by rank x power (worn RANK modifiers add to
+        /// the rank; pass <paramref name="rankBonus"/> to use a bonus map being built).
+        /// </summary>
+        public static IEnumerable<(SkillTreeNodeDefinition Node, List<CrossWireRule> Rules)> LearnedNodeRuleGroups(Character hero,
+            IReadOnlyDictionary<string, int>? rankBonus = null)
+        {
             var trees = SkillTreeService.Trees;
             if (hero?.Progression == null || trees == null)
                 yield break;
-            var bonus = hero is Enemy ? null : View(hero).RankBonus;
+            var bonus = rankBonus ?? (hero is Enemy ? null : View(hero).RankBonus);
             foreach (var kv in hero.Progression.LearnedSkillRanks)
             {
                 if (kv.Value <= 0)
@@ -539,14 +552,18 @@ namespace RPGGame
                 var node = trees.GetNode(kv.Key);
                 if (node == null || string.IsNullOrWhiteSpace(node.CrossWire))
                     continue;
+                // Ranked rule nodes: amounts scale by rank x node power (rank-1 nodes at power 1 stay as written).
                 int rank = kv.Value + (bonus?.GetValueOrDefault(kv.Key) ?? 0);
                 double scale = Math.Max(1, rank) * (node.Power > 0 ? node.Power : 1.0);
+                var rules = new List<CrossWireRule>();
                 foreach (string part in node.CrossWire.Split(';'))
                 {
                     var rule = Scaled(part.Trim(), node.Name, scale);
                     if (rule != null)
-                        yield return (node, rule);
+                        rules.Add(rule);
                 }
+                if (rules.Count > 0)
+                    yield return (node, rules);
             }
         }
 
@@ -575,68 +592,27 @@ namespace RPGGame
             return list;
         }
 
-        /// <summary>Active rules: learned skill nodes with a rule, then equipped CROSSWIRE / RULE prefixes.</summary>
+        /// <summary>Active rules in owner order (D6.12): worn items Weapon to Feet, then learned skill nodes in tree order.</summary>
         public static List<CrossWireRule> Active(Character hero) => Collect(hero, includeNodes: true);
 
-        private static List<CrossWireRule> Collect(Character hero, bool includeNodes)
-        {
-            var list = new List<CrossWireRule>();
-            if (includeNodes)
-            {
-                var trees = SkillTreeService.Trees;
-                var bonus = hero is Enemy ? null : View(hero).RankBonus;
-                foreach (var kv in hero.Progression.LearnedSkillRanks)
-                {
-                    if (kv.Value <= 0)
-                        continue;
-                    var node = trees?.GetNode(kv.Key);
-                    if (node == null || string.IsNullOrWhiteSpace(node.CrossWire))
-                        continue;
-                    // Ranked rule nodes: amounts scale by rank x node power (rank-1 nodes at power 1 stay as written);
-                    // worn RANK modifiers add to the rank.
-                    int rank = kv.Value + (bonus?.GetValueOrDefault(kv.Key) ?? 0);
-                    double scale = Math.Max(1, rank) * (node.Power > 0 ? node.Power : 1.0);
-                    foreach (string part in node.CrossWire.Split(';'))
-                    {
-                        var rule = Scaled(part.Trim(), node.Name, scale);
-                        if (rule != null)
-                            list.Add(rule);
-                    }
-                }
-            }
-            foreach (var item in MaterialSetController.EnumerateEquipped(hero))
-            {
-                if (item == null)
-                    continue;
-                // The base item's modifier (Item.ImplicitRule, e.g. "+12% damage with Cleave"); high tiers hold two rules.
-                if (!string.IsNullOrWhiteSpace(item.ImplicitRule))
-                {
-                    foreach (string part in item.ImplicitRule.Split(';'))
-                    {
-                        if (string.IsNullOrWhiteSpace(part))
-                            continue;
-                        var implicitRule = Cached(part.Trim(), item.Name);
-                        if (implicitRule != null)
-                            list.Add(implicitRule);
-                    }
-                }
-                if (item.Modifications == null)
-                    continue;
-                foreach (var mod in item.Modifications)
-                    if (mod != null)
-                        list.AddRange(RulesOf(mod, item.Name));
-            }
-            return list;
-        }
+        /// <summary>Active rules from the hero's cached <see cref="Combat.Rules.RuleBook"/> (skill nodes left out when
+        /// <paramref name="includeNodes"/> is false).</summary>
+        private static List<CrossWireRule> Collect(Character hero, bool includeNodes) =>
+            Combat.Rules.RuleBook.For(hero)
+                .Where(e => includeNodes || e.Owner.Kind != Combat.Rules.RuleOwnerKind.Skill)
+                .Select(e => e.Rule)
+                .ToList();
 
         // ------------------------------------------------------------------ triggered rules
 
         /// <summary>Hub events (ONCASH, ONBEAT, ONSTATUSAPPLY, ONSTOREFULL, ONSELFCOST, ONENEMYACT).</summary>
         public static void OnHub(Character hero, string token, string? arg, int amount)
         {
-            foreach (var rule in Active(hero))
-                if (!rule.IsPassive && HeroEventHub.Matches(rule.When, token, arg))
-                    Fire(hero, rule, amount, null);
+            string name = arg == null ? token : token + ":" + arg;
+            var matched = RuleBook.For(hero).Where(e => !e.Rule.IsPassive && HeroEventHub.Matches(e.Rule.When, token, arg)).ToList();
+            foreach (var entry in RuleEngine.InOrder(matched))
+                if (Fire(hero, entry.Rule, amount, null))
+                    RuleEngine.Record(hero, entry, name);
         }
 
         /// <summary>Combat-pipeline events, matched with the minting path's WHEN check.</summary>
@@ -647,13 +623,19 @@ namespace RPGGame
             if (!takeHitOnly && evt != null && ReferenceEquals(evt.Source, hero)
                 && evt.Type is CombatEventType.ActionHit or CombatEventType.ActionMiss or CombatEventType.ActionCritical)
                 _lastRolls.GetOrCreateValue(hero).Value = Math.Max(0, evt.NaturalRollValue);
-            foreach (var rule in Active(hero))
+            var matched = new List<RuleEntry>();
+            foreach (var entry in RuleBook.For(hero))
             {
+                var rule = entry.Rule;
                 if (rule.IsPassive || rule.Verb == "COUNTAS" || !TriggerEvents.TryGet(rule.When, out var def) || !def.Emitted)
                     continue;
                 if (whenMatches(rule.When))
-                    Fire(hero, rule, evt?.Damage ?? 0, evt, takeHitOnly);
+                    matched.Add(entry);
             }
+            string name = evt?.Type.ToString() ?? "event";
+            foreach (var entry in RuleEngine.InOrder(matched, takeHitOnly ? null : evt?.Action, hero))
+                if (Fire(hero, entry.Rule, evt?.Damage ?? 0, evt, takeHitOnly))
+                    RuleEngine.Record(hero, entry, name);
         }
 
         /// <summary>New fight: EVERY counters restart.</summary>
@@ -678,40 +660,41 @@ namespace RPGGame
                 : Math.Max(0, action.Advanced.MultiHitCount - 1) + (int)hero.Effects.ConsumedMultiHitMod
                     + ActionUtilities.GetGearMultiHitBonus(hero, action);
 
-        private static void Fire(Character hero, CrossWireRule rule, int eventAmount, CombatEvent? evt, bool takeHit = false)
+        /// <returns>True when the rule resolved (its gates passed and it took effect).</returns>
+        private static bool Fire(Character hero, CrossWireRule rule, int eventAmount, CombatEvent? evt, bool takeHit = false)
         {
             if (rule.Verb == "COUNTAS")
-                return;
+                return false;
             var target = takeHit ? evt?.Source ?? HeroEventHub.CurrentTarget(hero) : evt?.Target ?? HeroEventHub.CurrentTarget(hero);
             if (ReferenceEquals(target, hero))
                 target = HeroEventHub.CurrentTarget(hero);
             if (!ConditionsHold(hero, target, rule, eventAmount, evt))
-                return;
+                return false;
             if (rule.Every > 1)
             {
                 var counters = _everyCounters.GetOrCreateValue(hero);
                 int seen = counters.GetValueOrDefault(rule.Source + "|" + rule.Text) + 1;
                 counters[rule.Source + "|" + rule.Text] = seen;
                 if (seen % rule.Every != 0)
-                    return;
+                    return false;
             }
             if (rule.Once)
             {
                 var counters = _everyCounters.GetOrCreateValue(hero);
                 string key = "once|" + rule.Source + "|" + rule.Text;
                 if (counters.GetValueOrDefault(key) > 0)
-                    return;
+                    return false;
                 counters[key] = 1;
             }
             if (rule.Chance > 0 && rule.Chance < 1 && RandomUtility.NextDouble() >= rule.Chance)
-                return;
+                return false;
 
             // SPEND and NEXTROLL read their written number (no rank scaling, PER or crit amplification).
             double written = rule.Scale > 0 ? rule.Amount / rule.Scale : rule.Amount;
             if (rule.Verb == "NEXTROLL")
             {
                 CombatTriggerContext.SetPendingReplaceRollFace(hero, (int)Math.Round(written));
-                return;
+                return true;
             }
             if (rule.Verb == "SPEND")
             {
@@ -719,12 +702,12 @@ namespace RPGGame
                 int spent = Stores.Spend(hero, rule.Store, max);
                 if (spent > 0)
                     HeroEventHub.OnCash(hero, rule.Store, spent);
-                return;
+                return spent > 0;
             }
 
             double perFactor = rule.Per == null ? 1.0 : PerValue(hero, target, rule.Per, eventAmount, evt, evt?.Action);
             if (perFactor <= 0)
-                return;
+                return false;
             double amount = rule.Amount * perFactor;
             // Q7 (D2.5): inside the hero's crit, rule amounts are amplified, except those already read off the crit's
             // damage (HEAL n% of the hit, REFLECT).
@@ -738,25 +721,27 @@ namespace RPGGame
                     int hp = rule.Percent
                         ? (int)Math.Floor(Math.Max(0, eventAmount) * amount / 100.0 + 1e-9)
                         : Math.Max(1, (int)Math.Round(hero.GetEffectiveMaxHealth() * amount / 100.0));
-                    if (hp > 0 && hero.CurrentHealth > 0)
-                        hero.Heal(hp);
-                    return;
+                    if (hp <= 0 || hero.CurrentHealth <= 0)
+                        return false;
+                    hero.Heal(hp);
+                    return true;
                 }
                 case "REFLECT":
                 {
                     int dmg = (int)Math.Floor(Math.Max(0, eventAmount) * amount / 100.0 + 1e-9);
-                    if (dmg > 0 && target != null && !ReferenceEquals(target, hero))
-                        ActionUtilities.ApplyDamage(target, dmg);
-                    return;
+                    if (dmg <= 0 || target == null || ReferenceEquals(target, hero))
+                        return false;
+                    ActionUtilities.ApplyDamage(target, dmg);
+                    return true;
                 }
                 case "NEXT":
                     QueueNext(hero, rule, amount);
-                    return;
+                    return amount != 0;
                 case "BUFF":
                 {
                     int n = (int)Math.Round(amount);
                     if (n == 0)
-                        return;
+                        return false;
                     string stat = rule.Store.ToUpperInvariant() == "TEC" ? "TECH" : rule.Store.ToUpperInvariant();
                     if (rule.When.StartsWith("ONSTATUSAPPLY", StringComparison.OrdinalIgnoreCase)
                         && stat is "STR" or "AGI" or "TECH" or "INT")
@@ -766,7 +751,7 @@ namespace RPGGame
                         hero.DungeonCadenceBuffs.MergeAdditively(bonus);
                     else
                         hero.FightCadenceBuffs.MergeAdditively(bonus);
-                    return;
+                    return true;
                 }
             }
 
@@ -774,25 +759,28 @@ namespace RPGGame
                 ? (int)Math.Floor(Math.Max(0, eventAmount) * amount / 100.0 + 1e-9)
                 : RoundUnits(amount);
             if (units <= 0)
-                return;
+                return false;
             switch (rule.Verb)
             {
                 case "MINT":
                 {
                     string keyword = rule.Store.ToUpperInvariant();
-                    if (MaterialBuildsLoader.FindByKeyword(keyword) != null)
-                        MaterialSetController.MintKeyword(hero, keyword, units, $"{rule.Source} · rule");
-                    break;
+                    if (MaterialBuildsLoader.FindByKeyword(keyword) == null)
+                        return false;
+                    MaterialSetController.MintKeyword(hero, keyword, units, $"{rule.Source} · rule");
+                    return true;
                 }
                 case "ADD":
                     if (rule.Store.Equals("temphp", StringComparison.OrdinalIgnoreCase))
                         units = Math.Max(1, (int)Math.Round(hero.GetEffectiveMaxHealth() * units / 100.0)); // temp HP is % max HP
-                    Stores.Add(hero, rule.Store, units);
-                    break;
+                    return Stores.Add(hero, rule.Store, units) > 0;
                 case "APPLY":
+                    if (target == null)
+                        return false;
                     ApplyToTarget(target, rule.Store.ToLowerInvariant(), units);
-                    break;
+                    return true;
             }
+            return false;
         }
 
         /// <summary>Whole units from a scaled amount: the fraction is a chance for one more (0.5 = half the time).</summary>
@@ -1061,6 +1049,9 @@ namespace RPGGame
 
         private static readonly ConditionalWeakTable<Character, ModifierView> _modifierViews = new();
 
+        /// <summary>Hash of worn items, their rules and learned ranks: when it changes, cached rule views rebuild.</summary>
+        public static long ModifierSignatureOf(Character hero) => ModifierSignature(hero);
+
         private static long ModifierSignature(Character hero)
         {
             unchecked
@@ -1100,7 +1091,10 @@ namespace RPGGame
                     foreach (var rule in ItemRules(item).Where(r => r.Verb == "RANK"))
                         ranks[rule.Store] = ranks.GetValueOrDefault(rule.Store) + (int)Math.Round(rule.Amount);
                 view.RankBonus = ranks;
-                view.TagAliases = Collect(hero, includeNodes: true).Where(r => r.Verb == "TAGAS").ToList();
+                // Read items and nodes directly (not the RuleBook, which is built from this view's rank bonus).
+                view.TagAliases = MaterialSetController.EnumerateEquipped(hero).SelectMany(ItemRules)
+                    .Concat(LearnedNodeRuleGroups(hero, ranks).SelectMany(g => g.Rules))
+                    .Where(r => r.Verb == "TAGAS").ToList();
                 view.Signature = sig;
             }
             finally

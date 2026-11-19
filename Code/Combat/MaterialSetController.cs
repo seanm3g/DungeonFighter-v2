@@ -426,6 +426,9 @@ namespace RPGGame
         {
             if (hero == null || hero is Enemy || combatEvent == null)
                 return false;
+            // One resolution scope per combat event (D6.13): stores filling up or spends raised by this event's mints and
+            // rules resolve after all of them.
+            using var scope = RPGGame.Combat.Rules.RuleEngine.Scope();
 
             bool any = false;
             Action subject = action ?? combatEvent.Action ?? new Action { Name = "MaterialSynth" };

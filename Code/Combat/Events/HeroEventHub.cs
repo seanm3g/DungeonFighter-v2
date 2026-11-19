@@ -34,38 +34,34 @@ namespace RPGGame.Combat.Events
 
         public static Actor? CurrentTarget(Character hero) =>
             _targets.TryGetValue(hero, out var weak) && weak.TryGetTarget(out var actor) ? actor : null;
-        [ThreadStatic] private static int _depth;
-
         /// <summary>
         /// Raises <paramref name="token"/> for <paramref name="hero"/>. <paramref name="arg"/> is the status / store id
-        /// (ONSTATUSAPPLY, ONCASH, ONSTOREFULL) or the hero's turn count this fight (ONBEAT). Re-entrant raises (a mint
-        /// filling a store that raises ONSTOREFULL…) are allowed two levels deep.
+        /// (ONSTATUSAPPLY, ONCASH, ONSTOREFULL) or the hero's turn count this fight (ONBEAT). Resolution goes through
+        /// <see cref="Rules.RuleEngine"/>: raised while another event is resolving (a mint filling a store, a rule's spend),
+        /// it queues and resolves after that event, up to two generations deep (D6.13–D6.14).
         /// </summary>
         public static void Raise(Character? hero, string token, string? arg = null, int amount = 0)
         {
-            if (hero == null || hero is Enemy || _depth > 2)
+            if (hero == null || hero is Enemy)
                 return;
-            _depth++;
-            try
+            Rules.RuleEngine.Raise(hero, arg == null ? token : token + ":" + arg, () => Resolve(hero, token, arg, amount));
+        }
+
+        private static void Resolve(Character hero, string token, string? arg, int amount)
+        {
+            foreach (var build in MaterialBuildsLoader.GetAll())
             {
-                foreach (var build in MaterialBuildsLoader.GetAll())
-                {
-                    if (string.IsNullOrWhiteSpace(build.Keyword) || !Matches(build.WhenToken, token, arg))
-                        continue;
-                    if (MaterialSetController.CountEquipped(hero, build.Material) < MaterialBuildData.StackUnlockCount)
-                        continue;
-                    int mint = MaterialSetController.ComputeMintPerTrigger(hero, build);
-                    if (mint > 0)
-                        MaterialSetController.MintKeyword(hero, build.Keyword, mint, MaterialBuildData.FormatWhenLabel(build.Synthesis));
-                }
-                ListenerAffix.MintFromHub(hero, token, arg);
-                CrossWires.OnHub(hero, token, arg, amount);
-                Raised?.Invoke(hero, token, arg);
+                if (string.IsNullOrWhiteSpace(build.Keyword) || !Matches(build.WhenToken, token, arg))
+                    continue;
+                if (MaterialSetController.CountEquipped(hero, build.Material) < MaterialBuildData.StackUnlockCount)
+                    continue;
+                int mint = MaterialSetController.ComputeMintPerTrigger(hero, build);
+                if (mint > 0)
+                    MaterialSetController.MintKeyword(hero, build.Keyword, mint, MaterialBuildData.FormatWhenLabel(build.Synthesis));
             }
-            finally
-            {
-                _depth--;
-            }
+            ListenerAffix.MintFromHub(hero, token, arg);
+            CrossWires.OnHub(hero, token, arg, amount);
+            Raised?.Invoke(hero, token, arg);
         }
 
         /// <summary>

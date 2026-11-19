@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Runners
             RPGGame.Tests.Unit.ClassTagsTests.RunAllTests();
             RPGGame.Tests.Unit.ClassTreeEffectsTests.RunAllTests();
             RPGGame.Tests.Unit.CustomNodeRulesTests.RunAllTests();
+            RPGGame.Tests.Unit.RuleEngineOrderTests.RunAllTests();
             RPGGame.Tests.Unit.StatusTriggerSkillTests.RunAllTests();
             RPGGame.Tests.Unit.Combat.SynergyPassTests.RunAllTests();
             RPGGame.Tests.Unit.MixedMaterialsTests.RunAllTests();
