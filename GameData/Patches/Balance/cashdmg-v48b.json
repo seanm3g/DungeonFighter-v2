@@ -1,0 +1,140 @@
+{
+  "base": "cashdmg-v48a",
+  "enemySystem": {
+    "damageCurve": {
+      "bands": [
+        {
+          "from": 1,
+          "to": 5,
+          "multiplier": 3.471182
+        },
+        {
+          "from": 6,
+          "to": 6,
+          "multiplier": 2.975144
+        },
+        {
+          "from": 7,
+          "to": 7,
+          "multiplier": 2.6628
+        },
+        {
+          "from": 8,
+          "to": 10,
+          "multiplier": 2.975144
+        },
+        {
+          "from": 11,
+          "to": 11,
+          "multiplier": 4.006735
+        },
+        {
+          "from": 12,
+          "to": 12,
+          "multiplier": 5.049584
+        },
+        {
+          "from": 13,
+          "to": 13,
+          "multiplier": 5.488678
+        },
+        {
+          "from": 14,
+          "to": 14,
+          "multiplier": 5.488678
+        },
+        {
+          "from": 15,
+          "to": 15,
+          "multiplier": 5.488678
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "multiplier": 7.652353
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "multiplier": 18.706195
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "multiplier": 27.029447
+        },
+        {
+          "from": 31,
+          "to": 35,
+          "multiplier": 28.923204
+        },
+        {
+          "from": 36,
+          "to": 40,
+          "multiplier": 29.177806
+        },
+        {
+          "from": 41,
+          "to": 45,
+          "multiplier": 48.81425
+        },
+        {
+          "from": 46,
+          "to": 50,
+          "multiplier": 59.103804
+        },
+        {
+          "from": 51,
+          "to": 55,
+          "multiplier": 71.956526
+        },
+        {
+          "from": 56,
+          "to": 60,
+          "multiplier": 108.789974
+        },
+        {
+          "from": 61,
+          "to": 65,
+          "multiplier": 127.539309
+        },
+        {
+          "from": 66,
+          "to": 70,
+          "multiplier": 267.362973
+        },
+        {
+          "from": 71,
+          "to": 75,
+          "multiplier": 324.305237
+        },
+        {
+          "from": 76,
+          "to": 80,
+          "multiplier": 94.191328
+        },
+        {
+          "from": 81,
+          "to": 85,
+          "multiplier": 752.508252
+        },
+        {
+          "from": 86,
+          "to": 90,
+          "multiplier": 945.851081
+        },
+        {
+          "from": 91,
+          "to": 95,
+          "multiplier": 1551.709963
+        },
+        {
+          "from": 96,
+          "to": 100,
+          "multiplier": 2946.650976
+        }
+      ]
+    }
+  },
+  "description": "night-v47-4 (overnight 11-17 chain on lowhp10-l11soft) with L1-10 enemy health/damage bands restored from lowhp10-l11soft (chain targets still read the old 3->10 hero-turn anchors) cashdmg-v48b: cashdmg-v48a + damage bands ['damage@L3', 'damage@L33', 'damage@L53', 'damage@L58', 'damage@L73'] (balance-loop, paired confirm on seeds [7201, 7202, 7203, 7204])."
+}
