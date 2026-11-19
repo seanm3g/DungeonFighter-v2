@@ -33,8 +33,8 @@ namespace RPGGame.Actions.Execution
                 // TURN stat bonuses were tentatively applied before the roll (Selection); kept on hit, reverted on miss.
                 turnBonusCharacter.Effects.GetAndClearConsumedTurnBonusesThisRoll();
                 ResolvePendingActionCadenceBonuses(turnBonusCharacter, selected, result);
-                // The action's own same-swing bundles (BERSERKER's "+1% per 1% HP missing") must land before damage too.
-                ActionTriggerBundleApplicator.ApplySameSwingBundles(
+                // The card's SWING rules (BERSERKER: +1% damage per 1% HP missing) land before damage.
+                RPGGame.Combat.Rules.ActionRules.Dispatch(
                     selected,
                     new CombatEvent(CombatEventType.ActionHit, source)
                     {
@@ -48,7 +48,8 @@ namespace RPGGame.Actions.Execution
                     },
                     source,
                     target,
-                    result.StatusEffectMessages);
+                    result.StatusEffectMessages,
+                    swingOnly: true);
             }
             // Rebuild Q7 (D2.5): from here on a crit amplifies heals, cadence grants, trigger bundles and rule amounts
             // too (same-swing mods above are already in; damage-read effects scale through the crit damage).
@@ -223,7 +224,7 @@ namespace RPGGame.Actions.Execution
                 int hitLayers = Math.Max(1, result.ResolvedMultiHitCount);
 
                 if (selected.Advanced.RollBonus != 0 && accTurns > 0
-                    && !Actions.Conditional.ActionTriggerBundleApplicator.IsMechanicOwned(selected, "hero_accuracy"))
+                    && !Actions.Conditional.ActionTriggerOwnership.IsMechanicOwned(selected, "hero_accuracy"))
                 {
                     int scaledRollBonus = selected.Advanced.RollBonus * hitLayers * CritAmplifier.For(source);
                     if (source is Character heroAcc && !(heroAcc is Enemy))
@@ -258,7 +259,7 @@ namespace RPGGame.Actions.Execution
                 }
 
                 if (!ReferenceEquals(source, target) && selected.Advanced.EnemyRollBonus < 0 && accTurns > 0
-                    && !Actions.Conditional.ActionTriggerBundleApplicator.IsMechanicOwned(selected, "enemy_accuracy"))
+                    && !Actions.Conditional.ActionTriggerOwnership.IsMechanicOwned(selected, "enemy_accuracy"))
                     target.ApplyRollPenalty(-selected.Advanced.EnemyRollBonus * hitLayers, accTurns);
                 }
             }
@@ -273,7 +274,7 @@ namespace RPGGame.Actions.Execution
                 }
                 modSourceCharacter.Effects.AddModifierBonusesFromAction(selected, nextComboSlot, useEnemySpreadsheetMods: false, modSourceCharacter);
                 var enemyTargetMods = CharacterEffectsState.BuildModifierBonusesFromActionFields(selected, useEnemySpreadsheetMods: true);
-                enemyTargetMods = Actions.Conditional.ActionTriggerBundleApplicator.FilterOutOwnedSheetMods(
+                enemyTargetMods = Actions.Conditional.ActionTriggerOwnership.FilterOutOwnedSheetMods(
                     selected, enemyTargetMods, useEnemySpreadsheetMods: true);
                 if (enemyTargetMods.Count > 0 && target is Enemy enemyReceivingMods)
                     enemyReceivingMods.Effects.AddPendingActionBonusesNextHeroRoll(enemyTargetMods);

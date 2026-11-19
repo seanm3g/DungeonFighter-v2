@@ -128,7 +128,7 @@ namespace RPGGame.Tests.Unit
                 IsCombo = true,
                 RollValue = 15
             };
-            bool applied = ActionTriggerBundleApplicator.ApplyMatchingBundles(action, evt, hero, foe, messages);
+            bool applied = RPGGame.Combat.Rules.ActionRules.Dispatch(action, evt, hero, foe, messages);
             TestBase.AssertTrue(applied, "strip_jump bundle applied", ref _run, ref _passed, ref _failed);
             var state = CombatTriggerContext.GetStripState(hero);
             TestBase.AssertTrue(state != null && state.HasPendingRouting

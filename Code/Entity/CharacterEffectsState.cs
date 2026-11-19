@@ -351,7 +351,7 @@ namespace RPGGame
             if (!useEnemySpreadsheetMods && CadenceKeywords.IsAction(action.Cadence) && !nextComboSlot.HasValue)
                 return;
             var bonuses = BuildModifierBonusesFromActionFields(action, useEnemySpreadsheetMods);
-            bonuses = Actions.Conditional.ActionTriggerBundleApplicator.FilterOutOwnedSheetMods(
+            bonuses = Actions.Conditional.ActionTriggerOwnership.FilterOutOwnedSheetMods(
                 action, bonuses, useEnemySpreadsheetMods);
             if (!useEnemySpreadsheetMods && bonuses.Count > 0)
             {

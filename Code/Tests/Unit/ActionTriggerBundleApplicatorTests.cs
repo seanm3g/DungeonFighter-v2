@@ -55,7 +55,7 @@ namespace RPGGame.Tests.Unit
                             When = "ONKILL",
                             Count = "1",
                             Scope = "FIGHT",
-                            Mechanics = "hero_next_action_damage,weaken"
+                            Mechanics = "crit_face_min:18,weaken"
                         }
                     }
                 }
@@ -75,7 +75,7 @@ namespace RPGGame.Tests.Unit
                 Action = action
             };
 
-            bool applied = ActionTriggerBundleApplicator.ApplyMatchingBundles(action, kill, hero, foe, messages);
+            bool applied = RPGGame.Combat.Rules.ActionRules.Dispatch(action, kill, hero, foe, messages);
             TestBase.AssertTrue(applied, "bundle applied on kill", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(hero.FightCadenceBuffs.HasAny,
                 "FIGHT scope deposits fight cadence buffs",
@@ -98,7 +98,7 @@ namespace RPGGame.Tests.Unit
                 Action = action
             };
 
-            bool applied = ActionTriggerBundleApplicator.ApplyMatchingBundles(action, hit, hero, foe, messages);
+            bool applied = RPGGame.Combat.Rules.ActionRules.Dispatch(action, hit, hero, foe, messages);
             TestBase.AssertTrue(!applied, "ONKILL bundle skips ActionHit", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!hero.FightCadenceBuffs.HasAny,
                 "no fight deposit on hit",
@@ -134,19 +134,12 @@ namespace RPGGame.Tests.Unit
             var action = new Action
             {
                 Name = "LuckyShot",
-                DamageMod = "10",
                 Advanced = new AdvancedMechanicsProperties(),
                 Triggers = new ConditionalTriggerProperties
                 {
                     Bundles = new List<ActionTriggerBundle>
                     {
-                        new ActionTriggerBundle
-                        {
-                            When = "ONCRITICAL",
-                            Count = "1",
-                            Scope = "",
-                            Mechanics = "hero_next_action_damage"
-                        }
+                        new ActionTriggerBundle { When = "ONCRITICAL", Count = "1", Scope = "", Mechanics = "replace_next_roll:17" }
                     }
                 }
             };
@@ -157,11 +150,13 @@ namespace RPGGame.Tests.Unit
                 IsCritical = true
             };
             var messages = new List<string>();
-            bool applied = ActionTriggerBundleApplicator.ApplyMatchingBundles(action, crit, hero, foe, messages);
+            bool applied = RPGGame.Combat.Rules.ActionRules.Dispatch(action, crit, hero, foe, messages);
             TestBase.AssertTrue(applied, "instant crit bundle applied", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(hero.Effects.HasPendingActionCadenceBank(),
-                "blank scope banks next-action damage",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(CombatTriggerContext.TryConsumePendingReplaceRollFace(hero, out int face) && face == 17,
+                "the card's NEXTROLL rule forces the next roll", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var plain = new CombatEvent(CombatEventType.ActionHit, hero) { Target = foe, Action = action };
+            TestBase.AssertTrue(!RPGGame.Combat.Rules.ActionRules.Dispatch(action, plain, hero, foe, messages),
+                "an ONCRITICAL card rule skips a plain hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestGateOnlyListed_PoisonStillAppliesOnHitWhileWeakenIsOwned()
@@ -216,14 +211,14 @@ namespace RPGGame.Tests.Unit
             var action = MakeSameSwingAction("SAME SWING");
             var messages = new List<string>();
 
-            bool pre = ActionTriggerBundleApplicator.ApplySameSwingBundles(action, HitBy(hero, foe, action), hero, foe, messages);
+            bool pre = RPGGame.Combat.Rules.ActionRules.Dispatch(action, HitBy(hero, foe, action), hero, foe, messages, swingOnly: true);
             TestBase.AssertTrue(pre, "pre-damage pass applies the action's own hero_action_damage",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(Math.Abs(hero.Effects.ConsumedDamageModPercent - 50) < 0.001,
                 $"this swing carries +50% damage (got {hero.Effects.ConsumedDamageModPercent})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            ActionTriggerBundleApplicator.ApplyMatchingBundles(action, HitBy(hero, foe, action), hero, foe, messages, skipSameSwing: true);
+            RPGGame.Combat.Rules.ActionRules.Dispatch(action, HitBy(hero, foe, action), hero, foe, messages);
             TestBase.AssertTrue(Math.Abs(hero.Effects.ConsumedDamageModPercent - 50) < 0.001,
                 "post-hit pass does not apply it a second time",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -237,13 +232,13 @@ namespace RPGGame.Tests.Unit
             var action = MakeSameSwingAction("EXECUTE", "IFTARGETHEALTHBELOW:25");
             var messages = new List<string>();
 
-            ActionTriggerBundleApplicator.ApplySameSwingBundles(action, HitBy(hero, foe, action), hero, foe, messages);
+            RPGGame.Combat.Rules.ActionRules.Dispatch(action, HitBy(hero, foe, action), hero, foe, messages, swingOnly: true);
             TestBase.AssertTrue(hero.Effects.ConsumedDamageModPercent == 0,
                 "no bonus while the target is above 25% HP",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             foe.CurrentHealth = foe.MaxHealth / 5;
-            ActionTriggerBundleApplicator.ApplySameSwingBundles(action, HitBy(hero, foe, action), hero, foe, messages);
+            RPGGame.Combat.Rules.ActionRules.Dispatch(action, HitBy(hero, foe, action), hero, foe, messages, swingOnly: true);
             TestBase.AssertTrue(Math.Abs(hero.Effects.ConsumedDamageModPercent - 50) < 0.001,
                 $"+50% once the target is at 20% HP (got {hero.Effects.ConsumedDamageModPercent})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);

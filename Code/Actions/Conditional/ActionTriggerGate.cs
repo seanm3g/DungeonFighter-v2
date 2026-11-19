@@ -38,7 +38,7 @@ namespace RPGGame.Actions.Conditional
 
         /// <summary>
         /// Non-outcome filters on the row (ONWIELD, HP/status/tag/history, required tag) must still pass
-        /// for <see cref="ActionTriggerBundleApplicator"/> grants. Empty filters ⇒ true.
+        /// for <see cref="RPGGame.Combat.Rules.ActionRules"/> grants. Empty filters ⇒ true.
         /// </summary>
         public static bool PassesNonOutcomeFilters(Action action, CombatEvent? combatEvent)
         {

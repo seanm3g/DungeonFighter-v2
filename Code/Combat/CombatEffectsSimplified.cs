@@ -134,8 +134,8 @@ namespace RPGGame
                     : 1;
                 foreach (var effectType in effectTypes)
                 {
-                    // TRIGGERS → owned statuses fire only via ActionTriggerBundleApplicator on matching WHEN.
-                    if (ActionTriggerBundleApplicator.IsStatusEffectOwned(action, effectType))
+                    // TRIGGERS → owned statuses fire only through the card's rules (ActionRules) on a matching event.
+                    if (ActionTriggerOwnership.IsStatusEffectOwned(action, effectType))
                         continue;
                     if (IsDoTStatusEffectType(effectType) && !ShouldApplyUnconditionalActionDoTFromHit(action, combatEvent))
                         continue;
@@ -183,9 +183,8 @@ namespace RPGGame
                 }
             }
 
-            // Same-swing ids already ran before damage (ActionExecutionFlow.ApplyHitOutcome).
-            effectsApplied |= ActionTriggerBundleApplicator.ApplyMatchingBundles(
-                action, combatEvent, attacker, target, results, skipSameSwing: true);
+            // The card's own rules (SWING rules already ran before damage, ActionExecutionFlow.ApplyHitOutcome).
+            effectsApplied |= RPGGame.Combat.Rules.ActionRules.Dispatch(action, combatEvent, attacker, target, results);
 
             // Room clear runs a dedicated equip pass once in RoomClearedTriggerApplicator
             // (pool actions may call ApplyStatusEffects multiple times).

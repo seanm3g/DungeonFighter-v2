@@ -52,7 +52,7 @@ namespace RPGGame.Tests.Unit.Combat
             var foe = TestDataBuilders.Enemy().WithName("VenomFoe").Build();
             var hero = TestDataBuilders.Character().WithName("VenomHero").Build();
             var hit = new CombatEvent(CombatEventType.ActionHit, foe) { Target = hero, Action = action };
-            RPGGame.Actions.Conditional.ActionTriggerBundleApplicator.ApplyMatchingBundles(action, hit, foe, hero, new System.Collections.Generic.List<string>());
+            RPGGame.Combat.Rules.ActionRules.Dispatch(action, hit, foe, hero, new System.Collections.Generic.List<string>());
             TestBase.AssertTrue(hero.PoisonPercentOfMaxHealth > 0, "Venom kit poisons the hero on connect",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }

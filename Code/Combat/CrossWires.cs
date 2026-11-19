@@ -116,12 +116,21 @@ namespace RPGGame
         /// <summary>With <see cref="SetBuild"/>: a Listening prefix's mint (owned by the piece): <see cref="Amount"/> × the
         /// listener share of the set's mint, only while the set is formed.</summary>
         public bool Listener { get; init; }
+        /// <summary>HEAL n HP: a flat heal (HEAL n alone is % of max HP).</summary>
+        public bool Flat { get; init; }
 
         public bool IsPassive => When.Equals("WHILE", StringComparison.OrdinalIgnoreCase);
 
         /// <summary>Triggered verbs. SPEND store n|all takes from a store (raising ONCASH); NEXTROLL n makes your next natural
         /// roll that face (2026-11-18).</summary>
-        public static readonly string[] TriggeredVerbs = { "MINT", "ADD", "APPLY", "HEAL", "REFLECT", "BUFF", "NEXT", "SPEND", "NEXTROLL" };
+        public static readonly string[] TriggeredVerbs =
+            { "MINT", "ADD", "APPLY", "HEAL", "REFLECT", "BUFF", "NEXT", "SPEND", "NEXTROLL", "STRIP", "RETRIGGER", "CRITFACE", "SWING" };
+        /// <summary>STRIP / RETRIGGER operations (the strip vocabulary, 2026-11-19).</summary>
+        public static readonly string[] StripOps =
+            { "strip_jump", "strip_skip", "strip_repeat", "strip_loop", "strip_stop", "strip_random", "strip_shuffle", "strip_replace_next", "strip_disable" };
+        public static readonly string[] RetriggerOps = { "retrigger_next", "retrigger_opener", "retrigger_finisher", "retrigger_slot" };
+        /// <summary>SWING: what this swing gains.</summary>
+        public static readonly string[] SwingStats = { "DAMAGE", "SPEED", "AMP" };
         /// <summary>Passive verbs. ARMOR n% scales armor, ARMOR n (no %) adds flat armor. DROP who n% (a class tag or a
         /// material): that share of armor drops take that material. MINTBONUS who n: +n to each mint of that currency
         /// (a keyword, a material, or a class tag for its three materials).</summary>
@@ -137,7 +146,7 @@ namespace RPGGame
         public static readonly string[] BuffStats = { "STR", "AGI", "TECH", "TEC", "INT", "HIT", "COMBO", "CRIT", "ACCURACY" };
         public static readonly string[] Exemptions = { "STREAK", "COMBO" };
         internal static readonly string[] SelfKeys =
-            { "HP", "STEP", "SLOT", "SLOTS", "EXTRASLOTS", "SPENT", "LENGTH", "ROLL", "SLOTSLEFT", "LASTROLL", "EXTRAHITS", "DISTINCT", "TURN", "HITSTREAK", "STR", "AGI", "TEC", "INT" };
+            { "HP", "STEP", "SLOT", "SLOTS", "EXTRASLOTS", "SPENT", "LENGTH", "ROLL", "SLOTSLEFT", "LASTROLL", "EXTRAHITS", "MISSINGHP", "DISTINCT", "TURN", "HITSTREAK", "STR", "AGI", "TEC", "INT" };
         /// <summary>SPEND's amount for "all".</summary>
         public const double SpendAllAmount = 1_000_000;
         private static readonly Regex Compare = new(@"^([A-Za-z_]+)(>=|<=|>|<|=)(-?[0-9]+(?:\.[0-9]+)?)$", RegexOptions.Compiled);
@@ -262,6 +271,38 @@ namespace RPGGame
                     Verb = verb, Store = KeyOf(right[1]), Amount = n, Source = source, Text = spec.Trim()
                 };
             }
+            if (verb is "STRIP" or "RETRIGGER")
+            {
+                // STRIP op[:arg] [n] / RETRIGGER next|opener|finisher|slot:n [n]; op words may drop their prefix (STRIP jump:3).
+                if (right.Length is < 2 or > 3)
+                    return null;
+                string op = right[1];
+                string prefix = verb == "STRIP" ? "strip_" : "retrigger_";
+                int colon = op.IndexOf(':');
+                string head = (colon > 0 ? op[..colon] : op).ToLowerInvariant();
+                if (!head.StartsWith(prefix, StringComparison.Ordinal))
+                    head = prefix + head;
+                if (!(verb == "STRIP" ? StripOps : RetriggerOps).Contains(head))
+                    return null;
+                double n = 1;
+                if (right.Length == 3 && (!TryAmount(right[2], out n, out bool opPct) || opPct || n < 1))
+                    return null;
+                return new CrossWireRule
+                {
+                    When = left[0], Every = every, Once = once, Chance = chance, Conditions = conds,
+                    Verb = verb, Store = colon > 0 ? head + op[colon..] : head, Amount = n, Source = source, Text = spec.Trim()
+                };
+            }
+            if (verb == "CRITFACE")
+            {
+                if (right.Length != 2 || !TryAmount(right[1], out double face, out bool facePct) || facePct || face < 2 || face > 20)
+                    return null;
+                return new CrossWireRule
+                {
+                    When = left[0], Every = every, Once = once, Chance = chance, Conditions = conds,
+                    Verb = verb, Amount = face, Scope = "fight", Source = source, Text = spec.Trim()
+                };
+            }
             if (verb == "NEXTROLL")
             {
                 if (right.Length != 2 || !TryAmount(right[1], out double face, out bool facePct) || facePct || face < 1 || face > 20)
@@ -272,7 +313,7 @@ namespace RPGGame
                     Verb = verb, Amount = face, Source = source, Text = spec.Trim()
                 };
             }
-            if (verb is "MINT" or "ADD" or "APPLY" or "BUFF" or "POTENCY" or "NEXT" or "DROP" or "MINTBONUS")
+            if (verb is "MINT" or "ADD" or "APPLY" or "BUFF" or "POTENCY" or "NEXT" or "DROP" or "MINTBONUS" or "SWING")
             {
                 if (right.Length < 3)
                     return null;
@@ -280,6 +321,12 @@ namespace RPGGame
                 amountAt = 2;
                 if (verb == "BUFF" && !BuffStats.Contains(store.ToUpperInvariant()))
                     return null;
+                if (verb == "SWING")
+                {
+                    store = store.ToUpperInvariant();
+                    if (!SwingStats.Contains(store))
+                        return null;
+                }
                 if (verb == "NEXT")
                 {
                     store = store.ToUpperInvariant();
@@ -303,6 +350,7 @@ namespace RPGGame
                 return null;
 
             string scope = "fight";
+            bool flat = false;
             RulePer? per = null;
             int turns = 1;
             string? shape = null, ifTag = null;
@@ -333,6 +381,11 @@ namespace RPGGame
                     ifTag = right[k + 1].ToLowerInvariant();
                     k += 2;
                 }
+                else if (word == "HP" && verb == "HEAL" && !pct && !flat)
+                {
+                    flat = true;
+                    k++;
+                }
                 else if (word == "PER" && per == null)
                 {
                     per = ParsePer(right, ref k);
@@ -352,7 +405,7 @@ namespace RPGGame
                 IfTargetStatus = firstTarget?.Key,
                 Verb = verb, Store = store, Amount = amount, Percent = pct, Scope = scope,
                 PerTargetStatus = per?.Kind == "target" ? per.Arg : null, Per = per,
-                Turns = turns, Shape = shape, IfTag = ifTag,
+                Turns = turns, Shape = shape, IfTag = ifTag, Flat = flat,
                 Source = source, Text = spec.Trim()
             };
         }
@@ -363,7 +416,7 @@ namespace RPGGame
             When = When, Every = Every, Once = Once, Chance = Chance, Conditions = Conditions,
             IfStore = IfStore, IfAtLeast = IfAtLeast, IfTargetStatus = IfTargetStatus,
             Verb = Verb, Store = Store, Amount = Amount * scale, Percent = Percent, Scope = Scope,
-            PerTargetStatus = PerTargetStatus, Per = Per, Turns = Turns, Shape = Shape, IfTag = IfTag,
+            PerTargetStatus = PerTargetStatus, Per = Per, Turns = Turns, Shape = Shape, IfTag = IfTag, Flat = Flat,
             Source = Source, Text = Text, Scale = scale
         };
 
@@ -711,6 +764,18 @@ namespace RPGGame
                 CombatTriggerContext.SetPendingReplaceRollFace(hero, (int)Math.Round(written));
                 return true;
             }
+            if (rule.Verb is "STRIP" or "RETRIGGER" or "CRITFACE")
+            {
+                var log = new List<string>();
+                return rule.Verb switch
+                {
+                    "STRIP" => ActionRules.Strip(hero, evt?.Action, rule, log),
+                    "RETRIGGER" => ActionRules.Retrigger(hero, evt?.Action, rule, log),
+                    _ => ActionRules.CritFace(hero, (int)Math.Round(written), true, log)
+                };
+            }
+            if (rule.Verb == "SWING")
+                return false; // this swing's bonus: only an action card's own rules, before damage (ActionRules)
             if (rule.Verb == "SPEND")
             {
                 int max = written >= CrossWireRule.SpendAllAmount ? int.MaxValue : (int)Math.Round(written);
@@ -731,6 +796,14 @@ namespace RPGGame
 
             switch (rule.Verb)
             {
+                case "HEAL" when rule.Flat:
+                {
+                    int hp = RoundUnits(amount); // already crit-amplified above
+                    if (hp <= 0 || hero.CurrentHealth <= 0)
+                        return false;
+                    hero.Heal(hp);
+                    return true;
+                }
                 case "HEAL":
                 {
                     int hp = rule.Percent
@@ -821,6 +894,26 @@ namespace RPGGame
                 : $"{actionName} · {whenLabel}";
             MaterialSetController.MintKeyword(hero, build.Keyword, amount, cause);
             return true;
+        }
+
+        private static string DescribeStrip(string op, double n)
+        {
+            int colon = op.IndexOf(':');
+            string head = colon > 0 ? op[..colon] : op;
+            string arg = colon > 0 ? op[(colon + 1)..] : "";
+            return head switch
+            {
+                "strip_jump" => $"jump to strip slot {(arg.Length > 0 ? arg : n.ToString("0", CultureInfo.InvariantCulture))}",
+                "strip_skip" => "skip the next strip slot",
+                "strip_repeat" => "repeat this strip slot",
+                "strip_loop" => "loop the strip",
+                "strip_stop" => "end the strip",
+                "strip_random" => "jump to a random strip slot",
+                "strip_shuffle" => "shuffle the strip",
+                "strip_replace_next" => $"the next strip action becomes {arg}",
+                "strip_disable" => "disable the next strip slot",
+                _ => op
+            };
         }
 
         /// <summary>Whole units from a scaled amount: the fraction is a chance for one more (0.5 = half the time).</summary>
@@ -952,6 +1045,7 @@ namespace RPGGame
         private static double SelfValue(Character hero, string key, int eventAmount, CombatEvent? evt, Action? action) => key switch
         {
             "HP" => HealthPercent(hero),
+            "MISSINGHP" => ItemTriggerMagnitude.MissingHealthPercent(hero),
             "STEP" => hero.ComboStep,
             "SLOT" => StripSlot(hero, action),
             "SLOTS" => ActionUtilities.GetComboActions(hero).Count,
@@ -1538,7 +1632,11 @@ namespace RPGGame
             {
                 "MINT" => $"+{amount} {rule.Store.ToUpperInvariant()}{per}",
                 "ADD" => $"+{amount} {rule.Store}{per}",
-                "HEAL" => (rule.Percent ? $"heal {rule.Amount:0.##}% of the damage" : $"heal {rule.Amount:0.##}% max HP") + per,
+                "HEAL" => (rule.Flat ? $"heal {rule.Amount:0.##} HP" : rule.Percent ? $"heal {rule.Amount:0.##}% of the damage" : $"heal {rule.Amount:0.##}% max HP") + per,
+                "STRIP" => DescribeStrip(rule.Store, rule.Amount),
+                "RETRIGGER" => rule.Store.Replace("retrigger_", "repeat your ").Replace("slot:", "slot ") + " action",
+                "CRITFACE" => $"crit on natural {rule.Amount:0}+ this fight",
+                "SWING" => $"{(rule.Amount >= 0 ? "+" : "")}{rule.Amount:0.##}% {rule.Store.ToLowerInvariant()} this swing{per}",
                 "REFLECT" => $"deal {rule.Amount:0.##}% of it back",
                 "BUFF" => $"+{rule.Amount:0.##} {rule.Store.ToUpperInvariant()}{per} for the {rule.Scope}",
                 "NEXT" => DescribeNext(rule, per),
