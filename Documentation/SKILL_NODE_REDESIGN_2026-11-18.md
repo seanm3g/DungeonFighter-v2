@@ -134,3 +134,10 @@ the redesign.
   weights for them before their value can be judged.
 - **Still open**: the branch is 5-14 clear points easier than before from L13 up (spread over many +2..+4 nodes:
   skills now matter). Either cut further or re-solve enemy damage on top of this branch.
+
+### Warrior fix (skillrules-v49b)
+
+Swift Strike goes back to every 3rd Sword connect (EVERY 4 cut Warrior too far). Class solve on v49a
+(diag 7101-7104, confirm 7201-7204) kept Barbarian/Rogue L13, Wizard L23, Warrior L38/L43/L48/L63, Wizard L48,
+Barbarian L53, Rogue L63. Held out (7301-7302): clear gap 1.66 (v49a 1.91, v48b 3.80), class spread 13.3 (v49a 17.2).
+Warrior L38 46→63, L43 59→66, L48 51→67, L63 34→41. Still low: Warrior L58 46, L68 26 (those cells did not beat noise).

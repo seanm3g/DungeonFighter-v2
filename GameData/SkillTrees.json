@@ -836,12 +836,12 @@
           "cost": 3,
           "maxRank": 1,
           "requires": [],
-          "effect": "Every 4th Sword connect Slows the enemy (feeds DRAG).",
+          "effect": "Every 3rd Sword connect Slows the enemy (feeds DRAG).",
           "payoff": "Connects convert into same-turn tempo.",
           "customEffectId": "rule",
           "power": 1.0,
           "sharedWith": [],
-          "crossWire": "ONCONNECT EVERY 4 IF WEAPON sword -> APPLY slow 1"
+          "crossWire": "ONCONNECT EVERY 3 IF WEAPON sword -> APPLY slow 1"
         },
         {
           "id": "w-streak",
