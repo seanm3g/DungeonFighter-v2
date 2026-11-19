@@ -169,8 +169,6 @@ namespace RPGGame
                 _character.Actions.InitializeDefaultCombo(_character, _character.Equipment.Weapon);
             }
 
-            ItemEquipEffectApplicator.RefreshGrantedActionTags(_character);
-            EnsureEquipGrantedActionsInPool();
             MaterialSetController.SyncConvertActionsToPool(_character);
             AnimalSetController.SyncAnimalActionsToPool(_character);
 
@@ -185,21 +183,6 @@ namespace RPGGame
         {
             return string.Equals(slot, "weapon", StringComparison.OrdinalIgnoreCase) ||
                    item?.Type == ItemType.Weapon;
-        }
-
-        private void EnsureEquipGrantedActionsInPool()
-        {
-            foreach (string actionName in ItemEquipEffectApplicator.GetGrantedActionNames(_character))
-            {
-                if (string.IsNullOrWhiteSpace(actionName))
-                    continue;
-                if (_character.ActionPool.Any(e =>
-                        string.Equals(e.action.Name, actionName, StringComparison.OrdinalIgnoreCase)))
-                    continue;
-                var loaded = ActionLoader.GetAction(actionName);
-                if (loaded != null)
-                    _character.AddAction(loaded, 1.0);
-            }
         }
 
         /// <summary>

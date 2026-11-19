@@ -24,7 +24,6 @@ namespace RPGGame.Tests.Unit
             TestAliasesResolveToCanonical();
             TestGateKeepsFilterAliases();
             TestEveryMaterialSynthesisWhenIsAnEvent();
-            TestEveryTriggerRowWhenIsAnEvent();
             TestLabelsAndDescriptions();
             TestReservedEventsAreNotStoredAsConditions();
             TestSynergyWhenKeysCanonicalize();
@@ -98,17 +97,6 @@ namespace RPGGame.Tests.Unit
                 TestBase.AssertTrue(ok, $"{build.Material} synthesis '{build.Synthesis}' → canonical emitted event ({build.WhenToken})",
                     ref _run, ref _passed, ref _failed);
             }
-        }
-
-        private static void TestEveryTriggerRowWhenIsAnEvent()
-        {
-            TestBase.SetCurrentTestName(nameof(TestEveryTriggerRowWhenIsAnEvent));
-            var unknown = TriggersLoader.GetAll()
-                .Where(t => !string.IsNullOrWhiteSpace(t.When) && !TriggerEvents.IsEvent(t.When))
-                .Select(t => $"{t.Name}:{t.When}")
-                .ToList();
-            TestBase.AssertTrue(unknown.Count == 0, "every Triggers.json WHEN is an event" + (unknown.Count > 0 ? " — " + string.Join(", ", unknown) : ""),
-                ref _run, ref _passed, ref _failed);
         }
 
         private static void TestLabelsAndDescriptions()

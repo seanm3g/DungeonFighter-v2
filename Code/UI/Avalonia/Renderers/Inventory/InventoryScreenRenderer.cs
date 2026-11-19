@@ -720,10 +720,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 result.Add(b.Build());
             }
 
-            if (ItemTriggerBundleDisplay.FormatModifier(item) is { } modifier)
-                Add("Modifier: ", new List<string> { modifier });
-            Add("Triggers: ", ItemTriggerBundleDisplay.FormatCombatSummaries(item).ToList());
-            Add("While equipped: ", ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList());
+            Add("Modifier: ", RPGGame.UI.RuleText.Lines(item.ImplicitRule, item.Name ?? ""));
             return result;
         }
 

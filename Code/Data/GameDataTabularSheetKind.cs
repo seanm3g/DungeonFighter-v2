@@ -16,7 +16,7 @@ namespace RPGGame.Data
         StatBonuses,
         /// <summary><c>Consumables.json</c> — room-search food and dungeon potions (sheet tab CONSUMABLES).</summary>
         Consumables,
-        /// <summary><c>Triggers.json</c> — item trigger identity catalog (sheet tab triggers).</summary>
+        /// <summary>Unused since 2026-11-18: the item trigger catalog (Triggers.json) was removed; kept so saved sheet configs load.</summary>
         Triggers,
         /// <summary><c>MaterialBuilds.json</c> — material-set synthesis / convert / feed (sheet tab MATERIAL BUILDS).</summary>
         MaterialBuilds,

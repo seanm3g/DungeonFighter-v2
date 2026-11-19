@@ -175,11 +175,11 @@ namespace RPGGame.Tests.Unit.Combat
             var item = TestDataBuilders.Weapon().WithName("Old " + first.Name).Build();
             item.BaseName = first.Name;
             item.ImplicitRule = "WHILE IF CLASS barbarian -> DAMAGE 6%";
-            MaterialTriggerMerge.RefreshCatalogModifier(item);
-            Check(MaterialTriggerMerge.RuleShape(item.ImplicitRule) == MaterialTriggerMerge.RuleShape(first.Modifier!),
+            ItemSaveMigration.RefreshCatalogModifier(item);
+            Check(ItemSaveMigration.RuleShape(item.ImplicitRule) == ItemSaveMigration.RuleShape(first.Modifier!),
                 "a saved item on an old % rule re-rolls its base's catalog rule");
             string kept = item.ImplicitRule;
-            MaterialTriggerMerge.RefreshCatalogModifier(item);
+            ItemSaveMigration.RefreshCatalogModifier(item);
             Check(item.ImplicitRule == kept, "an item already on its catalog rule keeps its rolled values");
         }
 

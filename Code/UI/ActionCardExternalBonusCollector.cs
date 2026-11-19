@@ -53,9 +53,6 @@ namespace RPGGame
                     snap.Lines.Add(new ActionCardBonusLine(convertLine, true));
             }
 
-            foreach (var (source, mechanicId, magnitude) in EquippedItemTriggerApplicator.CollectWhileEquippedSameSwingPreview(character, action, comboSlotIndex))
-                AddItemSameSwing(snap, source, mechanicId, magnitude);
-
             return snap;
         }
 
@@ -87,29 +84,6 @@ namespace RPGGame
                 case "multihit":
                     snap.MultiHitMod += bonus.Value;
                     snap.Lines.Add(new ActionCardBonusLine($"{bonus.SourceName} Multihit {FormatSignedNumber(bonus.Value)}", bonus.Value >= 0));
-                    break;
-            }
-        }
-
-        private static void AddItemSameSwing(ActionCardExternalBonusSnapshot snap, string source, string mechanicId, double magnitude)
-        {
-            if (Math.Abs(magnitude) < 0.0001)
-                return;
-            string id = ActionMechanicsRegistry.NormalizeMechanicId(mechanicId ?? "");
-            string label = string.IsNullOrWhiteSpace(source) ? "Gear" : source;
-            switch (id)
-            {
-                case "hero_action_damage":
-                    snap.DamageModPercent += magnitude;
-                    snap.Lines.Add(new ActionCardBonusLine($"{label} {FormatSignedPercent(magnitude)} dmg", magnitude >= 0));
-                    break;
-                case "hero_action_speed":
-                    snap.SpeedModPercent += magnitude;
-                    snap.Lines.Add(new ActionCardBonusLine($"{label} {FormatSignedPercent(magnitude)} spd", magnitude >= 0));
-                    break;
-                case "hero_action_amp":
-                    snap.AmpModPercent += magnitude;
-                    snap.Lines.Add(new ActionCardBonusLine($"{label} {FormatSignedPercent(magnitude)} amp", magnitude >= 0));
                     break;
             }
         }

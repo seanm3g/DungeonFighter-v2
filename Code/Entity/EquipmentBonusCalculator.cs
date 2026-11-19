@@ -40,7 +40,6 @@ namespace RPGGame
             int flat = GetFlatEquipmentStatInteger(t);
             if (characterContext != null)
             {
-                flat += ItemEquipEffectApplicator.GetEquippedStatBonus(characterContext, t);
                 flat += PrimaryMaterialStatBonus(characterContext, t);
             }
 
@@ -161,8 +160,6 @@ namespace RPGGame
         {
             int totalArmor = GetIntrinsicEquippedArmorTotal();
             totalArmor += GetStatBonus("Armor", characterContext);
-            if (characterContext != null)
-                totalArmor += ItemEquipEffectApplicator.GetEquippedArmorBonus(characterContext);
             return totalArmor;
         }
 

@@ -33,15 +33,6 @@ namespace RPGGame.Actions.Execution
                 // TURN stat bonuses were tentatively applied before the roll (Selection); kept on hit, reverted on miss.
                 turnBonusCharacter.Effects.GetAndClearConsumedTurnBonusesThisRoll();
                 ResolvePendingActionCadenceBonuses(turnBonusCharacter, selected, result);
-                EquippedItemTriggerApplicator.ApplySameSwingDamageMods(
-                    turnBonusCharacter,
-                    target,
-                    selected,
-                    result.NaturalRollValue,
-                    result.ModifiedBaseRoll + result.RollBonus,
-                    result.IsCombo,
-                    result.IsCritical,
-                    result.StatusEffectMessages);
                 // The action's own same-swing bundles (BERSERKER's "+1% per 1% HP missing") must land before damage too.
                 ActionTriggerBundleApplicator.ApplySameSwingBundles(
                     selected,
@@ -98,14 +89,6 @@ namespace RPGGame.Actions.Execution
                     PackCombat.AccountAfterDamage(result, target, targetLivingBefore, targetHpBefore, replaceDamage: true);
                     hitEvent.Damage = result.Damage; // rules (HEAL n%, REFLECT) read the hit's damage
                     ActionEffectTargetResolver.ApplyLifestealHealing(source, selected, result.Damage);
-                    if (result.Damage > 0
-                        && target is Character multiHurtHero
-                        && multiHurtHero is not Enemy
-                        && !ReferenceEquals(source, target))
-                    {
-                        EquippedItemTriggerApplicator.ApplyFromDefender(
-                            multiHurtHero, source, hitEvent, result.StatusEffectMessages);
-                    }
                 }
                 else
                 {
@@ -137,24 +120,13 @@ namespace RPGGame.Actions.Execution
                         else
                             PackCombat.AccountAfterDamage(result, target, targetLivingBefore, targetHpBefore, replaceDamage: true);
 
-                        // Defender gear procs when the hero takes a successful hit from another actor.
+                        // The hero took a successful hit from another actor: take-hit WHENs (Bone RAGE, ONTAKEHIT rules).
                         if (result.Damage > 0
                             && target is Character hurtHero
                             && hurtHero is not Enemy
                             && !ReferenceEquals(source, target))
                         {
-                            EquippedItemTriggerApplicator.ApplyFromDefender(
-                                hurtHero, source, hitEvent, result.StatusEffectMessages);
                             MaterialSetController.TryMintFromEvent(hurtHero, hitEvent, selected, takeHitOnly: true);
-                        }
-                        if (result.Damage > 0
-                            && selected.Target == TargetType.SelfAndTarget
-                            && source is Character selfHurt
-                            && selfHurt is not Enemy
-                            && !ReferenceEquals(source, target))
-                        {
-                            EquippedItemTriggerApplicator.ApplyFromDefender(
-                                selfHurt, target, hitEvent, result.StatusEffectMessages);
                         }
                     }
                     if (source is Character sourceCharacter)

@@ -327,20 +327,6 @@ namespace RPGGame.Data
                     service,
                     cfg,
                     tabGids,
-                    cfg.PushTriggersTab,
-                    "triggers",
-                    cfg.TriggersSheetTabName,
-                    GameConstants.TriggersJson,
-                    GameDataTabularSheetKind.Triggers,
-                    "Triggers.json",
-                    result,
-                    cancellationToken)
-                .ConfigureAwait(false);
-
-            await PushOptionalJsonArrayTabAsync(
-                    service,
-                    cfg,
-                    tabGids,
                     cfg.PushMaterialBuildsTab,
                     "MATERIAL BUILDS",
                     cfg.MaterialBuildsSheetTabName,
@@ -481,9 +467,6 @@ namespace RPGGame.Data
 
             if (cfg.PushConsumablesTab && !string.IsNullOrWhiteSpace(cfg.ConsumablesSheetTabName))
                 yield return cfg.ConsumablesSheetTabName.Trim();
-
-            if (cfg.PushTriggersTab && !string.IsNullOrWhiteSpace(cfg.TriggersSheetTabName))
-                yield return cfg.TriggersSheetTabName.Trim();
 
             if (cfg.PushMaterialBuildsTab && !string.IsNullOrWhiteSpace(cfg.MaterialBuildsSheetTabName))
                 yield return cfg.MaterialBuildsSheetTabName.Trim();

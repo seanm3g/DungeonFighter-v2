@@ -264,10 +264,6 @@ namespace RPGGame.Data
                 {
                     NormalizeConsumablesJsonArrayRow(obj);
                 }
-                else if (kind == GameDataTabularSheetKind.Triggers)
-                {
-                    NormalizeTriggersJsonArrayRow(obj);
-                }
                 else if (kind == GameDataTabularSheetKind.MaterialBuilds)
                 {
                     NormalizeMaterialBuildsJsonArrayRow(obj);

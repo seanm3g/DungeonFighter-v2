@@ -52,7 +52,7 @@ namespace RPGGame.Tuning.Profiles
             [JsonPropertyName("gearLevelOffset")] public int? GearLevelOffset { get; set; }
             /// <summary>Extra strip slots beyond the strip length.</summary>
             [JsonPropertyName("extraSlots")] public int? ExtraSlots { get; set; }
-            /// <summary>Material trigger names (MaterialTriggerCatalog) stamped on build pieces in order; replaces earlier steps' list.</summary>
+            /// <summary>Legacy: material trigger names. Ignored since item triggers were removed (2026-11-18).</summary>
             [JsonPropertyName("triggers")] public List<string>? Triggers { get; set; }
             /// <summary>Modifications.json names added to the weapon (e.g. Poisonous, Flaming, serrated); replaces earlier steps' list.</summary>
             [JsonPropertyName("weaponMods")] public List<string>? WeaponMods { get; set; }
@@ -383,20 +383,6 @@ namespace RPGGame.Tuning.Profiles
             var applier = new LootBonusApplier(LootDataCache.Load(), new Random(seed));
             var slots = new[] { hero.Weapon, hero.Body, hero.Legs, hero.Head, hero.Feet };
             int slot = 0;
-            // Named triggers go on the first pieces of their own material; with lootSystem.materialPieceTriggers on, every
-            // other build piece rolls one from its pool (seeded), as loot does.
-            // "NONE" = pieces carry no trigger (no random roll either): a clean baseline for trigger pricing.
-            bool noTriggers = state.Triggers.Any(n => string.Equals(n, "NONE", StringComparison.OrdinalIgnoreCase));
-            var namedTriggers = state.Triggers.Where(n => !string.Equals(n, "NONE", StringComparison.OrdinalIgnoreCase)).Select(n =>
-            {
-                int i = MaterialTriggerCatalog.All.ToList().FindIndex(d => string.Equals(d.TriggerName, n, StringComparison.OrdinalIgnoreCase)
-                    || string.Equals(d.TriggerName, d.Material + n, StringComparison.OrdinalIgnoreCase));
-                if (i < 0)
-                    throw new InvalidOperationException($"Unknown material trigger '{n}'.");
-                return MaterialTriggerCatalog.All[i];
-            }).ToList();
-            bool pieceTriggers = GameConfiguration.Instance.LootSystem?.MaterialPieceTriggers == true && !noTriggers;
-            var triggerRng = new Random(seed * 31 + 7);
             foreach (var kv in state.Materials)
             {
                 string material = MaterialBuildData.CanonicalMaterialName(kv.Key);
@@ -405,14 +391,6 @@ namespace RPGGame.Tuning.Profiles
                     if (slots[slot] == null)
                         continue;
                     applier.ApplySpecificMaterial(slots[slot]!, material);
-                    int named = namedTriggers.FindIndex(d => string.Equals(d.Material, material, StringComparison.OrdinalIgnoreCase));
-                    if (named >= 0)
-                    {
-                        MaterialTriggerMerge.AppendDef(slots[slot]!, namedTriggers[named]);
-                        namedTriggers.RemoveAt(named);
-                    }
-                    else if (pieceTriggers)
-                        MaterialTriggerMerge.ApplyMaterialTrigger(slots[slot]!, triggerRng);
                 }
             }
             for (; slot < slots.Length; slot++)

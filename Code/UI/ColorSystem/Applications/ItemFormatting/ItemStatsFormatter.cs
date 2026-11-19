@@ -193,33 +193,6 @@ namespace RPGGame.UI.ColorSystem.Applications.ItemFormatting
                 lines.Add(modifierLine.Build());
             }
 
-            var combatSummaries = ItemTriggerBundleDisplay.FormatCombatSummaries(item).ToList();
-            if (combatSummaries.Count > 0)
-            {
-                var triggerLine = new ColoredTextBuilder();
-                triggerLine.Add("  Triggers: ", ColorPalette.Info);
-                for (int i = 0; i < combatSummaries.Count; i++)
-                {
-                    if (i > 0)
-                        triggerLine.Add("; ", Colors.Gray);
-                    triggerLine.Add(combatSummaries[i], Colors.White);
-                }
-                lines.Add(triggerLine.Build());
-            }
-
-            var equipSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList();
-            if (equipSummaries.Count > 0)
-            {
-                var equipLine = new ColoredTextBuilder();
-                equipLine.Add("  While equipped: ", ColorPalette.Info);
-                for (int i = 0; i < equipSummaries.Count; i++)
-                {
-                    if (i > 0)
-                        equipLine.Add("; ", Colors.Gray);
-                    equipLine.Add(equipSummaries[i], Colors.White);
-                }
-                lines.Add(equipLine.Build());
-            }
 
             string? reqSummary = item.GetAttributeRequirementsSummaryLine();
             if (!string.IsNullOrEmpty(reqSummary))

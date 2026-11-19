@@ -30,8 +30,6 @@ namespace RPGGame.Tests.Unit
             TestGateOnlyListed_PoisonStillAppliesOnHitWhileWeakenIsOwned();
             TestSameSwingDamage_LandsBeforeDamage_AndPostPassSkipsIt();
             TestSameSwingDamage_RespectsTargetHealthFilter();
-            TestTakeHit_StripActionBanksNextActionDamage();
-            TestTakeHit_StripActionOnConnectDoesNotFireOnEnemyHit();
             TestWeaponSpeedFlat_ShortensTheSwingThatUsedIt();
 
             TestBase.PrintSummary("Action Trigger Bundle Applicator Tests", _testsRun, _testsPassed, _testsFailed);
@@ -258,61 +256,6 @@ namespace RPGGame.Tests.Unit
             hero.AddAction(action, 1.0);
             hero.AddToCombo(action);
             return hero;
-        }
-
-        private static void TestTakeHit_StripActionBanksNextActionDamage()
-        {
-            TestBase.SetCurrentTestName(nameof(TestTakeHit_StripActionBanksNextActionDamage));
-            var retaliate = new Action
-            {
-                Name = "RETALIATE",
-                Type = ActionType.Attack,
-                Advanced = new AdvancedMechanicsProperties(),
-                Triggers = new ConditionalTriggerProperties
-                {
-                    Bundles = new List<ActionTriggerBundle>
-                    {
-                        new ActionTriggerBundle { When = "ONTAKEHIT", Count = "1", Scope = "ACTION", Mechanics = "hero_next_action_damage", Value = 25 }
-                    }
-                }
-            };
-            var hero = HeroWithStripAction("RetaliateHero", retaliate);
-            var foe = new Enemy("Goblin", 1, 100, 10, 5, 5, 5);
-            var bite = new Action { Name = "BITE", Type = ActionType.Attack, Advanced = new AdvancedMechanicsProperties() };
-            var messages = new List<string>();
-
-            bool fired = EquippedItemTriggerApplicator.ApplyFromDefender(hero, foe, HitBy(foe, hero, bite), messages);
-            TestBase.AssertTrue(fired, "slotted ONTAKEHIT bundle fires when the hero is hit",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(hero.Effects.HasPendingActionCadenceBank(),
-                "it banks next-action damage",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestTakeHit_StripActionOnConnectDoesNotFireOnEnemyHit()
-        {
-            TestBase.SetCurrentTestName(nameof(TestTakeHit_StripActionOnConnectDoesNotFireOnEnemyHit));
-            var strike = new Action
-            {
-                Name = "SETUP STRIKE",
-                Type = ActionType.Attack,
-                Advanced = new AdvancedMechanicsProperties(),
-                Triggers = new ConditionalTriggerProperties
-                {
-                    Bundles = new List<ActionTriggerBundle>
-                    {
-                        new ActionTriggerBundle { When = "ONCONNECT", Count = "1", Scope = "ACTION", Mechanics = "hero_next_action_damage", Value = 25 }
-                    }
-                }
-            };
-            var hero = HeroWithStripAction("ConnectHero", strike);
-            var foe = new Enemy("Goblin", 1, 100, 10, 5, 5, 5);
-            var bite = new Action { Name = "BITE", Type = ActionType.Attack, Advanced = new AdvancedMechanicsProperties() };
-
-            EquippedItemTriggerApplicator.ApplyFromDefender(hero, foe, HitBy(foe, hero, bite), new List<string>());
-            TestBase.AssertTrue(!hero.Effects.HasPendingActionCadenceBank(),
-                "a slotted action's ONCONNECT bundle ignores the enemy's hit",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestWeaponSpeedFlat_ShortensTheSwingThatUsedIt()

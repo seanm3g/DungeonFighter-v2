@@ -115,8 +115,7 @@ namespace RPGGame
         public void ApplyAlwaysMaterialAndTrigger(Item item, string? itemRarity = null)
         {
             EnsureMaterial(item, itemRarity);
-            MaterialTriggerMerge.ClearCatalogTriggerStamp(item);
-            MaterialTriggerMerge.RemapLegacyMaterialOnItem(item);
+            ItemSaveMigration.RemapLegacyMaterialOnItem(item);
             SyncMaterialPrefixTags(item);
             item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
         }
@@ -169,8 +168,7 @@ namespace RPGGame
             item.Material = forced;
             if (string.IsNullOrWhiteSpace(item.Rarity))
                 item.Rarity = rarityName;
-            MaterialTriggerMerge.ClearCatalogTriggerStamp(item);
-            MaterialTriggerMerge.RemapLegacyMaterialOnItem(item);
+            ItemSaveMigration.RemapLegacyMaterialOnItem(item);
             SyncMaterialPrefixTags(item);
             item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
             item.RecomputeAttributeRequirementsIncludingModifications();

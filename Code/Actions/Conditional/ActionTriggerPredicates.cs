@@ -167,7 +167,6 @@ namespace RPGGame.Actions.Conditional
 
         /// <summary>
         /// True when the subject action has <paramref name="tag"/> on its sheet tags
-        /// or via character <see cref="Character.EquipmentGrantedActionTags"/> overlay.
         /// </summary>
         public static bool SubjectHasTag(Actor? source, Action action, string? tag)
         {
@@ -175,11 +174,6 @@ namespace RPGGame.Actions.Conditional
                 return false;
             if (action.Tags != null
                 && action.Tags.Any(t => string.Equals(t, tag, StringComparison.OrdinalIgnoreCase)))
-                return true;
-            if (source is Character character
-                && character.EquipmentGrantedActionTags != null
-                && character.EquipmentGrantedActionTags.Any(t =>
-                    string.Equals(t, tag, StringComparison.OrdinalIgnoreCase)))
                 return true;
             return false;
         }

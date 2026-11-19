@@ -230,18 +230,6 @@ namespace RPGGame.Entity.Services
             SkillEffectRouter.Instance.RefreshForCharacter(character);
 
             EnsureUnarmedTutorialActionInActionPool(character);
-            ItemEquipEffectApplicator.RefreshGrantedActionTags(character);
-            foreach (string actionName in ItemEquipEffectApplicator.GetGrantedActionNames(character))
-            {
-                if (string.IsNullOrWhiteSpace(actionName))
-                    continue;
-                if (character.ActionPool.Any(e =>
-                        string.Equals(e.action.Name, actionName, StringComparison.OrdinalIgnoreCase)))
-                    continue;
-                var loaded = ActionLoader.GetAction(actionName);
-                if (loaded != null)
-                    character.AddAction(loaded, 1.0);
-            }
 
             MaterialSetController.SyncConvertActionsToPool(character);
             AnimalSetController.SyncAnimalActionsToPool(character);

@@ -51,7 +51,6 @@ namespace RPGGame
         /// Tags injected onto all equipped/pool actions while gear with <c>grant_action_tag</c> is worn.
         /// Cleared and rebuilt on equip/unequip / action rebuild — never mutates catalog Action instances.
         /// </summary>
-        public HashSet<string> EquipmentGrantedActionTags { get; } = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// When true, the hero must see the Training Ground offer (or complete/skip it) before normal weapon selection.

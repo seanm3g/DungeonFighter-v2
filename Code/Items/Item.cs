@@ -319,8 +319,7 @@ namespace RPGGame
         [JsonPropertyName("itemClass")]
         public string ItemClass { get; set; } = "";
 
-        /// <summary>Trigger identity of the base item's implicit (<c>Triggers.json</c> name); its bundle in
-        /// <see cref="TriggerBundles"/> / <see cref="EquipEffects"/> survives material trigger clean-ups.</summary>
+        /// <summary>Legacy: the base item's implicit trigger name (pre 2026-11-15 saves); <see cref="ItemSaveMigration"/> turns it into a base modifier on load.</summary>
         [JsonPropertyName("implicit")]
         public string Implicit { get; set; } = "";
 
@@ -357,21 +356,6 @@ namespace RPGGame
         /// <summary>Player-set protection: when true, trade-up never consumes this item.</summary>
         [JsonPropertyName("excludeFromTradeUp")]
         public bool ExcludeFromTradeUp { get; set; }
-
-        /// <summary>
-        /// Catalog combat procs (WHEN × SCOPE × mechanics), same grammar as action trigger bundles.
-        /// Fired from equipped gear via <c>EquippedItemTriggerApplicator</c>.
-        /// Also holds <c>WHILE_EQUIPPED</c> equip-time effects (evaluated by <c>ItemEquipEffectApplicator</c>).
-        /// </summary>
-        [JsonPropertyName("triggerBundles")]
-        public List<ActionTriggerBundle> TriggerBundles { get; set; } = new List<ActionTriggerBundle>();
-
-        /// <summary>
-        /// Always-on equip effects (<c>WHEN=WHILE_EQUIPPED</c>). Same bundle shape as combat procs.
-        /// Prefer putting WHILE_EQUIPPED rows here; combat applicator ignores them in TriggerBundles too.
-        /// </summary>
-        [JsonPropertyName("equipEffects")]
-        public List<ActionTriggerBundle> EquipEffects { get; set; } = new List<ActionTriggerBundle>();
 
         /// <summary>When <see cref="Type"/> is <see cref="ItemType.Consumable"/>, marks food vs potion and which buff line.</summary>
         public RoomSearchConsumableKind RoomSearchConsumableKind { get; set; }

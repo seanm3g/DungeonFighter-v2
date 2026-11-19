@@ -40,8 +40,10 @@ namespace RPGGame.Actions.Execution
                 CombatEffectsSimplified.ApplyStatusEffects(action, hero, hero, messages, roomClearedEvent);
             }
 
-            // Catalog item procs (e.g. ONROOMSCLEARED heal / weapon damage) — skip re-running pool actions.
-            EquippedItemTriggerApplicator.ApplyFromAttacker(hero, hero, roomClearedEvent, messages);
+            // Sets, item modifiers and skill rules hear the room clear exactly once (ApplyStatusEffects skips minting for
+            // RoomCleared, so it no longer ran once per pool action with a room-clear trigger, or never without one).
+            roomClearedEvent.Action = null;
+            MaterialSetController.TryMintFromEvent(hero, roomClearedEvent);
 
             return messages;
         }

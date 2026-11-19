@@ -38,7 +38,7 @@ namespace RPGGame
             };
 
             // Remap Damascus→Iron; do not re-roll item trigger identities.
-            MaterialTriggerMerge.RepairMissingMaterialTrigger(result);
+            ItemSaveMigration.Migrate(result);
             // Rebuild 2.1 save migration: a Common keeps its stats; its modifier and rolled actions drop (starters keep their action).
             CommonItemRules.MakePlain(result);
             return result;
@@ -228,8 +228,6 @@ namespace RPGGame
             destination.Level = source.Level;
             destination.Tags = source.Tags;
             destination.ExcludeFromTradeUp = source.ExcludeFromTradeUp;
-            destination.TriggerBundles = source.TriggerBundles ?? new List<ActionTriggerBundle>();
-            destination.EquipEffects = source.EquipEffects ?? new List<ActionTriggerBundle>();
             destination.RoomSearchConsumableKind = source.RoomSearchConsumableKind;
             destination.ConsumableHealAmount = source.ConsumableHealAmount;
             destination.ConsumablePotionPotency = source.ConsumablePotionPotency;

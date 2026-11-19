@@ -199,12 +199,6 @@ namespace RPGGame
                     heroStreak.Effects.MaterialConsecutiveConnects = 0;
             }
 
-            if (combatEvent?.Type != CombatEventType.RoomCleared)
-            {
-                effectsApplied |= EquippedItemTriggerApplicator.ApplyFromAttacker(
-                    attacker, target, combatEvent, results);
-            }
-
             if (attacker is Character heroSynth && heroSynth is not Enemy && combatEvent != null)
             {
                 RPGGame.Combat.Events.HeroEventHub.SetTarget(heroSynth, target);
@@ -223,7 +217,9 @@ namespace RPGGame
                 bool gainedFocus = (heroSynth.FocusStacks ?? 0) > focusBefore;
                 bool appliedSlow = slowTarget != null && !ReferenceEquals(slowTarget, heroSynth)
                     && (slowTarget.Effects.SlowTurns > slowTurnsBefore || slowTarget.Effects.SlowMultiplier < slowMultBefore);
-                MaterialSetController.TryMintFromEvent(heroSynth, combatEvent, action, gainedFocus: gainedFocus, appliedSlow: appliedSlow);
+                // Room clears mint once in RoomClearedTriggerApplicator, not once per pool action.
+                if (combatEvent.Type != CombatEventType.RoomCleared)
+                    MaterialSetController.TryMintFromEvent(heroSynth, combatEvent, action, gainedFocus: gainedFocus, appliedSlow: appliedSlow);
             }
             
             return effectsApplied;

@@ -227,14 +227,8 @@ namespace RPGGame.Tuning.Profiles
             };
             string dropped = string.IsNullOrWhiteSpace(item.DropRarity) ? "" : $", dropped {item.DropRarity}";
             sb.Append($"  [{item.Rarity}] {item.Name}  (ilvl {item.Level}, T{item.Tier}, {item.ItemClass}, {power}{dropped})");
-            if (ItemTriggerBundleDisplay.FormatModifier(item) is { } modifier)
-                sb.Append($"\n      modifier {modifier}");
-            if (!string.IsNullOrWhiteSpace(item.Implicit))
-            {
-                var imp = (item.TriggerBundles ?? new()).Concat(item.EquipEffects ?? new())
-                    .FirstOrDefault(b => MaterialTriggerMerge.IsImplicit(item, b));
-                sb.Append($"\n      implicit: {item.Implicit}{(string.IsNullOrWhiteSpace(imp?.Description) ? "" : " — " + imp!.Description)}");
-            }
+            if (RPGGame.UI.RuleText.Lines(item.ImplicitRule, item.Name ?? "") is { Count: > 0 } modifier)
+                sb.Append($"\n      modifier {string.Join("; ", modifier)}");
             foreach (var m in item.Modifications.Where(m => m.ModLine != null))
                 sb.Append($"\n      {m.ModLine!.Pool,-8} {m.Name} = {m.RolledValue:0.##} (T{m.ModLine.Tier}{(m.ModLine.RolledUp ? ", rolled up" : "")})");
             foreach (var s in item.StatBonuses.Where(s => s.ModLine != null))

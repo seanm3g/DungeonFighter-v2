@@ -80,10 +80,6 @@ namespace RPGGame
             }
 
             weapon.Tags = GameDataTagHelper.NormalizeDistinct(weaponData.Tags);
-            // Catalog triggerName stamps are unused: combat procs come from MATERIAL BUILDS.
-            ApplyCatalogTrigger(null, null, null, out var combat, out var equip);
-            weapon.TriggerBundles = combat;
-            weapon.EquipEffects = equip;
             
             return weapon;
         }
@@ -112,9 +108,6 @@ namespace RPGGame
             }
 
             item.Tags = GameDataTagHelper.NormalizeDistinct(armorData.Tags);
-            ApplyCatalogTrigger(null, null, null, out var combat, out var equip);
-            item.TriggerBundles = combat;
-            item.EquipEffects = equip;
 
             item.BaseStrength = armorData.Strength;
             item.BaseAgility = armorData.Agility;
@@ -131,66 +124,6 @@ namespace RPGGame
             item.CatalogAttackSpeed = armorData.AttackSpeed;
 
             return item;
-        }
-
-        /// <summary>
-        /// Prefer <paramref name="triggerName"/> resolved from Triggers.json; fall back to legacy nested lists.
-        /// </summary>
-        internal static void ApplyCatalogTrigger(
-            string? triggerName,
-            IEnumerable<ActionTriggerBundle>? legacyCombat,
-            IEnumerable<ActionTriggerBundle>? legacyEquip,
-            out List<ActionTriggerBundle> combat,
-            out List<ActionTriggerBundle> equip)
-        {
-            if (!string.IsNullOrWhiteSpace(triggerName)
-                && TriggersLoader.TryGetByName(triggerName, out var identity))
-            {
-                var bundle = identity.ToBundle();
-                var list = new List<ActionTriggerBundle> { bundle };
-                if (identity.IsEquipEffect)
-                {
-                    combat = new List<ActionTriggerBundle>();
-                    equip = list;
-                }
-                else
-                {
-                    combat = list;
-                    equip = new List<ActionTriggerBundle>();
-                }
-
-                return;
-            }
-
-            combat = CloneTriggerBundles(legacyCombat);
-            equip = CloneTriggerBundles(legacyEquip);
-        }
-
-        /// <summary>Deep-clones catalog trigger bundles onto a generated item (null-safe).</summary>
-        internal static List<ActionTriggerBundle> CloneTriggerBundles(IEnumerable<ActionTriggerBundle>? source)
-        {
-            var list = new List<ActionTriggerBundle>();
-            if (source == null)
-                return list;
-            foreach (var b in source)
-            {
-                if (b == null)
-                    continue;
-                list.Add(new ActionTriggerBundle
-                {
-                    IdentityName = b.IdentityName,
-                    When = b.When ?? "",
-                    Count = b.Count ?? "",
-                    Scope = b.Scope ?? "",
-                    Mechanics = b.Mechanics ?? "",
-                    Value = b.Value,
-                    Filters = b.Filters == null ? null : new List<string>(b.Filters),
-                    ScaleFrom = b.ScaleFrom,
-                    Description = b.Description
-                });
-            }
-
-            return list;
         }
 
         /// <summary>

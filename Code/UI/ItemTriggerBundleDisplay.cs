@@ -10,7 +10,7 @@ using RPGGame.Data;
 namespace RPGGame
 {
     /// <summary>
-    /// Player-facing labels for catalog <see cref="ActionTriggerBundle"/> lines on item tooltips.
+    /// Player-facing labels for <see cref="ActionTriggerBundle"/> lines (action cards) and an item's base modifier.
     /// </summary>
     public static class ItemTriggerBundleDisplay
     {
@@ -96,11 +96,6 @@ namespace RPGGame
                     yield return s;
             }
         }
-
-        /// <summary>Combat triggers on <paramref name="item"/> (base implicit, material piece procs): every enabled
-        /// <see cref="Item.TriggerBundles"/> row except WHILE_EQUIPPED ones, which show with <see cref="Item.EquipEffects"/>.</summary>
-        public static IEnumerable<string> FormatCombatSummaries(Item? item) =>
-            FormatSummaries(item?.TriggerBundles?.Where(b => b != null && !ItemEquipEffectApplicator.IsWhileEquipped(b)));
 
         public static string FormatWhen(string? when)
         {
@@ -242,30 +237,12 @@ namespace RPGGame
         {
             identityName = null;
             description = null;
-
-            // Prefer material catalog for loot procs (names like BoneCrab); then Wave-2 seed facade.
-            foreach (var def in MaterialTriggerCatalog.All)
-            {
-                if (!BundleMatches(bundle, def.When, def.Scope, def.Mechanics, def.Value, def.Filters))
-                    continue;
-                identityName = SplitCamel(def.TriggerName);
-                description = string.IsNullOrWhiteSpace(def.Description) ? null : def.Description.Trim();
-                return true;
-            }
-
-            foreach (var id in ItemTriggerIdentityCatalog.Identities)
-            {
-                string? filterCsv = id.Filters == null || id.Filters.Count == 0
-                    ? null
-                    : string.Join(",", id.Filters);
-                if (!BundleMatches(bundle, id.When, id.Scope, id.Mechanics, id.Value, filterCsv))
-                    continue;
-                identityName = SplitCamel(id.Name);
-                description = string.IsNullOrWhiteSpace(id.Description) ? null : id.Description.Trim();
-                return true;
-            }
-
-            return false;
+            // The item trigger catalogs were removed (2026-11-18): a bundle names itself.
+            if (string.IsNullOrWhiteSpace(bundle.IdentityName))
+                return false;
+            identityName = SplitCamel(bundle.IdentityName);
+            description = string.IsNullOrWhiteSpace(bundle.Description) ? null : bundle.Description.Trim();
+            return true;
         }
 
         private static bool BundleMatches(

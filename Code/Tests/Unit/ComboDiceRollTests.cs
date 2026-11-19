@@ -12,7 +12,6 @@ namespace RPGGame.Tests.Unit
     /// - ComboDiceRollTestsActionSelection (Action Selection Based on Dice Rolls)
     /// - ComboDiceRollTestsComboSequences (Combo Sequence Information and Integration)
     /// - ComboDiceRollTestsIsComboFlag (IsCombo Flag Tests - Bug Detection)
-    /// - ComboDiceRollTestsConditionalTriggers (Conditional Trigger Tests)
     /// </summary>
     public static class ComboDiceRollTests
     {
@@ -32,7 +31,6 @@ namespace RPGGame.Tests.Unit
             Console.WriteLine();
             ComboDiceRollTestsIsComboFlag.RunAllTests();
             Console.WriteLine();
-            ComboDiceRollTestsConditionalTriggers.RunAllTests();
         }
     }
 }

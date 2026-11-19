@@ -96,7 +96,6 @@ namespace RPGGame.Tests.Runners
             RetriggerTests.RunAllTests();
             RollProbabilityContentTests.RunAllTests();
             WeaponModTriggerBridgeTests.RunAllTests();
-            EquippedItemTriggerTests.RunAllTests();
             TriggerEventsTests.RunAllTests();
             StoresTests.RunAllTests();
             VerbPresetsTests.RunAllTests();
@@ -104,8 +103,6 @@ namespace RPGGame.Tests.Runners
             AffixTemplatesTests.RunAllTests();
             CrossWiresTests.RunAllTests();
             ItemRulesTests.RunAllTests();
-            StatBonusAnimalSuffixTriggerTests.RunAllTests();
-            ItemTriggerCombatIntegrationTests.RunAllTests();
             Console.WriteLine();
             StunProcessorTests.RunAllTests();
             Console.WriteLine();

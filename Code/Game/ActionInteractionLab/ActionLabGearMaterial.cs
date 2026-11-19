@@ -23,8 +23,7 @@ namespace RPGGame.ActionInteractionLab
             if (selected != null && !string.IsNullOrWhiteSpace(selected.Name))
             {
                 item.Material = selected.Name.Trim();
-                MaterialTriggerMerge.ClearCatalogTriggerStamp(item);
-                MaterialTriggerMerge.RemapLegacyMaterialOnItem(item);
+                ItemSaveMigration.RemapLegacyMaterialOnItem(item);
                 item.Name = ItemGenerator.GenerateItemNameWithBonuses(item);
                 return;
             }

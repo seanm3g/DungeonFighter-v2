@@ -114,30 +114,6 @@ namespace RPGGame
                 }
             }
 
-            // Any trigger rows the item still carries show without Alt.
-            var combatSummaries = ItemTriggerBundleDisplay.FormatCombatSummaries(item).ToList();
-            if (combatSummaries.Count > 0 && lines.Count < maxLines)
-            {
-                AddBlank(lines);
-                AddLine(lines, SectionHeader("Triggers"));
-                foreach (var summary in combatSummaries)
-                {
-                    if (lines.Count >= maxLines) break;
-                    AddLine(lines, BuildTriggerLine(summary));
-                }
-            }
-
-            var equipSummaries = ItemTriggerBundleDisplay.FormatSummaries(item.EquipEffects).ToList();
-            if (equipSummaries.Count > 0 && lines.Count < maxLines)
-            {
-                AddBlank(lines);
-                AddLine(lines, SectionHeader("While equipped"));
-                foreach (var summary in equipSummaries)
-                {
-                    if (lines.Count >= maxLines) break;
-                    AddLine(lines, BuildTriggerLine(summary));
-                }
-            }
 
             var synergyPartners = InventoryAffixSynergy.FindPartners(item, character);
             if (synergyPartners.Count > 0 && lines.Count < maxLines)

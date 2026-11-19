@@ -234,13 +234,11 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("world", "EnemyPrefix", () => RPGGame.Tests.Unit.World.EnemyPrefixTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "LeatherSetBonus", () => RPGGame.Tests.Unit.Combat.LeatherSetBonusTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CharmAnimal", () => RPGGame.Tests.Unit.Combat.CharmAndAnimalLadderTests.RunAllTests()));
-            list.Add(new TestSuiteEntry("combat", "StatBonusAnimalSuffix", () => RPGGame.Tests.Unit.StatBonusAnimalSuffixTriggerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTriggerBundleApplicator", () => RPGGame.Tests.Unit.ActionTriggerBundleApplicatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StripMutation", () => RPGGame.Tests.Unit.StripMutationTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "Retrigger", () => RPGGame.Tests.Unit.RetriggerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "RollProbabilityContent", () => RPGGame.Tests.Unit.RollProbabilityContentTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "WeaponModTriggerBridge", () => RPGGame.Tests.Unit.WeaponModTriggerBridgeTests.RunAllTests()));
-            list.Add(new TestSuiteEntry("combat", "EquippedItemTrigger", () => RPGGame.Tests.Unit.EquippedItemTriggerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "TriggerEvents", () => RPGGame.Tests.Unit.TriggerEventsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "Stores", () => RPGGame.Tests.Unit.StoresTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "VerbPresets", () => RPGGame.Tests.Unit.VerbPresetsTests.RunAllTests()));
@@ -249,8 +247,6 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "CrossWires", () => RPGGame.Tests.Unit.CrossWiresTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "BotDecision", () => RPGGame.Tests.Unit.BotDecisionTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ItemRules", () => RPGGame.Tests.Unit.ItemRulesTests.RunAllTests()));
-            list.Add(new TestSuiteEntry("data", "MaterialTrigger", () => RPGGame.Tests.Unit.MaterialTriggerTests.RunAllTests()));
-            list.Add(new TestSuiteEntry("combat", "ItemTriggerCombatIntegration", () => RPGGame.Tests.Unit.ItemTriggerCombatIntegrationTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StunProcessor", () => RPGGame.Tests.Unit.Combat.StunProcessorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("actions", "ActionSpeedSystem", () => RPGGame.Tests.Unit.Actions.ActionSpeedSystemTests.RunAllTests()));
             list.Add(new TestSuiteEntry("actions", "ActionSelectorRollBased", () => RPGGame.Tests.Unit.Actions.ActionSelectorRollBasedTests.RunAllTests()));

@@ -41,7 +41,6 @@ namespace RPGGame.Tests.Unit.Data
             TestNewGameBonusIsArmor();
             TestDefenseIsRolledOnce();
             TestWeaponDamageIsFixedToTheBase();
-            TestImplicitSurvivesTriggerCleanUp();
             TestImplicitScalesWithItemLevel();
             TestCombatImplicitShowsInTooltip();
             TestModifierKeywordNotation();
@@ -326,48 +325,6 @@ namespace RPGGame.Tests.Unit.Data
             bool climbs = Enumerable.Range(2, 4).All(t => Avg(t) > Avg(t - 1));
             TestBase.AssertTrue(climbs, $"each weapon tier hits harder than the last ({string.Join(" < ", Enumerable.Range(1, 5).Select(t => Avg(t).ToString("0")))})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestImplicitSurvivesTriggerCleanUp()
-        {
-            // Base implicits are modifiers now (BaseModifiers.json): a passive rule, never a trigger, and materials add none.
-            var items = Roll(new ItemRollRequest { ItemLevel = 20, AllowRollUps = false }, 200).Select(x => x.Item).ToList();
-            var withModifier = items.Where(i => !string.IsNullOrWhiteSpace(i.ImplicitRule)).ToList();
-            TestBase.AssertTrue(withModifier.Count > 0, "bases carry a modifier", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            // Since the synergy pass (2026-11-16) high tiers are triggered rules too (APPLY / NEXT / ADD / MINT).
-            TestBase.AssertTrue(withModifier.All(i => BaseModifierRoller.SplitRules(i.ImplicitRule).All(r => CrossWireRule.Parse(r) != null)),
-                "every modifier parses as rules", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(items.All(i => (i.TriggerBundles?.Count ?? 0) == 0 && string.IsNullOrWhiteSpace(i.Implicit)),
-                "rolled items carry no base or material triggers", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Every Uncommon+ item carries its base's modifier: the catalog rule with only the values rolled.
-            // Rebuild 2.1 (D0.7): a Common carries none (this replaced the 2026-11-15 "Commons included" rule).
-            bool all = true, fixedToBase = true;
-            string detail = "";
-            foreach (var item in items)
-            {
-                bool common = CommonItemRules.IsCommon(item);
-                var template = BaseModifierRoller.CatalogModifierFor(item.BaseName);
-                if (string.IsNullOrWhiteSpace(item.ImplicitRule) != common)
-                {
-                    all = false;
-                    detail = $"{item.Name} ({item.Rarity})";
-                }
-                if (!common && Shape(item.ImplicitRule) != Shape(template))
-                    fixedToBase = false;
-            }
-            TestBase.AssertTrue(all, $"every Uncommon+ item carries its base's modifier and no Common does {detail}", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(fixedToBase, "the modifier's rule is the base's catalog rule (only values roll)", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // A save from before: its implicit trigger becomes a modifier on load.
-            var legacy = new HeadItem("Wrap", 1, 1) { BaseName = "Wrap", ItemClass = "rogue", Level = 10, Implicit = "CritAmpCarry" };
-            legacy.TriggerBundles = new List<RPGGame.Data.ActionTriggerBundle>
-            {
-                new RPGGame.Data.ActionTriggerBundle { IdentityName = "CritAmpCarry", When = "ONCRITICAL", Mechanics = "hero_next_action_amp", Value = 10 }
-            };
-            MaterialTriggerMerge.RepairMissingMaterialTrigger(legacy);
-            TestBase.AssertTrue(legacy.TriggerBundles.Count == 0 && string.IsNullOrWhiteSpace(legacy.Implicit) && !string.IsNullOrWhiteSpace(legacy.ImplicitRule),
-                $"a legacy implicit trigger becomes a modifier on load ({legacy.ImplicitRule})", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         /// <summary>A modifier with its numbers blanked, so a rolled rule compares to its catalog template.</summary>

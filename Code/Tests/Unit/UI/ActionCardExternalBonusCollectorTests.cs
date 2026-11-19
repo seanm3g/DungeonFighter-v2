@@ -37,7 +37,6 @@ namespace RPGGame.Tests.Unit.UI
                 TestConvertScaleLineAndDamagePreview(ref run, ref passed, ref failed);
                 TestLoadedIronCullStripTracksCrisis(ref run, ref passed, ref failed);
                 TestFirstBronzeAgeLineOnAffectedAction(ref run, ref passed, ref failed);
-                TestWhileEquippedTagAmpOnlyOnMatchingAction(ref run, ref passed, ref failed);
             }
             finally
             {
@@ -222,43 +221,5 @@ namespace RPGGame.Tests.Unit.UI
                 ref run, ref passed, ref failed);
         }
 
-        private static void TestWhileEquippedTagAmpOnlyOnMatchingAction(ref int run, ref int passed, ref int failed)
-        {
-            TestBase.SetCurrentTestName(nameof(TestWhileEquippedTagAmpOnlyOnMatchingAction));
-            var hero = MakeBareHero("TagAmp");
-            var weapon = TestDataBuilders.Weapon().WithName("ChorusMace").WithWeaponType(WeaponType.Mace).Build();
-            weapon.EquipEffects = new List<ActionTriggerBundle>
-            {
-                new ActionTriggerBundle
-                {
-                    When = "WHILE_EQUIPPED",
-                    Count = "1",
-                    Mechanics = "hero_action_damage",
-                    Value = 12,
-                    IdentityName = "BludgeonChorus",
-                    Filters = new List<string> { "IFACTIONHASTAG:bludgeon" }
-                }
-            };
-            hero.Equipment.Weapon = weapon;
-
-            var bludgeon = TestDataBuilders.CreateMockAction("BLUDGEON");
-            bludgeon.IsComboAction = true;
-            bludgeon.Tags = new List<string> { "bludgeon" };
-            var strike = TestDataBuilders.CreateMockAction("STRIKE");
-            strike.IsComboAction = true;
-            strike.Tags = new List<string> { "weapon" };
-
-            var matched = ActionCardExternalBonusCollector.BuildLines(hero, bludgeon, 0);
-            var unmatched = ActionCardExternalBonusCollector.BuildLines(hero, strike, 0);
-
-            TestBase.AssertTrue(matched.Any(l =>
-                    l.Text.IndexOf("BludgeonChorus", StringComparison.OrdinalIgnoreCase) >= 0
-                    && l.Text.Contains("+12%", StringComparison.Ordinal)),
-                $"WHILE_EQUIPPED tag amp listed on matching action (lines: {string.Join(" | ", matched.Select(l => l.Text))})",
-                ref run, ref passed, ref failed);
-            TestBase.AssertEqual(0, unmatched.Count,
-                "WHILE_EQUIPPED tag amp omitted on untagged action",
-                ref run, ref passed, ref failed);
-        }
     }
 }

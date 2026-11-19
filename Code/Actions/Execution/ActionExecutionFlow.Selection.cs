@@ -100,11 +100,6 @@ namespace RPGGame.Actions.Execution
             result.SelectedAction = selected ?? ActionSelector.SelectActionByEntityType(source, replaceFace);
             if (result.SelectedAction == null) return;
             lastUsedActions[source] = result.SelectedAction;
-            if (source is Character preRollHero && preRollHero is not Enemy)
-            {
-                EquippedItemTriggerApplicator.ApplySameSwingPreRollMods(
-                    preRollHero, target, result.SelectedAction, result.StatusEffectMessages);
-            }
             // Forced retrigger skips SelectActionByEntityType (which stores a new d20). Roll fresh so the
             // encore does not reuse the outer swing's face (e.g. natural 20).
             if (forcedAction != null && RetriggerDepth > 0)

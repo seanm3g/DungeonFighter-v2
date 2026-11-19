@@ -100,36 +100,6 @@ namespace RPGGame.Tests.Unit.UI
                 "tooltip lists catalog Intelligence",
                 ref run, ref passed, ref failed);
 
-            var triggered = new LegsItem("Tassets", 1, 17)
-            {
-                Rarity = "Common",
-                Level = 1,
-                Material = "Iron",
-                TriggerBundles = new System.Collections.Generic.List<RPGGame.Data.ActionTriggerBundle>
-                {
-                    ItemTriggerIdentityCatalog.ToBundle(ItemTriggerIdentityCatalog.Get(0))
-                }
-            };
-            // Material set details are Alt-only since 11-14; the compact tooltip lists the item's Triggers.
-            var trigLines = ItemTooltipFormatter.BuildItemTooltipLines(hero, triggered, "Legs", 80, includeExtendedDetails: true);
-            string trigFlat = string.Join("\n", trigLines.Select(ColoredTextRenderer.RenderAsPlainText));
-            string trigCompact = string.Join("\n", ItemTooltipFormatter.BuildItemTooltipLines(hero, triggered, "Legs", 30)
-                .Select(ColoredTextRenderer.RenderAsPlainText));
-            TestBase.AssertTrue(trigFlat.Contains("Material", StringComparison.Ordinal),
-                "tooltip has Material set section",
-                ref run, ref passed, ref failed);
-            TestBase.AssertTrue(trigFlat.Contains("Iron", StringComparison.OrdinalIgnoreCase),
-                "tooltip shows Iron set",
-                ref run, ref passed, ref failed);
-            TestBase.AssertTrue(trigCompact.Contains("Triggers", StringComparison.Ordinal),
-                "compact tooltip lists item Triggers",
-                ref run, ref passed, ref failed);
-            string summary = ItemTriggerBundleDisplay.FormatSummary(triggered.TriggerBundles[0]);
-            TestBase.AssertTrue(summary.Contains("Wound Momentum", StringComparison.Ordinal)
-                    || summary.Contains("On connect", StringComparison.OrdinalIgnoreCase),
-                "FormatSummary readable",
-                ref run, ref passed, ref failed);
-
             string armorDesc = ItemDisplayFormatter.GetModificationEffectDescription(wrap.Modifications[0]);
             TestBase.AssertTrue(armorDesc.Contains("armor", StringComparison.OrdinalIgnoreCase),
                 "GetModificationEffectDescription handles ARMOR",
@@ -176,9 +146,6 @@ namespace RPGGame.Tests.Unit.UI
                 Tags = new System.Collections.Generic.List<string> { "beast" },
                 Description = "On connect, gain miss salvage for the fight."
             });
-            TestBase.AssertEqual(0, boarLegs.TriggerBundles.Count,
-                "animal suffix does not stamp combat bundles",
-                ref run, ref passed, ref failed);
             var boarLines = ItemTooltipFormatter.BuildItemTooltipLines(hero, boarLegs, "Legs", 40);
             string boarFlat = string.Join("\n", boarLines.Select(ColoredTextRenderer.RenderAsPlainText));
             TestBase.AssertTrue(!boarFlat.Contains("Triggers", StringComparison.Ordinal),

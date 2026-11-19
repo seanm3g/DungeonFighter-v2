@@ -139,7 +139,6 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             RunSuiteSafely("EnvironmentalActionsTests", () => EnvironmentalActionsTests.RunAllTests());
             Console.WriteLine();
-            RunSuiteSafely("ConditionalTriggersTests", () => ConditionalTriggersTests.RunAllTests());
             RunSuiteSafely("ActionTriggerGateTests", () => ActionTriggerGateTests.RunAllTests());
             RunSuiteSafely("RPGGame.Tests.Unit.Combat.MaterialSetControllerTests", () => RPGGame.Tests.Unit.Combat.MaterialSetControllerTests.RunAllTests());
             RunSuiteSafely("RPGGame.Tests.Unit.Combat.MaterialSetTempoTests", () => RPGGame.Tests.Unit.Combat.MaterialSetTempoTests.RunAllTests());
@@ -152,7 +151,6 @@ namespace RPGGame.Tests.Runners
             RunSuiteSafely("RetriggerTests", () => RetriggerTests.RunAllTests());
             RunSuiteSafely("RollProbabilityContentTests", () => RollProbabilityContentTests.RunAllTests());
             RunSuiteSafely("WeaponModTriggerBridgeTests", () => WeaponModTriggerBridgeTests.RunAllTests());
-            RunSuiteSafely("EquippedItemTriggerTests", () => EquippedItemTriggerTests.RunAllTests());
             RunSuiteSafely("TriggerEventsTests", () => TriggerEventsTests.RunAllTests());
             RunSuiteSafely("StoresTests", () => StoresTests.RunAllTests());
             RunSuiteSafely("VerbPresetsTests", () => VerbPresetsTests.RunAllTests());
@@ -161,9 +159,6 @@ namespace RPGGame.Tests.Runners
             RunSuiteSafely("CrossWiresTests", () => CrossWiresTests.RunAllTests());
             RunSuiteSafely("BotDecisionTests", () => BotDecisionTests.RunAllTests());
             RunSuiteSafely("ItemRulesTests", () => ItemRulesTests.RunAllTests());
-            RunSuiteSafely("StatBonusAnimalSuffixTriggerTests", () => StatBonusAnimalSuffixTriggerTests.RunAllTests());
-            RunSuiteSafely("ItemTriggerCombatIntegrationTests", () => ItemTriggerCombatIntegrationTests.RunAllTests());
-            RunSuiteSafely("ItemTriggerScenarioTests", () => ItemTriggerScenarioTests.RunAllTests());
             Console.WriteLine();
 
             // Phase 3: Display and UI
