@@ -1664,8 +1664,8 @@ OPEN VEIN                                    payoff · Rogue
 
 | Work | Decisions | Touches |
 |---|---|---|
-| **Merge the trigger paths** (action trigger bundles, material earn rules, CrossWires, Listener affixes, hub events) into one engine on **11 events** | D6.1, D6.5 | `TriggerEvents`, `HeroEventHub`, `CrossWires`, `ActionTriggerGate`, `MaterialSetController` |
-| **Fixed resolution order:** beat-ordered events per link, gains before spends, owner tie-break (tree order, not learn order), a FIFO follow-up queue drained per beat step, generation cap 2 with a log line, acting side first, enemies on the same engine; tests that pin each rule | D6.11–D6.16 | the merged engine, `CrossWires.Collect`, `HeroEventHub.Raise`, `CombatEffectsSimplified.ApplyStatusEffects`, combat log |
+| **Merge the trigger paths** (action trigger bundles, material earn rules, CrossWires, Listener affixes, hub events) into one engine on **11 events**. Engine merge done 2026-11-20 (branch `refactor/one-rule-engine`, steps 1–7): set earn rules, affix templates, action bundles, verb APPLY, enemy / room affixes, conversion rows and hybrid / pack-mod skill code are all owned rules in `RuleBook` (`Code/Combat/Rules/`). Still open: cutting the event vocabulary to 11 | D6.1, D6.5 | `TriggerEvents`, `HeroEventHub`, `CrossWires`, `ActionTriggerGate`, `MaterialSetController` |
+| **Fixed resolution order:** beat-ordered events per link, gains before spends, owner tie-break (tree order, not learn order), a FIFO follow-up queue drained per beat step, generation cap 2 with a log line, acting side first, enemies on the same engine; tests that pin each rule. Done 2026-11-20 (`RuleEngine`, `RuleEngineOrderTests`; enemies and rooms own rules via `EnemyRules`; skill code runs as coded rules via `SkillRules`; every fire traced with owner + generation) | D6.11–D6.16 | the merged engine, `CrossWires.Collect`, `HeroEventHub.Raise`, `CombatEffectsSimplified.ApplyStatusEffects`, combat log |
 | **Self-contained Uncommon modifiers**; RANK / TAGAS / SETCOUNT modifiers move to Epic; rules scoped by rarity | D4.2, D6.5 | `Weapons.json`, `Armor.json`, `Scripts/build-item-mods.py`, `BaseModifierRoller` |
 
 ### Step 7 — Loot depth
@@ -1713,9 +1713,9 @@ OPEN VEIN                                    payoff · Rogue
 
 ### Step 12 — Cleanup
 
-Delete what's switched off: the old status fields and handlers, the 9 retired verbs, attunement, the extra AMP
-paths, the hybrid tag counters (if unused), the dead skill nodes, the old item affix templates folded into
-rules, and the tests that only covered them. Re-measure the line count (373k at the start).
+Delete what's switched off: the old status fields and handlers, the extra AMP paths, the hybrid tag counters (if
+unused), the dead skill nodes, and the tests that only covered them. (The 9 retired verbs, attunement and the item
+affix template runtime went with the one rule engine, 2026-11-19/20.) Re-measure the line count (373k at the start).
 
 ### Save migration
 

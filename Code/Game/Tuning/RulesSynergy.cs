@@ -45,7 +45,7 @@ namespace RPGGame.Tuning
             public Dictionary<string, Dictionary<string, double>> Rules { get; set; } = new(StringComparer.OrdinalIgnoreCase);
             /// <summary>
             /// Verb preset (action <c>verb</c> column) → weight, applied only while its gear condition holds (see
-            /// <see cref="VerbSynergy"/>). Keys are <see cref="VerbKind"/> names (Cash, Scale, Invest, …).
+            /// <see cref="VerbSynergy"/>). Keys are <see cref="VerbKind"/> names (Cash, Detonate, Apply, Release).
             /// </summary>
             public Dictionary<string, double> VerbWeights { get; set; } = new(StringComparer.OrdinalIgnoreCase);
             /// <summary>
