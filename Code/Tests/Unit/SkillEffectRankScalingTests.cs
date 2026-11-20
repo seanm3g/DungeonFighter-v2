@@ -80,7 +80,6 @@ namespace RPGGame.Tests.Unit
 
         private static void PublishHit(Character hero)
         {
-            SkillEffectRouter.Instance.RefreshForCharacter(hero);
             SkillEffectRouter.Instance.ResetFightState();
             hero.Effects.ConsumedDamageModPercent = 0;
             hero.Effects.ConsumedAmpModPercent = 0;
@@ -89,7 +88,7 @@ namespace RPGGame.Tests.Unit
             hero.Stats.TempAgilityBonus = 0;
             hero.Stats.TempTechniqueBonus = 0;
             hero.Stats.TempIntelligenceBonus = 0;
-            CombatEventBus.Instance.Publish(new CombatEvent(CombatEventType.ActionHit, hero)
+            MaterialSetController.TryMintFromEvent(hero, new CombatEvent(CombatEventType.ActionHit, hero)
             {
                 Action = new Action { Name = "TEST_SWING", Type = ActionType.Attack },
                 Damage = 10

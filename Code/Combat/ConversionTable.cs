@@ -33,7 +33,7 @@ namespace RPGGame
     /// <summary>
     /// The conversion table (Documentation/BUILD_SYSTEM_CONDENSED.md §8): data rows instead of one bespoke method per
     /// conversion skill. Rows are owned by skill nodes (<see cref="ConversionRow.Owner"/> = customEffectId) and run on
-    /// the owner's connects, in file order within a phase. Store semantics match the methods they replaced: requires
+    /// the owner's connects as its coded rule (<see cref="RPGGame.Combat.Rules.SkillRules"/>). Store semantics match the methods they replaced: requires
     /// read live intensity (not queued), DoTs produce as queued-from-hit, poison units are 0.25% max HP.
     /// </summary>
     public static class ConversionTable
@@ -74,21 +74,6 @@ namespace RPGGame
             catch (Exception)
             {
                 return new List<ConversionRow>();
-            }
-        }
-
-        /// <summary>Runs every owned row of <paramref name="phase"/> for a hero connect on <paramref name="target"/>.</summary>
-        public static void Apply(Character hero, Actor? target, bool isCritical, string phase)
-        {
-            if (target == null)
-                return;
-            foreach (var row in Rows)
-            {
-                if (!string.Equals(row.Phase, phase, StringComparison.OrdinalIgnoreCase))
-                    continue;
-                if (SkillRanks.GetScaledRank(hero, row.Owner) <= 0)
-                    continue;
-                ApplyRow(hero, target, row, isCritical);
             }
         }
 

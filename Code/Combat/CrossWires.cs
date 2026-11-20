@@ -120,6 +120,12 @@ namespace RPGGame
         public bool Flat { get; init; }
         /// <summary>APPLY from an action card's trigger bundle: uses the card's status settings (<see cref="Combat.Rules.ActionRules"/>).</summary>
         public bool CardStatus { get; init; }
+        /// <summary>A coded rule (verb CODE): its effect needs real code (conversion rows, hybrid accumulators and unique
+        /// actions, per-rank pack mods; <see cref="Combat.Rules.SkillRules"/>). Resolves in owner order like any rule;
+        /// returns true when it took effect.</summary>
+        public Func<Character, CombatEvent?, bool>? Coded { get; init; }
+        /// <summary>With <see cref="Coded"/>: its D6.12 phase (0 = gain, 1 = other).</summary>
+        public int CodedPhase { get; init; } = 1;
 
         public bool IsPassive => When.Equals("WHILE", StringComparison.OrdinalIgnoreCase);
 
@@ -660,7 +666,7 @@ namespace RPGGame
         /// <paramref name="includeNodes"/> is false).</summary>
         private static List<CrossWireRule> Collect(Character hero, bool includeNodes) =>
             Combat.Rules.RuleBook.For(hero)
-                .Where(e => e.Owner.Kind != Combat.Rules.RuleOwnerKind.Set
+                .Where(e => e.Owner.Kind != Combat.Rules.RuleOwnerKind.Set && e.Rule.Coded == null
                     && (includeNodes || e.Owner.Kind != Combat.Rules.RuleOwnerKind.Skill))
                 .Select(e => e.Rule)
                 .ToList();
@@ -733,6 +739,8 @@ namespace RPGGame
         {
             if (rule.Verb == "COUNTAS")
                 return false;
+            if (rule.Coded != null)
+                return rule.Coded(hero, evt);
             if (rule.SetBuild != null)
                 return FireSetEarn(hero, rule, rule.SetBuild, evt);
             var target = takeHit ? evt?.Source ?? HeroEventHub.CurrentTarget(hero) : evt?.Target ?? HeroEventHub.CurrentTarget(hero);

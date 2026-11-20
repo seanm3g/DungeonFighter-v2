@@ -283,7 +283,7 @@ namespace RPGGame
         {
             if (hero == null || hero is Enemy)
                 return 0;
-            return SkillEffectRouter.Instance.ConsumePendingComboSteps(hero);
+            return RPGGame.Combat.Rules.SkillRules.ConsumePendingComboSteps(hero);
         }
 
         /// <summary>Learned COMBO rules that scale with <paramref name="classTag"/>'s tags.</summary>

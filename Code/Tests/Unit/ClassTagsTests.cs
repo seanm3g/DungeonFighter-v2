@@ -106,8 +106,7 @@ namespace RPGGame.Tests.Unit
 
         private static void Publish(Character hero, CombatEventType type, Actor? target, int naturalRoll, bool critical, Action? action = null)
         {
-            SkillEffectRouter.Instance.RefreshForCharacter(hero);
-            CombatEventBus.Instance.Publish(new CombatEvent(type, hero)
+            MaterialSetController.TryMintFromEvent(hero, new CombatEvent(type, hero)
             {
                 Target = target,
                 Action = action ?? new Action { Name = "TEST_SWING", Type = ActionType.Attack },

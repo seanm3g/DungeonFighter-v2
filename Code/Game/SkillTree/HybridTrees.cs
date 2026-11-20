@@ -97,7 +97,7 @@ namespace RPGGame
 
         /// <summary>Secondary attribute: parent stat A + parent stat B, plus this fight's accumulation.</summary>
         public static int SecondaryAttribute(Character c, HybridInfo h) =>
-            Stat(c, h.StatA) + Stat(c, h.StatB) + SkillEffectRouter.Instance.GetHybridAttributeAccumulation(c, h);
+            Stat(c, h.StatA) + Stat(c, h.StatB) + RPGGame.Combat.Rules.SkillRules.AttributeAccumulation(c, h);
 
         /// <summary>The hybrid whose secondary attribute is the hero's primary attribute (attribute node learned), if any.</summary>
         public static HybridInfo? PrimaryAttributeHybrid(Character? c)
@@ -112,7 +112,7 @@ namespace RPGGame
             int count = SkillRanks.GetRank(c, h.MaterialEffect) > 0
                 ? ClassTags.CountOwn(c, h.ClassA) + ClassTags.CountOwn(c, h.ClassB)
                 : 0;
-            return count + SkillEffectRouter.Instance.GetHybridTagAccumulation(c, h);
+            return count + RPGGame.Combat.Rules.SkillRules.TagAccumulation(c, h);
         }
 
         /// <summary>Partner classes whose tags also count for <paramref name="classTag"/> (learned hybrid material nodes).</summary>

@@ -52,7 +52,6 @@ namespace RPGGame
                 character.Actions.AddClassActions(character, character.Progression, weaponType);
             }
 
-            SkillEffectRouter.Instance.RefreshForCharacter(character);
             return result;
         }
 

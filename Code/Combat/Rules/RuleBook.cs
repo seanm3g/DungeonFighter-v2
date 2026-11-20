@@ -53,7 +53,7 @@ namespace RPGGame.Combat.Rules
         public int Index { get; }
 
         /// <summary>D6.12 phase: 0 = gains (MINT, ADD, APPLY) resolve first; 1 = everything else.</summary>
-        public int Phase => Rule.Verb is "MINT" or "ADD" or "APPLY" ? 0 : 1;
+        public int Phase => Rule.Coded != null ? Rule.CodedPhase : Rule.Verb is "MINT" or "ADD" or "APPLY" ? 0 : 1;
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ namespace RPGGame.Combat.Rules
     /// dispatch time, <see cref="RuleEngine"/>)</item>
     /// <item>material sets' earn rules, in MaterialBuilds.json order</item>
     /// <item>skill nodes in tree order: Core, then the material branches, then Rite; by tier, then position in the tree;
-    /// never learn order</item>
+    /// never learn order (a node's coded rules, <see cref="SkillRules"/>, after its written ones)</item>
     /// </list>
     /// Material sets sit between items and skills (their earn rules, <see cref="CrossWireRule.SetBuild"/>), in
     /// MaterialBuilds.json order.
@@ -177,6 +177,12 @@ namespace RPGGame.Combat.Rules
                 int i = 0;
                 foreach (var rule in rules)
                     list.Add(new RuleEntry(rule, owner, i++));
+            }
+            // Coded skill rules (conversion rows, hybrid trees, per-rank pack mods) after the node's written rules.
+            foreach (var (node, rule) in SkillRules.Coded(hero))
+            {
+                var owner = new RuleOwner(RuleOwnerKind.Skill, node.Name ?? node.Id, SkillOrder + TreePosition(node), node: node);
+                list.Add(new RuleEntry(rule, owner, 100));
             }
             // Stable: owner order, then written order.
             return list.OrderBy(e => e.Owner.Order).ThenBy(e => e.Index).ToList();

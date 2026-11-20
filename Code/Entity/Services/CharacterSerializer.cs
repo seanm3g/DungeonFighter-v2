@@ -227,7 +227,6 @@ namespace RPGGame.Entity.Services
                 : null;
             character.Actions.AddClassActions(character, character.Progression, weaponType);
 
-            SkillEffectRouter.Instance.RefreshForCharacter(character);
 
             EnsureUnarmedTutorialActionInActionPool(character);
 

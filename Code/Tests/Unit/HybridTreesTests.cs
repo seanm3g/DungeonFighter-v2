@@ -80,7 +80,7 @@ namespace RPGGame.Tests.Unit
 
         private static void Hit(Character hero, string actionName)
         {
-            CombatEventBus.Instance.Publish(new CombatEvent(CombatEventType.ActionHit, hero)
+            MaterialSetController.TryMintFromEvent(hero, new CombatEvent(CombatEventType.ActionHit, hero)
             {
                 Target = TestDataBuilders.Enemy().WithName("Dummy").Build(),
                 Action = new Action { Name = actionName, Type = ActionType.Attack },
@@ -93,12 +93,11 @@ namespace RPGGame.Tests.Unit
         {
             var hero = MakeWarbrute("BlowHero");
             hero.Progression.LearnedSkillRanks["wb-act-attr"] = 3;
-            SkillEffectRouter.Instance.RefreshForCharacter(hero);
             SkillEffectRouter.Instance.ResetFightState();
             hero.Effects.ConsumedDamageModPercent = 0;
             Hit(hero, "BODY BLOW");
             double power = GameConfiguration.Instance.SkillTrees.GetNode("wb-act-attr")!.Power * 3;
-            double expected = SkillEffectRouter.HybridBonusPerTen * Math.Floor(HybridTrees.SecondaryAttribute(hero, Warbrute) / 10.0) * power;
+            double expected = RPGGame.Combat.Rules.SkillRules.HybridBonusPerTen * Math.Floor(HybridTrees.SecondaryAttribute(hero, Warbrute) / 10.0) * power;
             TestBase.AssertTrue(expected > 0 && hero.Effects.ConsumedDamageModPercent >= expected - 1e-6,
                 "BODY BLOW adds +25% x power per 10 Body",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -108,7 +107,6 @@ namespace RPGGame.Tests.Unit
         {
             var hero = MakeWarbrute("SurgeHero");
             hero.Progression.LearnedSkillRanks["wb-acc-tag"] = 3;
-            SkillEffectRouter.Instance.RefreshForCharacter(hero);
             SkillEffectRouter.Instance.ResetFightState();
             int before = HybridTrees.TagCount(hero, Warbrute);
             for (int i = 0; i < 6; i++)

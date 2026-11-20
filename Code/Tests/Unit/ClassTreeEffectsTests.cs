@@ -121,9 +121,8 @@ namespace RPGGame.Tests.Unit
 
         private static void Publish(Character hero, Action action, Actor? target)
         {
-            SkillEffectRouter.Instance.RefreshForCharacter(hero);
             SkillEffectRouter.Instance.ResetFightState();
-            CombatEventBus.Instance.Publish(new CombatEvent(CombatEventType.ActionHit, hero)
+            MaterialSetController.TryMintFromEvent(hero, new CombatEvent(CombatEventType.ActionHit, hero)
             {
                 Target = target,
                 Action = action,

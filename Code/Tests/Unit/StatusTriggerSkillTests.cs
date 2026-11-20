@@ -40,7 +40,6 @@ namespace RPGGame.Tests.Unit
         {
             var hero = TestDataBuilders.Character().WithName(name).Build();
             hero.Progression.EnsureSkillTreeRootsGranted();
-            SkillEffectRouter.Instance.RefreshForCharacter(hero);
             SkillEffectRouter.Instance.ResetFightState();
             hero.FightCadenceBuffs.Clear();
             hero.DungeonCadenceBuffs.Clear();
