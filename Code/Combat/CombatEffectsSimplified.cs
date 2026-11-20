@@ -160,14 +160,11 @@ namespace RPGGame
                 && combatEvent?.Type == CombatEventType.ActionHit && !combatEvent.IsMiss)
                 potencyFoe.DotPotency = CrossWires.PotencyAll(potencyHero, action, potencyFoe);
 
-            // Enemy region / dungeon affixes: each on-hit affix rolls its chance on a landed hit.
+            // Enemy region / dungeon affixes: the enemy's on-hit rules roll their chance on a landed hit (EnemyRules).
             if (attacker is Enemy affixEnemy && affixEnemy.Affixes.Count > 0
                 && combatEvent?.Type == CombatEventType.ActionHit && !combatEvent.IsMiss
                 && !ReferenceEquals(attacker, target))
-            {
-                foreach (var (status, amount) in EnemyAffixRuntime.RollOnHitStatuses(affixEnemy, RandomUtility.Current))
-                    effectsApplied |= ApplyNamedStatus(target, status, results, amount);
-            }
+                effectsApplied |= RPGGame.Combat.Rules.EnemyRules.OnHit(affixEnemy, target, results, RandomUtility.Current);
 
             // A landed hit can drop the Demon to its phase HP: the held signature action joins its sequence.
             if (target is Enemy phaseEnemy && phaseEnemy.IsBoss && phaseEnemy.IsAlive
@@ -237,17 +234,12 @@ namespace RPGGame
             return carrier != null && _effectRegistry.ApplyEffect(status.Trim().ToLowerInvariant(), target, carrier, results);
         }
 
-        /// <summary>Fight start: the enemy's start affixes and the room's starting status, each stack applied once.</summary>
+        /// <summary>Fight start: the enemy's and the room's ONFIGHTSTART rules (EnemyRules), each stack applied once.</summary>
         public static void ApplyEnemyStartAffixes(Enemy? enemy, Environment? room)
         {
             if (enemy == null)
                 return;
-            var messages = new List<string>();
-            foreach (var (status, stacks) in EnemyAffixRuntime.StartStatuses(enemy, room))
-            {
-                for (int i = 0; i < stacks; i++)
-                    ApplyNamedStatus(enemy, status, messages);
-            }
+            RPGGame.Combat.Rules.EnemyRules.OnFightStart(enemy, room, new List<string>());
         }
 
         /// <summary>

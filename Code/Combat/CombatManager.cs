@@ -431,6 +431,7 @@ namespace RPGGame
             room.ResetForNewFight();
             // Enemy affixes that start the fight on (Bulwark / Molten Shell, Garrisoned rooms).
             CombatEffectsSimplified.ApplyEnemyStartAffixes(currentEnemy, room);
+            RPGGame.Combat.Events.HeroEventHub.Raise(player, RPGGame.Combat.Rules.EnemyRules.FightStart);
 
             try
             {

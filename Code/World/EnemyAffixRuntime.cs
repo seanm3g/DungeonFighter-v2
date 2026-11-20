@@ -263,36 +263,6 @@ namespace RPGGame
             }
         }
 
-        /// <summary>Statuses the enemy starts each fight with: its start affixes plus the room's start status.</summary>
-        public static List<(string status, int stacks)> StartStatuses(Enemy enemy, Environment? room)
-        {
-            var list = enemy.Affixes
-                .Where(a => Is(a, LeverStart) && !string.IsNullOrWhiteSpace(a.Status))
-                .Select(a => (a.Status.Trim().ToLowerInvariant(), Math.Max(1, a.Stacks)))
-                .ToList();
-            if (room?.RoomAffix is { } roomAffix && !string.IsNullOrWhiteSpace(roomAffix.EnemyStartStatus))
-                list.Add((roomAffix.EnemyStartStatus.Trim().ToLowerInvariant(), Math.Max(1, roomAffix.EnemyStartStacks)));
-            return list;
-        }
-
-        /// <summary>
-        /// Statuses an enemy's landed hit applies, with their amount (each on-hit affix rolls its chance; the phase
-        /// strengthens the region one). Amount = the affix's value (poison: % of max HP per tick; 0 = the status default).
-        /// </summary>
-        public static List<(string status, double amount)> RollOnHitStatuses(Enemy enemy, Random random)
-        {
-            var result = new List<(string status, double amount)>();
-            foreach (var affix in enemy.Affixes)
-            {
-                if (!Is(affix, LeverOnHit) || string.IsNullOrWhiteSpace(affix.Status))
-                    continue;
-                double chance = Math.Min(1.0, affix.Chance * PhaseFactor(enemy, affix));
-                if (chance > 0 && random.NextDouble() < chance)
-                    result.Add((affix.Status.Trim().ToLowerInvariant(), affix.Value));
-            }
-            return result;
-        }
-
         /// <summary>Outgoing damage multiplier from damage affixes (HP-gated ones only below their threshold).</summary>
         public static double DamageMultiplier(Enemy enemy)
         {
@@ -340,7 +310,8 @@ namespace RPGGame
             return true;
         }
 
-        private static double PhaseFactor(Enemy enemy, EnemyAffixDef affix) =>
+        /// <summary>The Demon's second phase strengthens its region affix (chance / value multiplier).</summary>
+        internal static double PhaseFactor(Enemy enemy, EnemyAffixDef affix) =>
             enemy.InSecondPhase && affix.Name == enemy.RegionAffixName
                 ? Math.Max(1.0, AffixDataLoader.Enemy.Demon.PhaseRegionMultiplier)
                 : 1.0;

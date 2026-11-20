@@ -110,12 +110,23 @@ namespace RPGGame.Tests.Unit.World
             enemy.Affixes.Add(new EnemyAffixDef { Name = "Sure", Lever = "onhit", Status = "burn", Chance = 1.0 });
             enemy.Affixes.Add(new EnemyAffixDef { Name = "Zealot", Lever = "damage", Value = 0.25, BelowHealth = 0.5 });
             enemy.Affixes.Add(new EnemyAffixDef { Name = "Swift", Lever = "speed", Value = 0.25 });
-            Check(EnemyAffixRuntime.RollOnHitStatuses(enemy, new Random(1)).Select(x => x.status).SequenceEqual(new[] { "burn" }), "a 100% on-hit affix always applies");
+            var struck = new Character("Struck", 5);
+            Check(RPGGame.Combat.Rules.EnemyRules.OnHit(enemy, struck, new List<string>(), new Random(1)) && struck.BurnIntensity + struck.PendingBurnFromHits > 0,
+                "a 100% on-hit affix always applies");
+            var onHitRules = RPGGame.Combat.Rules.EnemyRules.For(enemy);
+            Check(onHitRules.Count == 1 && onHitRules[0].Owner.Kind == RPGGame.Combat.Rules.RuleOwnerKind.Enemy && onHitRules[0].Owner.Name == "Sure",
+                "the on-hit affix is an enemy-owned rule (stat levers are not rules)");
+            RPGGame.Combat.Rules.RuleEngine.ClearTrace();
+            RPGGame.Combat.Rules.EnemyRules.OnHit(enemy, new Character("Struck2", 5), new List<string>(), new Random(1));
+            Check(RPGGame.Combat.Rules.RuleEngine.Trace.Any(t => t.Owner == "Sure" && t.Kind == RPGGame.Combat.Rules.RuleOwnerKind.Enemy),
+                "the enemy's fire is traced with its affix as owner");
+            var never = new Enemy("Never Test", 5, 100, 1, 1, 1, 1);
+            never.Affixes.Add(new EnemyAffixDef { Name = "Never", Lever = "onhit", Status = "burn", Chance = 0 });
+            Check(RPGGame.Combat.Rules.EnemyRules.For(never).Count == 0, "a 0% on-hit affix has no rule");
             var venom = new Enemy("Venom Test", 5, 100, 1, 1, 1, 1);
             venom.Affixes.Add(new EnemyAffixDef { Name = "Venomous", Lever = "onhit", Status = "poison", Chance = 1.0, Value = 0.25 });
             var bitten = new Character("Bitten", 5);
-            foreach (var (status, amount) in EnemyAffixRuntime.RollOnHitStatuses(venom, new Random(1)))
-                CombatEffectsSimplified.ApplyNamedStatus(bitten, status, new List<string>(), amount);
+            RPGGame.Combat.Rules.EnemyRules.OnHit(venom, bitten, new List<string>(), new Random(1));
             Check(Math.Abs(bitten.PoisonPercentOfMaxHealth - 0.25) < 1e-9, "an affix's poison adds its own amount (0.25% per tick)");
             // Hazard poison: the generic 1% per application stacked faster than any enemy (Curse of the Tomb, 2026-11-12).
             var curse = EnvironmentalActionLoader.TryCreateByName("Curse of the Tomb");
@@ -173,7 +184,16 @@ namespace RPGGame.Tests.Unit.World
             Check(RoomAffixRuntime.AdjustEnemyCount(3, crowded) == 3, "Crowded: capped at the room maximum");
 
             var garrison = new Environment("Garrison", "", true, "Den") { RoomAffix = AffixDataLoader.Room.Affixes.First(a => a.Name == "Garrisoned") };
-            Check(EnemyAffixRuntime.StartStatuses(foe, garrison).Any(s => s.status == "fortify"), "Garrisoned: enemies start Fortified");
+            Check(RPGGame.Combat.Rules.EnemyRules.For(foe, garrison).Any(e => e.Rule.Store == "fortify" && e.Owner.Kind == RPGGame.Combat.Rules.RuleOwnerKind.Room),
+                "Garrisoned: a room-owned rule starts enemies Fortified");
+            var garrisoned = new Enemy("Garrison Foe", 5, 100, 1, 1, 1, 1);
+            CombatEffectsSimplified.ApplyEnemyStartAffixes(garrisoned, garrison);
+            Check(RPGGame.Stores.Get(garrisoned, "fortify") > 0, "Garrisoned: the enemy is Fortified at fight start");
+            var starter = TestDataBuilders.Character().WithName("FightStarter").Build();
+            starter.Equipment.Head = new HeadItem("StartHelm", 1, 1) { ImplicitRule = "ONFIGHTSTART -> ADD harden 1" };
+            RPGGame.Combat.Rules.RuleBook.Invalidate(starter);
+            RPGGame.Combat.Events.HeroEventHub.Raise(starter, RPGGame.Combat.Rules.EnemyRules.FightStart);
+            Check(RPGGame.Stores.Get(starter, "harden") == 1, "a hero rule hears ONFIGHTSTART");
         }
 
         private static void TestTerrainTags()
@@ -260,7 +280,8 @@ namespace RPGGame.Tests.Unit.World
             Check(ancient.ActionPool.Count == plain.ActionPool.Count + 1, "Ancient: one more signature action");
 
             var armored = WithPrefix("Alpha Wolf", "Armored");
-            Check(EnemyAffixRuntime.StartStatuses(armored, null).Any(s => s.status == "fortify" && s.stacks == 3), "Armored: starts with 3 Fortify");
+            Check(RPGGame.Combat.Rules.EnemyRules.For(armored).Any(e => e.Rule.When == "ONFIGHTSTART" && e.Rule.Store == "fortify" && e.Rule.Amount == 3),
+                "Armored: starts with 3 Fortify");
         }
 
         private static void TestHudRows()

@@ -105,6 +105,8 @@ namespace RPGGame.Combat.Events
             new("ONBEAT", TriggerEventFamily.Time, "On beat", "every n-th turn", argLabel: "Every {0}th turn", emitted: false),
             new("ONSELFCOST", TriggerEventFamily.Defense, "On self cost", "each time you pay HP, item condition or a status on yourself", emitted: false),
             new("ONENEMYACT", TriggerEventFamily.Time, "On enemy act", "each time the enemy takes an action", emitted: false),
+            // Fight start (2026-11-20): enemy / room start statuses, and hero rules. Equip family, so Listening never rolls it.
+            new("ONFIGHTSTART", TriggerEventFamily.Equip, "On fight start", "at the start of each fight", new[] { "ONBATTLESTART" }, emitted: false),
         };
 
         private static readonly Dictionary<string, TriggerEventDef> ByToken = BuildIndex();
