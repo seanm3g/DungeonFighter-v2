@@ -170,14 +170,26 @@ namespace RPGGame.Tuning
             RPGGame.Combat.Rules.RuleEngine.ChainStopped += OnChainStopped;
         }
 
+        // Rule fires seen between fights (ONFIGHTSTART, room start statuses resolve before the first action opens the
+        // record): credited to the next fight.
+        private readonly Dictionary<string, int> _pendingFires = new(StringComparer.Ordinal);
+
         private void OnRuleFired(Character who, RPGGame.Combat.Rules.RuleFire fire)
         {
-            if (Suspended || _current == null)
+            if (Suspended)
                 return;
             string key = $"{fire.Kind}|{fire.Owner}|{fire.Rule}";
-            _current.RuleFires[key] = _current.RuleFires.TryGetValue(key, out int n) ? n + 1 : 1;
-            if (fire.Generation > 0)
-                _current.RuleChained++;
+            Dictionary<string, int> into;
+            PlaythroughFightRecord? record = _current;
+            if (record != null)
+                into = record.RuleFires;
+            else if (Fights.Count > 0 && (fire.Event is "EnemyDied" or "RoomCleared" || fire.Event.StartsWith("ONKILL", StringComparison.OrdinalIgnoreCase)))
+                into = (record = Fights[^1]).RuleFires; // the kill closed the fight before its ONKILL rules resolved
+            else
+                into = _pendingFires;
+            into[key] = into.TryGetValue(key, out int n) ? n + 1 : 1;
+            if (fire.Generation > 0 && record != null)
+                record.RuleChained++;
         }
 
         private void OnChainStopped(Character who, string name)
@@ -271,6 +283,9 @@ namespace RPGGame.Tuning
                     HeroAgility = hero.GetEffectiveAgility()
                 };
                 RecordLoadout(_current, hero);
+                foreach (var (k, v) in _pendingFires)
+                    _current.RuleFires[k] = _current.RuleFires.GetValueOrDefault(k) + v;
+                _pendingFires.Clear();
                 _current.SlotSwings = new List<int>(new int[_current.Strip.Count]);
                 _current.SlotHitDamage = new List<int>(new int[_current.Strip.Count]);
                 _missStreak = 0;

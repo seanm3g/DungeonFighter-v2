@@ -21,6 +21,7 @@
   "grantWeights": { "dmgGrant": 0.45, "ampGrant": 0.35, "speedGrant": 0.3, "hit": 0.08, "combo": 0.08, "crit": 0.02 },
   "ruleBonusPer10Pct": 0.15,
   "unusedApplyShare": 0.5,
+  "unlistedSkillBase": 0.25,
   "rules": {
     "when:ONHEALTHTHRESHOLD": { "heavy": 0.4, "hits": 0.1 },
     "when:ONCOMBOEND": { "fast": 0.4, "combo": 0.15 },
