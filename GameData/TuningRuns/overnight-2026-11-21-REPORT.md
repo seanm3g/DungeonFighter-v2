@@ -5,7 +5,7 @@
 **over-v55**: held-out clear gap **1.91**, class spread **8.0** (v49b on the same code read 4.45 / 15.5 on an earlier held-out seed set), every level within
 ±4 of target. A new rule-fire trace found and fixed a dead skill (Empty Fury) and two dead quality nodes. The synergy
 bot now considers the 18-22 skill nodes per class missing from its mined order. Tests: 0 real failures (3 known flaky). Open item:
-Warrior's class damage multiplier has reached ×35 at L51-55 (section 5). Nothing pushed, nothing on main.
+Warrior needed a ×35 damage multiplier in v55; **over-v57** swaps most of it for Warrior HP ×1.2 (held-out class spread 7.6, bands over parity 3; section 8). Nothing pushed, nothing on main.
 
 Branch `balance/overnight-2026-11-21` (worktree `.claude/worktrees/overnight-1121`), based on `d54bbb96`
 (v46-refactor, one rule engine step 8). Start patch: `skillrules-v49b` (the newest solve; the main checkout's
@@ -229,6 +229,31 @@ rewrites the active patch file:
 - `df86e184` unlistedSkillBase 0.25 on; recorder credits post-kill / pre-fight fires
 - `ce80e3ef` patches over-v51..53 · `66172c2c` over-v54 · `3256095f` over-v55
 
-**Recommendation:** merge the branch and make **over-v55** active (PatchProfile.json is gitignored: set
-`activeBalancePatch` to `over-v55` on each machine). The ×35 Warrior band works in sims, but it's a stopgap
-until item 1 gets a real fix.
+**Recommendation:** merge the branch and make **over-v57** active (section 8). PatchProfile.json is gitignored:
+set `activeBalancePatch` to `over-v57` on each machine. over-v55 is the fallback if you'd rather not touch Warrior HP.
+
+## 8. Warrior: HP instead of damage (last hour, over-v56 / over-v57)
+
+Probe, Warrior only, L38/53/68, seed 9991: v55's Warrior damage curve back to v49b's (L51-55 ×12 instead of ×35)
+plus Warrior HP ×1.5 gave +11..+17 clear (65→80, 52→68, 35→45, overshooting targets 69/61/40). HP ×1.2 landed near
+target (72 / 58 / 37). **HP moves Warrior where damage didn't.**
+
+- **over-v56** = v55 + Warrior `healthMultiplier` 1.65 → 1.98 (×1.2) + Warrior damage curve = v49b's. Flat HP also
+  lifted early Warrior (L8 94%, L18 77%).
+- **over-v57** = v56 with Warrior damage ×0.8 at L1-30.
+
+v56 and v57 were adjusted by hand from the 9981-9983 reads, so those seeds don't count as held out for them. The
+fair check is fresh seeds 9991-9993:
+
+| | over-v55 | **over-v57** |
+|---|---|---|
+| mean clear gap | 2.06 | 2.45 |
+| mean class spread | 9.7 | **7.6** |
+| bands over parity | 8 | **3** |
+| mean turns gap | 1.95 | 1.97 |
+| Warrior peak damage multiplier | ×35 (L51-55) | ×17.75 (L61-65) |
+
+v57 per level (9991-9993): within ±3 of target except L18 -4.3, L33 -6.3, L48 +5.4, L58 +4.2. Warrior is
+within 5 of the field at L18-L63; still low at L68 (35) / L73 (26), and Rogue is still high at L13 (78).
+A damage-knob pass on v57 (no class step) should take the clear gap back down. Still a stopgap: a flat
+class HP multiplier isn't a Warrior identity, so the design question in section 5.1 stands.

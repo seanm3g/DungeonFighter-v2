@@ -1,0 +1,113 @@
+{
+  "base": "over-v55",
+  "description": "over-v56 with Warrior damage x0.8 at L1-30 (the flat HP x1.2 lifted early Warrior). Overnight 2026-11-21.",
+  "classBalance": {
+    "warrior": {
+      "healthMultiplier": 1.98,
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 5,
+            "multiplier": 0.8
+          },
+          {
+            "from": 6,
+            "to": 10,
+            "multiplier": 0.706162
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 0.627667
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 1.179415
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 1.876536
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 1.685378
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 3.97237
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 4.362032
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 6.773963
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 8.168098
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 12.380522
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 3.543071
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 17.753117
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 4.993324
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 9.952095
+          },
+          {
+            "from": 76,
+            "to": 80,
+            "multiplier": 1.94531
+          },
+          {
+            "from": 81,
+            "to": 85,
+            "multiplier": 3.74509
+          },
+          {
+            "from": 86,
+            "to": 90,
+            "multiplier": 1.925189
+          },
+          {
+            "from": 91,
+            "to": 95,
+            "multiplier": 1.918528
+          },
+          {
+            "from": 96,
+            "to": 100,
+            "multiplier": 1
+          }
+        ]
+      }
+    }
+  }
+}
