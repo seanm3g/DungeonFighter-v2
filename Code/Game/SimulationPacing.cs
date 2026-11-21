@@ -1,8 +1,11 @@
+using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using RPGGame.Combat;
 using RPGGame.MCP;
 using RPGGame.UI;
+using RPGGame.UI.Avalonia;
 
 namespace RPGGame
 {
@@ -73,6 +76,48 @@ namespace RPGGame
             int scaledDelayMs = DeveloperModeState.ScaleDelayMs(delayMs);
             if (scaledDelayMs > 0)
                 await Task.Delay(scaledDelayMs);
+        }
+
+        /// <summary>Longest wait for the center log to finish typing before pacing moves on anyway.</summary>
+        public const int MaxLogRevealWaitMs = 15000;
+
+        /// <summary>
+        /// Room / encounter pacing that lets the center log finish typing first: waits until every queued line is
+        /// shown, then holds at least <paramref name="holdAfterRevealMs"/>; the whole pause is never shorter than
+        /// <paramref name="delayMs"/> (both scaled by combat speed). Headless runs skip it like any other delay.
+        /// </summary>
+        public static async Task DelayAfterLogRevealAsync(IUIManager? ui, int delayMs, Character? character = null, int holdAfterRevealMs = 700)
+        {
+            if (ShouldSkipDelays && !IsPacedScope)
+                return;
+
+            var clock = Stopwatch.StartNew();
+            bool waitedForReveal = await WaitForLogRevealAsync(ui, character);
+            int elapsed = (int)clock.ElapsedMilliseconds;
+            int scaledDelayMs = DeveloperModeState.ScaleDelayMs(delayMs);
+            int hold = waitedForReveal ? DeveloperModeState.ScaleDelayMs(holdAfterRevealMs) : 0;
+            int remaining = Math.Max(scaledDelayMs - elapsed, hold);
+            if (remaining > 0)
+                await Task.Delay(remaining);
+        }
+
+        /// <summary>
+        /// Waits until the center log has no line still typing in (canvas UI only; capped at
+        /// <see cref="MaxLogRevealWaitMs"/>). True when it had to wait.
+        /// </summary>
+        public static async Task<bool> WaitForLogRevealAsync(IUIManager? ui, Character? character = null)
+        {
+            if (ui is not CanvasUICoordinator canvas || (ShouldSkipDelays && !IsPacedScope))
+                return false;
+
+            bool waited = false;
+            var clock = Stopwatch.StartNew();
+            while (canvas.IsLogRevealActive(character) && clock.ElapsedMilliseconds < MaxLogRevealWaitMs)
+            {
+                waited = true;
+                await Task.Delay(40);
+            }
+            return waited;
         }
     }
 }

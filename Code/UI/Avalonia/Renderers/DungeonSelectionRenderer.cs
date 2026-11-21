@@ -278,15 +278,31 @@ namespace RPGGame.UI.Avalonia.Renderers
                     : s)
                 .ToList();
 
+            // Each site's distance from the hub (as a share of the map's diagonal) sets its journey dice.
+            var hubPin = mapGeography.Pins.FirstOrDefault(p => string.Equals(p.Region.Id, region.Id, StringComparison.OrdinalIgnoreCase));
+            double hubX = hubPin.Region != null ? hubPin.FineX : width;
+            double hubY = hubPin.Region != null ? hubPin.FineY : height;
+            double diagonal = Math.Max(1.0, Math.Sqrt(Math.Pow(width * 2, 2) + Math.Pow(height * 4, 2)));
+            DungeonSiteJourneyState.SetSiteDistances(sites.Select(s => new KeyValuePair<int, double>(s.Number,
+                Math.Clamp(Math.Sqrt(Math.Pow(s.FineX - hubX, 2) + Math.Pow((s.FineY - hubY) * 2, 2)) / diagonal * 2, 0, 1))));
+
             canvas.AddBox(left, top, width, height, MapEdge, MapSea);
             var hoveredEntry = placed.FirstOrDefault(e => e.Number == hoveredDungeon);
+            var journey = DungeonSiteJourneyState.Current;
+            TravelMapSite? walkSite = journey != null && sites.Any(s => s.Number == journey.SiteNumber)
+                ? sites.First(s => s.Number == journey.SiteNumber)
+                : null;
             var frame = new TravelMapFrame
             {
                 Pins = mapGeography.Pins,
                 CurrentRegionId = region.Id,
                 Sites = sites,
-                HoveredSite = hoveredDungeon,
-                HoveredSiteLabel = hoveredEntry.Dungeon != null ? $"{hoveredEntry.Dungeon.Name} (lvl {hoveredEntry.Dungeon.MinLevel})" : null
+                HoveredSite = walkSite != null ? journey!.SiteNumber : hoveredDungeon,
+                HoveredSiteLabel = walkSite != null
+                    ? journey!.Label
+                    : hoveredEntry.Dungeon != null ? $"{hoveredEntry.Dungeon.Name} (lvl {hoveredEntry.Dungeon.MinLevel})" : null,
+                WalkToSite = walkSite,
+                WalkProgress = journey?.Progress ?? 0
             };
             double scaling = global::Avalonia.Controls.TopLevel.GetTopLevel(canvas)?.RenderScaling ?? 1.0;
             double cellWidth = canvas.GetCharWidth();

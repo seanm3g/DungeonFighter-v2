@@ -214,6 +214,9 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("world", "DungeonMapGenerator", () => RPGGame.Tests.Unit.World.DungeonMapGeneratorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("world", "DungeonTraversalStrategy", () => RPGGame.Tests.Unit.World.DungeonTraversalStrategyTests.RunAllTests()));
             list.Add(new TestSuiteEntry("world", "Environment", () => RPGGame.Tests.Unit.World.EnvironmentTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("world", "DungeonManager", () => RPGGame.Tests.Unit.World.DungeonManagerTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("world", "TravelSystem", () => RPGGame.Tests.Unit.World.TravelSystemTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("world", "FeatureScenario", () => RPGGame.Tests.Unit.FeatureScenarioTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ActionBonusBorderShimmer", () => RPGGame.Tests.Unit.UI.ActionBonusBorderShimmerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ComboTension", () => RPGGame.Tests.Unit.UI.ComboTensionTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatTransitionWipe", () => RPGGame.Tests.Unit.UI.CombatTransitionWipeTests.RunAllTests()));

@@ -1,6 +1,7 @@
 namespace RPGGame
 {
     using System;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using RPGGame.UI.Avalonia;
@@ -22,6 +23,15 @@ namespace RPGGame
 
         /// <summary>MCP/agent: partial custom level digits entered so far.</summary>
         public string CustomLevelBuffer => customLevelBuffer;
+
+        /// <summary>Set while the hero walks to a picked dungeon on the region map; any input completes it.</summary>
+        private TaskCompletionSource<bool>? siteJourneySkip;
+
+        /// <summary>True while the walk to a picked dungeon plays (canvas UI only).</summary>
+        public bool IsSiteJourneyInProgress => siteJourneySkip != null;
+
+        /// <summary>Redraw interval while the hero walks to a dungeon site.</summary>
+        private const int SiteJourneyFrameMs = 40;
         
         // Delegates
         public delegate Task OnStartDungeon();
@@ -60,7 +70,7 @@ namespace RPGGame
             if (customUIManager is CanvasUICoordinator canvasClearPrompt)
                 canvasClearPrompt.SetDungeonSelectionCustomLevelPrompt(null);
             
-            // Regenerate dungeons based on current player level
+            // Offer the region's dungeons (levels roll in the region band and hold until a run starts or the hero travels)
             dungeonManager.RegenerateDungeons(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
             
             // Use GameScreenCoordinator for standardized screen transition
@@ -101,6 +111,8 @@ namespace RPGGame
         /// <returns>True if a pending custom-level prompt was cleared (caller should not also leave the screen).</returns>
         public bool CancelCustomLevelPromptIfActive()
         {
+            if (SkipSiteJourneyIfActive())
+                return true;
             if (!awaitingCustomDungeonLevel)
                 return false;
             awaitingCustomDungeonLevel = false;
@@ -137,6 +149,10 @@ namespace RPGGame
             {
                 return;
             }
+
+            // Any key or click during the walk to a dungeon skips to the arrival.
+            if (SkipSiteJourneyIfActive())
+                return;
 
             if (awaitingCustomDungeonLevel)
             {
@@ -323,8 +339,65 @@ namespace RPGGame
             if (GameConstants.IsDungeonSelectionUtilityOption(selected.Name))
                 return;
 
+            await WalkToDungeonSiteAsync(dungeonIndex + 1, selected);
+
             stateManager.SetCurrentDungeon(selected);
             await BeginCurrentDungeonRunAsync();
+        }
+
+        private bool SkipSiteJourneyIfActive()
+        {
+            var skip = siteJourneySkip;
+            if (skip == null)
+                return false;
+            skip.TrySetResult(true);
+            return true;
+        }
+
+        /// <summary>
+        /// The hero walks from the hub to the picked dungeon on the region map: a d6 roll (more dice for farther
+        /// sites) sets the hours on the road and the walk's length (under two seconds). Any input skips it.
+        /// Canvas UI only; headless runs, MCP and tests go straight in.
+        /// </summary>
+        private async Task WalkToDungeonSiteAsync(int siteNumber, Dungeon selected)
+        {
+            if (customUIManager is not CanvasUICoordinator canvasUI || stateManager.CurrentPlayer == null || SimulationPacing.ShouldSkipDelays)
+                return;
+
+            double distance = DungeonSiteJourneyState.GetSiteDistance(siteNumber) ?? 0.5;
+            var journey = DungeonSiteJourney.Roll(siteNumber, selected.Name, selected.MinLevel, distance, RandomUtility.Ambient);
+            var skip = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+            siteJourneySkip = skip;
+            DungeonSiteJourneyState.Current = journey;
+            try
+            {
+                var clock = Stopwatch.StartNew();
+                int totalMs = DungeonSiteJourney.RollHoldMs + journey.WalkMs;
+                while (!skip.Task.IsCompleted)
+                {
+                    double walked = (clock.ElapsedMilliseconds - DungeonSiteJourney.RollHoldMs) / (double)journey.WalkMs;
+                    journey.Progress = Math.Clamp(walked, 0, 1);
+                    RedrawSelection(canvasUI);
+                    if (clock.ElapsedMilliseconds >= totalMs)
+                        break;
+                    await Task.WhenAny(skip.Task, Task.Delay(SiteJourneyFrameMs));
+                }
+                journey.Progress = 1;
+            }
+            finally
+            {
+                siteJourneySkip = null;
+                DungeonSiteJourneyState.Current = null;
+                canvasUI.StopDungeonSelectionAnimation();
+            }
+        }
+
+        private void RedrawSelection(CanvasUICoordinator canvasUI)
+        {
+            if (stateManager.CurrentPlayer == null)
+                return;
+            canvasUI.Clear();
+            canvasUI.RenderDungeonSelection(stateManager.CurrentPlayer, stateManager.AvailableDungeons);
         }
 
         private async Task BeginCurrentDungeonRunAsync()
@@ -332,6 +405,8 @@ namespace RPGGame
             if (stateManager.CurrentDungeon == null)
                 return;
 
+            // The next visit to dungeon selection rolls a fresh set of dungeons and levels.
+            dungeonManager?.InvalidateDungeonOffer();
             stateManager.CurrentDungeon.Generate();
             if (StartDungeonEvent != null)
             {

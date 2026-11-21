@@ -117,6 +117,8 @@ namespace RPGGame.Tuning
             };
 
             GamePlaySession? session = null;
+            // Bots keep the old hero-relative dungeon levels inside a region band (players roll anywhere in the band).
+            using var heroRelativeLevels = DungeonManagerWithRegistry.BeginHeadlessHeroRelativeBandLevels();
             using var recorder = new PlaythroughFightRecorder(trace);
             var smart = SmartPolicy ? new PlaythroughSmartPolicy(trace) : null;
             var rules = !SmartPolicy && RulesPolicy ? new PlaythroughRulesPolicy(trace) : null;

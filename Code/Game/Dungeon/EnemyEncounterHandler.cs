@@ -103,8 +103,9 @@ namespace RPGGame
                 {
                     canvasUIEnemy.RenderEnemyEncounter(enemy, player, displayManager.DungeonContext,
                         stateManager.CurrentDungeon?.Name, stateManager.CurrentRoom?.Name);
-                    // Brief delay to show enemy encounter information.
-                    await SimulationPacing.DelayForCombatSpeedAsync(2000);
+                    // Let the enemy's entrance (and any ambush / first-strike line) finish typing, then a beat to read it,
+                    // before the fight starts.
+                    await SimulationPacing.DelayAfterLogRevealAsync(customUIManager, 2000, player);
                 }
 
                 // Initial render of combat screen with structured content

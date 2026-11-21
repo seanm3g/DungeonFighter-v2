@@ -66,8 +66,9 @@
                 // Render the room entry screen
                 canvasUI.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
                 
-                // Delay to show dungeon and room information (skip in MCP mode).
-                await SimulationPacing.DelayForCombatSpeedAsync(3500);
+                // Hold on the dungeon / room description until it has finished typing in, then a beat to read it,
+                // so the fight never starts over half-shown text (skip in MCP mode).
+                await SimulationPacing.DelayAfterLogRevealAsync(customUIManager, 3500, stateManager.CurrentPlayer, holdAfterRevealMs: isFirstRoom ? 1500 : 1000);
             }
             
             // Award XP for entering room
@@ -188,7 +189,7 @@
                 if (customUIManager is CanvasUICoordinator canvasUIExplore)
                 {
                     canvasUIExplore.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
-                    await SimulationPacing.DelayForCombatSpeedAsync(2000);
+                    await SimulationPacing.DelayAfterLogRevealAsync(customUIManager, 2000, stateManager.CurrentPlayer);
                 }
             }
             
@@ -227,7 +228,7 @@
                         displayManager.AddCombatEvent("", stateManager.CurrentPlayer); // Blank line after safe message
                         // Re-render room entry to show the safe message
                         canvasUISafe.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
-                        await SimulationPacing.DelayForCombatSpeedAsync(2000);
+                        await SimulationPacing.DelayAfterLogRevealAsync(customUIManager, 2000, stateManager.CurrentPlayer);
                     }
                 }
                 else
@@ -275,7 +276,7 @@
                     if (customUIManager is CanvasUICoordinator canvasUISearchSetup)
                     {
                         canvasUISearchSetup.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
-                        await SimulationPacing.DelayForCombatSpeedAsync(1200);
+                        await SimulationPacing.DelayAfterLogRevealAsync(customUIManager, 1200, stateManager.CurrentPlayer, holdAfterRevealMs: 400);
                     }
                 }
 
@@ -305,7 +306,7 @@
                 if (customUIManager is CanvasUICoordinator canvasUISearch)
                 {
                     canvasUISearch.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
-                    await SimulationPacing.DelayForCombatSpeedAsync(2000);
+                    await SimulationPacing.DelayAfterLogRevealAsync(customUIManager, 2000, stateManager.CurrentPlayer);
                 }
             }
             

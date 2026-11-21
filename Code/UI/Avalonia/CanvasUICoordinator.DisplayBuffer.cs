@@ -269,6 +269,26 @@ namespace RPGGame.UI.Avalonia
         }
 
         /// <summary>
+        /// True while a line in the center log (the given character's buffer, else the active one) is still typing in.
+        /// Room and encounter pacing wait on it so choices and combat start after the text has finished.
+        /// </summary>
+        public bool IsLogRevealActive(Character? character = null)
+        {
+            try
+            {
+                if (textManager is not CanvasTextManager ctm)
+                    return false;
+                var display = character != null ? ctm.GetDisplayManagerForCharacter(character) : ctm.DisplayManager;
+                return display.Buffer.HasActiveReveal;
+            }
+            catch (Exception)
+            {
+                // The buffer can change under a background read; treat it as done rather than stall pacing.
+                return false;
+            }
+        }
+
+        /// <summary>
         /// Starts a display batch transaction.
         /// </summary>
         /// <param name="batchLineMessageType">Per-line message type for each row appended in the batch.</param>

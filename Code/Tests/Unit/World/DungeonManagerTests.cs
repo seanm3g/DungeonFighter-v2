@@ -31,6 +31,9 @@ namespace RPGGame.Tests.Unit.World
             TestRegenerateDungeonsUsesCurrentRegion();
             TestRegenerateDungeonsUsesCustomAnchor();
             TestGetAvailableDungeons();
+            TestBandLevelsRollAcrossWholeBand();
+            TestBandOfferStableUntilInvalidated();
+            TestHeadlessKeepsHeroRelativeBandLevels();
 
             TestBase.PrintSummary("DungeonManager Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -150,6 +153,79 @@ namespace RPGGame.Tests.Unit.World
             TestBase.AssertTrue(availableDungeons.Count > 0 && availableDungeons.TrueForAll(d => region.ContainsLevel(d.MinLevel)),
                 "Dungeon levels stay inside the region band even with a custom anchor",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+
+        private static void TestBandLevelsRollAcrossWholeBand()
+        {
+            Console.WriteLine("\n--- Testing RegenerateDungeons - levels roll anywhere in the band ---");
+
+            var manager = new DungeonManagerWithRegistry();
+            var character = TestDataBuilders.Character().WithName("BandRoller").WithLevel(1).Build();
+            var region = new TravelRegionCatalog().GetRegionForCharacter(character);
+            var seen = new HashSet<int>();
+            bool allInBand = true;
+            for (int i = 0; i < 60; i++)
+            {
+                manager.InvalidateDungeonOffer();
+                var offered = new List<Dungeon>();
+                manager.RegenerateDungeons(character, offered);
+                foreach (var d in offered)
+                {
+                    seen.Add(d.MinLevel);
+                    allInBand &= region.ContainsLevel(d.MinLevel);
+                }
+            }
+
+            TestBase.AssertTrue(allInBand, "Rolled dungeon levels stay inside the region band",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // A level 1 hero used to see only levels 1-2; the band (1-5) now rolls in full.
+            TestBase.AssertTrue(seen.Any(level => level > character.Level + 1),
+                $"Dungeon levels are not tied to the hero's level (seen: {string.Join(",", seen.OrderBy(l => l))})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestBandOfferStableUntilInvalidated()
+        {
+            Console.WriteLine("\n--- Testing RegenerateDungeons - offer holds for the visit ---");
+
+            var manager = new DungeonManagerWithRegistry();
+            var character = TestDataBuilders.Character().WithName("Revisit").WithLevel(3).Build();
+            var first = new List<Dungeon>();
+            manager.RegenerateDungeons(character, first);
+            bool stable = true;
+            for (int i = 0; i < 10; i++)
+            {
+                var again = new List<Dungeon>();
+                manager.RegenerateDungeons(character, again);
+                stable &= again.Count == first.Count;
+                for (int k = 0; stable && k < again.Count; k++)
+                    stable &= again[k].Name == first[k].Name && again[k].MinLevel == first[k].MinLevel;
+            }
+            TestBase.AssertTrue(stable, "Reopening dungeon selection shows the same dungeons and levels",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestHeadlessKeepsHeroRelativeBandLevels()
+        {
+            Console.WriteLine("\n--- Testing RegenerateDungeons - headless bots keep hero -1..+1 ---");
+
+            var manager = new DungeonManagerWithRegistry();
+            var character = TestDataBuilders.Character().WithName("SimBot").WithLevel(1).Build();
+            bool nearHero = true;
+            using (DungeonManagerWithRegistry.BeginHeadlessHeroRelativeBandLevels())
+            {
+                for (int i = 0; i < 40; i++)
+                {
+                    var offered = new List<Dungeon>();
+                    manager.RegenerateDungeons(character, offered);
+                    nearHero &= offered.Count > 0 && offered.TrueForAll(d => d.MinLevel >= 1 && d.MinLevel <= 2);
+                }
+            }
+            TestBase.AssertTrue(nearHero, "Inside the headless scope a level 1 hero only draws levels 1-2",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!DungeonManagerWithRegistry.HeadlessHeroRelativeBandLevels,
+                "The headless scope ends on dispose", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         #endregion

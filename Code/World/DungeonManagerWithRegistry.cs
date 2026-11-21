@@ -66,6 +66,48 @@ namespace RPGGame
         public static int? HeadlessFixedDungeonLevel { get; set; }
 
         /// <summary>
+        /// Headless playthroughs (DUNGEONSIM / PLAYTODEATH bots): offer level-banded dungeons at hero level -1..+1
+        /// clamped into the band, as before 2026-11-21, so sim numbers stay comparable. Players get a random level
+        /// anywhere in the region's band instead.
+        /// </summary>
+        public static bool HeadlessHeroRelativeBandLevels => System.Threading.Volatile.Read(ref heroRelativeBandDepth) > 0;
+
+        private static int heroRelativeBandDepth;
+
+        /// <summary>Turns on <see cref="HeadlessHeroRelativeBandLevels"/> until the returned scope is disposed (nests; safe across parallel runs).</summary>
+        public static IDisposable BeginHeadlessHeroRelativeBandLevels()
+        {
+            System.Threading.Interlocked.Increment(ref heroRelativeBandDepth);
+            return new HeroRelativeBandScope();
+        }
+
+        private sealed class HeroRelativeBandScope : IDisposable
+        {
+            private int disposed;
+            public void Dispose()
+            {
+                if (System.Threading.Interlocked.Exchange(ref disposed, 1) == 0)
+                    System.Threading.Interlocked.Decrement(ref heroRelativeBandDepth);
+            }
+        }
+
+        /// <summary>One region visit's offer: the picked dungeon rows and their rolled levels.</summary>
+        private sealed class BandOffer
+        {
+            public WeakReference<Character> Player = null!;
+            public string RegionId = "";
+            public List<(DungeonData Data, int Level)> Picks = new();
+        }
+
+        private BandOffer? bandOffer;
+
+        /// <summary>
+        /// Drops the current region visit's offer so the next <see cref="RegenerateDungeons"/> rolls new dungeons and
+        /// levels (called when a dungeon run starts; travelling to another region also starts a new offer).
+        /// </summary>
+        public void InvalidateDungeonOffer() => bandOffer = null;
+
+        /// <summary>
         /// Regenerates available dungeons based on the current difficulty anchor using Dungeons.json.
         /// Randomly selects 3 dungeons (scaled to the anchor ±1), then appends a "custom difficulty" option
         /// and a "reset to default level" option. The anchor is a stored custom level, or the hero's level.
@@ -93,23 +135,50 @@ namespace RPGGame
             if (regionDungeons.Count == 0)
                 regionDungeons = CreateFallbackDungeons();
 
-            // Level-banded region: one dungeon per linked biome, each at hero level -1..+1 clamped into the region's band
-            // (a fresh L1 hero no longer draws L5 dungeons). Harder dungeons require travelling to a higher region.
+            // Level-banded region: one dungeon per linked biome, each at a random level anywhere in the region's band
+            // (the hero's level doesn't pick it). The picks hold for the visit: reopening the screen shows the same
+            // dungeons until a run starts or the hero travels. Harder dungeons require travelling to a higher region.
             if (currentRegion.HasLevelRange)
             {
-                int bandLow = Math.Clamp(player.Level - 1, currentRegion.MinLevel, currentRegion.MaxLevel);
-                int bandHigh = Math.Clamp(player.Level + 1, currentRegion.MinLevel, currentRegion.MaxLevel);
-                foreach (var theme in themePool.Distinct(StringComparer.OrdinalIgnoreCase))
+                int bandLow = currentRegion.MinLevel;
+                int bandHigh = currentRegion.MaxLevel;
+                if (HeadlessHeroRelativeBandLevels)
                 {
-                    var candidates = regionDungeons
-                        .Where(d => string.Equals(d.theme, theme, StringComparison.OrdinalIgnoreCase))
-                        .ToList();
-                    if (candidates.Count == 0)
-                        continue;
-                    var data = candidates[random.Next(candidates.Count)];
-                    int level = random.Next(bandLow, bandHigh + 1);
-                    if (HeadlessFixedDungeonLevel is int fixedLevel)
-                        level = fixedLevel;
+                    bandLow = Math.Clamp(player.Level - 1, currentRegion.MinLevel, currentRegion.MaxLevel);
+                    bandHigh = Math.Clamp(player.Level + 1, currentRegion.MinLevel, currentRegion.MaxLevel);
+                }
+
+                bool reuse = !HeadlessHeroRelativeBandLevels && HeadlessFixedDungeonLevel == null
+                    && bandOffer != null
+                    && bandOffer.Player.TryGetTarget(out var offerPlayer) && ReferenceEquals(offerPlayer, player)
+                    && string.Equals(bandOffer.RegionId, currentRegion.Id, StringComparison.OrdinalIgnoreCase)
+                    && bandOffer.Picks.Count > 0;
+                if (!reuse)
+                {
+                    var picks = new List<(DungeonData Data, int Level)>();
+                    foreach (var theme in themePool.Distinct(StringComparer.OrdinalIgnoreCase))
+                    {
+                        var candidates = regionDungeons
+                            .Where(d => string.Equals(d.theme, theme, StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+                        if (candidates.Count == 0)
+                            continue;
+                        var picked = candidates[random.Next(candidates.Count)];
+                        int rolled = random.Next(bandLow, bandHigh + 1);
+                        if (HeadlessFixedDungeonLevel is int fixedLevel)
+                            rolled = fixedLevel;
+                        picks.Add((picked, rolled));
+                    }
+                    bandOffer = new BandOffer
+                    {
+                        Player = new WeakReference<Character>(player),
+                        RegionId = currentRegion.Id,
+                        Picks = picks
+                    };
+                }
+
+                foreach (var (data, level) in bandOffer!.Picks)
+                {
                     availableDungeons.Add(new Dungeon(
                         data.name,
                         level,

@@ -24,6 +24,9 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         /// <summary>Name shown over the hovered site.</summary>
         public string? HoveredSiteLabel { get; init; }
+
+        /// <summary>Region view: the dungeon the hero is walking to from the hub pin (<see cref="WalkProgress"/> 0..1).</summary>
+        public TravelMapSite? WalkToSite { get; init; }
     }
 
     /// <summary>
@@ -224,14 +227,24 @@ namespace RPGGame.UI.Avalonia.Renderers
                     PaintSiteLabel(ctx, site, frame.HoveredSiteLabel!, cellWidth, cellHeight, size);
 
             if (walking && frame.RouteFrom is TravelMapPin from && frame.RouteTo is TravelMapPin to)
+                PaintWalker(ctx, PinCenter(from, cellWidth, cellHeight), PinCenter(to, cellWidth, cellHeight), frame.WalkProgress, cellHeight);
+            else if (frame.WalkToSite is TravelMapSite walkSite)
             {
-                var a = PinCenter(from, cellWidth, cellHeight);
-                var b = PinCenter(to, cellWidth, cellHeight);
-                double t = Math.Clamp(frame.WalkProgress, 0, 1);
-                var head = new Point(a.X + (b.X - a.X) * t, a.Y + (b.Y - a.Y) * t - cellHeight * 0.6);
-                glyphs!.Draw(ctx, '@', DotRing, 2.2, new Point(head.X + 1.5, head.Y + 1.5));
-                glyphs.Draw(ctx, '@', Walker, 2.2, head);
+                // From the hub (the current region's pin), or the map's middle when the pin is off the view.
+                Point start = new(size.Width / 2, size.Height / 2);
+                foreach (var pin in frame.Pins)
+                    if (string.Equals(pin.Region.Id, frame.CurrentRegionId, StringComparison.OrdinalIgnoreCase))
+                        start = PinCenter(pin, cellWidth, cellHeight);
+                PaintWalker(ctx, start, SiteCenter(walkSite, cellWidth, cellHeight), frame.WalkProgress, cellHeight);
             }
+        }
+
+        private void PaintWalker(DrawingContext ctx, Point a, Point b, double progress, double cellHeight)
+        {
+            double t = Math.Clamp(progress, 0, 1);
+            var head = new Point(a.X + (b.X - a.X) * t, a.Y + (b.Y - a.Y) * t - cellHeight * 0.6);
+            glyphs!.Draw(ctx, '@', DotRing, 2.2, new Point(head.X + 1.5, head.Y + 1.5));
+            glyphs.Draw(ctx, '@', Walker, 2.2, head);
         }
 
         /// <summary>DIP center of a dungeon site: the middle of its game-grid cell.</summary>

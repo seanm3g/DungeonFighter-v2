@@ -31,6 +31,7 @@ namespace RPGGame.Tests.Unit.World
             TestTravelEventCountRollIsFourD4Sum();
             TestClampTravelEventCount();
             TestCreateRouteResultRollsThreeJourneyThemesFromDestinationPool();
+            TestDungeonSiteJourneyRollStaysInRange();
 
             TestBase.PrintSummary("Travel System Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -299,6 +300,29 @@ namespace RPGGame.Tests.Unit.World
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(TravelRouteGenerator.MaxTravelEvents, TravelRouteGenerator.ClampTravelEventCount(99),
                 "Travel event count should clamp down to the 4d4 maximum",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestDungeonSiteJourneyRollStaysInRange()
+        {
+            var rng = new Random(7);
+            bool ok = true;
+            for (int i = 0; i < 200; i++)
+            {
+                double distance = i / 199.0;
+                var j = DungeonSiteJourney.Roll(1, "Den", 3, distance, rng);
+                int n = DungeonSiteJourney.DiceForDistance(distance);
+                ok &= j.Dice.Length == n
+                    && j.Total >= n && j.Total <= n * DungeonSiteJourney.DieSides
+                    && j.Total == j.Dice.Sum()
+                    && j.WalkMs >= DungeonSiteJourney.MinWalkMs && j.WalkMs <= DungeonSiteJourney.MaxWalkMs
+                    && DungeonSiteJourney.RollHoldMs + j.WalkMs <= 2000;
+            }
+            TestBase.AssertTrue(ok, "Dungeon site journey: dice count follows distance, total and walk time stay in range (<= 2 s)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(1, DungeonSiteJourney.DiceForDistance(0), "Near site rolls one die",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(DungeonSiteJourney.MaxDice, DungeonSiteJourney.DiceForDistance(1), "Far site rolls the most dice",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

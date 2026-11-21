@@ -76,9 +76,6 @@ namespace RPGGame
             if (RPGGame.MCP.MCPMode.IsActive)
                 return HeadlessExitPolicy?.Invoke(stateManager.CurrentPlayer) ?? false;
 
-            // Create task completion source to wait for player choice
-            exitChoiceTaskSource = new TaskCompletionSource<bool>();
-            
             // Display the menu
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
@@ -97,8 +94,15 @@ namespace RPGGame
                         canvasUI.WriteLineColoredSegments(line, UIMessageType.Environmental);
                 }
 
+                // The search / scouting text types in first; the choice only appears once it has finished.
+                if (stateManager.CurrentPlayer != null && stateManager.CurrentRoom != null)
+                    canvasUI.RenderRoomEntry(stateManager.CurrentRoom, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
+                if (await SimulationPacing.WaitForLogRevealAsync(canvasUI, stateManager.CurrentPlayer))
+                    await SimulationPacing.DelayForCombatSpeedAsync(400);
+
                 // The choice is two big buttons (CONTINUE / LEAVE) drawn along the bottom of the log box; blank rows keep
                 // the log's last lines clear of them. Keys 1 / 2 still work.
+                exitChoiceTaskSource = new TaskCompletionSource<bool>();
                 DungeonExitChoicePrompt.Open();
                 for (int i = 0; i < ExitChoiceButtonRows; i++)
                     canvasUI.WriteLineColoredSegments(new List<ColoredText>(), UIMessageType.Environmental);
@@ -113,6 +117,9 @@ namespace RPGGame
                 }
             }
             
+            // Headless with no canvas: still wait on HandleMenuInput (tests drive it directly).
+            exitChoiceTaskSource ??= new TaskCompletionSource<bool>();
+
             // Wait for player choice
             bool shouldExit;
             try
