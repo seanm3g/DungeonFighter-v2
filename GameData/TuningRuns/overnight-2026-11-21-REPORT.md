@@ -187,6 +187,10 @@ over-v55 per level (held out 9971-9973):
 
 Clear within ±4 of target at every level; worst L53 -4.2, L48 +4.1, L18 -3.7.
 
+Second held-out check (seeds 9981-9983, run `overnight-2026-11-21-d`), over-v55 vs over-v54: class spread
+11.7 → **10.0**, bands over parity 7 → 6, turns gap 2.15 → 1.95, clear gap 1.85 → 2.05 (slightly worse, within
+noise). The spread gain repeats on both seed sets; the clear gap is a wash.
+
 ## 5. Open design questions (need your call)
 
 1. **The class damage knob is a treadmill for Warrior.** Warrior's `classBalance.warrior.damageCurve` was already
@@ -213,6 +217,11 @@ rewrites the active patch file:
   Repeated filtered runs fail 1 of 4 on over-v53, 1 of 4 on v54, 0 of 4 on v55 (v55 only changes class curves
   above L10). The 11-18 rebuild notes flagged the same two. The third, Stable "both fighters are out at once",
   failed because a fighter randomly died in room 1. Worth making all three deterministic (fixed roll / seed).
+  Building both cadence heroes from one seeded RandomUtility scope did not remove the flake (randomness also
+  enters during execution), so that edit was reverted.
+- Also flaky, and load-sensitive: "After SetupStrike succeeds: next-hero-roll queue has +3 COMBO pending"
+  (ActionBonusMechanicsFlow) passed 16 of 16 runs on an idle machine and failed 3 of 8 while a sim measure loaded
+  the CPU. Looks like a timing dependency, not a balance one.
 
 ## 7. Commits on `balance/overnight-2026-11-21`
 
