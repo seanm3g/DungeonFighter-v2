@@ -4,7 +4,7 @@
 4.5. A bisect traced most of it to the 11-18 node cuts, not the engine refactor. Three solve passes produced
 **over-v55**: held-out clear gap **1.91**, class spread **8.0** (v49b on the same code read 4.45 / 15.5 on an earlier held-out seed set), every level within
 ±4 of target. A new rule-fire trace found and fixed a dead skill (Empty Fury) and two dead quality nodes. The synergy
-bot now considers the 18-22 skill nodes per class missing from its mined order. Tests: 0 failures. Open item:
+bot now considers the 18-22 skill nodes per class missing from its mined order. Tests: 0 real failures (3 known flaky). Open item:
 Warrior's class damage multiplier has reached ×35 at L51-55 (section 5). Nothing pushed, nothing on main.
 
 Branch `balance/overnight-2026-11-21` (worktree `.claude/worktrees/overnight-1121`), based on `d54bbb96`
@@ -205,9 +205,14 @@ Clear within ±4 of target at every level; worst L53 -4.2, L48 +4.1, L18 -3.7.
 
 ## 6. Tests
 
-Full suite on this branch (`df86e184`, code identical to the tip) with skillrules-v49b, over-v53 and over-v55
-active: 0 failures (the one baseline failure was fixed). Test runs ran in a scratch worktree, since a full run
-rewrites the active patch file.
+Full suite on this branch (`df86e184`, code identical to the tip), run in a scratch worktree since a full run
+rewrites the active patch file:
+- skillrules-v49b active: 0 failures. over-v53 active: 0 failures. (The one baseline failure was fixed.)
+- over-v55 active: 3 failures, all flaky, none caused by v55. Two are the cadence `+25%` tests ("Mid with +25% deals
+  more than unbuffed mid", "Finisher gets its own +25%"), which compare single small random hits on a level-1 hero.
+  Repeated filtered runs fail 1 of 4 on over-v53, 1 of 4 on v54, 0 of 4 on v55 (v55 only changes class curves
+  above L10). The 11-18 rebuild notes flagged the same two. The third, Stable "both fighters are out at once",
+  failed because a fighter randomly died in room 1. Worth making all three deterministic (fixed roll / seed).
 
 ## 7. Commits on `balance/overnight-2026-11-21`
 
