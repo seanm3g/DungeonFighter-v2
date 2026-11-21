@@ -953,5 +953,70 @@
     "MinValue": 1,
     "MaxValue": 1,
     "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Follow-Through",
+    "Description": "\u002B{n}% damage on strip slot 2.",
+    "Effect": "RULE",
+    "crossWire": "WHILE IF SLOT=2 -> DAMAGE \u002B{n}%",
+    "Weight": 0.15,
+    "DiceResult": 0,
+    "MinValue": 10,
+    "MaxValue": 15,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Third-Strike",
+    "Description": "\u002B{n}% damage on strip slot 3.",
+    "Effect": "RULE",
+    "crossWire": "WHILE IF SLOT=3 -> DAMAGE \u002B{n}%",
+    "Weight": 0.15,
+    "DiceResult": 0,
+    "MinValue": 12,
+    "MaxValue": 18,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Late-Blooming",
+    "Description": "\u002B{n}% damage on strip slot 4 and later.",
+    "Effect": "RULE",
+    "crossWire": "WHILE IF SLOT\u003E=4 -> DAMAGE \u002B{n}%",
+    "Weight": 0.15,
+    "DiceResult": 0,
+    "MinValue": 8,
+    "MaxValue": 12,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Sighting",
+    "Description": "\u002B{n} to crit on strip slot 2.",
+    "Effect": "RULE",
+    "crossWire": "WHILE IF SLOT=2 -> CRIT \u002B{n}",
+    "Weight": 0.15,
+    "DiceResult": 0,
+    "MinValue": 1,
+    "MaxValue": 1,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Common",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Steadied",
+    "Description": "\u002B{n} to hit on strip slot 3.",
+    "Effect": "RULE",
+    "crossWire": "WHILE IF SLOT=3 -> HIT \u002B{n}",
+    "Weight": 0.15,
+    "DiceResult": 0,
+    "MinValue": 1,
+    "MaxValue": 1,
+    "RolledValue": 0
   }
 ]

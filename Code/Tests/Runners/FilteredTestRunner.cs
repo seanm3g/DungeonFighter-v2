@@ -302,6 +302,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "DisplayBufferReplaceLast", () => RPGGame.Tests.Unit.UI.BlockDisplay.DisplayBufferReplaceLastTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "TextWrappingHelper", () => RPGGame.Tests.Unit.UI.TextWrappingHelperTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "ItemComparisonRenderer", () => RPGGame.Tests.Unit.UI.ItemComparisonRendererTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "ItemDisplayFormatter", () => RPGGame.Tests.Unit.UI.ItemDisplayFormatterTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "InventoryRenderer", () => RPGGame.Tests.Unit.UI.InventoryRendererTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "InventoryDragDrop", () => RPGGame.Tests.Unit.UI.InventoryDragDropTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatCenterPanelEnemyLineAlignment", () => RPGGame.Tests.Unit.UI.CombatCenterPanelEnemyLineAlignmentTests.RunAllTests()));

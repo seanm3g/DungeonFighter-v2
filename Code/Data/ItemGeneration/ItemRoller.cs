@@ -520,7 +520,9 @@ namespace RPGGame.Data.ItemGeneration
             /// </summary>
             private void RollLines(int lineCount, RarityData rarity)
             {
-                // Rebuild 2.1: a Common rolls stat and material lines only (actions start at Uncommon, D5.6).
+                // Rebuild 2.1: a Common rolls stat lines only (actions start at Uncommon, D5.6). Its material is the
+                // material prefix (outside the line count); the "material" pool is listeners, TUNE / STORECOND /
+                // COUNTSDOUBLE and cross-wire rules, i.e. mechanics (D0.7), so a Common never rolls from it.
                 bool plain = CommonItemRules.MustBePlain(_item);
                 int actions = plain ? 0 : Math.Min(lineCount, Cfg.GuaranteedActionLines);
                 var lineRng = For("lines");
@@ -539,7 +541,7 @@ namespace RPGGame.Data.ItemGeneration
                     {
                         var open = ModPools.All
                             .Where(p => !Dead(p) && Cfg.PoolWeights.GetValueOrDefault(p) > 0
-                                && !(plain && (p == ModPools.Action || p == ModPools.Mechanic))
+                                && !(plain && p != ModPools.Stat)
                                 && (p == ModPools.Action || EligibleFamilies(p).Count > 0))
                             .ToList();
                         if (open.Count == 0)
@@ -588,6 +590,9 @@ namespace RPGGame.Data.ItemGeneration
                 // A small chance of a poetic phrase on items whose rarity doesn't guarantee one.
                 if (!kinds.Contains(SuffixKinds.Rare) && kindRng.NextDouble() < Cfg.PoeticSuffixChance)
                     kinds.Add(SuffixKinds.Rare);
+                // Poetic (rare) suffixes are the mechanic families: never on a plain Common (D0.7).
+                if (CommonItemRules.MustBePlain(_item))
+                    kinds.Remove(SuffixKinds.Rare);
 
                 // Over the line budget: keep the highest kinds (a Rare's poetic phrase before its descriptor).
                 if (kinds.Count > Math.Max(0, maxLines))

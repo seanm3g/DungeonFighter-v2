@@ -27,11 +27,15 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
         public string? SourceTag { get; }
         public bool IsDebuff { get; }
 
+        /// <summary>A rule line (no separate value): the label is the whole readable rule text.</summary>
+        public bool IsRuleText => ValueText.Length == 0;
+
         public string ToPlainLine()
         {
+            string body = IsRuleText ? Label : $"{Label}: {ValueText}";
             if (string.IsNullOrEmpty(SourceTag))
-                return $"{Label}: {ValueText}";
-            return $"{SourceTag} — {Label}: {ValueText}";
+                return body;
+            return $"{SourceTag} — {body}";
         }
     }
 
@@ -107,6 +111,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                     if (AffixTemplates.TryStatLine(mod, item, out string templateLabel, out string templateValue))
                     {
                         list.Add(new ItemStatContribution(templateLabel, templateValue, mod.Name));
+                        continue;
+                    }
+                    // Rule / cross-wire / listener prefixes: the rule's readable text, never "CROSSWIRE: 1".
+                    if (AffixTemplates.Describe(mod, item) is { Length: > 0 } ruleText)
+                    {
+                        list.Add(new ItemStatContribution(RPGGame.UI.RuleText.ItemLine(ruleText), "", mod.Name));
                         continue;
                     }
                     TryAddModification(list, mod);
@@ -194,6 +204,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
 
             if (string.Equals(effect, "gearPrimaryStatMultiplier", StringComparison.OrdinalIgnoreCase))
                 return;
+            // Extra strip slots are already in the "Action slots" total line.
+            if (string.Equals(effect, "EXTRASLOTS", StringComparison.OrdinalIgnoreCase))
+                return;
 
             if (effect.Contains("armor", StringComparison.OrdinalIgnoreCase))
             {
@@ -206,7 +219,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
             string? label = GetModificationLabel(effect);
             if (label == null)
             {
-                list.Add(new ItemStatContribution(effect, mod.RolledValue.ToString("0.##", CultureInfo.InvariantCulture), mod.Name,
+                // No stat label: the effect in plain words ("12% lifesteal"), never the raw effect id.
+                list.Add(new ItemStatContribution(ItemDisplayFormatter.GetModificationEffectDescription(mod), "", mod.Name,
                     isDebuff: mod.RolledValue < 0));
                 return;
             }
@@ -243,6 +257,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 "DAMAGE" => "Damage",
                 "ROLLBONUS" => "Roll bonus",
                 "ACCURACY" => "Accuracy",
+                "EXTRASLOTS" => "Action slots",
                 _ => null
             };
         }

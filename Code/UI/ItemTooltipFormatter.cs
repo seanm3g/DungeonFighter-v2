@@ -364,10 +364,11 @@ namespace RPGGame
             bool debuff = string.Equals(mod.Effect, "gearPrimaryStatMultiplier", StringComparison.OrdinalIgnoreCase) &&
                             mod.RolledValue > 0 && mod.RolledValue < 1.0;
             ItemBuffHighlightFormatting.AppendHighlightedDescription(b, effect, debuff);
-            if (!string.IsNullOrEmpty(mod.Description))
+            if (!string.IsNullOrEmpty(mod.Description)
+                && !string.Equals(RPGGame.UI.RuleText.ItemLine(mod.Description), effect, StringComparison.OrdinalIgnoreCase))
             {
                 b.Add(" · ", Colors.DarkGray);
-                b.Add(mod.Description, Colors.Gray);
+                b.Add(RPGGame.UI.RuleText.ItemLine(mod.Description), Colors.Gray);
             }
             return b.Build();
         }

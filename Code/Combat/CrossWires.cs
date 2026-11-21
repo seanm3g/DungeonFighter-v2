@@ -1627,7 +1627,8 @@ namespace RPGGame
             {
                 string unit = rule.Percent ? "%" : "";
                 string stat = StatName(rule.Verb);
-                if (rule.Conditions.Count > 0 && rule.Conditions.All(c => c.ReadsAction))
+                // Conditions about the swing itself (its action, tag, strip slot) trail: "+15% damage on strip slot 2".
+                if (rule.Conditions.Count > 0 && rule.Conditions.All(c => c.ReadsAction || IsSlotCondition(c)))
                     return $"{sign}{rule.Amount:0.##}{unit} {stat}{per} {string.Join(" and ", rule.Conditions.Select(DescribeCondition))}";
                 string lead = cond.Length > 0 ? $"While{cond}: " : "";
                 return $"{lead}{sign}{rule.Amount:0.##}{unit} {stat}{per}";
@@ -1659,6 +1660,9 @@ namespace RPGGame
             };
             return $"{when}{gate}{cond}: {what}";
         }
+
+        private static bool IsSlotCondition(RuleCondition c) =>
+            c.Subject is not ("target" or "prefix" or "weapon") && c.Key is "SLOT" or "SLOTSLEFT";
 
         private static string StatName(string verb) => verb switch
         {
@@ -1739,7 +1743,13 @@ namespace RPGGame
                 {
                     "HP" => $"your HP{cmp}%",
                     "STEP" => $"combo step{cmp}",
-                    "SLOT" => $"in strip slot{cmp}",
+                    "SLOT" => c.Op switch
+                    {
+                        "=" => $"on strip slot {c.Value:0}",
+                        ">=" => $"on strip slot {c.Value:0} and later",
+                        "<=" => $"on strip slot {c.Value:0} and earlier",
+                        _ => $"in strip slot{cmp}"
+                    },
                     "SLOTS" => $"strip length{cmp}",
                     "SLOTSLEFT" => c.Op == "=" && Math.Abs(c.Value) < 1e-9 ? "on your strip's finisher" : $"strip slots after this{cmp}",
                     "EXTRASLOTS" => $"extra strip slots{cmp}",

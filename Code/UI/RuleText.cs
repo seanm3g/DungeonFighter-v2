@@ -76,6 +76,53 @@ namespace RPGGame.UI
             return Plain(node.Payoff);
         }
 
+        private static readonly Regex CapsWord = new(@"\b[A-Z][A-Z'\-]{2,}\b", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+        /// <summary>
+        /// Item mod text in proper word case: an all-caps store name (a material mint such as <c>CRISIS</c> / <c>DRAG</c>,
+        /// a status or a hero resource) reads as a word (<c>Crisis</c>, <c>Drag</c>). Ids in the data stay as they are;
+        /// action names (an all-caps run of two or more words, e.g. <c>BARBARIAN RAGE</c>) and stat abbreviations
+        /// (STR, HP, AMP) are left alone.
+        /// </summary>
+        public static string WordCase(string? text)
+        {
+            if (string.IsNullOrEmpty(text))
+                return text ?? "";
+            return CapsWord.Replace(text, m =>
+            {
+                if (!Stores.TryGet(m.Value, out _)) // ids are case-insensitive
+                    return m.Value;
+                if (NextToCapsWord(text, m.Index, m.Length))
+                    return m.Value;
+                return CultureInfo.InvariantCulture.TextInfo.ToTitleCase(m.Value.ToLowerInvariant());
+            });
+        }
+
+        private static bool NextToCapsWord(string text, int index, int length)
+        {
+            static bool CapsAt(string s, int start, int step)
+            {
+                int i = start;
+                int letters = 0;
+                while (i >= 0 && i < s.Length && char.IsLetter(s[i]))
+                {
+                    if (!char.IsUpper(s[i]))
+                        return false;
+                    letters++;
+                    i += step;
+                }
+                return letters >= 2;
+            }
+            int before = index - 1;
+            if (before >= 1 && text[before] == ' ' && CapsAt(text, before - 1, -1))
+                return true;
+            int after = index + length;
+            return after + 1 < text.Length && text[after] == ' ' && CapsAt(text, after + 1, 1);
+        }
+
+        /// <summary>One plain item-mod line: <see cref="Plain"/> then <see cref="WordCase"/>.</summary>
+        public static string ItemLine(string? text) => WordCase(Plain(text));
+
         /// <summary>True when <paramref name="text"/> still holds a template brace (a leak).</summary>
         public static bool HasTemplateBraces(string? text) => !string.IsNullOrEmpty(text) && (text.Contains('{') || text.Contains('}'));
 

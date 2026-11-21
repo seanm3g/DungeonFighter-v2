@@ -5216,6 +5216,186 @@
       "suffixKind": "rare"
     },
     {
+      "family": "Follow-Through",
+      "pool": "material",
+      "affix": "prefix",
+      "kind": "mod",
+      "template": "Follow-Through",
+      "weight": 1.5,
+      "tags": [
+        "rule",
+        "slot"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Following",
+          "min": 10,
+          "max": 15,
+          "level": 1,
+          "weight": 100
+        },
+        {
+          "keyword": "Follow-Through",
+          "min": 14,
+          "max": 21,
+          "level": 25,
+          "weight": 140
+        },
+        {
+          "keyword": "Unbroken",
+          "min": 18,
+          "max": 27,
+          "level": 55,
+          "weight": 180
+        }
+      ]
+    },
+    {
+      "family": "Third-Strike",
+      "pool": "material",
+      "affix": "prefix",
+      "kind": "mod",
+      "template": "Third-Strike",
+      "weight": 1.5,
+      "tags": [
+        "rule",
+        "slot"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Thrice-Struck",
+          "min": 12,
+          "max": 18,
+          "level": 1,
+          "weight": 100
+        },
+        {
+          "keyword": "Third-Strike",
+          "min": 17,
+          "max": 25,
+          "level": 25,
+          "weight": 140
+        },
+        {
+          "keyword": "Triple-Tolled",
+          "min": 22,
+          "max": 32,
+          "level": 55,
+          "weight": 180
+        }
+      ]
+    },
+    {
+      "family": "Late-Blooming",
+      "pool": "material",
+      "affix": "prefix",
+      "kind": "mod",
+      "template": "Late-Blooming",
+      "weight": 1.5,
+      "tags": [
+        "rule",
+        "slot"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Patient",
+          "min": 8,
+          "max": 12,
+          "level": 1,
+          "weight": 100
+        },
+        {
+          "keyword": "Late-Blooming",
+          "min": 11,
+          "max": 17,
+          "level": 25,
+          "weight": 140
+        },
+        {
+          "keyword": "Long-Awaited",
+          "min": 14,
+          "max": 22,
+          "level": 55,
+          "weight": 180
+        }
+      ]
+    },
+    {
+      "family": "Sighting",
+      "pool": "material",
+      "affix": "prefix",
+      "kind": "mod",
+      "template": "Sighting",
+      "weight": 1.5,
+      "tags": [
+        "rule",
+        "slot"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Eyeing",
+          "min": 1,
+          "max": 1,
+          "level": 1,
+          "weight": 100
+        },
+        {
+          "keyword": "Sighting",
+          "min": 1,
+          "max": 1,
+          "level": 25,
+          "weight": 140
+        },
+        {
+          "keyword": "Deadeyed",
+          "min": 2,
+          "max": 2,
+          "level": 55,
+          "weight": 180
+        }
+      ]
+    },
+    {
+      "family": "Steadied",
+      "pool": "material",
+      "affix": "prefix",
+      "kind": "mod",
+      "template": "Steadied",
+      "weight": 1.5,
+      "tags": [
+        "rule",
+        "slot"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Steadying",
+          "min": 1,
+          "max": 1,
+          "level": 1,
+          "weight": 100
+        },
+        {
+          "keyword": "Steadied",
+          "min": 1,
+          "max": 1,
+          "level": 25,
+          "weight": 140
+        },
+        {
+          "keyword": "Unshaking",
+          "min": 2,
+          "max": 2,
+          "level": 55,
+          "weight": 180
+        }
+      ]
+    },
+    {
       "family": "Extra Action Slot",
       "pool": "mechanic",
       "affix": "suffix",

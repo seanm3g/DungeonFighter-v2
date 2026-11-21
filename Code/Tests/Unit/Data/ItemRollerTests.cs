@@ -48,6 +48,8 @@ namespace RPGGame.Tests.Unit.Data
             TestCatalogModifiersGrowWithTier();
             TestRarityRollUpKeepsDropRarity();
             TestCommonsHaveOneOrTwoLines();
+            TestCommonsRollNoMechanicLines();
+            TestLoadedCommonLosesMechanicPrefix();
             TestEveryTierHasItsOwnName();
             TestNameComposition();
             TestWoodAndClothDrop();
@@ -444,6 +446,54 @@ namespace RPGGame.Tests.Unit.Data
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        /// <summary>
+        /// Playtest 2026-11-21 ("dour Bone Club of Might"): a Common's second line came from the material pool, whose
+        /// families are all mechanics (cross-wires, listeners, TUNE…). Commons roll stat lines only (D0.7), at most two.
+        /// </summary>
+        private static void TestCommonsRollNoMechanicLines()
+        {
+            if (!CommonItemRules.Enabled)
+            {
+                TestBase.AssertTrue(true, "commonsArePlain off (skipped)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+            string? bad = null;
+            foreach (var (item, spec) in Roll(new ItemRollRequest { ItemLevel = 60, Rarity = "Common", AllowRollUps = false }, 600))
+            {
+                int rolled = spec.Lines.Select(l => (l.Family, l.Keyword)).Distinct().Count();
+                if (rolled > 2 || spec.Lines.Any(l => l.Pool != ModPools.Stat) || item.Modifications.Any(CommonItemRules.IsMechanic)
+                    || item.ActionBonuses.Count > 0 || !string.IsNullOrWhiteSpace(item.ImplicitRule))
+                {
+                    bad = $"{item.Name}: {string.Join(", ", spec.Lines.Select(l => l.Pool + ":" + l.Keyword))}";
+                    break;
+                }
+            }
+            TestBase.AssertTrue(bad == null, $"Commons: at most 2 stat lines, no mechanic, action or modifier {bad}",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>A saved Common that rolled a cross-wire prefix loses it on load (and its name drops the word).</summary>
+        private static void TestLoadedCommonLosesMechanicPrefix()
+        {
+            if (!CommonItemRules.Enabled)
+            {
+                TestBase.AssertTrue(true, "commonsArePlain off (skipped)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+            var club = new WeaponItem("Club", 1, 3, 1.3, WeaponType.Mace) { Rarity = "Common", Material = "Bone" };
+            club.Modifications.Add(new Modification { Name = "Bone", PrefixCategory = "MATERIAL", Effect = "STRENGTH", RolledValue = 2 });
+            club.Modifications.Add(new Modification
+            {
+                Name = "Dour", PrefixCategory = "ADJECTIVE", Effect = CrossWires.AffixEffect, CrossWire = "ONCASH:CRISIS -> MINT DRAG 50%", RolledValue = 1
+            });
+            club.Name = "Dour Bone Club";
+            bool changed = CommonItemRules.MakePlain(club);
+            TestBase.AssertTrue(changed && club.Modifications.Count == 1 && club.Modifications[0].Name == "Bone",
+                "the cross-wire prefix is stripped, the material stays", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!club.Name.Contains("Dour", StringComparison.OrdinalIgnoreCase),
+                $"name drops the stripped word ({club.Name})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
         /// <summary>User 2026-11-15: every mod family names each tier differently (level-1 to level-100 versions).</summary>
         private static void TestEveryTierHasItsOwnName()
         {
@@ -678,7 +728,9 @@ namespace RPGGame.Tests.Unit.Data
                 if (string.IsNullOrWhiteSpace(template?.CrossWire))
                     continue;
                 wires++;
-                var rule = CrossWireRule.Parse(template!.CrossWire, family.Family);
+                // {n} (the slot prefixes' rolled value) reads as the template's minimum.
+                var rule = CrossWireRule.Parse(template!.CrossWire.Replace("{n}",
+                    Math.Max(1, (int)Math.Round(template.MinValue)).ToString(System.Globalization.CultureInfo.InvariantCulture)), family.Family);
                 if (rule == null || (rule.Verb == "MINT" && RPGGame.Data.MaterialBuildsLoader.FindByKeyword(rule.Store) == null))
                     bad.Add(family.Family);
             }

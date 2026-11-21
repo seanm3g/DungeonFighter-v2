@@ -51,11 +51,11 @@ namespace RPGGame
         /// <summary>
         /// Plain-language effect for a rolled modification (no affix name).
         /// </summary>
-        public static string GetModificationEffectDescription(Modification modification, Item? item = null)
-        {
-            if (modification == null)
-                return "";
+        public static string GetModificationEffectDescription(Modification modification, Item? item = null) =>
+            modification == null ? "" : RPGGame.UI.RuleText.WordCase(DescribeModificationEffect(modification, item));
 
+        private static string DescribeModificationEffect(Modification modification, Item? item)
+        {
             // Affix templates (STORECOND, COUNTSDOUBLE, TUNE, …) and rule prefixes have their own wording.
             if (AffixTemplates.Describe(modification, item) is { Length: > 0 } templateText)
                 return templateText;
@@ -100,8 +100,22 @@ namespace RPGGame
                 "AGI" or "equipmentAgi" => $"+{(int)Math.Round(modification.RolledValue)} Agility",
                 "TEC" or "equipmentTec" => $"+{(int)Math.Round(modification.RolledValue)} Technique",
                 "INT" or "equipmentInt" => $"+{(int)Math.Round(modification.RolledValue)} Intelligence",
-                _ => $"{effect} ({modification.RolledValue:0.##})"
+                _ => DescribeStatEffect(effect, modification.RolledValue)
             };
+        }
+
+        /// <summary>
+        /// A plain stat line for an effect id the switch doesn't name (material lines carry <c>STRENGTH</c>,
+        /// <c>AGILITY</c>, …): "+2 Strength", never the raw id.
+        /// </summary>
+        private static string DescribeStatEffect(string effect, double rolled)
+        {
+            string? label = RPGGame.UI.Avalonia.Renderers.Helpers.ItemStatContributionCollector.GetModificationLabel(effect);
+            string value = rolled.ToString("+0.##;-0.##;0", System.Globalization.CultureInfo.InvariantCulture);
+            if (label != null)
+                return $"{value} {label}";
+            string words = System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(effect.Replace('_', ' ').ToLowerInvariant());
+            return $"{words} {value}";
         }
 
         private static string DescribeGearPrimaryStatMultiplier(double rolled)

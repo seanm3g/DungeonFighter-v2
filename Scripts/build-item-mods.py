@@ -131,6 +131,17 @@ STATUS_EFFECTS = {
     "BLEED": ("Bleeding", ["Notched", "Serrated", "Barbed", "Rending", "Exsanguinating"], ["bleed", "onconnect", "barbarian"]),
 }
 
+# Slot prefixes (2026-11-21, user item 14): RULE rows in Modifications.json whose rule is gated on one strip slot
+# (`WHILE IF SLOT=n -> DAMAGE|HIT|CRIT ...`; OPENER / FINISHER already cover slot 1 / the last slot). They roll as
+# weighted prefixes in the material pool (Uncommon and up; never on a Common, D0.7), 3 tiers like the cross-wires.
+SLOT_WORDS = {
+    "Follow-Through": ["Following", "Follow-Through", "Unbroken"],
+    "Third-Strike": ["Thrice-Struck", "Third-Strike", "Triple-Tolled"],
+    "Late-Blooming": ["Patient", "Late-Blooming", "Long-Awaited"],
+    "Sighting": ["Eyeing", "Sighting", "Deadeyed"],
+    "Steadied": ["Steadying", "Steadied", "Unshaking"],
+}
+
 # Cross-wires spend one material store into another (or a status), so they sit in the material pool.
 MATERIAL_TEMPLATES = {"LISTEN", "TUNE", "STORECOND", "COUNTSDOUBLE", "CROSSWIRE"}
 MECHANIC_TEMPLATES = {"RULE", "OPENER", "FINISHER", "BLOODPRICE"}
@@ -384,25 +395,28 @@ def build_families(gd):
     # Affix templates, rule and cross-wire prefixes: one family each, 3 tiers.
     for m in adj:
         effect = (m.get("Effect") or "").upper()
-        pool = "material" if effect in MATERIAL_TEMPLATES else "mechanic" if effect in MECHANIC_TEMPLATES else None
+        slot = m["Name"] in SLOT_WORDS
+        pool = ("material" if effect in MATERIAL_TEMPLATES or slot
+                else "mechanic" if effect in MECHANIC_TEMPLATES else None)
         if pool is None:
             continue
         lo, hi = float(m.get("MinValue") or 0), float(m.get("MaxValue") or 0)
         integer = float(lo).is_integer() and float(hi).is_integer()
         tiers = []
-        if pool == "material" and m["Name"] not in MATERIAL_WORDS:
+        words = SLOT_WORDS if slot else MATERIAL_WORDS
+        if pool == "material" and m["Name"] not in words:
             raise SystemExit(f"{m['Name']}: needs one word per tier in MATERIAL_WORDS")
         for i, (level, mult, _, weight) in enumerate(MATERIAL_LADDER if pool == "material" else RULE_LADDER):
             tmin, tmax = (rnd(lo * mult, integer), rnd(hi * mult, integer)) if hi > 0 else (lo, hi)
             # Mechanic families get their poetic phrase per tier in apply_suffix_kinds.
-            keyword = MATERIAL_WORDS[m["Name"]][i] if pool == "material" else m["Name"]
+            keyword = words[m["Name"]][i] if pool == "material" else m["Name"]
             tiers.append({"keyword": keyword, "min": tmin, "max": max(tmin, tmax),
                           "level": level, "weight": weight})
         families.append({
             "family": m["Name"], "pool": pool, "affix": "prefix", "kind": "mod", "template": m["Name"],
             "weight": round(10 * float(m.get("Weight") if m.get("Weight") is not None else 1.0), 2),
             "tags": sorted(set(event_tags(m.get("crossWire")) + event_tags(m.get("triggerWhen"))
-                               + [effect.lower(), "material" if pool == "material" else "rule"])),
+                               + [effect.lower(), "slot" if slot else "material" if pool == "material" else "rule"])),
             "integer": integer, "tiers": tiers,
         })
 

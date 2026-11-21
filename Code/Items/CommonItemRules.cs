@@ -54,7 +54,58 @@ namespace RPGGame
                 }
                 item.MinGeneratedActionBonuses = 0;
             }
+            // Mechanic prefixes (cross-wires, rules, listeners, affix templates) are not stats (D0.7). Older Commons
+            // rolled them from the material pool; a loaded one keeps its material and stat lines and gets its name back.
+            var mechanics = item.Modifications.Where(IsMechanic).ToList();
+            if (mechanics.Count > 0)
+            {
+                int slotsLost = mechanics
+                    .Where(m => string.Equals(m.Effect, "EXTRASLOTS", StringComparison.OrdinalIgnoreCase))
+                    .Sum(m => Math.Max(0, (int)Math.Round(m.RolledValue)));
+                item.Modifications.RemoveAll(IsMechanic);
+                item.ExtraActionSlots = Math.Max(0, item.ExtraActionSlots - slotsLost);
+                foreach (var m in mechanics)
+                    item.Name = DropWord(item.Name, m.Name);
+                changed = true;
+            }
             return changed;
+        }
+
+        /// <summary>The item name without a stripped line's keyword ("Dour Bone Club" → "Bone Club").</summary>
+        private static string DropWord(string? name, string? word)
+        {
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(word))
+                return name ?? "";
+            string pattern = @"(?<![\w'-])" + System.Text.RegularExpressions.Regex.Escape(word.Trim()) + @"(?![\w'-])";
+            string result = System.Text.RegularExpressions.Regex.Replace(name, pattern, "",
+                System.Text.RegularExpressions.RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(100));
+            result = System.Text.RegularExpressions.Regex.Replace(result, @"\s{2,}", " ").Trim();
+            return result.Length > 0 ? result : name;
+        }
+
+        private static readonly string[] MechanicEffects =
+        {
+            CrossWires.AffixEffect, CrossWires.RuleEffect, ListenerAffix.EffectName,
+            AffixTemplates.Tune, AffixTemplates.StoreCondition, AffixTemplates.CountsDouble,
+            AffixTemplates.Opener, AffixTemplates.Finisher, AffixTemplates.BloodPrice
+        };
+
+        /// <summary>
+        /// True for a prefix that is a mechanic rather than a stat: a material- or mechanic-pool line, or a rule /
+        /// listener / affix-template effect. The material prefix itself (Bone, Iron…) and Quality are never mechanics.
+        /// </summary>
+        public static bool IsMechanic(Modification? mod)
+        {
+            if (mod == null)
+                return false;
+            var category = mod.GetPrefixCategory();
+            if (category == ModificationPrefixCategory.Material || category == ModificationPrefixCategory.Quality)
+                return false;
+            if (mod.ModLine is { } line
+                && (line.Pool == Data.ItemGeneration.ModPools.Mechanic || line.Pool == Data.ItemGeneration.ModPools.Material))
+                return true;
+            string effect = mod.Effect?.Trim() ?? "";
+            return MechanicEffects.Any(e => string.Equals(e, effect, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

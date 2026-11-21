@@ -22,6 +22,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Helpers
                 builder.Add(" — ", Colors.Gray);
             }
 
+            if (contribution.IsRuleText)
+            {
+                AppendHighlightedDescription(builder, contribution.Label, contribution.IsDebuff);
+                return;
+            }
+
             builder.Add($"{contribution.Label}: ", ColorPalette.Info);
 
             bool debuff = contribution.IsDebuff;
