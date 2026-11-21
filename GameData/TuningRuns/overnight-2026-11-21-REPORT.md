@@ -4,7 +4,7 @@
 4.5. A bisect traced most of it to the 11-18 node cuts, not the engine refactor. Three solve passes produced
 **over-v55**: held-out clear gap **1.91**, class spread **8.0** (v49b on the same code read 4.45 / 15.5 on an earlier held-out seed set), every level within
 ±4 of target. A new rule-fire trace found and fixed a dead skill (Empty Fury) and two dead quality nodes. The synergy
-bot now considers the 18-22 skill nodes per class missing from its mined order. Tests: 0 real failures (3 known flaky). Open item:
+bot now considers the 18-22 skill nodes per class missing from its mined order. Tests: 0 real failures (4 known flaky). Open item:
 Warrior needed a ×35 damage multiplier in v55; **over-v57** swaps most of it for Warrior HP ×1.2 (held-out class spread 7.6, bands over parity 3; section 8). Nothing pushed, nothing on main.
 
 Branch `balance/overnight-2026-11-21` (worktree `.claude/worktrees/overnight-1121`), based on `d54bbb96`
