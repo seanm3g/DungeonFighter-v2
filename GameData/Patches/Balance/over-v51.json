@@ -1,0 +1,110 @@
+{
+  "base": "skillrules-v49b",
+  "enemySystem": {
+    "damageCurve": {
+      "bands": [
+        {
+          "from": 1,
+          "to": 5,
+          "multiplier": 3.471182
+        },
+        {
+          "from": 6,
+          "to": 10,
+          "multiplier": 3.166655
+        },
+        {
+          "from": 11,
+          "to": 15,
+          "multiplier": 5.015727
+        },
+        {
+          "from": 16,
+          "to": 20,
+          "multiplier": 8.258636
+        },
+        {
+          "from": 21,
+          "to": 25,
+          "multiplier": 17.944182
+        },
+        {
+          "from": 26,
+          "to": 30,
+          "multiplier": 26.473189
+        },
+        {
+          "from": 31,
+          "to": 35,
+          "multiplier": 29.326957
+        },
+        {
+          "from": 36,
+          "to": 40,
+          "multiplier": 39.858058
+        },
+        {
+          "from": 41,
+          "to": 45,
+          "multiplier": 63.524027
+        },
+        {
+          "from": 46,
+          "to": 50,
+          "multiplier": 79.076608
+        },
+        {
+          "from": 51,
+          "to": 55,
+          "multiplier": 96.942247
+        },
+        {
+          "from": 56,
+          "to": 60,
+          "multiplier": 128.48016
+        },
+        {
+          "from": 61,
+          "to": 65,
+          "multiplier": 188.027277
+        },
+        {
+          "from": 66,
+          "to": 70,
+          "multiplier": 375.496557
+        },
+        {
+          "from": 71,
+          "to": 75,
+          "multiplier": 326.560958
+        },
+        {
+          "from": 76,
+          "to": 80,
+          "multiplier": 94.191328
+        },
+        {
+          "from": 81,
+          "to": 85,
+          "multiplier": 752.508252
+        },
+        {
+          "from": 86,
+          "to": 90,
+          "multiplier": 945.851081
+        },
+        {
+          "from": 91,
+          "to": 95,
+          "multiplier": 1551.709963
+        },
+        {
+          "from": 96,
+          "to": 100,
+          "multiplier": 2946.650976
+        }
+      ]
+    }
+  },
+  "description": "Skill-node rules branch (2f028b96): enemy damage re-solved on top of cashdmg-v48a after the rule-node tuning pass. Kept 14 bands (L23 dropped). Held-out 7301-7302: clear gap 1.9 (pre-redesign v48a 5.4, v48b 3.8), class spread 17.2 (Warrior trails L38+). skillrules-v49b: skillrules-v49a + class bands ['class:Barbarian@L13', 'class:Barbarian@L53', 'class:Rogue@L13', 'class:Rogue@L63', 'class:Warrior@L38', 'class:Warrior@L43', 'class:Warrior@L48', 'class:Warrior@L63', 'class:Wizard@L23', 'class:Wizard@L48'] (balance-loop, paired confirm on seeds [7201, 7202, 7203, 7204]). over-v51: skillrules-v49b + damage bands ['damage@L13', 'damage@L18', 'damage@L23', 'damage@L28', 'damage@L33', 'damage@L63'] (balance-loop, paired confirm on seeds [7601, 7602, 7603, 7604])."
+}

@@ -1,0 +1,405 @@
+{
+  "base": "over-v51",
+  "classBalance": {
+    "barbarian": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 10,
+            "multiplier": 1
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 0.768437
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 1.658638
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 1.670176
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 0.965936
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 1.591073
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 1.464086
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 0.486327
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 0.381565
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 0.913831
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 0.272627
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 0.345079
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 0.432269
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 0.959264
+          },
+          {
+            "from": 76,
+            "to": 85,
+            "multiplier": 1
+          },
+          {
+            "from": 86,
+            "to": 90,
+            "multiplier": 1.925189
+          },
+          {
+            "from": 91,
+            "to": 100,
+            "multiplier": 1
+          }
+        ]
+      }
+    },
+    "warrior": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 5,
+            "multiplier": 1
+          },
+          {
+            "from": 6,
+            "to": 10,
+            "multiplier": 0.882703
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 0.784584
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 1.474269
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 2.34567
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 2.106722
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 8.055644
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 4.362032
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 11.23556
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 8.168098
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 35.017404
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 3.543071
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 17.753117
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 6.320333
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 9.952095
+          },
+          {
+            "from": 76,
+            "to": 80,
+            "multiplier": 1.94531
+          },
+          {
+            "from": 81,
+            "to": 85,
+            "multiplier": 3.74509
+          },
+          {
+            "from": 86,
+            "to": 90,
+            "multiplier": 1.925189
+          },
+          {
+            "from": 91,
+            "to": 95,
+            "multiplier": 1.918528
+          },
+          {
+            "from": 96,
+            "to": 100,
+            "multiplier": 1
+          }
+        ]
+      }
+    },
+    "rogue": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 5,
+            "multiplier": 1
+          },
+          {
+            "from": 6,
+            "to": 10,
+            "multiplier": 0.664343
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 0.307786
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 0.582367
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 0.662045
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 0.570382
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 0.993092
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 0.655197
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 1.580083
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 2.566852
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 1.777685
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 2.128741
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 1.647182
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 4.198867
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 4.578898
+          },
+          {
+            "from": 76,
+            "to": 80,
+            "multiplier": 3.340352
+          },
+          {
+            "from": 81,
+            "to": 85,
+            "multiplier": 6.000155
+          },
+          {
+            "from": 86,
+            "to": 100,
+            "multiplier": 1
+          }
+        ]
+      }
+    },
+    "wizard": {
+      "damageCurve": {
+        "bands": [
+          {
+            "from": 1,
+            "to": 5,
+            "multiplier": 1.526259
+          },
+          {
+            "from": 6,
+            "to": 10,
+            "multiplier": 1.248331
+          },
+          {
+            "from": 11,
+            "to": 15,
+            "multiplier": 0.779165
+          },
+          {
+            "from": 16,
+            "to": 20,
+            "multiplier": 1.675974
+          },
+          {
+            "from": 21,
+            "to": 25,
+            "multiplier": 0.98282
+          },
+          {
+            "from": 26,
+            "to": 30,
+            "multiplier": 0.76313
+          },
+          {
+            "from": 31,
+            "to": 35,
+            "multiplier": 0.469761
+          },
+          {
+            "from": 36,
+            "to": 40,
+            "multiplier": 0.115823
+          },
+          {
+            "from": 41,
+            "to": 45,
+            "multiplier": 0.275477
+          },
+          {
+            "from": 46,
+            "to": 50,
+            "multiplier": 0.166086
+          },
+          {
+            "from": 51,
+            "to": 55,
+            "multiplier": 0.976033
+          },
+          {
+            "from": 56,
+            "to": 60,
+            "multiplier": 0.154963
+          },
+          {
+            "from": 61,
+            "to": 65,
+            "multiplier": 0.258816
+          },
+          {
+            "from": 66,
+            "to": 70,
+            "multiplier": 0.328736
+          },
+          {
+            "from": 71,
+            "to": 75,
+            "multiplier": 0.515841
+          },
+          {
+            "from": 76,
+            "to": 80,
+            "multiplier": 0.517632
+          },
+          {
+            "from": 81,
+            "to": 85,
+            "multiplier": 0.521233
+          },
+          {
+            "from": 86,
+            "to": 90,
+            "multiplier": 0.359733
+          },
+          {
+            "from": 91,
+            "to": 95,
+            "multiplier": 0.512278
+          },
+          {
+            "from": 96,
+            "to": 100,
+            "multiplier": 1
+          }
+        ]
+      }
+    }
+  },
+  "description": "Skill-node rules branch (2f028b96): enemy damage re-solved on top of cashdmg-v48a after the rule-node tuning pass. Kept 14 bands (L23 dropped). Held-out 7301-7302: clear gap 1.9 (pre-redesign v48a 5.4, v48b 3.8), class spread 17.2 (Warrior trails L38+). skillrules-v49b: skillrules-v49a + class bands ['class:Barbarian@L13', 'class:Barbarian@L53', 'class:Rogue@L13', 'class:Rogue@L63', 'class:Warrior@L38', 'class:Warrior@L43', 'class:Warrior@L48', 'class:Warrior@L63', 'class:Wizard@L23', 'class:Wizard@L48'] (balance-loop, paired confirm on seeds [7201, 7202, 7203, 7204]). over-v51: skillrules-v49b + damage bands ['damage@L13', 'damage@L18', 'damage@L23', 'damage@L28', 'damage@L33', 'damage@L63'] (balance-loop, paired confirm on seeds [7601, 7602, 7603, 7604]). over-v52: over-v51 + class bands ['class:Barbarian@L28', 'class:Rogue@L18', 'class:Rogue@L23', 'class:Rogue@L28', 'class:Rogue@L38', 'class:Rogue@L53', 'class:Warrior@L33', 'class:Warrior@L43', 'class:Warrior@L53', 'class:Warrior@L68', 'class:Wizard@L28', 'class:Wizard@L3'] (balance-loop, paired confirm on seeds [7801, 7802, 7803, 7804])."
+}
