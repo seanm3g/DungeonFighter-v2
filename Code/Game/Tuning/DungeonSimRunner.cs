@@ -170,7 +170,8 @@ namespace RPGGame.Tuning
                         f.StripBreaks, f.StripCompletions, f.CarriedInStrip,
                         f.Gear, f.Affixes, f.Sets, f.Skills, f.HeroStrength, f.HeroAgility, f.HeroMaxHp,
                         f.EnemyPrefix, f.EnemyActionUses, f.HeroDamageByEnemyAction,
-                        f.EnemyAffixes, f.EnemyWanderer, f.RoomAffix, f.RoomTerrain, f.RoomWanderer, f.DemonPhase
+                        f.EnemyAffixes, f.EnemyWanderer, f.RoomAffix, f.RoomTerrain, f.RoomWanderer, f.DemonPhase,
+                        f.RuleFires, f.RuleChained, f.RuleChainsStopped
                     }))).ToList(),
                     // Smart bot sequence searches at the level (viable-set reads in Scripts/balance-scan.py).
                     Decisions = batch.ClassAggregates.SelectMany(a => a.Runs.SelectMany(r => r.SequenceDecisions.Where(d => d.HeroLevel >= level).Select(d => new

@@ -188,10 +188,19 @@ namespace RPGGame.Tuning
             {
                 double mined = minedIndex.TryGetValue(node.Id, out int idx) ? 1 - (idx - first) / span : 0;
                 // Either-or partners (synergy pass 2026-11-16) share the mined score of the listed one; fit decides between them.
-                if (!minedIndex.ContainsKey(node.Id))
+                bool listed = minedIndex.ContainsKey(node.Id);
+                if (!listed)
                     foreach (var partner in SkillTreePrerequisites.ExclusionPartners(node))
                         if (minedIndex.TryGetValue(partner.Id, out int pi))
+                        {
                             mined = Math.Max(mined, 1 - (pi - first) / span);
+                            listed = true;
+                        }
+                // Nodes the miner never saw (newer content) get a base score scaled by how well their rules fit this hero.
+                if (!listed && sd.UnlistedSkillBase > 0 && !order.Contains(node.Id, StringComparer.OrdinalIgnoreCase))
+                    mined = string.IsNullOrWhiteSpace(node.CrossWire)
+                        ? sd.UnlistedSkillBase
+                        : sd.UnlistedSkillBase * 2 * RulesSynergy.RuleFit(hero, node, strip);
                 // Fit only decides between either-or partners; other nodes keep the mined order.
                 double fit = string.IsNullOrWhiteSpace(node.CrossWire) || SkillTreePrerequisites.ExclusionPartners(node).Count == 0
                     ? 0 : sd.RuleFitScale * (RulesSynergy.RuleFit(hero, node, strip) - 0.5);

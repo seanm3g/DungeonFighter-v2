@@ -175,12 +175,12 @@
           "cost": 3,
           "maxRank": 1,
           "requires": [],
-          "effect": "Every 4th connect applies 1 Stagger per Battle Scarred / New / Masterwork piece you wear.",
+          "effect": "Every 4th connect applies 1 Stagger per Second Hand / New / Masterwork piece you wear.",
           "payoff": "Quality fantasy becomes desirable loot.",
           "customEffectId": "rule",
           "power": 1.0,
           "sharedWith": [],
-          "crossWire": "ONCONNECT EVERY 4 -> APPLY stagger 1 PER QUALITY Battle_Scarred|New|Masterwork"
+          "crossWire": "ONCONNECT EVERY 4 -> APPLY stagger 1 PER QUALITY Second_Hand|New|Masterwork"
         },
         {
           "name": "Bone Skin",
@@ -1540,12 +1540,12 @@
           "cost": 3,
           "maxRank": 1,
           "requires": [],
-          "effect": "Every 3rd connect applies 1 Bleed per Broken / Preowned / Perfect piece you wear.",
+          "effect": "Every 3rd connect applies 1 Bleed per Worn / Second Hand / Perfect piece you wear.",
           "payoff": "Quality fantasy becomes desirable loot.",
           "customEffectId": "rule",
           "power": 1.0,
           "sharedWith": [],
-          "crossWire": "ONCONNECT EVERY 3 -> APPLY bleed 1 PER QUALITY Broken|Preowned|Perfect"
+          "crossWire": "ONCONNECT EVERY 3 -> APPLY bleed 1 PER QUALITY Worn|Second_Hand|Perfect"
         },
         {
           "name": "Snake Eyes",

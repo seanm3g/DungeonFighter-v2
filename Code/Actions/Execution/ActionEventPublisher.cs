@@ -162,10 +162,11 @@ namespace RPGGame.Actions.Execution
         /// <summary>
         /// Publishes combo-chain ended (broken or completed wrap to opener).
         /// </summary>
-        public static CombatEvent PublishComboEnded(Actor source, Actor? target, Action action, int rollValue, bool isCombo, bool isCritical)
+        public static CombatEvent PublishComboEnded(Actor source, Actor? target, Action action, int rollValue, bool isCombo, bool isCritical, int comboStepReached = 0)
         {
             var comboEnded = new CombatEvent(CombatEventType.ComboEnded, source)
             {
+                ComboStepReached = comboStepReached,
                 Target = target,
                 Action = action,
                 RollValue = rollValue,

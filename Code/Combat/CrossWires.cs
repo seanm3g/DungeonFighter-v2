@@ -1056,7 +1056,8 @@ namespace RPGGame
         {
             "HP" => HealthPercent(hero),
             "MISSINGHP" => ItemTriggerMagnitude.MissingHealthPercent(hero),
-            "STEP" => hero.ComboStep,
+            // On ComboEnded the hero's step is already 0: read the step the chain reached.
+            "STEP" => evt is { Type: CombatEventType.ComboEnded, ComboStepReached: > 0 } ? evt.ComboStepReached : hero.ComboStep,
             "SLOT" => StripSlot(hero, action),
             "SLOTS" => ActionUtilities.GetComboActions(hero).Count,
             "SLOTSLEFT" => SlotsLeft(hero, action),

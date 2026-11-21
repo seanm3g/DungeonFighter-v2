@@ -75,6 +75,13 @@ namespace RPGGame.Tuning
             public double UnusedApplyShare { get; set; } = 0.5;
             /// <summary>Skill score per unit of <see cref="RuleFit"/> (0..1) for rule nodes; decides between either-or partners.</summary>
             public double RuleFitScale { get; set; } = 0.5;
+            /// <summary>
+            /// Mined score for a skill node the mined order never lists (2026-11-21: 18-22 nodes per class, the cross-wire,
+            /// Rite, Kinship and synergy-pass nodes). A rule node scores this × 2 × <see cref="RuleFit"/> (so a node whose
+            /// needs the hero half meets scores the base); other nodes score the base. 0 = old behavior (unlisted nodes
+            /// are only picked when nothing listed is available).
+            /// </summary>
+            public double UnlistedSkillBase { get; set; }
         }
 
         private static SynergyData? _data;

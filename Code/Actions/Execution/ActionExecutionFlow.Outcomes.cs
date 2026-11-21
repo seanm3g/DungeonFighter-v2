@@ -441,7 +441,7 @@ namespace RPGGame.Actions.Execution
                 return;
 
             var ended = ActionEventPublisher.PublishComboEnded(
-                comboCharacter, target, selected, result.AttackRoll, result.IsCombo, result.IsCritical);
+                comboCharacter, target, selected, result.AttackRoll, result.IsCombo, result.IsCritical, comboStepBefore);
             CombatEffectsSimplified.ApplyStatusEffects(
                 selected, comboCharacter, target, result.StatusEffectMessages, ended);
         }
@@ -502,7 +502,7 @@ namespace RPGGame.Actions.Execution
                 if (result.SelectedAction != null && stepBeforeMiss > 0)
                 {
                     var ended = ActionEventPublisher.PublishComboEnded(
-                        comboCharacterMiss, target, result.SelectedAction, result.AttackRoll, false, false);
+                        comboCharacterMiss, target, result.SelectedAction, result.AttackRoll, false, false, stepBeforeMiss);
                     CombatEffectsSimplified.ApplyStatusEffects(
                         result.SelectedAction, comboCharacterMiss, target, result.StatusEffectMessages, ended);
                 }

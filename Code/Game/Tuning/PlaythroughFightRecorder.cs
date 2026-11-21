@@ -103,6 +103,11 @@ namespace RPGGame.Tuning
         public Dictionary<string, int> Skills { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         public int HeroStrength { get; set; }
         public int HeroAgility { get; set; }
+        /// <summary>Rules resolved this fight (RuleEngine.Fired): "Kind|Owner|Rule" → count. Enemy and room owners included.</summary>
+        public Dictionary<string, int> RuleFires { get; set; } = new(StringComparer.Ordinal);
+        /// <summary>Fires on rule-raised events (generation 1+), and events dropped past RuleEngine.MaxGeneration.</summary>
+        public int RuleChained { get; set; }
+        public int RuleChainsStopped { get; set; }
     }
 
     /// <summary>
@@ -161,6 +166,24 @@ namespace RPGGame.Tuning
             _bus.Subscribe(CombatEventType.ActionMiss, OnMiss);
             _bus.Subscribe(CombatEventType.StatusEffectApplied, OnStatusApplied);
             DamageLedger.Report = _onDamage;
+            RPGGame.Combat.Rules.RuleEngine.Fired += OnRuleFired;
+            RPGGame.Combat.Rules.RuleEngine.ChainStopped += OnChainStopped;
+        }
+
+        private void OnRuleFired(Character who, RPGGame.Combat.Rules.RuleFire fire)
+        {
+            if (Suspended || _current == null)
+                return;
+            string key = $"{fire.Kind}|{fire.Owner}|{fire.Rule}";
+            _current.RuleFires[key] = _current.RuleFires.TryGetValue(key, out int n) ? n + 1 : 1;
+            if (fire.Generation > 0)
+                _current.RuleChained++;
+        }
+
+        private void OnChainStopped(Character who, string name)
+        {
+            if (!Suspended && _current != null)
+                _current.RuleChainsStopped++;
         }
 
         /// <summary>Marks a new dungeon: fight and room counters restart.</summary>
@@ -493,6 +516,8 @@ namespace RPGGame.Tuning
 
         private void Unsubscribe()
         {
+            RPGGame.Combat.Rules.RuleEngine.Fired -= OnRuleFired;
+            RPGGame.Combat.Rules.RuleEngine.ChainStopped -= OnChainStopped;
             if (_bus == null)
                 return;
             _bus.Unsubscribe(CombatEventType.ActionExecuted, OnAction);

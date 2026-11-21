@@ -341,8 +341,12 @@ namespace RPGGame.Tests.Unit.UI
             var hero = new Character("Stats", 1);
             var wand = new WeaponItem("Stick", tier: 1, baseDamage: 5, baseAttackSpeed: 0.5, WeaponType.Wand);
             var stats = ItemStatFormatter.GetItemStats(wand, hero);
-            var ok = stats.Contains("Action slots: +1");
-            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine("  FAIL: Wand weapons should show +1 class action slot"); }
+            // The bonus is patch data (wandEquippedComboSlotBonus, 0 in recent patches): expect what is configured.
+            int bonus = ClassPresentationConfig.GetEquippedWeaponComboSlotBonus(WeaponType.Wand);
+            var ok = bonus > 0
+                ? stats.Contains($"Action slots: +{bonus}")
+                : !stats.Any(s => s.StartsWith("Action slots: +", StringComparison.Ordinal) && s != "Action slots: +0");
+            if (ok) _testsPassed++; else { _testsFailed++; Console.WriteLine($"  FAIL: Wand weapons should show the configured +{bonus} class action slot"); }
         }
 
         private static void TestCatalogAttributesCollected()

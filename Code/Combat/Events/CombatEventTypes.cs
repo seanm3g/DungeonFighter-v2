@@ -50,6 +50,9 @@ namespace RPGGame.Combat.Events
         public int StatValue { get; set; }
         /// <summary>Dungeon rooms cleared count for <see cref="CombatEventType.RoomCleared"/> (1-based after increment).</summary>
         public int RoomsClearedCount { get; set; }
+        /// <summary>For <see cref="CombatEventType.ComboEnded"/>: the combo step the chain had reached before it reset
+        /// (the hero's step is already 0 when the event fires). Rule conditions read it as STEP.</summary>
+        public int ComboStepReached { get; set; }
 
         public CombatEvent(CombatEventType type, Actor source)
         {

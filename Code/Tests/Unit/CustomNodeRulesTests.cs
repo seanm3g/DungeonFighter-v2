@@ -33,6 +33,7 @@ namespace RPGGame.Tests.Unit
             TestSnakeEyes();
             TestSecondWind();
             TestSecondChance();
+            TestComboEndReadsStepReached();
             TestDaggerMastery();
 
             TestBase.PrintSummary("CustomNodeRules Tests", _run, _passed, _failed);
@@ -168,6 +169,21 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(hero.CurrentHealth > hp, "Second Wind heals when the combo ends", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(fortify + 3, Stores.Get(hero, "fortify"), "Focus becomes Fortify", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, Stores.Get(hero, "focus"), "Focus is spent", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestComboEndReadsStepReached()
+        {
+            // ComboEnded fires after the step resets to 0; STEP must read the step the chain reached (Empty Fury).
+            var hero = Hero("EndHero", WeaponType.Mace);
+            var foe = new Character("EndFoe", 5);
+            var rule = CrossWireRule.Parse("ONCOMBOEND IF STEP>=3 -> MINT RAGE 1", "test")!;
+            hero.ComboStep = 0;
+            var ended = new CombatEvent(CombatEventType.ComboEnded, hero) { Target = foe, ComboStepReached = 4 };
+            TestBase.AssertTrue(CrossWires.ConditionsHold(hero, foe, rule, 0, ended), "a chain that reached step 4 passes STEP>=3",
+                ref _run, ref _passed, ref _failed);
+            var shortEnd = new CombatEvent(CombatEventType.ComboEnded, hero) { Target = foe, ComboStepReached = 2 };
+            TestBase.AssertTrue(!CrossWires.ConditionsHold(hero, foe, rule, 0, shortEnd), "a chain that reached step 2 fails STEP>=3",
+                ref _run, ref _passed, ref _failed);
         }
 
         private static void TestSecondChance()
