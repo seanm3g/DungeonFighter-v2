@@ -415,9 +415,12 @@ namespace RPGGame.LootReveal
         private int emittedLog;
         private int emittedEntry = -1;
         private int emittedBeats;
-        private bool emittedPrompt;
 
-        public static string ChoicePrompt => SalvageEnabled ? "[E] Equip   [K] Keep   [S] Salvage" : "[E] Equip   [K] Keep";
+        /// <summary>
+        /// Playtest 2026-11-21: the reveal ends each item with a single Continue (the item stays in the bag, as Keep did).
+        /// No Equip / Keep prompt is printed; the footer shows only the Continue button.
+        /// </summary>
+        public static string ChoicePrompt => "";
 
         /// <summary>
         /// The lines not yet printed, for a screen that appends to its log: results of decided items, the next item's
@@ -438,41 +441,33 @@ namespace RPGGame.LootReveal
             {
                 emittedEntry = Index;
                 emittedBeats = 0;
-                emittedPrompt = false;
                 lines.Add("");
                 lines.Add($"LOOT {Index + 1} of {Entries.Count}");
             }
             for (; emittedBeats < BeatsShown && emittedBeats < e.Beats.Count; emittedBeats++)
                 lines.Add(e.Beats[emittedBeats]);
-            if (AwaitingChoice && !emittedPrompt)
-            {
-                emittedPrompt = true;
-                lines.Add($"{ChoicePrompt}   (Continue = {e.Suggested})");
-            }
             return lines;
         }
 
         /// <summary>
-        /// One input from the completion screen while a reveal runs: E / K / S decide once the verdict is out;
-        /// Continue shows the next beat, or applies the pre-marked choice on the verdict. Returns false for keys it ignores.
+        /// One input from the completion screen while a reveal runs: Continue shows the next beat; on the verdict it
+        /// moves on and the item stays in the bag (Keep). Playtest 2026-11-21: no Equip / Keep choice here, equip from
+        /// the inventory. Returns false for keys it ignores.
         /// </summary>
         public bool HandleInput(string? input)
         {
             string key = (input ?? "").Trim().ToLowerInvariant();
-            if (Current is not { } e)
+            if (Current is null)
                 return false;
+            bool isContinue = key is "1" or "enter" or "continue" or "";
             if (AwaitingChoice)
             {
-                switch (key)
-                {
-                    case "e": Choose(LootChoice.Equip); return true;
-                    case "k": Choose(LootChoice.Keep); return true;
-                    case "s" when SalvageEnabled: Choose(LootChoice.Salvage); return true;
-                    case "1": case "enter": case "continue": case "": Choose(e.Suggested); return true;
-                    default: return false;
-                }
+                if (!isContinue)
+                    return false;
+                Choose(LootChoice.Keep);
+                return true;
             }
-            if (key is "1" or "enter" or "continue" or "" or "e" or "k" || (key == "s" && SalvageEnabled))
+            if (isContinue)
             {
                 Advance();
                 return true;
@@ -493,8 +488,6 @@ namespace RPGGame.LootReveal
                 return lines;
             lines.Add($"LOOT {Index + 1} of {Entries.Count}");
             lines.AddRange(e.Beats.Take(BeatsShown));
-            if (AwaitingChoice)
-                lines.Add($"{ChoicePrompt}      (suggested: {e.Suggested})");
             return lines;
         }
     }

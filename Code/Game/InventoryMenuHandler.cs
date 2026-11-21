@@ -149,6 +149,11 @@
                 return;
             if (stateTracker.InComboManagement)
                 canvasUI.RenderComboManagement(player);
+            else if ((stateTracker.WaitingForTradeUpConfirmation || stateTracker.WaitingForRaritySelection)
+                && tradeUpHandler.RefreshOpenPrompt())
+            {
+                // Trade Up stays open through hover / left-panel redraws (playtest 2026-11-21).
+            }
             else
             {
                 var inv = stateManager.CurrentInventory ?? player.Inventory ?? new List<Item>();
@@ -902,12 +907,28 @@
 
             if (mainInventoryListVisible && customUIManager is CanvasUICoordinator canvasUI)
             {
-                canvasUI.AdjustInventoryItemScroll(itemDelta);
+                // Up / Down arrows move the selected item (new inventory and F1 detail view); the wheel and Page keys scroll.
+                string key = input.Trim().ToLowerInvariant();
+                bool moved = (key == "up" || key == "down")
+                    && stateManager.CurrentPlayer is { } hero
+                    && canvasUI.MoveInventorySelection(key == "up" ? -1 : 1, InventoryScreenRenderer.BuildDisplayEntries(
+                        stateManager.CurrentInventory ?? hero.Inventory ?? new List<Item>(),
+                        hero,
+                        stateTracker.ItemSortMode,
+                        stateTracker.HideRequirementBlockedItems,
+                        stateTracker.InventoryEquipSlotFilter,
+                        stateTracker.InventoryMaterialFilter));
+                if (!moved)
+                    canvasUI.AdjustInventoryItemScroll(itemDelta);
                 RefreshInventoryScreen();
             }
 
             return true;
         }
+
+        /// <summary>Mouse wheel over the inventory center: scrolls the list (the Up / Down keys move the selection instead).</summary>
+        public const string WheelScrollUpInput = "wheelup";
+        public const string WheelScrollDownInput = "wheeldown";
 
         private static bool TryGetInventoryItemScrollDelta(string input, out int itemDelta)
         {
@@ -915,9 +936,11 @@
             switch (input.Trim().ToLowerInvariant())
             {
                 case "up":
+                case WheelScrollUpInput:
                     itemDelta = -InventoryItemScrollLayout.ScrollStepItems;
                     return true;
                 case "down":
+                case WheelScrollDownInput:
                     itemDelta = InventoryItemScrollLayout.ScrollStepItems;
                     return true;
                 case "pageup":

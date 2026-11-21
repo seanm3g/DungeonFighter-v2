@@ -492,10 +492,7 @@ namespace RPGGame.MCP.Screens
                 rv.Body.AddRange(reveal.CurrentLines());
                 if (reveal.AwaitingChoice)
                 {
-                    rv.Choices.Add(new AgentChoice { Input = "e", Label = $"Equip {entry.Item.Name}", Recommended = entry.Suggested == RPGGame.LootReveal.LootChoice.Equip });
-                    rv.Choices.Add(new AgentChoice { Input = "k", Label = $"Keep {entry.Item.Name} in the bag", Recommended = entry.Suggested == RPGGame.LootReveal.LootChoice.Keep });
-                    if (RPGGame.LootReveal.LootRevealSession.SalvageEnabled)
-                        rv.Choices.Add(new AgentChoice { Input = "s", Label = $"Salvage {entry.Item.Name}", Recommended = entry.Suggested == RPGGame.LootReveal.LootChoice.Salvage });
+                    rv.Choices.Add(new AgentChoice { Input = "1", Label = $"Continue ({entry.Item.Name} goes to the bag)", Recommended = true });
                 }
                 else
                 {

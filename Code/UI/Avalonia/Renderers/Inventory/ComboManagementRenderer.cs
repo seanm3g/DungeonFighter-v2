@@ -116,7 +116,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
             // --- Sequence ---
             canvas.AddText(left, seqY, $"Action Sequence:  {combo.Count}/{cap} slots", gold);
-            canvas.AddText(hintX, seqY, Truncate("drag between to move, onto a card to swap, off to remove (or click)  |  F1: above/below library  |  Esc: back", hintW), AsciiArtAssets.Colors.DarkGray);
+            canvas.AddText(hintX, seqY, Truncate("drag between to move, onto a card to swap, off (or right-click) to remove  |  F1: above/below library  |  Esc: back", hintW), AsciiArtAssets.Colors.DarkGray);
             // Sequence info: totals over the cards and the combo speed (chain time when every combo roll lands).
             if (combo.Count > 0)
             {

@@ -348,29 +348,7 @@ namespace RPGGame.UI.Avalonia.Renderers
 
 
 
-            // Rebuild 2.4: while a loot choice is due, the footer offers Equip / Keep (Salvage only if switched back on, Q4) instead of Continue.
-            if (RPGGame.LootReveal.LootRevealSession.Active is { AwaitingChoice: true } reveal)
-            {
-                var choices = RPGGame.LootReveal.LootRevealSession.SalvageEnabled
-                    ? new[] { ("e", "EQUIP"), ("k", "KEEP"), ("s", "SALVAGE") }
-                    : new[] { ("e", "EQUIP"), ("k", "KEEP") };
-                int bw = 13, gap = 2, total = choices.Length * bw + (choices.Length - 1) * gap;
-                int bx = textAreaLeft + System.Math.Max(0, (textAreaWidth - total) / 2);
-                int by = menuStartY - 1;
-                string suggested = reveal.Current?.Suggested.ToString().ToUpperInvariant() ?? "";
-                foreach (var (key, text) in choices)
-                {
-                    bool pick = text == suggested;
-                    var border = pick ? ColorPaletteExtensions.GetColor(ColorPalette.Success) : Color.FromRgb(140, 140, 140);
-                    canvas.AddBox(bx, by, bw, 3, border, Color.FromRgb(236, 236, 236), borderThicknessPixels: pick ? 3 : 2, aboveBackdrop: true);
-                    string shown = $"[{key.ToUpperInvariant()}] {text}";
-                    canvas.AddText(bx + System.Math.Max(1, (bw - shown.Length) / 2), by + 1, shown, Color.FromRgb(20, 20, 20));
-                    clickableElements.Add(new ClickableElement { X = bx, Y = by, Width = bw, Height = 3, Type = ElementType.MenuOption, Value = key, DisplayText = shown });
-                    bx += bw + gap;
-                }
-                return;
-            }
-
+            // Playtest 2026-11-21: the loot reveal uses the same single Continue button (the item stays in the bag).
             // Single Continue button: the inventory is the hub (Dungeon Select, Skill Tree, Travel, Main Menu).
             // Drawn as a boxed button (3 rows tall, centered on the menu row); key 1 still works.
             const string label = "CONTINUE";

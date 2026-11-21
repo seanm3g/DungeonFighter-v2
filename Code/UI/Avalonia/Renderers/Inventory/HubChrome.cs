@@ -80,6 +80,8 @@
                 && !InventoryTradeUpHandler.CanTradeUp(character.Inventory);
             // An open strip slot with a spare action to fill it marks the Actions tab (prompt only, nothing auto-fills).
             bool actionsPrompt = character != null && active != HubTab.Actions && StripSlotPrompt.ShouldPrompt(character);
+            // Unspent skill points with a skill they can buy mark the Skills tab the same way.
+            bool skillsPrompt = character != null && active != HubTab.Skills && SkillTreeService.HasLearnableSkill(character.Progression);
             Color frame = frameColor ?? PanelJoin.Border(AsciiArtAssets.Colors.Cyan);
             double baseY = y + 1.5;
             double frameLeft = joinedFrame ? PanelJoin.CenterFrameLeft : LayoutConstants.CENTER_PANEL_X;
@@ -94,7 +96,7 @@
             {
                 bool isActive = tab == active;
                 bool disabled = locked || (tradeUpDisabled && tab == HubTab.TradeUp);
-                bool marked = actionsPrompt && tab == HubTab.Actions;
+                bool marked = (actionsPrompt && tab == HubTab.Actions) || (skillsPrompt && tab == HubTab.Skills);
                 string text = marked ? $" •{label}  " : $"  {label}  ";
                 if (cx + text.Length > right)
                     break;

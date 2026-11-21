@@ -479,6 +479,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             var visibleRange = InventoryItemScrollLayout.CalculateVisibleRange(lineCounts, firstIndex, Math.Max(0, availableRows - indicatorRows));
 
             var selected = ResolveDetailViewSelection(displayEntries, selectedInventoryIndex, visibleRange.FirstIndex);
+            LastListVisibleCount = Math.Max(1, visibleRange.VisibleItemCount);
 
             int rowY = topY;
             if (showScrollStatus && visibleRange.HasItemsAbove)
@@ -535,6 +536,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
 
         /// <summary>Last scroll row that still fills the grid (set every grid render; the coordinator caps scrolling at it).</summary>
         public static int LastGridMaxFirstRow { get; private set; }
+
+        /// <summary>Items the last grid / detail list render showed at once (Up / Down keep the selection inside it).</summary>
+        public static int LastListVisibleCount { get; private set; } = 1;
 
         /// <summary>Square-in-pixels tile width (columns) for <paramref name="tileRows"/> rows of the current font.</summary>
         internal static int GridTileColumns(double charWidth, double charHeight, int tileRows)
@@ -607,7 +611,8 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (item == null || character == null)
                 return 0;
 
-            int rows = WrappedLineCount(ItemRendererHelper.BuildItemNameSegments(-1, item, character), width) + 1;
+            // Name, the item level line, then a blank row (as RenderDetailPane draws them).
+            int rows = WrappedLineCount(ItemRendererHelper.BuildItemNameSegments(-1, item, character), width) + 2;
             var itemActions = character.Equipment.GetGearActions(item);
             if (itemActions != null && itemActions.Count > 0)
                 rows += WrappedLineCount(BuildActionsLine(itemActions), width);
@@ -724,6 +729,9 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             return result;
         }
 
+        /// <summary>"Item Level 12": the level the item rolled at (<see cref="Item.Level"/>), shown under the detail pane header.</summary>
+        internal static string ItemLevelLine(Item item) => $"Item Level {Math.Max(1, item?.Level ?? 1)}";
+
         private static List<ColoredText> BuildActionsLine(IReadOnlyList<string> itemActions)
         {
             var actionsBuilder = new ColoredTextBuilder();
@@ -784,6 +792,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             int visibleRows = Math.Max(1, (bottomY - topY - statusRows) / rowH);
             int maxFirst = Math.Max(0, displayEntries.Count - visibleRows);
             LastGridMaxFirstRow = maxFirst;
+            LastListVisibleCount = visibleRows;
             int firstIndex = Math.Clamp(itemScrollOffset, 0, maxFirst);
 
             var selected = ResolveDetailViewSelection(displayEntries, selectedInventoryIndex, firstIndex);
@@ -1101,8 +1110,12 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         private void RenderDetailPane(int x, int y, int width, int bottomY, Item item, Character character, ref int currentLineCount)
         {
             int written = textWriter.WriteLineColoredWrapped(ItemRendererHelper.BuildItemNameSegments(-1, item, character), x, y, width);
-            y += written + 1;
-            currentLineCount += written + 1;
+            y += written;
+            currentLineCount += written;
+            // The item level (from item generation) sits right under the rarity / type header.
+            canvas.AddText(x, y, ItemLevelLine(item), AsciiArtAssets.Colors.Gray);
+            y += 2;
+            currentLineCount += 2;
 
             var itemActions = character.Equipment.GetGearActions(item);
             if (itemActions != null && itemActions.Count > 0 && y < bottomY)

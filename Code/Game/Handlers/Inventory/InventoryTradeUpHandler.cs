@@ -163,6 +163,44 @@
         }
         
         /// <summary>
+        /// Redraws the open trade-up prompt (rarity pick or the stored preview) without rolling a new preview. Hover and
+        /// left-panel refreshes call this so a tooltip over the hero panel does not swap the prompt for the plain inventory.
+        /// Returns false when no trade-up prompt is open.
+        /// </summary>
+        public bool RefreshOpenPrompt()
+        {
+            if (stateManager.CurrentPlayer == null || customUIManager is not CanvasUICoordinator canvasUI)
+                return false;
+            if (stateTracker.WaitingForTradeUpConfirmation
+                && stateTracker.PreviewTradeUpItem is { } preview
+                && !string.IsNullOrEmpty(stateTracker.SelectedTradeUpRarity)
+                && GetNextRarity(stateTracker.SelectedTradeUpRarity) is { } next)
+            {
+                string rarity = stateTracker.SelectedTradeUpRarity;
+                var itemsToTrade = stateManager.CurrentInventory
+                    .Where(IsTradeUpCandidate)
+                    .Where(item => (item.Rarity ?? "Common").Equals(rarity, StringComparison.OrdinalIgnoreCase))
+                    .Take(5)
+                    .ToList();
+                canvasUI.RenderTradeUpPreview(stateManager.CurrentPlayer, itemsToTrade, preview, rarity, next);
+                return true;
+            }
+            if (stateTracker.WaitingForRaritySelection)
+            {
+                var tradeable = stateManager.CurrentInventory
+                    .Where(IsTradeUpCandidate)
+                    .GroupBy(item => item.Rarity ?? "Common")
+                    .Where(group => group.Count() >= 5)
+                    .OrderBy(group => GetRarityOrder(group.Key))
+                    .Where(group => GetNextRarity(group.Key) != null)
+                    .ToList();
+                canvasUI.RenderRaritySelectionPrompt(stateManager.CurrentPlayer, tradeable);
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
         /// Performs the trade-up operation for a specific rarity (called after confirmation)
         /// </summary>
         public void PerformTradeUp(string rarity)

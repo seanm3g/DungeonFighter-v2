@@ -245,6 +245,34 @@ namespace RPGGame
         public static bool IsRevealed(CharacterProgression progression, SkillTreeNodeDefinition node, int revealedMaxTier) =>
             node.Tier <= revealedMaxTier || progression.GetSkillRank(node.Id) > 0;
 
+        /// <summary>
+        /// True when the hero has unspent skill points and at least one skill they can learn with them right now (any
+        /// class tree they have points on, plus the hybrid rail). Drives the Skills tab's notification dot.
+        /// </summary>
+        public static bool HasLearnableSkill(CharacterProgression? progression)
+        {
+            if (progression == null || Trees?.Trees == null)
+                return false;
+            try
+            {
+                progression.EnsureSkillTreeRootsGranted();
+                var nodes = new List<SkillTreeNodeDefinition>();
+                foreach (var path in GetViewablePaths(progression))
+                {
+                    if (progression.GetAvailableSkillPoints(path) <= 0)
+                        continue;
+                    if (Trees.GetTreeForWeapon(path) is { } tree)
+                        nodes.AddRange(tree.Nodes);
+                }
+                nodes.AddRange(GetSharedRailNodes(progression));
+                return nodes.Any(n => GetNodeState(progression, n) == NodeViewState.Available);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public enum NodeViewState
         {
             /// <summary>At max rank.</summary>

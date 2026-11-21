@@ -352,8 +352,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             int scrollOffset,
             string? statusMessage)
         {
-            // Wipe prior center content so scroll/selection redraws never stack text, boxes or wires.
-            clickableElements.Clear();
+            // Wipe prior center content so scroll/selection redraws never stack text, boxes or wires. Only this area's
+            // click targets go: the left (hero) panel registered its section toggles / hover rows before the tree drew.
+            clickableElements.RemoveAll(e => e.X >= x && e.X < x + width && e.Y >= y && e.Y < y + height);
             canvas.ClearTextInArea(x, y, width, height);
             canvas.ClearBoxesInArea(x, y, width, height);
             canvas.ClearLinesInArea(x, y, width, height);

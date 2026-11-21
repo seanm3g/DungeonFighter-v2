@@ -296,7 +296,7 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             if (gameRef?.StateManager?.CurrentState == GameState.Inventory)
             {
-                _ = gameRef.HandleInput(delta > 0 ? "up" : "down");
+                _ = gameRef.HandleInput(delta > 0 ? InventoryMenuHandler.WheelScrollUpInput : InventoryMenuHandler.WheelScrollDownInput);
                 e.Handled = true;
                 return;
             }
@@ -804,7 +804,7 @@ namespace RPGGame.UI.Avalonia.Handlers
         }
 
         /// <summary>
-        /// Inventory Actions tab: right-click a sequence card (<c>cpi:rm:N</c>) takes it out, same as a left click.
+        /// Inventory Actions tab: right-click a sequence card (<c>cpi:rm:N</c>) takes it out (a left click only inspects it).
         /// </summary>
         private bool TryHandleSequenceCardRightClickRemove(Point position)
         {
@@ -853,7 +853,7 @@ namespace RPGGame.UI.Avalonia.Handlers
 
         /// <summary>
         /// Action Sequence editor: a press on a library card (<c>cpi:pool:N</c>) or a sequence card (<c>cpi:rm:N</c>) arms a
-        /// drag. The click is deferred to release so a press-and-release in place still adds / removes.
+        /// drag. The click is deferred to release so a press-and-release in place still adds (a sequence card click does nothing).
         /// </summary>
         private bool TryArmActionSequenceDrag(PointerPressedEventArgs e, Point position)
         {
@@ -905,7 +905,12 @@ namespace RPGGame.UI.Avalonia.Handlers
 
             if (!moved)
             {
-                HandleMouseClick(_actionSequenceDragPress);
+                // Playtest 2026-11-21: a left click on a sequence card only inspects it (the details panel follows hover);
+                // it is taken out by a right-click or by dragging it off the sequence. A library card click still adds.
+                if (fromSequence >= 0)
+                    game?.RefreshPersistentChromeAfterStatsToggle();
+                else
+                    HandleMouseClick(_actionSequenceDragPress);
                 return;
             }
             if (game == null)

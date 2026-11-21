@@ -45,7 +45,7 @@ namespace RPGGame
             stateManager.SetCurrentDungeon(null!);
             stateManager.SetCurrentRoom(null!);
 
-            // Rebuild 2.4 (D4.5): the summary is up; now the loot reveals item by item, then Equip / Keep / Salvage.
+            // Rebuild 2.4 (D4.5): the summary is up; now the loot reveals item by item, then Continue (the item stays in the bag).
             if (RPGGame.LootReveal.LootRevealSession.Active is { } reveal)
             {
                 // Q5: a press while a beat is still animating finishes it first.
@@ -56,7 +56,7 @@ namespace RPGGame
                 }
                 if (!reveal.HandleInput(input))
                     ShowMessageEvent?.Invoke(reveal.AwaitingChoice
-                        ? (RPGGame.LootReveal.LootRevealSession.SalvageEnabled ? "Press E to equip, K to keep or S to salvage." : "Press E to equip or K to keep.")
+                        ? "Press Continue: the item goes to your bag."
                         : "Press Continue to see the rest of this item.");
                 if (UIManager.GetCustomUIManager() is RPGGame.UI.Avalonia.CanvasUICoordinator revealCanvas && stateManager.CurrentPlayer != null)
                     revealCanvas.AppendLootRevealLines(stateManager.CurrentPlayer, reveal.TakeNewLines());

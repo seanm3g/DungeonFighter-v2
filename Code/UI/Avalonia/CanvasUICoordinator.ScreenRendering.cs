@@ -146,6 +146,40 @@ namespace RPGGame.UI.Avalonia
                 inventoryItemScrollOffset = Math.Min(inventoryItemScrollOffset, InventoryScreenRenderer.LastGridMaxFirstRow);
         }
 
+        /// <summary>
+        /// Up / Down in the new inventory (grid) or the F1 detail view: moves the described item by
+        /// <paramref name="delta"/> rows in display order (clamped at the ends) and scrolls just enough to keep it visible.
+        /// Returns false when neither view is on or the list is empty (the caller then scrolls instead).
+        /// </summary>
+        public bool MoveInventorySelection(int delta, IReadOnlyList<InventoryDisplayEntry> entries)
+        {
+            if (!(inventoryGridViewEnabled || inventoryDetailViewEnabled) || entries == null || entries.Count == 0)
+                return false;
+            int count = entries.Count;
+            int first = Math.Clamp(inventoryItemScrollOffset, 0, count - 1);
+            int current = -1;
+            for (int i = 0; i < count; i++)
+            {
+                if (entries[i].InventoryIndex == inventoryDetailSelectedIndex)
+                {
+                    current = i;
+                    break;
+                }
+            }
+            // Nothing picked yet (or an equipped slot is in the pane): the pane shows the first visible row.
+            if (current < 0)
+                current = first;
+            int next = Math.Clamp(current + delta, 0, count - 1);
+            inventoryDetailSelectedIndex = entries[next].InventoryIndex;
+            inventoryDetailSelectedSlot = null;
+            int visible = Math.Max(1, InventoryScreenRenderer.LastListVisibleCount);
+            if (next < first)
+                inventoryItemScrollOffset = next;
+            else if (next >= first + visible)
+                inventoryItemScrollOffset = next - visible + 1;
+            return true;
+        }
+
         public void ResetInventoryItemScroll()
         {
             inventoryItemScrollOffset = 0;

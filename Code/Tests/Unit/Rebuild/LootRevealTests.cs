@@ -4,7 +4,7 @@ using RPGGame.LootReveal;
 
 namespace RPGGame.Tests.Unit.Rebuild
 {
-    /// <summary>Rebuild 2.4 (D4.5): summary, then a staged reveal per item, then Equip / Keep (Salvage off, Q4).</summary>
+    /// <summary>Rebuild 2.4 (D4.5): summary, then a staged reveal per item, then Continue (the item stays in the bag).</summary>
     public static class LootRevealTests
     {
         private static int _run, _passed, _failed;
@@ -49,13 +49,16 @@ namespace RPGGame.Tests.Unit.Rebuild
                     session.HandleInput("1");
                 TestBase.AssertTrue(session.AwaitingChoice, $"Continue walks the beats to the verdict ({steps} presses)", ref _run, ref _passed, ref _failed);
                 var oldHead = hero.Head;
-                session.HandleInput("e");
-                TestBase.AssertTrue(ReferenceEquals(hero.Head, rare) && hero.Inventory.Contains(oldHead!) && !hero.Inventory.Contains(rare),
-                    "Equip wears it and the old piece goes to the bag", ref _run, ref _passed, ref _failed);
+                // Playtest 2026-11-21: no Equip / Keep on the reveal; E and K are ignored and Continue keeps the item.
+                TestBase.AssertFalse(session.HandleInput("e") || session.HandleInput("k"), "E / K are ignored on the verdict", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(session.CurrentLines().All(l => !l.Contains("[E]") && !l.Contains("[K]")), "No Equip / Keep prompt line", ref _run, ref _passed, ref _failed);
+                session.HandleInput("1");
+                TestBase.AssertTrue(ReferenceEquals(hero.Head, oldHead) && hero.Inventory.Contains(rare),
+                    "Continue leaves the item in the bag and the worn piece on", ref _run, ref _passed, ref _failed);
                 TestBase.AssertTrue(session.IsDone && LootRevealSession.Active == null, "The reveal ends after the last item", ref _run, ref _passed, ref _failed);
 
                 var lines = session.TakeNewLines();
-                TestBase.AssertTrue(lines.Any(l => l.StartsWith("Equipped")), "The screen prints what happened", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(lines.Any(l => l.StartsWith("Kept")) && lines.All(l => !l.Contains("[E]")), "The screen prints what happened", ref _run, ref _passed, ref _failed);
                 TestBase.AssertTrue(LootRevealSession.Start(hero, Array.Empty<Item>()) == null, "No loot, no reveal", ref _run, ref _passed, ref _failed);
 
                 // The switch back on restores the old discard.

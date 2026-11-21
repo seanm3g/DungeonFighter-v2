@@ -325,7 +325,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 bool hubTabs = Inventory.HubTabBar.IsActive;
                 int tabRows = hubTabs ? 2 : 0; // labels + the row the tab baseline runs through
                 skillTreeRenderer.RenderSkillTree(x, y + tabRows, w, h - tabRows, player, selectedIndex, scrollOffset, statusMessage);
-                // After the tree: it resets the click targets when it draws.
+                // After the tree: it resets the click targets inside its area when it draws.
                 if (hubTabs)
                     Inventory.HubTabBar.Draw(canvas, interactionManager.AddClickableElement, x + 1, y, w - 2, Inventory.HubTab.Skills,
                         frameColor: AsciiArtAssets.Colors.Cyan, joinedFrame: false, character: player);
