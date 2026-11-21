@@ -35,6 +35,7 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
             TestActionBonusDurationFollowsComboBonusDurationWhenGroupCountStale();
             TestActionLabForcedGetActionUsesLoaderCadenceDuration();
             TestWindUpBuffsSlamDamage();
+            TestWindUpAsFinisherBuffsNextOpener();
             PrepActionFlowTests.RunAll(ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             testsRun += _testsRun;
@@ -118,6 +119,62 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
+        /// <summary>
+        /// Playtest 11-21: the starter mace strip is [SLAM, WIND UP]. WIND UP is the finisher, so its "Next action"
+        /// grant must carry to the next cycle's SLAM instead of being clipped away.
+        /// </summary>
+        private static void TestWindUpAsFinisherBuffsNextOpener()
+        {
+            Console.WriteLine("\n--- [SLAM, WIND UP]: finisher WIND UP buffs the next SLAM ---\n");
+            if (ActionLoader.GetAction("WIND UP") == null || ActionLoader.GetAction("SLAM") == null)
+            {
+                TestBase.AssertTrue(false, "WIND UP and SLAM load", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                return;
+            }
+
+            const int comboRoll = 19;
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            var hero = new Character("TestHero", 1);
+            var slam = ActionLoader.GetAction("SLAM")!;
+            var windUp = ActionLoader.GetAction("WIND UP")!;
+            slam.IsComboAction = true;
+            slam.ComboOrder = 1;
+            windUp.IsComboAction = true;
+            windUp.ComboOrder = 2;
+            hero.Stats.Strength = 60;
+            hero.AddAction(slam, 1.0);
+            hero.AddAction(windUp, 1.0);
+            hero.Actions.AddToCombo(slam);
+            hero.Actions.AddToCombo(windUp);
+            hero.ComboStep = 1;
+            var enemy = new Enemy("TestEnemy", 1, 5000, 0, 0, 0, 0);
+            try
+            {
+                Dice.SetTestRoll(comboRoll);
+                ActionSelector.SetStoredActionRoll(hero, comboRoll);
+                var r1 = ActionExecutionFlow.Execute(hero, enemy, null, null, windUp, null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(r1.Hit && r1.IsCombo, "Finisher WIND UP hit+combo", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(hero.Effects.ShouldPeekActionCadenceBankForExecutedSlot(0),
+                    "Finisher WIND UP banks its bonus for the opener (slot 0)", ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+                hero.ComboStep = 0;
+                Dice.SetTestRoll(comboRoll);
+                ActionSelector.SetStoredActionRoll(hero, comboRoll);
+                var r2 = ActionExecutionFlow.Execute(hero, enemy, null, null, slam, null, lastUsed, lastCritMiss);
+                double traced = r2.DamageTrace?.NextActionDamageModPercent ?? 0;
+                TestBase.AssertTrue(Math.Abs(traced - 25) < 0.001,
+                    $"Next-cycle SLAM gets WIND UP's +25% ({traced})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+                TestBase.AssertTrue(!hero.Effects.HasPendingActionCadenceBank(),
+                    "The bank is spent on SLAM", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
+        }
+
 
 
         /// <summary>
@@ -175,6 +232,8 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 }
                 var setupAction = comboActions[0];
                 var finisherAction = comboActions[1];
+                // The finisher's own ×1 grant now carries to the next opener (playtest 11-21); drop it so only the consumed bank is checked.
+                finisherAction.ActionAttackBonuses = null;
                 var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
 
                 // Step 1: Execute SetupStrike (has "For next ACTION: +3 COMBO")
@@ -242,6 +301,8 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 var comboActions = character.GetComboActions();
                 var setup = comboActions[0];
                 var finisher = comboActions[1];
+                // The finisher's own ×1 grant now carries to the next opener (playtest 11-21); drop it so only the consumed bank is checked.
+                finisher.ActionAttackBonuses = null;
                 var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
 
                 Dice.SetTestRoll(Math.Max(comboMin + 1, 15));
@@ -287,6 +348,8 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
             var comboActions = character.GetComboActions();
             var setup = comboActions[0];
             var finisher = comboActions[1];
+            // The finisher's own ×1 grant now carries to the next opener (playtest 11-21); drop it so only the consumed bank is checked.
+            finisher.ActionAttackBonuses = null;
             var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
             int comboMin = GameConfiguration.Instance.RollSystem.ComboThreshold.Min;
             if (comboMin <= 0)
@@ -611,6 +674,8 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                     new ActionAttackBonusItem { Type = "COMBO", Value = 3 }
                 });
                 var finisher = character.GetComboActions()[1];
+                // The finisher's own ×1 grant now carries to the next opener (playtest 11-21); drop it so only the consumed bank is checked.
+                finisher.ActionAttackBonuses = null;
                 var enemy = new Enemy("TestEnemy", 1, 100, 5, 5, 5, 5);
                 character.ComboStep = 1;
 

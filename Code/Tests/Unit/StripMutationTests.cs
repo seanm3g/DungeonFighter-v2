@@ -27,6 +27,7 @@ namespace RPGGame.Tests.Unit
             TestPendingJumpOverride();
             TestReplaceNextConsumesOnce();
             TestStripJumpFromBundle();
+            TestStripJumpSwingLandsOnSlot3();
             TestStripRandomSingleSlotDoesNotThrow();
             TestStripRandomOneEnabledSlotDoesNotThrow();
 
@@ -135,6 +136,60 @@ namespace RPGGame.Tests.Unit
                                 && state.PendingRoutingAction == ComboRouter.RoutingAction.JumpToSlot
                                 && state.PendingJumpToSlot1Based == 3,
                 "pending jump to slot 3", ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>
+        /// Playtest 11-21: STRIP JUMP (slot 1) connecting as a combo must move the strip straight to slot 3, so the card the
+        /// board highlights next (ComboStep) is the one the hero actually swings, not slot 2.
+        /// </summary>
+        private static void TestStripJumpSwingLandsOnSlot3()
+        {
+            TestBase.SetCurrentTestName(nameof(TestStripJumpSwingLandsOnSlot3));
+            CombatTriggerContext.ResetForBattle();
+            var jump = ActionLoader.GetAction("STRIP JUMP");
+            if (jump == null)
+            {
+                TestBase.AssertTrue(false, "STRIP JUMP loads", ref _run, ref _passed, ref _failed);
+                return;
+            }
+            var hero = MakeHeroWithStrip();
+            jump.IsComboAction = true;
+            jump.ComboOrder = 1;
+            hero.Actions.AddToCombo(jump, maxComboLength: null);
+            foreach (var (name, order) in new[] { ("B", 2), ("C", 3), ("D", 4) })
+                hero.Actions.AddToCombo(new Action
+                {
+                    Name = name, Type = ActionType.Attack, IsComboAction = true, ComboOrder = order,
+                    ComboRouting = new ComboRoutingProperties()
+                }, maxComboLength: null);
+            var combo = hero.GetComboActions();
+            int jumpSlot = combo.FindIndex(a => a.Name == "STRIP JUMP");
+            hero.ComboStep = jumpSlot;
+            var foe = new Enemy("StripFoe", 1, 5000, 0, 0, 0, 0);
+            var lastUsed = new Dictionary<Actor, Action>();
+            var lastCritMiss = new Dictionary<Actor, bool>();
+            try
+            {
+                Dice.SetTestRoll(19);
+                ActionSelector.SetStoredActionRoll(hero, 19);
+                var r = RPGGame.Actions.Execution.ActionExecutionFlow.Execute(hero, foe, null, null, combo[jumpSlot], null, lastUsed, lastCritMiss);
+                TestBase.AssertTrue(jumpSlot == 0 && r.Hit && r.IsCombo, $"STRIP JUMP (slot {jumpSlot + 1}) hit+combo", ref _run, ref _passed, ref _failed);
+                int step = hero.ComboStep % combo.Count;
+                TestBase.AssertEqual(2, step, $"After STRIP JUMP the strip is on slot 3 (step {step})", ref _run, ref _passed, ref _failed);
+                var state = CombatTriggerContext.GetStripState(hero);
+                TestBase.AssertTrue(state == null || !state.HasPendingRouting, "No jump left pending for a later swing", ref _run, ref _passed, ref _failed);
+                TestBase.AssertTrue(state != null && state.WasSkippedThisRun(1) && !state.WasSkippedThisRun(0) && !state.WasSkippedThisRun(2),
+                    "Slot 2 is marked skipped (not drawn as a lit link)", ref _run, ref _passed, ref _failed);
+                state!.RecordAdvance(2, 3);
+                TestBase.AssertTrue(state.WasSkippedThisRun(1), "Skip mark holds while the run continues", ref _run, ref _passed, ref _failed);
+                state.RecordAdvance(3, 0);
+                TestBase.AssertTrue(!state.WasSkippedThisRun(1), "A wrap starts a clean run", ref _run, ref _passed, ref _failed);
+            }
+            finally
+            {
+                Dice.ClearTestRoll();
+                ActionSelector.ClearStoredRolls();
+            }
         }
 
         /// <summary>

@@ -153,9 +153,17 @@ namespace RPGGame.UI.Avalonia.Feedback
         /// <summary>True when <paramref name="player"/> is the hero (not an enemy), alive, and at or below the low-health threshold.</summary>
         internal static bool IsHeroLowHealth(Character? player)
         {
-            if (player == null || player is Enemy || player.CurrentHealth <= 0)
+            if (player == null || player is Enemy)
                 return false;
-            return ActionEventPublisher.GetActorHealthPercentage(player) <= ActionEventPublisher.LowHealthThreshold;
+            // Read the painted HP (the HP bar's pre-swing hold), not the live value: damage is applied in Execute
+            // before the sequence HUD shows it, and the glow must switch on with the bar, not ahead of it.
+            int shownHp = RPGGame.Combat.UI.HealthBarDisplayHold.Resolve($"player_{player.Name}", player.CurrentHealth);
+            if (shownHp <= 0)
+                return false;
+            int maxHealth = player.GetEffectiveMaxHealth();
+            if (maxHealth <= 0)
+                return false;
+            return (double)shownHp / maxHealth <= ActionEventPublisher.LowHealthThreshold;
         }
 
         /// <summary>

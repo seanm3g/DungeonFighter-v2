@@ -149,12 +149,7 @@ namespace RPGGame.Combat.Calculators
             // and attribute-based enemy damage paths are skipped.
             if (attacker is Enemy enemy)
             {
-                baseDamage = enemy.Identity?.ReferenceAttributeDamage ?? enemy.GetAttributeDamageBonus();
-
-                if (enemy.Weapon is WeaponItem weapon)
-                    baseDamage += weapon.GetTotalDamage();
-
-                baseDamage += GetScaledWeaponDamageFlat(enemy);
+                baseDamage = GetEnemyBaseDamage(enemy) + GetScaledWeaponDamageFlat(enemy);
             }
             else if (attacker is Character character)
             {
@@ -246,15 +241,7 @@ namespace RPGGame.Combat.Calculators
 
             // Opt-in enemy damage curve by level (enemySystem.damageCurve).
             if (attacker is Enemy curvedEnemy)
-            {
-                totalDamage *= GameConfiguration.Instance.EnemySystem?.DamageCurve?.MultiplierAt(curvedEnemy.Level) ?? 1.0;
-                totalDamage *= curvedEnemy.Identity is { } identity
-                    ? identity.HitDamage * identity.Calibration
-                    : curvedEnemy.GetArchetypeDamageMultiplier();
-                totalDamage *= curvedEnemy.EncounterDamageMultiplier;
-                // Region / dungeon / prefix damage affixes (Zealot, Giant).
-                totalDamage *= EnemyAffixRuntime.DamageMultiplier(curvedEnemy);
-            }
+                totalDamage *= GetEnemyDamageScaling(curvedEnemy);
 
             // Get combat configuration
             var combatConfig = GameConfiguration.Instance.Combat;
@@ -509,6 +496,43 @@ namespace RPGGame.Combat.Calculators
             if (target is Character remainingHero && remaining <= 0)
                 return 0;
             return finalDamage;
+        }
+
+        /// <summary>Enemy flat base damage before multipliers: identity reference damage (or attributes) plus weapon.</summary>
+        public static int GetEnemyBaseDamage(Enemy enemy)
+        {
+            int baseDamage = enemy.Identity?.ReferenceAttributeDamage ?? enemy.GetAttributeDamageBonus();
+            if (enemy.Weapon is WeaponItem weapon)
+                baseDamage += weapon.GetTotalDamage();
+            return baseDamage;
+        }
+
+        /// <summary>
+        /// Enemy-only damage scaling: level damage curve, identity hit damage × calibration (or archetype),
+        /// encounter multiplier and region / dungeon / prefix damage affixes (Zealot, Giant).
+        /// </summary>
+        public static double GetEnemyDamageScaling(Enemy enemy)
+        {
+            double m = GameConfiguration.Instance.EnemySystem?.DamageCurve?.MultiplierAt(enemy.Level) ?? 1.0;
+            m *= enemy.Identity is { } identity
+                ? identity.HitDamage * identity.Calibration
+                : enemy.GetArchetypeDamageMultiplier();
+            m *= enemy.EncounterDamageMultiplier;
+            m *= EnemyAffixRuntime.DamageMultiplier(enemy);
+            return m;
+        }
+
+        /// <summary>
+        /// Preview of a hit's damage after the hero's Defense and incoming-damage statuses (no state is consumed):
+        /// the same hero mitigation the swing's damage resolution uses for a single hit.
+        /// </summary>
+        public static int PreviewMitigatedOnHero(Character defender, Action? action, int incoming)
+        {
+            bool pierce = IgnoresArmor(defender, action);
+            int remaining = ClassDefenseCalculator.ApplyIncoming(defender, incoming, pierce, 0).Remaining;
+            remaining = ApplyIncomingStatus(defender, remaining);
+            int minimumDamage = Math.Max(1, GameConfiguration.Instance.Combat.MinimumDamage);
+            return remaining > 0 && remaining < minimumDamage ? minimumDamage : remaining;
         }
 
         private static int ApplyIncomingStatus(Actor target, int damage)

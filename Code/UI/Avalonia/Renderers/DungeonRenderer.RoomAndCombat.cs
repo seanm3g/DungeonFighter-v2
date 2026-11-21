@@ -155,7 +155,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 var baseBorder = ActionInfoStripLayout.GetPanelBorderColor(i, filled, selectedIndex, effectiveMaxSlots);
                 // Combo anticipation: fired slots keep a solid white border (text dims) so the run so far reads as one chain;
                 // the finisher always reads gold so the goal is visible from the opener.
-                bool isSpent = !isEmptySlot && i < effectiveMaxSlots && ComboTension.IsSpent(i, selectedIndex);
+                bool isSpent = !isEmptySlot && i < effectiveMaxSlots && ComboTension.IsSpent(i, selectedIndex)
+                    && !(RPGGame.Actions.Conditional.CombatTriggerContext.GetStripState(player)?.WasSkippedThisRun(i) ?? false);
                 bool isFinisherSlot = !isEmptySlot && i < effectiveMaxSlots && ComboTension.IsFinisherNext(i, filled);
                 if (isFinisherSlot)
                     baseBorder = i == selectedIndex ? ComboTension.FinisherGold : ActionInfoStripLayout.DarkenRgb(ComboTension.FinisherGold, 0.45);
@@ -231,7 +232,8 @@ namespace RPGGame.UI.Avalonia.Renderers
         /// </summary>
         /// <param name="textBrightness">RGB scale for every line (below 1 dims a combo slot that already fired this run).</param>
         internal void DrawActionCardContent(Character player, ActionPanelInfo info, Action action, int slotIndex,
-            int px, int py, int pw, int panelH, ActionStripDamageLineMode damageLineMode, double textBrightness = 1.0)
+            int px, int py, int pw, int panelH, ActionStripDamageLineMode damageLineMode, double textBrightness = 1.0,
+            Character? defender = null)
         {
             Color Shade(Color c) => textBrightness >= 1.0 ? c : ActionInfoStripLayout.DarkenRgb(c, textBrightness);
             int contentX = px + 1;
@@ -281,7 +283,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 : speedDiffersFromIntrinsic
                     ? (speedDisplayPct > info.SpeedBase ? AsciiArtAssets.Colors.Green : AsciiArtAssets.Colors.Red)
                     : AsciiArtAssets.Colors.White;
-            string swingLine = CombatActionStripBuilder.FormatStripSwingLine(in info, player, action, damageLineMode, slotIndex);
+            string swingLine = CombatActionStripBuilder.FormatStripSwingLine(in info, player, action, damageLineMode, slotIndex, defender);
             drawLine(swingLine, swingLineColor);
             string stanceLine = HeroDefenseHudFormatter.FormatActionBlockSuffix(action);
             if (!string.IsNullOrEmpty(stanceLine))

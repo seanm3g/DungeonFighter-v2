@@ -27,8 +27,6 @@ namespace RPGGame.Tests.Unit.Rebuild
             var hero = TestDataBuilders.Character().WithName("Odds").Build();
             int s1 = ComboBoardModel.NeededForSlot(hero, 0), s2 = ComboBoardModel.NeededForSlot(hero, 1), s3 = ComboBoardModel.NeededForSlot(hero, 2);
             TestBase.AssertTrue(s2 == s1 + 1 && s3 == s1 + 2, $"Each link needs +1 (D2.9): {s1}, {s2}, {s3}", ref _run, ref _passed, ref _failed);
-            string line = ComboBoardModel.OddsLine(hero, 1, 0);
-            TestBase.AssertTrue(line.StartsWith($"needs {s2}+ · ") && line.EndsWith("%"), $"Card line reads \"{line}\"", ref _run, ref _passed, ref _failed);
 
             // Escalation: the hero's lit cards grow 1 → 4; the enemy's only 1 → 2 and take less gold.
             TestBase.AssertEqual(1, ComboBoardModel.LitBorderThickness(0, 5, enemy: false), "Hero link 1 is thin", ref _run, ref _passed, ref _failed);

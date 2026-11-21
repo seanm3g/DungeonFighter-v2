@@ -109,8 +109,9 @@ namespace RPGGame.Tests.Unit.Data.ActionBonusMechanics
                 "ACTION ×3 from slot 3 of 4 clips to the one slot left (finisher, via the bank), no wrap");
             var (hero3, strip3) = Hero(3);
             ActionExecutionFlow.DepositActionCadenceGroup(hero3, strip3[2], Group("ACTION", 1, null, value: 25), strip3, 0);
-            Check(!hero3.Effects.HasPendingActionCadenceBank() && !hero3.Effects.GetPendingActionBonusSlots().Any(),
-                "plain ACTION grant from the finisher grants nothing");
+            Check(Sum(hero3.Effects.PeekPendingActionBonusesNextHeroRoll()) == 25 && !hero3.Effects.GetPendingActionBonusSlots().Any()
+                    && hero3.Effects.GetActionCadenceBankPaintSlot(2, 3) == 0,
+                "plain ACTION ×1 from the finisher carries to the next cycle's opener (playtest 11-21: WIND UP)");
         }
 
         private static void TestActionChargeKeepsBurst()

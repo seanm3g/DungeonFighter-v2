@@ -506,7 +506,15 @@ namespace RPGGame
             }
 
             var summary = new List<string>();
-            if (action.DamageMultiplier > 0)
+            if (action.DamageMultiplier > 0 && character is Enemy enemyAttacker)
+            {
+                // Enemy cards use the enemy damage legs (ConvertDamagePercentToFlat → enemy path).
+                summary.Add($"Hit ≈ {damage} before your Defense");
+                int enemyBase = Math.Max(1, Combat.Calculators.DamageCalculator.GetEnemyBaseDamage(enemyAttacker));
+                double scaling = Combat.Calculators.DamageCalculator.GetEnemyDamageScaling(enemyAttacker);
+                derivation.Add($"Hit = {enemyBase} base × {damagePct:0.#}% × enemy scaling {scaling:0.##}");
+            }
+            else if (action.DamageMultiplier > 0)
             {
                 summary.Add($"Hit ≈ {damage}");
                 double starting = EarlyGameBalanceHelper.GetStartingActionDamageMultiplier(character, action);

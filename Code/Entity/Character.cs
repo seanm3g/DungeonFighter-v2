@@ -341,6 +341,9 @@ namespace RPGGame
                 int nextSlotIndex = routingResult.NextSlotIndex;
                 if (nextSlotIndex < 0) nextSlotIndex = 0;
                 if (nextSlotIndex >= comboActions.Count) nextSlotIndex = nextSlotIndex % comboActions.Count;
+                // Jumped-over slots never fired this run: the strip must not draw them lit (STRIP JUMP to slot 3).
+                RPGGame.Actions.Conditional.CombatTriggerContext.GetOrCreateStripState(this)
+                    .RecordAdvance(currentSlotIndex, nextSlotIndex);
                 
                 // Update ComboStep to point to the next slot
                 // ComboStep tracks absolute position, so we need to calculate the new absolute step

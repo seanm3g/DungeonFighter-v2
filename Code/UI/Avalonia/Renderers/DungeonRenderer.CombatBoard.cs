@@ -34,6 +34,7 @@ namespace RPGGame.UI.Avalonia.Renderers
         public void RenderCombatBoard(Character player, Enemy enemy, DisplayBuffer? log = null, IReadOnlyList<string>? enemyNamesForLogAlignment = null)
         {
             const ActionStripDamageLineMode mode = ActionStripDamageLineMode.EffectiveWithComboAmp;
+            _boardHero = player;
             int colX = LayoutConstants.CENTER_PANEL_X;
             int colW = LayoutConstants.CENTER_PANEL_WIDTH;
             int boardH = LayoutConstants.ACTION_INFO_Y;
@@ -50,7 +51,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             int enemyStripH = Math.Clamp(boardH / 4, 5, 10);
             var enemyCards = new List<(int X, int Y, int W, int H)>();
             var turn = BuildBoardTurnView(player, enemy);
-            var enemyCard = RenderBoardEnemyStrip(enemy, colX, 0, colW, enemyStripH, mode, enemyCards);
+            var enemyCard = RenderBoardEnemyStrip(enemy, player, colX, 0, colW, enemyStripH, mode, enemyCards);
             // The enemy's lined-up card reads NEXT when it acts after the turn now playing (or at rest).
             if (enemyCard is { } nextCard && nextCard.W > 9 && turn.Queue.Count > 0
                 && ReferenceEquals(turn.Queue[0].Actor, enemy) && !turn.Queue[0].IsActing)
@@ -416,7 +417,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             return (CombatBoardAnimation.Lerp(a.X, cx, t), CombatBoardAnimation.Lerp(a.Y, cy, t));
         }
 
-        private BoardRect? RenderBoardEnemyStrip(Enemy enemy, int x, int y, int w, int h, ActionStripDamageLineMode mode,
+        private BoardRect? RenderBoardEnemyStrip(Enemy enemy, Character player, int x, int y, int w, int h, ActionStripDamageLineMode mode,
             List<(int X, int Y, int W, int H)> cardRects)
         {
             var actions = enemy.GetComboActions();
@@ -459,7 +460,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 int cw = cardW;
                 bool isSel = i == selected;
                 // Rebuild 1.1 (D0.11, D9.6): cards the enemy's chain already fired stay lit, escalating a bit quieter than yours.
-                bool lit = !isSel && selected > 0 && i < selected;
+                bool lit = !isSel && selected > 0 && i < selected
+                    && !(RPGGame.Actions.Conditional.CombatTriggerContext.GetStripState(enemy)?.WasSkippedThisRun(i) ?? false);
                 Color border = isSel ? AsciiArtAssets.Colors.White
                     : lit ? LerpColor(AsciiArtAssets.Colors.Red, ComboTension.FinisherGold, RPGGame.UI.ComboBoardModel.LitGoldShare(i, filled, enemy: true))
                     : BoardDimBorder;
@@ -477,7 +479,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 if (isSel && cardFires && swing != null)
                     (border, fill, thickness) = AccentForBeat(swing, stage, CombatBoardAnimation.PhaseProgress(CombatBoardAnimation.BeatMs), border, thickness);
                 AddBoardBox(cx, y, cw, cardH, border, fill, borderThicknessPixels: thickness);
-                DrawActionCardContent(enemy, panelData[i], actions[i], i, cx, y, cw, cardH, mode);
+                DrawActionCardContent(enemy, panelData[i], actions[i], i, cx, y, cw, cardH, mode, defender: player);
                 cardRects.Add((cx, y, cw, cardH));
                 if (isSel && (swing == null || cardFires))
                     selectedRect = new BoardRect(cx, y, cw, cardH);
@@ -507,6 +509,8 @@ namespace RPGGame.UI.Avalonia.Renderers
 
         /// <summary>The newest act, pushed once per swing / hazard turn.</summary>
         private static BoardAct? _boardNowAct;
+        /// <summary>The hero on the board this frame: enemy cards preview their damage after this hero's Defense.</summary>
+        private Character? _boardHero;
         private static CombatSequenceSwingInfo? _boardRegisteredSwing;
         private static long _boardSwingTurn = -1, _boardHazardTurn = -1, _boardStunTurn = -1;
         private static Enemy? _boardEnemy;
@@ -1314,7 +1318,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 var panelData = slot >= 0 ? CombatActionStripBuilder.BuildPanelData(ch) : null;
                 if (panelData != null && slot < panelData.Count)
                 {
-                    DrawActionCardContent(ch, panelData[slot], actions[slot], slot, r.X, r.Y, r.W, r.H, mode);
+                    DrawActionCardContent(ch, panelData[slot], actions[slot], slot, r.X, r.Y, r.W, r.H, mode,
+                        defender: ch is Enemy ? _boardHero : null);
                     return;
                 }
             }

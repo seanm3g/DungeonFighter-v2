@@ -26,8 +26,30 @@ namespace RPGGame.Actions.Conditional
         /// <summary>One-shot: next resolve uses this pool/strip action name, then clears.</summary>
         public string? ReplaceNextActionName { get; set; }
 
+        /// <summary>
+        /// Bit per strip slot the current combo run jumped over (STRIP JUMP / SKIP): those cards never fired, so the strip
+        /// must not draw them lit. One long so the UI thread reads it atomically while combat writes it.
+        /// </summary>
+        public long SkippedThisRunMask { get; private set; }
+
+        public bool WasSkippedThisRun(int slotIndex) =>
+            slotIndex >= 0 && slotIndex < 64 && (SkippedThisRunMask & (1L << slotIndex)) != 0;
+
+        /// <summary>
+        /// Records a strip advance from <paramref name="fromSlot"/> to <paramref name="toSlot"/>: a new run (from the
+        /// opener, or a wrap / loop back) starts clean; a forward jump marks the slots in between as skipped.
+        /// </summary>
+        public void RecordAdvance(int fromSlot, int toSlot)
+        {
+            long mask = fromSlot <= 0 || toSlot <= fromSlot ? 0 : SkippedThisRunMask;
+            for (int s = Math.Max(0, fromSlot + 1); s < toSlot && s < 64; s++)
+                mask |= 1L << s;
+            SkippedThisRunMask = mask;
+        }
+
         public void Clear()
         {
+            SkippedThisRunMask = 0;
             DisabledSlots.Clear();
             ShufflePermutation = null;
             ClearPendingRouting();

@@ -84,10 +84,11 @@ namespace RPGGame
             ActionStripDamageLineMode mode,
             out int damageForDisplay,
             out double secondsForDisplay,
-            int comboSlotIndex = -1)
+            int comboSlotIndex = -1,
+            Character? defender = null)
         {
             GetStripSwingDisplayPercents(in info, character, action, mode, out double damagePercent, out double speedPercent, comboSlotIndex);
-            damageForDisplay = ConvertDamagePercentToFlat(character, action, damagePercent);
+            damageForDisplay = ConvertDamagePercentToFlat(character, action, damagePercent, defender);
             secondsForDisplay = ConvertSpeedPercentToSeconds(character, action, info.SpeedBase, speedPercent);
         }
 
@@ -95,8 +96,11 @@ namespace RPGGame
         /// Hero base attack × sheet/mod/amp percent factors, plus early-game starting-action and class weapon multipliers
         /// (same legs as <see cref="Combat.Calculators.DamageCalculator.CalculateRawDamage"/> without consuming next-attack state or applying roll bands).
         /// </summary>
-        public static int ConvertDamagePercentToFlat(Character character, Action action, double damagePercentForDisplay)
+        public static int ConvertDamagePercentToFlat(Character character, Action action, double damagePercentForDisplay, Character? defender = null)
         {
+            if (character is Enemy enemy)
+                return ConvertEnemyDamagePercentToFlat(enemy, action, damagePercentForDisplay, defender);
+
             int baseDamage = character.Combat.GetTotalDamage();
             if (baseDamage <= 0)
                 baseDamage = 1;
@@ -113,6 +117,37 @@ namespace RPGGame
             if (result <= 0)
                 result = 1;
             return result;
+        }
+
+        /// <summary>
+        /// Enemy card damage (playtest 11-21: the card read 6 while the hit did 46). Uses the enemy legs of
+        /// <see cref="Combat.Calculators.DamageCalculator.CalculateRawDamage"/> — identity reference damage, strength and
+        /// speed-overflow multipliers, the level damage curve, identity hit damage × calibration, encounter and affix
+        /// multipliers, outgoing statuses — then the hero's Defense when <paramref name="defender"/> is known.
+        /// The roll band and crits are left out, as on hero cards.
+        /// </summary>
+        private static int ConvertEnemyDamagePercentToFlat(Enemy enemy, Action action, double damagePercentForDisplay, Character? defender)
+        {
+            int baseDamage = Math.Max(1, Combat.Calculators.DamageCalculator.GetEnemyBaseDamage(enemy));
+            double total = baseDamage * (damagePercentForDisplay / 100.0);
+            total *= EarlyGameBalanceHelper.GetStartingActionDamageMultiplier(enemy, action);
+            total *= enemy.GetStrengthDamageMultiplier();
+            total *= Combat.Calculators.SpeedCalculator.GetSpeedOverflowDamageMultiplier(enemy);
+            total *= Combat.Calculators.DamageCalculator.GetEnemyDamageScaling(enemy);
+            int result = (int)total;
+            var combatConfig = GameConfiguration.Instance.Combat;
+            int maxCap = Math.Max(1, combatConfig.EnemyMaximumDamageCap > 0 ? combatConfig.EnemyMaximumDamageCap : combatConfig.MaximumDamageCap);
+            if (result > maxCap)
+                result = maxCap;
+            double outgoing = Combat.Calculators.StatusCombatModifiers.OutgoingDamageMultiplier(enemy)
+                * AnimalSetController.GetOutgoingDamageMultiplier(enemy);
+            if (outgoing != 1.0)
+                result = (int)Math.Round(result * outgoing);
+            if (action != null && defender != null)
+                result = (int)(result * Combat.TagDamageCalculator.GetDamageModifier(action, defender));
+            if (defender != null && defender is not Enemy)
+                result = Combat.Calculators.DamageCalculator.PreviewMitigatedOnHero(defender, action, result);
+            return Math.Max(1, result);
         }
 
         /// <summary>
@@ -200,11 +235,8 @@ namespace RPGGame
 
                 int accuracyRollBonus = CombatCalculator.CalculateRollBonus(character, action, actions, i, consumeTempBonus: false);
 
-                // Rebuild 1.1 (D2.7): the card's odds, "needs 16+ · 25%", then any authored threshold shifts.
-                string thresholdText = RPGGame.UI.ComboBoardModel.OddsLine(character, i, accuracyRollBonus);
-                string shifts = GetThresholdText(action);
-                if (shifts.Length > 0)
-                    thresholdText += "  " + shifts;
+                // Playtest 11-21: the card no longer shows the odds line ("needs 16+ · 25%"); only authored threshold shifts.
+                string thresholdText = GetThresholdText(action);
 
                 // Strip preview: pending ACTION cadence only — not Consumed* from a just-resolved swing.
                 int effectiveHits = RollModificationManager.GetEffectiveMultiHitCountForModifierScaling(
@@ -380,9 +412,10 @@ namespace RPGGame
             Character character,
             Action action,
             ActionStripDamageLineMode mode,
-            int comboSlotIndex = -1)
+            int comboSlotIndex = -1,
+            Character? defender = null)
         {
-            GetStripSwingDisplayValues(in info, character, action, mode, out int damage, out double seconds, comboSlotIndex);
+            GetStripSwingDisplayValues(in info, character, action, mode, out int damage, out double seconds, comboSlotIndex, defender);
             return $"{FormatSwingDamageLine(info.EffectiveMultiHitCount, damage)} | {FormatSwingSpeedLine(seconds)}";
         }
 

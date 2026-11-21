@@ -234,6 +234,12 @@ namespace RPGGame.Actions.Execution
                     }
                     RollModificationManager.CollectAdvantageFlags(scopedBonuses, ref pendingAdvantage, ref pendingDisadvantage);
                 }
+                // 4. Passive item / skill rules (WHILE -> HIT / COMBO / CRIT ±n, e.g. the class cadence nodes). The
+                // THRESHOLDS panel already showed these (CadenceScopedBuffApplicator.AccumulateRollBonuses) but the roll
+                // never applied them (playtest 11-21). Same call as the panel (no action), so display and roll agree.
+                actionBonusHit += (int)Math.Round(CrossWires.Passive(actionBonusCharacter, "HIT"));
+                actionBonusCombo += (int)Math.Round(CrossWires.Passive(actionBonusCharacter, "COMBO"));
+                actionBonusCrit += (int)Math.Round(CrossWires.Passive(actionBonusCharacter, "CRIT"));
 
                 LeatherSetBonus.CollectAdvantageFlags(actionBonusCharacter, ref pendingAdvantage, ref pendingDisadvantage, consume: RetriggerDepth == 0);
             }

@@ -375,6 +375,23 @@ namespace RPGGame
                 lines.Add("Actions take longer for the turns shown.");
                 return;
             }
+            // Tempo statuses (TempoStatuses.cs): mechanics only, per-stack numbers from combat config.
+            var combatCfg = GameConfiguration.Instance.Combat;
+            if (Starts(line, "Stagger"))
+            {
+                lines.Add($"Its next action takes {Pct(combatCfg.StatusStaggerLengthPerStack)} longer per stack (it acts later), then Stagger is spent.");
+                return;
+            }
+            if (Starts(line, "Brittle"))
+            {
+                lines.Add($"The next critical hit against it deals +{Pct(combatCfg.StatusBrittleCritDamagePerStack)} damage per stack, then Brittle is spent.");
+                return;
+            }
+            if (Starts(line, "Haste"))
+            {
+                lines.Add($"Actions take {Pct(combatCfg.StatusHasteSpeedPerStack)} less time per stack; one stack falls off after each of its actions.");
+                return;
+            }
             if (line == "Shield")
             {
                 lines.Add("The next hit deals half damage, then this is spent.");

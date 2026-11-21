@@ -547,10 +547,17 @@ namespace RPGGame.Actions.Execution
                 return;
             }
 
-            // "Next N actions": clipped to the slots left in this combo cycle (a finisher grants nothing, as before).
+            // "Next N actions": clipped to the slots left in this combo cycle (a finisher's ×N grants nothing,
+            // but its ×1 "next action" carries to the next cycle's opener).
             int granted = ActionCadenceDurationResolver.ResolveGrantedLayers(selected, group, comboActions, selected);
             if (granted <= 0)
+            {
+                // Playtest 11-21: a "Next action" (×1) grant from the finisher carries to the next cycle's opener
+                // (previewSlot wraps to slot 0) instead of vanishing — WIND UP last on the starter strip did nothing.
+                if (n > 0 && ActionCadenceDurationResolver.GetRequestedLayerCount(selected, group) <= 1)
+                    hero.Effects.AccumulatePendingActionCadenceBank(CadenceTiming.Scale(group.Bonuses, perSlot), 1, previewSlot);
                 return;
+            }
             if (granted == 1)
             {
                 hero.Effects.AccumulatePendingActionCadenceBank(CadenceTiming.Scale(group.Bonuses, perSlot), 1, previewSlot);

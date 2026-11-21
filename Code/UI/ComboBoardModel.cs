@@ -8,8 +8,8 @@ namespace RPGGame.UI
 {
     /// <summary>
     /// Rebuild 1.1 (D0.1, D2.2, D2.7, D0.11, D9.6): the numbers the combat board draws, kept out of the renderer so they
-    /// can be tested. The combo is a ladder of odds: each strip card shows what it needs and the chance
-    /// ("needs 16+ · 25%"); lit cards escalate per link (the hero loudly, the enemy a bit quieter); the roll ruler shows
+    /// can be tested. The combo is a ladder of odds (the strip cards stopped printing the
+    /// "needs 16+ · 25%" line after the 11-21 playtest); lit cards escalate per link (the hero loudly, the enemy a bit quieter); the roll ruler shows
     /// the d20 bands with a marker on the roll, its nudge and any extra die.
     /// </summary>
     public static class ComboBoardModel
@@ -46,14 +46,6 @@ namespace RPGGame.UI
         /// <summary>True when <paramref name="actor"/> rolls two dice and keeps the higher (the Leather set's Lucky).</summary>
         public static bool HasExtraDie(Actor actor) =>
             actor is Character hero && actor is not Enemy && LeatherSetBonus.HasLuckAdvantage(hero);
-
-        /// <summary>The card's odds line: <c>needs 16+ · 25%</c> (rounded to 5%, never 0% or 100% unless certain).</summary>
-        public static string OddsLine(Actor actor, int slotIndex, int rollBonus)
-        {
-            int needed = NeededForSlot(actor, slotIndex);
-            double p = Chance(needed, rollBonus, HasExtraDie(actor));
-            return $"needs {needed}+ · {FormatPercent(p)}";
-        }
 
         public static string FormatPercent(double p)
         {

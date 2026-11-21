@@ -120,6 +120,24 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertTrue(!ComboTension.IsHeroLowHealth(hero),
                 "No low-health vignette for a dead hero", ref run, ref passed, ref failed);
 
+            // Damage is applied before the HUD shows it: while the HP bar still holds the pre-swing value the glow waits.
+            using var unmuted = RPGGame.Combat.CombatUiMuteScope.Begin(muted: false); // holds are dropped while muted
+            try
+            {
+                RPGGame.Combat.UI.HealthBarDisplayHold.ResetForTests();
+                hero.CurrentHealth = 15;
+                RPGGame.Combat.UI.HealthBarDisplayHold.Set("player_Hero", 60);
+                TestBase.AssertTrue(!ComboTension.IsHeroLowHealth(hero),
+                    "Low-health vignette waits for the HP bar to show the damage", ref run, ref passed, ref failed);
+                RPGGame.Combat.UI.HealthBarDisplayHold.Release("player_Hero");
+                TestBase.AssertTrue(ComboTension.IsHeroLowHealth(hero),
+                    "Low-health vignette shows once the HP bar drops", ref run, ref passed, ref failed);
+            }
+            finally
+            {
+                RPGGame.Combat.UI.HealthBarDisplayHold.ResetForTests();
+            }
+
             var enemy = new Enemy(name: "Goblin", level: 1, maxHealth: 100, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0)
             {
                 CurrentHealth = 10
