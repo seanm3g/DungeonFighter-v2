@@ -212,6 +212,31 @@ namespace RPGGame.UI.Avalonia.Renderers
                     textBrightness: isSpent && !CombatBoardLayout.IsActive ? SpentCardTextBrightness : 1.0);
             }
 
+            // Step 10: cards that burned out this fight stay on the strip, cracked and grey, in the slots the close-up
+            // freed (or listed above the strip when the strip has no free slot left).
+            if (CombatBoardLayout.IsActive)
+            {
+                var burned = RPGGame.Actions.Conditional.FragileCards.BurnedOutCards(player);
+                var unplaced = new List<string>();
+                for (int k = 0; k < burned.Count; k++)
+                {
+                    int slot = filled + k;
+                    if (slot < displayCount)
+                    {
+                        ActionInfoStripLayout.GetPanelRect(slot, displayCount, out int bx, out int by, out int bw, out int bh);
+                        DrawBurnedOutCard(burned[k], bx, by, bw, bh);
+                    }
+                    else
+                        unplaced.Add(burned[k].Name ?? "?");
+                }
+                if (unplaced.Count > 0 && filled > 0)
+                {
+                    ActionInfoStripLayout.GetPanelRect(0, displayCount, out int lx, out int ly, out int lw, out _);
+                    string label = "burned out: " + string.Join(", ", unplaced);
+                    canvas.AddText(lx + 1, Math.Max(0, ly - 1), Truncate(label, Math.Max(12, LayoutConstants.ACTION_INFO_WIDTH - 2)), BurnedOutTextColor);
+                }
+            }
+
             if (anyBonusShimmer)
                 ActionBonusBorderShimmer.KeepAlive();
 
@@ -248,6 +273,9 @@ namespace RPGGame.UI.Avalonia.Renderers
                 : ActionNameColors.Resolve(action);
             canvas.AddText(contentX, contentY, name, Shade(nameColor));
             contentY++;
+            // Fragile N (D5.4): in a fight the card's top edge says how many swings it has left.
+            if (RPGGame.Actions.Conditional.FragileCards.UsesBadge(player, action) is { } fragileBadge && pw >= fragileBadge.Length + 6)
+                canvas.AddText(px + pw - fragileBadge.Length - 3, py, $" {fragileBadge} ", Shade(FragileBadgeColor));
 
             bool hasThreshold = !string.IsNullOrEmpty(info.ThresholdText);
             int reserveBottomRows = hasThreshold ? 1 : 0;

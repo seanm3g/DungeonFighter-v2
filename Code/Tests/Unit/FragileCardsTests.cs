@@ -30,6 +30,7 @@ namespace RPGGame.Tests.Unit
             TestDataCards();
             TestCardLineShowsFragile();
             TestBuildMomentCallouts();
+            TestBoardShowsBurnedOutAndUsesLeft();
 
             CombatTriggerContext.EndBattle();
             TestBase.PrintSummary("Fragile Cards Tests", _run, _passed, _failed);
@@ -72,6 +73,29 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual("A,C", string.Join(",", live), "the strip closes up (A, C)", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(log.Any(l => l.Contains("burns out")), "a burn-out line is logged", ref _run, ref _passed, ref _failed);
             TestBase.AssertFalse(FragileCards.AfterSwing(hero, new Action { Name = "A" }, log), "a plain card never burns out", ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>What the strips draw: burned-out cards (cracked, after the live ones) and a Fragile card's uses left.</summary>
+        private static void TestBoardShowsBurnedOutAndUsesLeft()
+        {
+            TestBase.SetCurrentTestName(nameof(TestBoardShowsBurnedOutAndUsesLeft));
+            CombatTriggerContext.ResetForBattle();
+            var hero = MakeHero(("A", 0), ("B", 2), ("C", 3));
+            var b = hero.GetComboActions()[1];
+            var c = hero.GetComboActions()[2];
+            var log = new List<string>();
+            TestBase.AssertEqual("2 left", FragileCards.UsesBadge(hero, b), "a fresh Fragile 2 card shows 2 left", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(FragileCards.UsesBadge(hero, hero.GetComboActions()[0]) == null, "a plain card has no badge", ref _run, ref _passed, ref _failed);
+            FragileCards.AfterSwing(hero, b, log);
+            TestBase.AssertEqual("last use", FragileCards.UsesBadge(hero, b), "one swing left reads 'last use'", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, FragileCards.BurnedOutCards(hero).Count, "nothing burned out yet", ref _run, ref _passed, ref _failed);
+            FragileCards.AfterSwing(hero, b, log);
+            var burned = FragileCards.BurnedOutCards(hero);
+            TestBase.AssertTrue(burned.Count == 1 && ReferenceEquals(burned[0], b), "the burned-out card is listed for the strip", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("3 left", FragileCards.UsesBadge(hero, c), "another Fragile card keeps its own count", ref _run, ref _passed, ref _failed);
+            CombatTriggerContext.EndBattle();
+            TestBase.AssertEqual(0, FragileCards.BurnedOutCards(hero).Count, "after the fight nothing is burned out", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(FragileCards.UsesBadge(hero, b) == null, "outside a fight there's no badge (the card line says Fragile N)", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestBurnOutRepointsComboStep()

@@ -425,7 +425,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             var actions = enemy.GetComboActions();
             var panelData = CombatActionStripBuilder.BuildPanelData(enemy);
             int filled = Math.Min(actions.Count, panelData.Count);
-            int count = Math.Max(filled, EnemyStripMinSlots);
+            // Burned-out cards (step 10) stay on the strip after the live ones, cracked.
+            var burned = RPGGame.Actions.Conditional.FragileCards.BurnedOutCards(enemy);
+            int count = Math.Max(filled + burned.Count, EnemyStripMinSlots);
             int selected = filled > 0 ? LinedUpComboStep(enemy) % filled : -1;
 
             // While the enemy swings, its firing card stays selected (ComboStep has already moved on).
@@ -454,7 +456,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             int cardH = Math.Max(3, h - 1);
             // Enemy sequences are short (most enemies carry one or two actions): cards keep the min-slot width and
             // sit centered, with no empty placeholder slots.
-            int rowW = filled * cardW + Math.Max(0, filled - 1) * gap;
+            int shownCards = filled + burned.Count;
+            int rowW = shownCards * cardW + Math.Max(0, shownCards - 1) * gap;
             int cx = x + Math.Max(inset, (w - rowW) / 2);
             BoardRect? selectedRect = null;
             for (int i = 0; i < filled; i++)
@@ -486,6 +489,11 @@ namespace RPGGame.UI.Avalonia.Renderers
                 if (isSel && (swing == null || cardFires))
                     selectedRect = new BoardRect(cx, y, cw, cardH);
                 cx += cw + gap;
+            }
+            foreach (var card in burned)
+            {
+                DrawBurnedOutCard(card, cx, y, cardW, cardH);
+                cx += cardW + gap;
             }
             // The enemy's chain count, top right (Mock 1: "its chain: 2").
             if (selected > 0 && filled > 1)
@@ -1307,6 +1315,37 @@ namespace RPGGame.UI.Avalonia.Renderers
             int exact = branches.FindIndex(b => b.Outcome != null && b.Critical == critical
                 && (b.Outcome == swing.Outcome || (critical && !miss && b.Outcome != CombatSequenceSwingOutcome.Miss)));
             return exact >= 0 ? exact : branches.FindIndex(b => b.Outcome == swing.Outcome);
+        }
+
+        private static readonly Color FragileBadgeColor = Color.FromRgb(255, 170, 80);
+        private static readonly Color BurnedOutTextColor = Color.FromRgb(150, 80, 60);
+        private static readonly Color BurnedOutBorder = Color.FromRgb(70, 60, 55);
+
+        /// <summary>
+        /// Step 10: a Fragile card that burned out this fight, drawn cracked and grey (a dim box, a jagged crack across it,
+        /// its name and "BURNED OUT"). It's out of the live strip, so it never lights or fires.
+        /// </summary>
+        private void DrawBurnedOutCard(Action card, int x, int y, int w, int h)
+        {
+            if (w < 4 || h < 3)
+                return;
+            AddBoardBox(x, y, w, h, BurnedOutBorder, BoardCardBackground, borderThicknessPixels: 1);
+            // The crack: a zigzag from the top edge to the bottom edge.
+            double cx = x + w * 0.55, top = y + 0.2, bottom = y + h - 0.2;
+            int zig = Math.Max(2, h);
+            double px0 = cx, py0 = top;
+            for (int i = 1; i <= zig; i++)
+            {
+                double t = (double)i / zig;
+                double px1 = cx + (i % 2 == 0 ? -0.8 : 0.8) * Math.Min(2.0, w / 6.0);
+                double py1 = top + (bottom - top) * t;
+                canvas.AddLine(px0, py0, px1, py1, BurnedOutBorder, 1.5);
+                (px0, py0) = (px1, py1);
+            }
+            int tw = Math.Max(1, w - 2);
+            canvas.AddText(x + 1, y + 1, Truncate(card.Name ?? "?", tw), AsciiArtAssets.Colors.Gray);
+            if (h >= 4)
+                canvas.AddText(x + 1, y + 2, Truncate("BURNED OUT", tw), BurnedOutTextColor);
         }
 
         private static readonly Color NewCardBorder = Color.FromRgb(255, 220, 90);
