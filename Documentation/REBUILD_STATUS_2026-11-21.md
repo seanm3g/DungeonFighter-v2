@@ -53,7 +53,7 @@ git after each run; it is in no commit.
 | 8 Cosmetic Wood / Cloth / Unknown | partial | `c542f44e` | 15140 passed / 1 failed (then fixed; ItemRoller 0 failed) |
 | 9 Core slot nodes, material branch gate | partial | `2dc79522` | 15138 passed / 5 failed (4 tree-shape expectations fixed, 1 known flaky) |
 | 10 Late rungs (Fragile cards, Jam / Burn out, callouts) | done (11-22) | see Step 10 | FragileCards 0 failed; combat, data, Fernis suites 0 failed |
-| 11 Content and lore pass | not started | — | — |
+| 11 Content and lore pass | 11.1–11.4 done, 11.5 renames proposed only (11-22) | see Step 11 | see Step 11 |
 | 12 Cleanup (delete switched-off code) | not started (needs your review of the switches first) | — | — |
 
 ## Phase 11 — item rolls (D11.1–D11.12)
@@ -453,3 +453,40 @@ so a run counts only when the summary prints. The test runner rewrites the activ
   to core verbs is a content change.
 - Dead config keys `statusWeakenDamageMultiplier` / `statusBrittleCritDamagePerStack` stay in `CombatConfig` because
   22+ patch files set them; nothing reads them.
+
+## Step 11 — Content and lore pass (2026-11-22)
+
+Worktree branch off `phase11-item-rolls` at `9c631a2d`; not pushed. Keep / retire list with a reason per card, enemy
+kit and hazard mapping, flavor sources and rename proposals: [`ACTION_CUT_2026-11-22.md`](ACTION_CUT_2026-11-22.md)
+(all **REVIEW**). No sims, no patch edits.
+
+| Sub-step | Status | Commit |
+|---|---|---|
+| 11.1 Action cut to the D5.2 budget | done | `7d51d6f4` |
+| 11.2 Dead content after step 12 | done | `ef2406bf` |
+| 11.3 Fernis's full line bank per class | done | `d861f0bf` |
+| 11.4 Lore flavor lines | done | `7e2cc45d` |
+| 11.5 Lore renames | proposals only (in the cut doc) | — |
+
+- **11.1:** cut cards are tagged `retired`, not deleted: they load and work (saves, skill nodes, gear that already
+  grants them) but never roll (`GearActionPools.CanRollOnGear`, the loot action pool, `LootActionSelector`, base
+  modifier picks). Player-reachable: classes 111 → 48 (10 + 2 starters each), hybrids 61 → 12, neutral 42 → 10,
+  material converts 15 (unchanged), enemy kit templates 16 → 11, hazards 30 names on 8 kinds. 130 rows retired
+  (incl. PUNCH, which was rolling onto gear). Roles authored by hand. New card SWORN RETORT (Warrior, `CASH harden 100`);
+  VENOM COAT applies Bleed; STOKE moves to Wizard. Merged kit names stay as aliases; `Enemies.json` kits and
+  `EnemyAffixes.json` signatures remapped (no ENEMY DISRUPT). Base modifiers regenerated without retired cards.
+- **11.2:** Venom Mace (Bleed → Stagger), Envenomed Edge (Burn → Bleed), Kindle (Bleed; no owning node) and Thermal
+  Shock (Burn + Stagger → Expose; it read Slow, which nothing applies) now fire; the Frayed / Cryptic cross-wires
+  listen to Willow CHAIN / Strange ODDITY instead of the deleted Cloth / Unknown sets; the animal Legend set gives +3%
+  damage / +3% speed instead of its dead +5% AMP.
+- **11.3:** 12 moments × 3–5 "any" lines and 2–3 per class.
+- **11.4:** the lore artifact was readable (partial summary; the saved page was parsed for the Common knowledge and
+  Legend / scholar lenses only). 77 flavor lines with record IDs.
+- **Gameplay effects (no sims):** the roll pool is under half its old size; former Pierce enemies Expose, Mend enemies
+  heal 50% (at 90% damage), Concuss enemies Stagger on every hit; the four conversion nodes now do something.
+- **Tests:** new `ActionCutTests` (39 checks), Fernis depth checks, conversion checks; BuildGlue expects
+  POISON BITE → ENEMY REND. Last full run: only known failures ("Mid with +25%", "Finisher gets its own +25%",
+  MCP "Expected DungeonSelection, got Death"). The active patch was restored after each run.
+- **Open questions:** re-point or rewrite the 12 hybrid skill nodes that still grant the retired "+25% per 10
+  attribute" cards; SWORN RETORT as a new card; STOKE moving to Wizard; whether ~8 environments means 8 kinds (done)
+  or 8 rows; the one-time rename pass (VENOM COAT, Venom Mace, Envenomed Edge, region / dungeon names).
