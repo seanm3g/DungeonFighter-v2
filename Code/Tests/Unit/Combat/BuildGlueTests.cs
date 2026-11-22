@@ -30,7 +30,6 @@ namespace RPGGame.Tests.Unit.Combat
             TestPercentConvertPaysShareOfHit();
             TestFoeHitMintsOnlyTakeHitCurrencies();
             TestSpeedOverflowTurnsIntoDamage();
-            TestIntelligenceAmp();
             TestRepeatedStripActionAdvancesFromItsOwnSlot();
             TestStripReplacementAdvancesFromReplacedSlot();
             TestComboSlotCapByLevel();
@@ -189,34 +188,6 @@ namespace RPGGame.Tests.Unit.Combat
             {
                 combat.SpeedOverflowDamageEfficiency = oldEff;
                 combat.MinimumAttackTime = oldMin;
-            }
-        }
-
-        private static void TestIntelligenceAmp()
-        {
-            var combat = GameConfiguration.Instance.Combat;
-            double old = combat.IntelligenceAmpPerPoint;
-            // Rebuild 1.3 (D2.3) switched INT potency off; this covers the legacy path behind the switch.
-            bool oldSingle = GameConfiguration.Instance.ComboSystem.SingleAmpFormula;
-            GameConfiguration.Instance.ComboSystem.SingleAmpFormula = false;
-            try
-            {
-                var hero = TestDataBuilders.Character().WithName("IntHero").Build();
-                combat.IntelligenceAmpPerPoint = 0;
-                TestBase.AssertTrue(Math.Abs(hero.GetIntelligenceAmpMultiplier() - 1.0) < 1e-9, "INT potency off = 1.0",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-                combat.IntelligenceAmpPerPoint = 0.01;
-                double expected = 1.0 + hero.GetEffectiveIntelligence() * 0.01;
-                TestBase.AssertTrue(Math.Abs(hero.GetIntelligenceAmpMultiplier() - expected) < 1e-9, "INT potency = 1 + INT x rate",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-                hero.Stats.Intelligence = 400;
-                TestBase.AssertTrue(Math.Abs(hero.GetIntelligenceAmpMultiplier() - (1.0 + hero.GetEffectiveIntelligence() * 0.01)) < 1e-9,
-                    "INT has no cap (removed 2026-11-18)", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
-            finally
-            {
-                GameConfiguration.Instance.ComboSystem.SingleAmpFormula = oldSingle;
-                combat.IntelligenceAmpPerPoint = old;
             }
         }
 

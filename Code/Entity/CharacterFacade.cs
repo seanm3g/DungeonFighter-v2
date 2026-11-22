@@ -198,16 +198,6 @@ namespace RPGGame
             return 1.0 + str * combat.StrengthDamagePerPoint;
         }
 
-        /// <summary>Hero AMP multiplier from INT (1.0 for enemies or when off). See <see cref="CombatConfig.IntelligenceAmpPerPoint"/>.</summary>
-        public double GetIntelligenceAmpMultiplier()
-        {
-            var combat = GameConfiguration.Instance.Combat;
-            if (_character is Enemy || combat.IntelligenceAmpPerPoint <= 0 || GameConfiguration.Instance.ComboSystem.SingleAmpFormula)
-                return 1.0;
-            int intel = Math.Max(0, GetEffectiveIntelligence());
-            return 1.0 + intel * combat.IntelligenceAmpPerPoint;
-        }
-
         // === ACTION MANAGEMENT ===
         public List<Action> GetComboActions() => _character.Actions.GetComboActions();
         public List<Action> GetActionPool() => _character.Actions.GetActionPool(_character);

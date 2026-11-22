@@ -430,7 +430,6 @@ namespace RPGGame
         public int GetEffectivePrimaryAttributeValue() => Facade.GetEffectivePrimaryAttributeValue();
         public int GetAttributeDamageBonus() => Facade.GetAttributeDamageBonus();
         public double GetStrengthDamageMultiplier() => Facade.GetStrengthDamageMultiplier();
-        public double GetIntelligenceAmpMultiplier() => Facade.GetIntelligenceAmpMultiplier();
         public double CalculateTurnsFromActionLength(double actionLength) => Facade.CalculateTurnsFromActionLength(actionLength);
         public void RemoveItemActions() => Facade.RemoveItemActions();
         public void ApplyRollBonusesFromGear(Item gear) => Facade.ApplyRollBonusesFromGear(gear);

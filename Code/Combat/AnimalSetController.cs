@@ -91,15 +91,6 @@ namespace RPGGame
             return pct;
         }
 
-        /// <summary>Base AMP × (1 + this/100) from the mythic set.</summary>
-        public static double GetAmpBonusPct(Character? hero)
-        {
-            double pct = 0;
-            foreach (var (b, _) in GetActiveTaxonBonuses(hero))
-                pct += b.AmpPct;
-            return pct;
-        }
-
         /// <summary>"Beast 2 - Ferocity: +6% damage" style lines for HUD tooltips.</summary>
         public static string DescribeBonus(TaxonBonus b)
         {

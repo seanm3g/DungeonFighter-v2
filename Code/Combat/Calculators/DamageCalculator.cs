@@ -213,10 +213,6 @@ namespace RPGGame.Combat.Calculators
                     comboAmplifier *= 1.0 + skillAmp / 100.0;
             }
 
-            // INT potency (combat.intelligenceAmpPerPoint): INT scales the hero's AMP.
-            if (attacker is Character intHero && intHero is not Enemy)
-                comboAmplifier *= intHero.GetIntelligenceAmpMultiplier();
-
             // Apply next attack damage multiplier (for Follow Through and similar effects)
             // Consume it so it only applies once
             double nextAttackMultiplier = 1.0;
