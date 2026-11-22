@@ -109,5 +109,12 @@
         ]
       }
     }
+  },
+  "lootSystem": {
+    "itemGeneration": {
+      "slotWeights": {
+        "weapon": 2
+      }
+    }
   }
 }

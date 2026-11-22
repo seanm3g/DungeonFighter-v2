@@ -44,7 +44,8 @@ namespace RPGGame
         /// <summary>Slot roll weights (weapon / head / chest / legs / feet).</summary>
         public Dictionary<string, double> SlotWeights { get; set; } = new()
         {
-            ["weapon"] = 4, ["head"] = 1, ["chest"] = 1, ["legs"] = 1, ["feet"] = 1
+            // A third of drops are weapons, the rest split evenly over the four armor slots (user 2026-11-21; was 4:1:1:1:1).
+            ["weapon"] = 2, ["head"] = 1, ["chest"] = 1, ["legs"] = 1, ["feet"] = 1
         };
 
         /// <summary>Share of drops on the hero's class bases; the rest split evenly over the other classes.</summary>

@@ -71,6 +71,7 @@ namespace RPGGame.Tests.Unit.Data
             TestEveryRuleLineParses();
             TestModifiersReachOutOnlyFromEpic();
             TestMythicsBendTheirClass();
+            TestWeaponsAreAThirdOfDrops();
 
             TestBase.PrintSummary("ItemRoller Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -934,6 +935,23 @@ namespace RPGGame.Tests.Unit.Data
             var rare = Roll(new ItemRollRequest { ItemLevel = 80, Rarity = "Legendary", AllowRollUps = false }, 40, 89000)
                 .Count(x => x.Item.Modifications.Any(m => names.Contains(m.Name)));
             TestBase.AssertEqual(0, rare, "only Mythics carry them", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>User 2026-11-21: a third of drops are weapons, the rest split evenly over the armor slots.</summary>
+        private static void TestWeaponsAreAThirdOfDrops()
+        {
+            var counts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            int total = 0;
+            foreach (var (_, spec) in Roll(new ItemRollRequest { ItemLevel = 20 }, 3000, 400000))
+            {
+                total++;
+                counts[spec.Slot] = counts.GetValueOrDefault(spec.Slot) + 1;
+            }
+            double weapon = counts.GetValueOrDefault("weapon") / (double)Math.Max(1, total);
+            var armor = new[] { "head", "chest", "legs", "feet" }.Select(s => counts.GetValueOrDefault(s) / (double)Math.Max(1, total)).ToList();
+            TestBase.AssertTrue(weapon > 0.29 && weapon < 0.38 && armor.All(a => a > 0.13 && a < 0.21),
+                $"weapons are about a third of drops ({weapon:P0}; armor {string.Join(" / ", armor.Select(a => a.ToString("P0")))})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestEveryRuleLineParses()
