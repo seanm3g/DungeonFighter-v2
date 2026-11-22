@@ -19,10 +19,9 @@ namespace RPGGame
         public const string WanderKey = "wander";
         public const string DemonKey = "demon";
         public const string KitsKey = "kits";
-        public const string OneModifierKey = "onemodifier";
         public const string AllKey = "all";
 
-        public static readonly string[] Keys = { RegionKey, DungeonKey, PrefixKey, RoomKey, TerrainKey, WanderKey, DemonKey, KitsKey, OneModifierKey };
+        public static readonly string[] Keys = { RegionKey, DungeonKey, PrefixKey, RoomKey, TerrainKey, WanderKey, DemonKey, KitsKey };
 
         private static readonly HashSet<string> Off = new(StringComparer.OrdinalIgnoreCase);
 
@@ -42,9 +41,6 @@ namespace RPGGame
         public static bool Demon => !Off.Contains(DemonKey);
         /// <summary>Per-enemy signature kits (off = the flavor aliases, as before).</summary>
         public static bool Kits => !Off.Contains(KitsKey);
-        /// <summary>D8.2: a room enemy shows at most one modifier beyond its kit (prefix, else dungeon affix, else region
-        /// family); off = they stack as before. The Demon is exempt.</summary>
-        public static bool OneModifier => !Off.Contains(OneModifierKey);
 
         /// <summary>Comma list of feature keys to switch off ("all" = every feature); null or empty = all on.</summary>
         public static void SetOff(string? list)

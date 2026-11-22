@@ -34,11 +34,8 @@ namespace RPGGame
                 return;
             // D8.2: the prefix is the enemy's one visible modifier (its rule or its affinity, D8.9); it replaces the
             // region / dungeon affix.
-            if (AffixFeatures.OneModifier)
-            {
-                enemy.Affixes.Clear();
-                enemy.RegionAffixName = null;
-            }
+            enemy.Affixes.Clear();
+            enemy.RegionAffixName = null;
             foreach (var effect in prefix.Effects)
             {
                 var affix = new EnemyAffixDef
@@ -165,11 +162,8 @@ namespace RPGGame
             if ((rare || forceDungeonAffix) && identity?.Affix != null && AffixFeatures.Dungeon)
             {
                 // D8.2: one visible modifier: the dungeon affix replaces the region family.
-                if (AffixFeatures.OneModifier)
-                {
-                    enemy.Affixes.Clear();
-                    enemy.RegionAffixName = null;
-                }
+                enemy.Affixes.Clear();
+                enemy.RegionAffixName = null;
                 enemy.Affixes.Add(identity.Affix);
             }
 
