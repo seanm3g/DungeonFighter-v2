@@ -1,5 +1,5 @@
 {
-  "_doc": "Fernis D Man's line bank (Documentation/CORE_DESIGN_PASS_2026-11-17.md, D9.1-D9.9). A small devil on your shoulder: finds things truthfully, gives the opposite of good advice, finds your suffering hilarious. Moments are keyed by event; 'big' moments always speak, small ones roll smallChance; at most one line per hero swing. Lines by class (barbarian / warrior / rogue / wizard) fall back to 'any'. Tokens: {hero} {enemy} {turns} {links} {cause} {hp} {status} {owner} {card}. Draft lines: REVIEW in the step 11 lore pass.",
+  "_doc": "Fernis D Man's line bank (Documentation/CORE_DESIGN_PASS_2026-11-17.md, D9.1-D9.10). A small devil on your shoulder: what he finds is true, his advice is the opposite of good (D9.7), and he finds your suffering hilarious; a comic voice in a tragic world (D9.10). Moments are keyed by event; 'big' moments always speak, small ones roll smallChance; at most one line per hero swing. Lines by class (barbarian / warrior / rogue / wizard) are picked together with the 'any' lines. Tokens: {hero} {enemy} {turns} (\"6 swings\") {links} {cause} {hp} {status} {owner} {card}; dungeonSummary has only {hero} {links}. Full bank written in the step 11 pass (2026-11-22): REVIEW.",
   "speaker": "Fernis",
   "maxLinesPerSwing": 1,
   "smallChance": 0.35,
@@ -10,19 +10,29 @@
         "any": [
           "{turns}. I've seen faster funerals, but fine.",
           "{enemy} is down. I'd call that a win if I were generous. I'm not.",
-          "Done in {turns}. Next time try losing, it's more interesting for me."
+          "Done in {turns}. Next time try losing, it's more interesting for me.",
+          "{enemy} won't be getting up. Neither will your reputation, but that's another story.",
+          "Another one for the bone-pile. Don't loot it, loot is a trap. Trust me."
         ],
         "barbarian": [
-          "You hit it until it stopped. Truly the thinking man's approach."
+          "You hit it until it stopped. Truly the thinking man's approach.",
+          "{turns} of pure swinging. Next fight, leave the weapon at home. Fists build character.",
+          "It's flat. You're bleeding. Honestly, you should take more hits. Builds the rage."
         ],
         "warrior": [
-          "Very tidy. Very sensible. I nearly fell asleep on your shoulder."
+          "Very tidy. Very sensible. I nearly fell asleep on your shoulder.",
+          "{turns}, shield up the whole time. Drop the Guard next fight. Live a little. Briefly.",
+          "Sworn, steady, victorious. Deeply boring. Do something reckless for me."
         ],
         "rogue": [
-          "Death by a thousand cuts. Well, a few. Your mother would be so proud."
+          "Death by a thousand cuts. Well, a few. Your mother would be so proud.",
+          "{enemy} bled out while you were counting. Stop counting. Numbers are for cowards.",
+          "Quick work. Next one, walk up and introduce yourself first. It's only polite."
         ],
         "wizard": [
-          "Magic. Big lights. It died. I'm told that's a career."
+          "Magic. Big lights. It died. I'm told that's a career.",
+          "Your strip did a little dance and {enemy} caught fire. Put the slowest card first next time.",
+          "{turns} of fireworks. Shuffle your cards before the next one. Order is overrated."
         ]
       }
     },
@@ -31,7 +41,25 @@
       "lines": {
         "any": [
           "You were at {hp}% and you WON? I'd already sold your boots.",
-          "Back from the brink. Disgusting. I had a whole eulogy ready."
+          "Back from the brink. Disgusting. I had a whole eulogy ready.",
+          "{hp}% and still standing. Do that every fight. Start every fight at {hp}%, even.",
+          "You lived. I'm going to have to return the flowers."
+        ],
+        "barbarian": [
+          "{hp}% and you just kept swinging. Keep your health that low. It suits you.",
+          "Nearly dead and furious about it. That's the spirit. Do less healing."
+        ],
+        "warrior": [
+          "The wall held at {hp}%. Barely. Next time take the shield off and see what happens.",
+          "Sworn to live, apparently. Dull, but fine. I'll take the oath back for you if you like."
+        ],
+        "rogue": [
+          "{hp}%? You were never in danger. You were in a LOT of danger. I enjoyed it.",
+          "Slipped out of the grave with a blade in each hand. Go back in, you dropped something."
+        ],
+        "wizard": [
+          "{hp}% and the spell still went off. Cast faster when you're dying. It helps. Probably.",
+          "You read your way out of a coffin. Next time stop reading and just stand there."
         ]
       }
     },
@@ -41,19 +69,29 @@
         "any": [
           "Here lies {hero}. Tried hard. Rolled a one.",
           "Well. That's the end of my free ride.",
-          "{enemy} wins. I'll be on its shoulder now. No hard feelings."
+          "{enemy} wins. I'll be on its shoulder now. No hard feelings.",
+          "They'll rub ash into your cuts, the way the old mourners do. I'll be busy laughing.",
+          "{hero}, gone. The ground remembers everything. It'll remember this one fondly."
         ],
         "barbarian": [
-          "Died swinging. Mostly at air, but swinging."
+          "Died swinging. Mostly at air, but swinging.",
+          "You hit everything except the thing that killed you. A legacy.",
+          "No armor, no plan, no pulse. Two out of three were your idea."
         ],
         "warrior": [
-          "All that armor, and it still found the soft bit."
+          "All that armor, and it still found the soft bit.",
+          "Sworn to the end. Turns out the end came first.",
+          "You held the line. The line is fine. You are not."
         ],
         "rogue": [
-          "Quick, clever, dead. Two out of three."
+          "Quick, clever, dead. Two out of three.",
+          "Stabbed to death by something with worse luck than you. Impressive, really.",
+          "You counted every roll. You missed the last one."
         ],
         "wizard": [
-          "You read every book except the one about not dying."
+          "You read every book except the one about not dying.",
+          "Your last spell fizzled. So did you.",
+          "All those cards in perfect order, and the order was 'die'."
         ]
       }
     },
@@ -63,7 +101,24 @@
         "any": [
           "{links} links! I'd clap, but I'm holding a tiny fork.",
           "The whole strip, start to finish. Don't let it go to your head. Too late.",
-          "{links} in a row. Do that again and I might have to respect you."
+          "{links} in a row. Do that again and I might have to respect you.",
+          "Full chain. Now add more cards so it never happens again."
+        ],
+        "barbarian": [
+          "{links} hits, no thoughts. Peak form. Never plan anything again.",
+          "The whole strip landed. Swap a card for something heavier. Heavier is always better. Always."
+        ],
+        "warrior": [
+          "{links} links, clean as a drill yard. Change it all before the next fight. Keep them guessing.",
+          "Every card, in order, like a sworn oath. You're a clock. Clocks get wound and then they stop."
+        ],
+        "rogue": [
+          "{links} for {links}. The dice like you today. They'll want something back.",
+          "Every cut landed. Throw the dice away, you clearly don't need them."
+        ],
+        "wizard": [
+          "{links} links, every card feeding the next. Now cut the strip in half. More room for chaos.",
+          "Composition! A symphony! Put the finisher first next time. Art should surprise."
         ]
       }
     },
@@ -73,7 +128,24 @@
         "any": [
           "Chain's gone. {cause}. I'm writing it down.",
           "And there goes the combo. {cause}. Beautiful.",
-          "{cause} cost you a link. Keep doing that, it's hilarious."
+          "{cause} cost you a link. Keep doing that, it's hilarious.",
+          "Broken. {cause}. Don't change a thing, I'm learning so much."
+        ],
+        "barbarian": [
+          "{cause}. You could hit harder. You could also hit at all.",
+          "Chain broke on {cause}. Smash the next one anyway. Precision is for people with patience."
+        ],
+        "warrior": [
+          "{cause}. The line broke. Stand further forward next time. Right into it.",
+          "A soldier's chain, snapped by {cause}. Drill it again. Exactly the same way."
+        ],
+        "rogue": [
+          "{cause}. The dice turned on you. They do that. Bet everything on the next roll.",
+          "Snipped. {cause}. Lean on luck harder, it clearly loves you."
+        ],
+        "wizard": [
+          "{cause} and the whole spell unravelled. Add another card in the middle. More moving parts, fewer problems.",
+          "The sequence fell apart on {cause}. Have you tried reading the strip upside down?"
         ]
       }
     },
@@ -83,7 +155,24 @@
         "any": [
           "It was already dead. You kept going. I love you a little.",
           "Overkill. Rude to the corpse, honestly.",
-          "That hit had leftovers. Somebody take them home."
+          "That hit had leftovers. Somebody take them home.",
+          "{enemy} is in more pieces than it started with. Save some for the next one. No, don't."
+        ],
+        "barbarian": [
+          "You hit {enemy} so hard it owes you money. Do that to everything, including doors.",
+          "Overkill is just regular kill with enthusiasm. Never hold back. Especially near cliffs."
+        ],
+        "warrior": [
+          "A little excessive for a sworn sword. I'd swing even harder, to make a point.",
+          "Discipline, they said. Restraint, they said. Look at {enemy}. Look at it."
+        ],
+        "rogue": [
+          "The quiet way, done loudly. Next time skip the quiet part entirely.",
+          "You stabbed it after it was dead. Keep the habit. It's very relaxing for me."
+        ],
+        "wizard": [
+          "You set it on fire twice. Once was plenty. Try three times next.",
+          "That spell had enough left over for a second victim. Hold the leftovers in your hands. For warmth."
         ]
       }
     },
@@ -93,7 +182,24 @@
         "any": [
           "{hp}% HP. I'm updating my will. You're not in it.",
           "You're about to die. Stand still, it's quicker.",
-          "Low health! Great time to try your slowest card."
+          "Low health! Great time to try your slowest card.",
+          "{hp}%. Don't drink anything. Potions are a crutch."
+        ],
+        "barbarian": [
+          "{hp}% and angrier than ever. Take the next hit on purpose. For the rage.",
+          "Bleeding everywhere. Take your armor off, it's slowing the bleeding down."
+        ],
+        "warrior": [
+          "{hp}%. Lower the Guard. Shields are heavy, and you look tired.",
+          "The line is thin. Charge. Charging always works. Ask anyone at Aldergate."
+        ],
+        "rogue": [
+          "{hp}%. Roll for it. Bet the whole strip on one natural twenty.",
+          "One more cut and you're a cautionary tale. Get closer to it. Closer."
+        ],
+        "wizard": [
+          "{hp}% left. Start the long spell now. It'll be fine. It'll be fine.",
+          "Your hands are shaking. Read faster. The page with the big words."
         ]
       }
     },
@@ -103,7 +209,24 @@
         "any": [
           "Its chain is at {links}. This is the part where you worry.",
           "{enemy} is building something. Ignore it, I'm sure it's nothing.",
-          "{links} links on the other side. Don't block. Blocking is for cowards."
+          "{links} links on the other side. Don't block. Blocking is for cowards.",
+          "{enemy} has {links} links going. I'd let it finish. It's rude to interrupt."
+        ],
+        "barbarian": [
+          "{enemy} is lining up {links} hits. Stand there and absorb them. Pain is just more rage.",
+          "It's winding up, {links} links deep. Wind up too. Whoever's slower wins. That's how it works."
+        ],
+        "warrior": [
+          "{links} links coming at you. Put the Guard away and meet it face first.",
+          "{enemy} has a chain of {links}. A sworn sword fears nothing. Mostly because they're dead."
+        ],
+        "rogue": [
+          "{enemy} is at {links}. Don't jam it. Let's see what it does. For science.",
+          "{links} links. You could cut it short. Or you could watch. Watch. It'll be funny."
+        ],
+        "wizard": [
+          "{enemy} is composing too, {links} links. Copy its strip. It's clearly better than yours.",
+          "{links} links over there. Let it finish its spell. Professional courtesy."
         ]
       }
     },
@@ -112,7 +235,25 @@
       "lines": {
         "any": [
           "{status}. New toy. I'd be furious.",
-          "Ooh, {status}. You'll hate this. I already love it."
+          "Ooh, {status}. You'll hate this. I already love it.",
+          "That's {status}. Write it down. Then ignore it forever, like a hero.",
+          "{status}! I've seen it end better men than you. Not many. Some."
+        ],
+        "barbarian": [
+          "{status}. Something new to hit. Or be hit by. Either way, don't read about it.",
+          "{status}, eh? Ignore it and swing. That's worked out for you so far."
+        ],
+        "warrior": [
+          "{status}. Add it to the drill book. Then never open the drill book.",
+          "There's {status} now. A sworn sword adapts. You won't, but they do."
+        ],
+        "rogue": [
+          "{status}. A new way to cheat. Or be cheated. Watch your purse.",
+          "Look, {status}. Stack it as high as it goes and walk away. What could happen."
+        ],
+        "wizard": [
+          "{status}! A new word for the strip. Put it everywhere. Twice.",
+          "Ah, {status}. You'll want to understand it. Don't. Understanding ruins magic."
         ]
       }
     },
@@ -122,7 +263,25 @@
         "any": [
           "Out alive. Your best chain was {links}. I've had longer naps.",
           "Dungeon done. I counted every mistake. It's a long list.",
-          "We made it out. Next time take the scary door, trust me."
+          "We made it out. Next time take the scary door, trust me.",
+          "Best chain: {links}. The Chronicle-Keepers won't bother writing it down. I will, in the margin.",
+          "Out, {hero}. Next dungeon, bring less. Fewer things to lose."
+        ],
+        "barbarian": [
+          "{links} links at best. Next dungeon, skip the armor. More room for scars.",
+          "You came out swinging. You went in swinging. Nobody learned anything. Perfect."
+        ],
+        "warrior": [
+          "Best chain {links}. Steady work. Try the dungeon with all the Knights next. Leave the Bleed at home.",
+          "Out in good order. Ruin that next time. Order is what gets you a nice grave."
+        ],
+        "rogue": [
+          "{links} at best. Lucky. Spend all of it on the next door, luck keeps.",
+          "You slipped out with everything. Go back for the rest. It's probably not guarded."
+        ],
+        "wizard": [
+          "A {links}-link strip. Add two more cards you don't understand. That's how scholars do it.",
+          "Out, with all your pages. Next time burn a few for warmth. You won't need them."
         ]
       }
     },
@@ -135,16 +294,20 @@
           "{owner} fired. Lean on it harder. Nothing bad has ever come of that."
         ],
         "barbarian": [
-          "{owner}! More of that. Stop thinking entirely, it's going great."
+          "{owner}! More of that. Stop thinking entirely, it's going great.",
+          "{owner} kicked in. Sell everything else and wear only that. Nothing else matters."
         ],
         "warrior": [
-          "{owner} kicked in. Very responsible. Have you considered recklessness?"
+          "{owner} kicked in. Very responsible. Have you considered recklessness?",
+          "{owner}, holding like an old oath. Break it on purpose, just to see."
         ],
         "rogue": [
-          "{owner}. Sneaky. Now do it while standing in the fire."
+          "{owner}. Sneaky. Now do it while standing in the fire.",
+          "{owner} paid out. Gamble it all on the next fight. It's called investing."
         ],
         "wizard": [
-          "{owner} fired. Stack ten more on top. What could go wrong."
+          "{owner} fired. Stack ten more on top. What could go wrong.",
+          "{owner} woke up. Feed it every card you own. It's hungry. So am I."
         ]
       }
     },
@@ -155,6 +318,22 @@
           "{card} cracked and gone. You'll miss it. I won't.",
           "There goes {card}. Shorter strip, shorter life. Probably.",
           "{card} burned out. Spend the rest of them just as fast, I'm begging you."
+        ],
+        "barbarian": [
+          "{card} broke on its own skull. Hit harder, maybe the rest will break too.",
+          "Shattered. {card} gave everything. You should too. Right now."
+        ],
+        "warrior": [
+          "{card} kept its oath and died for it. Sworn things do that. Swear more.",
+          "{card} is spent. A good soldier. Forget it immediately."
+        ],
+        "rogue": [
+          "{card} snapped. Edges do. Buy cheaper blades, they snap faster.",
+          "Gone, {card}. You'll find another in some poor fool's pocket."
+        ],
+        "wizard": [
+          "{card} went out like a candle. The dark tires before the faithful do, they say. They're wrong.",
+          "{card} is ash. Use the rest the same way. Ash is very light to carry."
         ]
       }
     }

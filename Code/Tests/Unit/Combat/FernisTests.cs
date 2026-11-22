@@ -35,6 +35,20 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(leaks.Count == 0, $"every line fills without braces ({leaks.Count} leak)", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("A b", FernisLineBank.Fill("a {nope} b", null), "unknown tokens drop; the line starts capitalized", ref _run, ref _passed, ref _failed);
 
+            // Full bank (step 11): every moment has 3+ "any" lines and 2+ lines for each class.
+            var thin = new List<string>();
+            foreach (var (name, moment) in bank.Moments)
+            {
+                if (!moment.Lines.TryGetValue("any", out var any) || any.Count < 3)
+                    thin.Add($"{name}/any");
+                foreach (string cls in new[] { "barbarian", "warrior", "rogue", "wizard" })
+                    if (!moment.Lines.TryGetValue(cls, out var own) || own.Count < 2)
+                        thin.Add($"{name}/{cls}");
+            }
+            TestBase.AssertTrue(thin.Count == 0, $"every moment has 3+ any and 2+ per class lines (thin: {string.Join(", ", thin.Take(6))})", ref _run, ref _passed, ref _failed);
+            var dupes = bank.Moments.SelectMany(m => m.Value.Lines.Values.SelectMany(v => v)).GroupBy(l => l).Where(g => g.Count() > 1).Select(g => g.Key).ToList();
+            TestBase.AssertTrue(dupes.Count == 0, $"no line repeats ({string.Join(" | ", dupes.Take(2))})", ref _run, ref _passed, ref _failed);
+
             // Class lines join the pool: over many picks a Rogue hears a Rogue-only line.
             var rng = new Random(7);
             bool heardRogue = Enumerable.Range(0, 200).Select(_ => bank.Pick(FernisMoments.FightWon, "rogue", rng))
