@@ -38,6 +38,8 @@ namespace RPGGame.Data.ActionModel
     public enum StripOpKind
     {
         Jump, Skip, Repeat, Loop, Stop, Random, Shuffle, ReplaceNext, Disable,
+        /// <summary>Strip effects on the foe (D3.15): skip its next card once / lose its last card for the fight.</summary>
+        Jam, BurnOut,
         RetriggerNext, RetriggerOpener, RetriggerFinisher, RetriggerSlot,
         /// <summary>Reset the target's combo (JAB, BLUDGEON); a strip op aimed at the enemy.</summary>
         Disrupt,

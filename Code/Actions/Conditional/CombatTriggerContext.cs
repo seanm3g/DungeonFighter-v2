@@ -35,6 +35,18 @@ namespace RPGGame.Actions.Conditional
             CritFaceMinOverrides.Clear();
             RetriggerScheduler.ResetForBattle();
             LivingEnemyCountAtFightStart = 1;
+            FragileCards.FightActive = true;
+        }
+
+        /// <summary>The fight is over: burned-out cards come back (the strip is whole again outside a fight).</summary>
+        public static void EndBattle()
+        {
+            FragileCards.FightActive = false;
+            foreach (var kv in StripStates)
+            {
+                kv.Value.BurnedOut.Clear();
+                kv.Value.FragileUses.Clear();
+            }
         }
 
         public static void SetLivingEnemyCount(int count) =>

@@ -77,6 +77,7 @@ namespace RPGGame.Data
                 : (baseRow?.ScaleFormula ?? "");
             row.Verb = !string.IsNullOrWhiteSpace(data.Verb) ? data.Verb : (baseRow?.Verb ?? "");
             row.Role = !string.IsNullOrWhiteSpace(data.Role) ? data.Role : (baseRow?.Role ?? "");
+            row.Fragile = !string.IsNullOrWhiteSpace(data.Fragile) ? data.Fragile : (baseRow?.Fragile ?? "");
             row.Cost = !string.IsNullOrWhiteSpace(data.Cost) ? data.Cost : (baseRow?.Cost ?? "");
 
             row.Damage = FormatDamage(data.DamageMultiplier);

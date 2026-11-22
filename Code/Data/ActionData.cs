@@ -31,6 +31,9 @@ namespace RPGGame
         /// <summary>Action role (D5.1): setup / sequence / payoff; empty = inferred.</summary>
         [JsonPropertyName("role")]
         public string Role { get; set; } = "";
+        /// <summary>Fragile N (D5.4): uses per fight before the card burns out; empty = not fragile.</summary>
+        [JsonPropertyName("fragile")]
+        public string Fragile { get; set; } = "";
         [JsonPropertyName("cost")]
         public string Cost { get; set; } = "";
         [JsonPropertyName("length")]

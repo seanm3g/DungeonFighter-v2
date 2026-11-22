@@ -232,7 +232,7 @@ namespace RPGGame.Combat.Rules
                 case "SWING":
                     return Swing(source, target, rule, evt, messages);
                 case "STRIP":
-                    return Strip(source, action, rule, messages);
+                    return Strip(source, action, rule, messages, target);
                 case "RETRIGGER":
                     return Retrigger(source, action, rule, messages);
                 case "NEXTROLL":
@@ -299,11 +299,11 @@ namespace RPGGame.Combat.Rules
         }
 
         /// <summary>STRIP op[:arg] n.</summary>
-        public static bool Strip(Actor source, Action? action, CrossWireRule rule, List<string> messages)
+        public static bool Strip(Actor source, Action? action, CrossWireRule rule, List<string> messages, Actor? target = null)
         {
             var (id, arg) = SplitOp(rule.Store);
             string count = ((int)Math.Max(1, Math.Round(rule.Amount))).ToString(CultureInfo.InvariantCulture);
-            return StripMutationApplier.TryApply(id, arg, count, action ?? new Action { Name = rule.Source }, source, messages);
+            return StripMutationApplier.TryApply(id, arg, count, action ?? new Action { Name = rule.Source }, source, messages, target);
         }
 
         /// <summary>RETRIGGER next|opener|finisher|slot:n.</summary>

@@ -148,6 +148,7 @@ namespace RPGGame.Tests.Runners
             RunSuiteSafely("RPGGame.Tests.Unit.FeatureScenarioTests", () => RPGGame.Tests.Unit.FeatureScenarioTests.RunAllTests());
             RunSuiteSafely("ActionTriggerBundleApplicatorTests", () => ActionTriggerBundleApplicatorTests.RunAllTests());
             RunSuiteSafely("StripMutationTests", () => StripMutationTests.RunAllTests());
+            RunSuiteSafely("FragileCardsTests", () => FragileCardsTests.RunAllTests());
             RunSuiteSafely("RetriggerTests", () => RetriggerTests.RunAllTests());
             RunSuiteSafely("RollProbabilityContentTests", () => RollProbabilityContentTests.RunAllTests());
             RunSuiteSafely("WeaponModTriggerBridgeTests", () => WeaponModTriggerBridgeTests.RunAllTests());

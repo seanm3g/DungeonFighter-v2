@@ -58,6 +58,7 @@ namespace RPGGame
         /// </summary>
         public void EndBattleNarrative()
         {
+            RPGGame.Actions.Conditional.CombatTriggerContext.EndBattle();
             if (currentBattleNarrative != null)
             {
                 // End the battle and generate narrative
@@ -90,6 +91,7 @@ namespace RPGGame
         /// </summary>
         public void EndBattleNarrative(Character player, Enemy enemy)
         {
+            RPGGame.Actions.Conditional.CombatTriggerContext.EndBattle();
             Persistence.OnFightEnd(player, enemy);
             if (currentBattleNarrative != null)
             {

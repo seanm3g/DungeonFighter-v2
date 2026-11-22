@@ -56,6 +56,8 @@ namespace RPGGame
         public string Verb { get; set; } = "";
         /// <summary>Authored role (D5.1); read it through <see cref="ActionRoles.Of"/>, which infers one when empty.</summary>
         public string Role { get; set; } = "";
+        /// <summary>Fragile N (D5.4, D5.7): the card works N times a fight, then burns out and the strip closes up; 0 = not fragile. See <see cref="FragileCards"/>.</summary>
+        public int Fragile { get; set; }
         /// <summary>Cost paid when the action resolves (<c>HP 5</c> = 5% max HP); see <see cref="ActionCost"/>.</summary>
         public string Cost { get; set; } = "";
         public bool CausesBleed { get; set; }

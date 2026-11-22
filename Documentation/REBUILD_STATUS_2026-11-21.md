@@ -52,7 +52,7 @@ git after each run; it is in no commit.
 | 7 Mythic class-bending rules | done | `3c6fc5c9` | 15141 passed / 0 failed |
 | 8 Cosmetic Wood / Cloth / Unknown | partial | `c542f44e` | 15140 passed / 1 failed (then fixed; ItemRoller 0 failed) |
 | 9 Core slot nodes, material branch gate | partial | `2dc79522` | 15138 passed / 5 failed (4 tree-shape expectations fixed, 1 known flaky) |
-| 10 Late rungs (Fragile cards, Jam / Burn out, callouts) | not started | — | — |
+| 10 Late rungs (Fragile cards, Jam / Burn out, callouts) | done (11-22) | see Step 10 | FragileCards 0 failed; combat, data, Fernis suites 0 failed |
 | 11 Content and lore pass | not started | — | — |
 | 12 Cleanup (delete switched-off code) | not started (needs your review of the switches first) | — | — |
 
@@ -251,6 +251,33 @@ git after each run; it is in no commit.
 - A prompt when a skill point arrives, Core-first presentation, and the class-points level-up moment: screens.
 - The Wizard sequence vocabulary (MODIFY / TRIGGER / FLOW): content (step 11). Phase 11's Cascading, Foretelling,
   Recurring and Rekindling lines give Wizard items some of it already.
+
+## Step 10 — Late rungs (2026-11-22)
+
+- **Fragile N (D5.4, D5.7):** new `fragile` column on actions (`Action.Fragile`), carried through the sheet → data →
+  action pipeline like `role`. `FragileCards` counts each top-level swing of a Fragile card; on its last use the card
+  burns out for the rest of the fight and **the strip closes up**: `Character.GetComboActions()` returns the live strip
+  during a fight, so slot count, thresholds, SLOTS and chain-complete all see the shorter strip, and the combo step is
+  re-pointed at the card that was next. The strip is whole again after the fight (`CombatTriggerContext.EndBattle`,
+  called from both `EndBattleNarrative` overloads) and at the next fight's start. The last live card never burns out.
+  Cards read `Payoff · Fragile 1 · ...`.
+- **Jam / Burn out (D3.15):** strip ops `strip_jam` (the foe's next card is skipped once, drawn as skipped) and
+  `strip_burnout` (the foe's last card burns out for the fight, only on a strip of 3+, so it's a counter to long
+  strips and never hits an early-game strip). Both act on the rule's target, from action cards, item and skill rules.
+- **Content (REVIEW, step 11 owns the final cut):** JAB, BLUDGEON and SHOULDER CHECK (Disrupt: "resets the enemy's
+  combo") now Jam; the enemy kit ENEMY DISRUPT is now ENEMY JAM (same 9 aliases); new kit ENEMY SHATTER (Burn out) on
+  Fragment and Broken Loop (Forest Tricksters). Four Fragile class cards, stronger than their tier: SHATTERING BLOW
+  (Barbarian, Fragile 1, 260%, 2 Stagger), LAST OATH (Warrior, Fragile 2, 170%, 3 Guard), SNAPPING EDGE (Rogue,
+  Fragile 2, 4×50%, 3 Bleed), GLASS NOVA (Wizard, Fragile 1, 240%, 3 Burn). Numbers are first guesses; no sims.
+- **Build-moment callouts (Phase 9 proposal 5):** once per run (saved in the hero's unlock record), the first time a
+  set's rule fires ("Build moment: your Iron set kicks in."), an item rule or a skill node fires, a capstone (a
+  `persist` node) fires, or a card burns out. Written as a plain log line before Fernis's line; Fernis has new
+  `buildMoment` and `burnOut` lines (drafts). They live in `FernisFightSession`, so `DF_FERNIS=0` turns them off too.
+  `RuleFire` gained `Capstone`.
+- **Not done:** a board animation for a burned-out card (cracked card), "when a card burns out" as a rule trigger
+  event, and a level gate for Jam (Jam cards and the ENEMY JAM kit keep the level they had as Disrupt).
+- **Tests:** new `FragileCardsTests` (burnout and close-up, step re-pointing, whole strip outside a fight, last card,
+  Jam, Burn out's 3-card minimum, ops hit the foe, data cards, card line, callouts once per run).
 
 ## Playtest (MCP, after the run)
 

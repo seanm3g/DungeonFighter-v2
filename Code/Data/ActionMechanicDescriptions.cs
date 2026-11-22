@@ -104,6 +104,8 @@ namespace RPGGame.Data
             ["strip_stop"] = "Fight-scoped: stop the combo early (reset to opener).",
             ["strip_random"] = "Fight-scoped: next combo slot is chosen at random among enabled slots.",
             ["strip_disable"] = "Fight-scoped: disable a strip slot for the rest of the fight.",
+            ["strip_jam"] = "Jam: the foe's next strip card is skipped once.",
+            ["strip_burnout"] = "Burn out: the foe's last strip card is lost for the rest of the fight; its strip closes up.",
             ["strip_shuffle"] = "Fight-scoped: shuffle strip play order for the rest of the fight.",
             ["strip_replace_next"] = "One-shot: next swing resolves a named strip/pool action (strip_replace_next:NAME).",
             ["combo_jump"] = "Alias of strip_jump.",

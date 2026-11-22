@@ -5,7 +5,7 @@ using System.Linq;
 namespace RPGGame.Combat.Rules
 {
     /// <summary>One resolved rule, for the trigger trace (D6.16).</summary>
-    public readonly record struct RuleFire(string Owner, RuleOwnerKind Kind, string Rule, string Event, int Generation);
+    public readonly record struct RuleFire(string Owner, RuleOwnerKind Kind, string Rule, string Event, int Generation, bool Capstone = false);
 
     /// <summary>
     /// The resolution order for triggered rules (Documentation/CORE_DESIGN_PASS_2026-11-17.md D6.11–D6.16):
@@ -160,7 +160,8 @@ namespace RPGGame.Combat.Rules
         /// <summary>Records a resolved rule (D6.16).</summary>
         public static void Record(Character hero, RuleEntry entry, string eventName)
         {
-            var fire = new RuleFire(entry.Owner.Name, entry.Owner.Kind, entry.Rule.Text, eventName, _generation);
+            var fire = new RuleFire(entry.Owner.Name, entry.Owner.Kind, entry.Rule.Text, eventName, _generation,
+                Capstone: !string.IsNullOrWhiteSpace(entry.Owner.Node?.Persist));
             var trace = _trace ??= new List<RuleFire>(TraceSize);
             if (trace.Count >= TraceSize)
                 trace.RemoveAt(0);

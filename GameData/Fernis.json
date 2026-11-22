@@ -1,5 +1,5 @@
 {
-  "_doc": "Fernis D Man's line bank (Documentation/CORE_DESIGN_PASS_2026-11-17.md, D9.1-D9.9). A small devil on your shoulder: finds things truthfully, gives the opposite of good advice, finds your suffering hilarious. Moments are keyed by event; 'big' moments always speak, small ones roll smallChance; at most one line per hero swing. Lines by class (barbarian / warrior / rogue / wizard) fall back to 'any'. Tokens: {hero} {enemy} {turns} {links} {cause} {hp} {status}. Draft lines: REVIEW in the step 11 lore pass.",
+  "_doc": "Fernis D Man's line bank (Documentation/CORE_DESIGN_PASS_2026-11-17.md, D9.1-D9.9). A small devil on your shoulder: finds things truthfully, gives the opposite of good advice, finds your suffering hilarious. Moments are keyed by event; 'big' moments always speak, small ones roll smallChance; at most one line per hero swing. Lines by class (barbarian / warrior / rogue / wizard) fall back to 'any'. Tokens: {hero} {enemy} {turns} {links} {cause} {hp} {status} {owner} {card}. Draft lines: REVIEW in the step 11 lore pass.",
   "speaker": "Fernis",
   "maxLinesPerSwing": 1,
   "smallChance": 0.35,
@@ -12,10 +12,18 @@
           "{enemy} is down. I'd call that a win if I were generous. I'm not.",
           "Done in {turns}. Next time try losing, it's more interesting for me."
         ],
-        "barbarian": ["You hit it until it stopped. Truly the thinking man's approach."],
-        "warrior": ["Very tidy. Very sensible. I nearly fell asleep on your shoulder."],
-        "rogue": ["Death by a thousand cuts. Well, a few. Your mother would be so proud."],
-        "wizard": ["Magic. Big lights. It died. I'm told that's a career."]
+        "barbarian": [
+          "You hit it until it stopped. Truly the thinking man's approach."
+        ],
+        "warrior": [
+          "Very tidy. Very sensible. I nearly fell asleep on your shoulder."
+        ],
+        "rogue": [
+          "Death by a thousand cuts. Well, a few. Your mother would be so proud."
+        ],
+        "wizard": [
+          "Magic. Big lights. It died. I'm told that's a career."
+        ]
       }
     },
     "comeback": {
@@ -35,10 +43,18 @@
           "Well. That's the end of my free ride.",
           "{enemy} wins. I'll be on its shoulder now. No hard feelings."
         ],
-        "barbarian": ["Died swinging. Mostly at air, but swinging."],
-        "warrior": ["All that armor, and it still found the soft bit."],
-        "rogue": ["Quick, clever, dead. Two out of three."],
-        "wizard": ["You read every book except the one about not dying."]
+        "barbarian": [
+          "Died swinging. Mostly at air, but swinging."
+        ],
+        "warrior": [
+          "All that armor, and it still found the soft bit."
+        ],
+        "rogue": [
+          "Quick, clever, dead. Two out of three."
+        ],
+        "wizard": [
+          "You read every book except the one about not dying."
+        ]
       }
     },
     "chainComplete": {
@@ -107,6 +123,38 @@
           "Out alive. Your best chain was {links}. I've had longer naps.",
           "Dungeon done. I counted every mistake. It's a long list.",
           "We made it out. Next time take the scary door, trust me."
+        ]
+      }
+    },
+    "buildMoment": {
+      "big": false,
+      "lines": {
+        "any": [
+          "{owner} finally did something. Don't get attached, it won't save you.",
+          "Oh look, {owner} works. Shame about the rest of you.",
+          "{owner} fired. Lean on it harder. Nothing bad has ever come of that."
+        ],
+        "barbarian": [
+          "{owner}! More of that. Stop thinking entirely, it's going great."
+        ],
+        "warrior": [
+          "{owner} kicked in. Very responsible. Have you considered recklessness?"
+        ],
+        "rogue": [
+          "{owner}. Sneaky. Now do it while standing in the fire."
+        ],
+        "wizard": [
+          "{owner} fired. Stack ten more on top. What could go wrong."
+        ]
+      }
+    },
+    "burnOut": {
+      "big": false,
+      "lines": {
+        "any": [
+          "{card} cracked and gone. You'll miss it. I won't.",
+          "There goes {card}. Shorter strip, shorter life. Probably.",
+          "{card} burned out. Spend the rest of them just as fast, I'm begging you."
         ]
       }
     }

@@ -424,6 +424,8 @@ namespace RPGGame.Actions.Execution
                 TryApplyComboEndedTriggers(comboCharacter, target, selected, result, comboStepBeforeAdvance);
             }
 
+            if (RetriggerDepth == 0)
+                FragileCards.AfterSwing(source, selected, result.StatusEffectMessages);
             CombatTriggerContext.NotifySwingResolved(source, selected, connected: true, missed: false);
         }
 
@@ -508,6 +510,8 @@ namespace RPGGame.Actions.Execution
                 }
             }
             ActionUtilities.CreateAndAddBattleEvent(source, target, result.SelectedAction!, 0, result.ModifiedBaseRoll + result.RollBonus, result.RollBonus, false, false, 0, 0, false, result.BaseRoll, battleNarrative);
+            if (RetriggerDepth == 0)
+                FragileCards.AfterSwing(source, result.SelectedAction, result.StatusEffectMessages);
             CombatTriggerContext.NotifySwingResolved(source, result.SelectedAction, connected: false, missed: true);
         }
 

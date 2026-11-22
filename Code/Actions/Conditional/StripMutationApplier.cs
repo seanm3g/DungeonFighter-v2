@@ -18,7 +18,7 @@ namespace RPGGame.Actions.Conditional
         {
             string id = ActionMechanicsRegistry.NormalizeMechanicId(mechanicId ?? "");
             return id.StartsWith("strip_", StringComparison.OrdinalIgnoreCase)
-                   || id is "combo_jump" or "loop_chain" or "shuffle" or "replace_action" or "skip";
+                   || id is "combo_jump" or "loop_chain" or "shuffle" or "replace_action" or "skip" or "jam" or "burnout" or "burn_out";
         }
 
         /// <summary>
@@ -31,12 +31,19 @@ namespace RPGGame.Actions.Conditional
             string? bundleCount,
             Action action,
             Actor source,
-            List<string> messages)
+            List<string> messages,
+            Actor? target = null)
         {
+            string id = ActionMechanicsRegistry.NormalizeMechanicId(mechanicId);
+            // Strip effects on the foe (D3.15): Jam skips its next card once, Burn out takes its last card for the fight.
+            if (id is "strip_jam" or "jam")
+                return target != null && !ReferenceEquals(target, source) && FragileCards.Jam(target, action.Name, messages);
+            if (id is "strip_burnout" or "burnout" or "burn_out")
+                return target != null && !ReferenceEquals(target, source) && FragileCards.BurnOutLast(target, action.Name, messages);
+
             if (source is not Character character)
                 return false;
 
-            string id = ActionMechanicsRegistry.NormalizeMechanicId(mechanicId);
             // Legacy aliases
             id = id switch
             {

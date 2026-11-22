@@ -60,6 +60,9 @@ namespace RPGGame
         public static string CardLine(Action? action, string? description)
         {
             string label = Label(Of(action));
+            // Fragile N (D5.4): the card says how many swings it has before it burns out.
+            if (action is { Fragile: > 0 })
+                label = $"{label} · Fragile {action.Fragile}";
             string body = (description ?? "").Trim().TrimStart('|').Trim();
             // The verb's status leads when the authored text doesn't already say it.
             if (VerbLine(action) is { } verb && body.IndexOf(verb, StringComparison.OrdinalIgnoreCase) < 0)

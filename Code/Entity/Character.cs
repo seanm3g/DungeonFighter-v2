@@ -416,7 +416,8 @@ namespace RPGGame
         public List<Action> ComboSequence => Facade.Properties.ComboSequence;
 
         // All other methods delegated to Facade for clean separation
-        public List<Action> GetComboActions() => Facade.GetComboActions();
+        /// <summary>The strip; during a fight, the live strip (burned-out Fragile cards removed, <see cref="RPGGame.Actions.Conditional.FragileCards"/>).</summary>
+        public List<Action> GetComboActions() => RPGGame.Actions.Conditional.FragileCards.LiveStrip(this, Facade.GetComboActions());
         public List<Action> GetActionPool() => Facade.GetActionPool();
         public void AddToCombo(Action action) => Facade.AddToCombo(action);
         public bool RemoveFromCombo(Action action, bool ignoreWeaponRequirement = false) =>

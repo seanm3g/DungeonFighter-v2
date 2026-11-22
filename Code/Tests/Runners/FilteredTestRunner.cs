@@ -243,6 +243,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "CharmAnimal", () => RPGGame.Tests.Unit.Combat.CharmAndAnimalLadderTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTriggerBundleApplicator", () => RPGGame.Tests.Unit.ActionTriggerBundleApplicatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "StripMutation", () => RPGGame.Tests.Unit.StripMutationTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "FragileCards", () => RPGGame.Tests.Unit.FragileCardsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "Retrigger", () => RPGGame.Tests.Unit.RetriggerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "RollProbabilityContent", () => RPGGame.Tests.Unit.RollProbabilityContentTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "WeaponModTriggerBridge", () => RPGGame.Tests.Unit.WeaponModTriggerBridgeTests.RunAllTests()));

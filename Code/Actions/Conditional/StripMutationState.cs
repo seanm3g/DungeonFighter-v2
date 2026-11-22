@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using RPGGame;
 using RPGGame.Entity.Actions.ComboRouting;
 
 namespace RPGGame.Actions.Conditional
@@ -11,6 +12,12 @@ namespace RPGGame.Actions.Conditional
     public sealed class StripMutationState
     {
         public HashSet<int> DisabledSlots { get; } = new();
+
+        /// <summary>Cards burned out this fight (Fragile, Burn out); by reference, so two copies of a card burn apart.</summary>
+        public HashSet<Action> BurnedOut { get; } = new(ReferenceEqualityComparer.Instance);
+
+        /// <summary>Swings each Fragile card has used this fight.</summary>
+        public Dictionary<Action, int> FragileUses { get; } = new(ReferenceEqualityComparer.Instance);
 
         /// <summary>
         /// When non-null, maps logical play order index → physical strip index for the fight.
@@ -51,6 +58,8 @@ namespace RPGGame.Actions.Conditional
         {
             SkippedThisRunMask = 0;
             DisabledSlots.Clear();
+            BurnedOut.Clear();
+            FragileUses.Clear();
             ShufflePermutation = null;
             ClearPendingRouting();
             ReplaceNextActionName = null;

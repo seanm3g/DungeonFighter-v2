@@ -86,6 +86,9 @@ namespace RPGGame.Data
         /// <summary>Action role (D5.1): setup / sequence / payoff; empty = inferred (<see cref="RPGGame.ActionRoles"/>).</summary>
         [JsonPropertyName("role")]
         public string Role { get; set; } = "";
+        /// <summary>Fragile N (D5.4): uses per fight before the card burns out; empty = not fragile.</summary>
+        [JsonPropertyName("fragile")]
+        public string Fragile { get; set; } = "";
 
         /// <summary>Action cost paid when it resolves (<c>HP 5</c> = 5% max HP); see <see cref="RPGGame.ActionCost"/>.</summary>
         [JsonPropertyName("cost")]

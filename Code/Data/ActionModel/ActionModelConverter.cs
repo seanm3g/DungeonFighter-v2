@@ -238,6 +238,8 @@ namespace RPGGame.Data.ActionModel
                 case "strip_shuffle": Strip(StripOpKind.Shuffle); break;
                 case "strip_replace_next": Strip(StripOpKind.ReplaceNext, arg); break;
                 case "strip_disable": Strip(StripOpKind.Disable); break;
+                case "strip_jam": Strip(StripOpKind.Jam); break;
+                case "strip_burnout": Strip(StripOpKind.BurnOut); break;
                 case "retrigger_next": Strip(StripOpKind.RetriggerNext); break;
                 case "retrigger_opener": Strip(StripOpKind.RetriggerOpener); break;
                 case "retrigger_finisher": Strip(StripOpKind.RetriggerFinisher); break;
@@ -320,6 +322,7 @@ namespace RPGGame.Data.ActionModel
             ctx.Use(nameof(SpreadsheetActionJson.Verb));
             ctx.Use(nameof(SpreadsheetActionJson.Cost));
             ctx.Use(nameof(SpreadsheetActionJson.Role));
+            ctx.Use(nameof(SpreadsheetActionJson.Fragile));
 
             string lifesteal = ctx.Use(nameof(SpreadsheetActionJson.Lifesteal));
             if (lifesteal.Length > 0)

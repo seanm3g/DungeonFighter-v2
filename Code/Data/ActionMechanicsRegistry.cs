@@ -668,7 +668,7 @@ namespace RPGGame.Data
             foreach (string id in new[]
             {
                 "strip_jump", "strip_skip", "strip_repeat", "strip_loop", "strip_stop", "strip_random",
-                "strip_disable", "strip_shuffle", "strip_replace_next",
+                "strip_disable", "strip_shuffle", "strip_replace_next", "strip_jam", "strip_burnout",
                 "combo_jump", "loop_chain", "shuffle", "replace_action", "skip"
             })
                 P(id, false, false, false, false, true, MechanicStatus.Good);

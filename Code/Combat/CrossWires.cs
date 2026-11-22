@@ -135,7 +135,7 @@ namespace RPGGame
             { "MINT", "ADD", "APPLY", "HEAL", "REFLECT", "BUFF", "NEXT", "SPEND", "NEXTROLL", "STRIP", "RETRIGGER", "CRITFACE", "SWING" };
         /// <summary>STRIP / RETRIGGER operations (the strip vocabulary, 2026-11-19).</summary>
         public static readonly string[] StripOps =
-            { "strip_jump", "strip_skip", "strip_repeat", "strip_loop", "strip_stop", "strip_random", "strip_shuffle", "strip_replace_next", "strip_disable" };
+            { "strip_jump", "strip_skip", "strip_repeat", "strip_loop", "strip_stop", "strip_random", "strip_shuffle", "strip_replace_next", "strip_disable", "strip_jam", "strip_burnout" };
         public static readonly string[] RetriggerOps = { "retrigger_next", "retrigger_opener", "retrigger_finisher", "retrigger_slot" };
         /// <summary>SWING: what this swing gains.</summary>
         public static readonly string[] SwingStats = { "DAMAGE", "SPEED", "AMP" };
@@ -779,7 +779,7 @@ namespace RPGGame
                 var log = new List<string>();
                 return rule.Verb switch
                 {
-                    "STRIP" => ActionRules.Strip(hero, evt?.Action, rule, log),
+                    "STRIP" => ActionRules.Strip(hero, evt?.Action, rule, log, target),
                     "RETRIGGER" => ActionRules.Retrigger(hero, evt?.Action, rule, log),
                     _ => ActionRules.CritFace(hero, (int)Math.Round(written), true, log)
                 };
@@ -922,6 +922,8 @@ namespace RPGGame
                 "strip_shuffle" => "shuffle the strip",
                 "strip_replace_next" => $"the next strip action becomes {arg}",
                 "strip_disable" => "disable the next strip slot",
+                "strip_jam" => "jam the foe's next strip card",
+                "strip_burnout" => "burn out the foe's last strip card",
                 _ => op
             };
         }

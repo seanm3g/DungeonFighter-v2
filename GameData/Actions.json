@@ -763,15 +763,14 @@
   {
     "action": "JAB",
     "role": "setup",
-    "description": "Resets the enemy\u0027s combo.",
+    "description": "Jam: the enemy\u0027s next card is skipped.",
     "tier": 2,
     "dps": "88%",
     "numberOfHits": "1",
     "damage": "35%",
     "speed": "0.40",
     "block": "180",
-    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022disrupt\u0022,\u0022IsEnabled\u0022:true}]",
-    "disrupt": "1",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_jam\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "tags": "hybrid, duelist, warrior, rogue"
   },
   {
@@ -1408,7 +1407,7 @@
   {
     "action": "BLUDGEON",
     "role": "setup",
-    "description": "Resets the enemy\u0027s combo.",
+    "description": "Jam: the enemy\u0027s next card is skipped.",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -1416,8 +1415,7 @@
     "damage": "140%",
     "speed": "1.40",
     "block": "180",
-    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022disrupt\u0022,\u0022IsEnabled\u0022:true}]",
-    "disrupt": "1",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_jam\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "tags": "common, class, barbarian, bludgeon, mace"
   },
   {
@@ -2346,7 +2344,7 @@
   {
     "action": "SHOULDER CHECK",
     "role": "setup",
-    "description": "Resets the enemy\u0027s combo.",
+    "description": "Jam: the enemy\u0027s next card is skipped.",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "100%",
@@ -2354,8 +2352,7 @@
     "damage": "110.0%",
     "speed": "1.10",
     "block": "100",
-    "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022disrupt\u0022,\u0022IsEnabled\u0022:true}]",
-    "disrupt": "1",
+    "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_jam\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "tags": "common, hybrid, warbrute, barbarian, warrior"
   },
   {
@@ -3196,5 +3193,65 @@
     "block": "100",
     "verb": "RELEASE 40",
     "tags": "action, verb, hybrid, spellblade, warrior, wizard"
+  },
+  {
+    "action": "SHATTERING BLOW",
+    "role": "payoff",
+    "verb": "APPLY stagger 2",
+    "description": "Applies 2 Stagger.",
+    "rarity": "UNCOMMON",
+    "tier": 3,
+    "fragile": "1",
+    "dps": "260%",
+    "numberOfHits": "1",
+    "damage": "260%",
+    "speed": "1.00",
+    "block": "100",
+    "tags": "class, barbarian, mace"
+  },
+  {
+    "action": "LAST OATH",
+    "role": "payoff",
+    "verb": "APPLY harden 3",
+    "description": "Gains 3 Guard.",
+    "rarity": "UNCOMMON",
+    "tier": 3,
+    "fragile": "2",
+    "dps": "190%",
+    "numberOfHits": "1",
+    "damage": "170%",
+    "speed": "0.90",
+    "block": "180",
+    "tags": "class, warrior, sword"
+  },
+  {
+    "action": "SNAPPING EDGE",
+    "role": "payoff",
+    "verb": "APPLY bleed 3",
+    "description": "Applies 3 Bleed.",
+    "rarity": "UNCOMMON",
+    "tier": 3,
+    "fragile": "2",
+    "dps": "200%",
+    "numberOfHits": "4",
+    "damage": "50%",
+    "speed": "1.00",
+    "block": "180",
+    "tags": "class, rogue, dagger"
+  },
+  {
+    "action": "GLASS NOVA",
+    "role": "payoff",
+    "verb": "APPLY burn 3",
+    "description": "Applies 3 Burn.",
+    "rarity": "UNCOMMON",
+    "tier": 3,
+    "fragile": "1",
+    "dps": "240%",
+    "numberOfHits": "1",
+    "damage": "240%",
+    "speed": "1.00",
+    "block": "180",
+    "tags": "class, wizard, wand"
   }
 ]

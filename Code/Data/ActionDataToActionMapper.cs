@@ -85,6 +85,7 @@ namespace RPGGame
             action.ScaleFormula = data.ScaleFormula ?? "";
             action.Verb = data.Verb ?? "";
             action.Role = data.Role ?? "";
+            action.Fragile = int.TryParse((data.Fragile ?? "").Trim(), System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out int fragileUses) && fragileUses > 0 ? fragileUses : 0;
             action.Cost = data.Cost ?? "";
             action.CausesConfusion = data.CausesConfusion;
             action.CausesDisrupt = data.CausesDisrupt;

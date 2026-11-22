@@ -23,6 +23,8 @@ namespace RPGGame.Combat.Narrative
         public const string Threat = "threat";
         public const string NewConcept = "newConcept";
         public const string DungeonSummary = "dungeonSummary";
+        public const string BuildMoment = "buildMoment";
+        public const string BurnOut = "burnOut";
     }
 
     /// <summary><c>GameData/Fernis.json</c>: lines per moment, by class with an "any" fallback.</summary>
@@ -176,6 +178,10 @@ namespace RPGGame.Combat.Narrative
         private readonly string? _heroClass;
         private readonly List<string> _pending = new();
         private readonly Action<CombatEvent> _handler;
+        private readonly Action<Character, RPGGame.Combat.Rules.RuleFire> _ruleHandler;
+        private readonly Action<Character, RPGGame.Action> _burnHandler;
+        private readonly bool _subscribed;
+        private readonly List<string> _callouts = new();
         private readonly object _lock = new();
         private bool _closeCall, _threat;
         private int _lowestHpPercent = 100;
@@ -200,9 +206,65 @@ namespace RPGGame.Combat.Narrative
             _narrator = narrator ?? new FernisNarrator();
             _heroClass = hero.Progression?.GetPrimaryClassWeaponType() is WeaponType wt ? ClassTags.ClassOf(wt) : null;
             _handler = OnEvent;
+            _ruleHandler = OnRuleFired;
+            _burnHandler = OnCardBurnedOut;
+            _subscribed = subscribe;
             if (subscribe)
+            {
                 foreach (var t in Listened)
                     CombatEventBus.Instance.Subscribe(t, _handler);
+                RPGGame.Combat.Rules.RuleEngine.Fired += _ruleHandler;
+                RPGGame.Actions.Conditional.FragileCards.CardBurnedOut += _burnHandler;
+            }
+        }
+
+        /// <summary>Build-moment callouts (Phase 9 proposal 5): queued plain lines, written before Fernis's.</summary>
+        public IReadOnlyList<string> Callouts { get { lock (_lock) return _callouts.ToList(); } }
+
+        /// <summary>
+        /// One-time callout per run (the hero's unlock record, saved with the character) the first time a set kicks in,
+        /// an item rule or a skill node fires, or a capstone fires (public for tests).
+        /// </summary>
+        public void OnRuleFired(Character hero, RPGGame.Combat.Rules.RuleFire fire)
+        {
+            if (!ReferenceEquals(hero, _hero) || string.IsNullOrWhiteSpace(fire.Owner))
+                return;
+            string? text = fire.Kind switch
+            {
+                RPGGame.Combat.Rules.RuleOwnerKind.Set => $"Build moment: your {fire.Owner} set kicks in.",
+                RPGGame.Combat.Rules.RuleOwnerKind.Skill when fire.Capstone => $"Build moment: capstone {fire.Owner} fires.",
+                RPGGame.Combat.Rules.RuleOwnerKind.Skill => $"Build moment: {fire.Owner} fires for the first time.",
+                RPGGame.Combat.Rules.RuleOwnerKind.Item => $"Build moment: {fire.Owner} fires for the first time.",
+                _ => null
+            };
+            if (text == null)
+                return;
+            string kind = fire.Capstone ? "capstone" : fire.Kind.ToString().ToLowerInvariant();
+            Callout("moment", $"{kind}:{fire.Owner}", text, FernisMoments.BuildMoment, ("owner", fire.Owner));
+        }
+
+        /// <summary>The first card to burn out this run gets a callout; every burnout may get a Fernis line.</summary>
+        public void OnCardBurnedOut(Character holder, RPGGame.Action card)
+        {
+            if (!ReferenceEquals(holder, _hero) || card == null)
+                return;
+            var tokens = Tokens();
+            tokens["card"] = card.Name;
+            if (_hero.Unlocks.MarkSeen("moment", "burnout"))
+                lock (_lock)
+                    _callouts.Add($"Build moment: {card.Name} burned out. Fragile cards are gone for the rest of the fight.");
+            Say(FernisMoments.BurnOut, tokens);
+        }
+
+        private void Callout(string kind, string key, string text, string moment, (string Key, string Value) token)
+        {
+            if (!_hero.Unlocks.MarkSeen(kind, key))
+                return;
+            lock (_lock)
+                _callouts.Add(text);
+            var tokens = Tokens();
+            tokens[token.Key] = token.Value;
+            Say(moment, tokens);
         }
 
         /// <summary>Fernis is on in live, unmuted fights and MCP play (never in sims) unless <c>DF_FERNIS=0</c>.</summary>
@@ -330,14 +392,21 @@ namespace RPGGame.Combat.Narrative
         /// <summary>Hands the queued lines to the log ("Fernis: ...").</summary>
         public void Flush()
         {
-            List<string> lines;
+            List<string> lines, callouts;
             lock (_lock)
             {
                 lines = _pending.ToList();
                 _pending.Clear();
+                callouts = _callouts.ToList();
+                _callouts.Clear();
             }
-            if (lines.Count > 0)
+            if (lines.Count > 0 || callouts.Count > 0)
                 BeforeLines?.Invoke();
+            foreach (string callout in callouts)
+            {
+                TextDisplayIntegration.DisplaySystem(callout);
+                LineSpoken?.Invoke(callout);
+            }
             foreach (string line in lines)
             {
                 string said = $"{_narrator.Speaker}: {line}";
@@ -348,8 +417,12 @@ namespace RPGGame.Combat.Narrative
 
         public void Dispose()
         {
+            if (!_subscribed)
+                return;
             foreach (var t in Listened)
                 CombatEventBus.Instance.Unsubscribe(t, _handler);
+            RPGGame.Combat.Rules.RuleEngine.Fired -= _ruleHandler;
+            RPGGame.Actions.Conditional.FragileCards.CardBurnedOut -= _burnHandler;
         }
     }
 }

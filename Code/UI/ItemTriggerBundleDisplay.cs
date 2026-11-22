@@ -208,6 +208,8 @@ namespace RPGGame
                 "strip_stop" => "Stop strip",
                 "strip_random" => "Random strip",
                 "strip_disable" => "Disable strip slot",
+                "strip_jam" => "Jam the foe's next card",
+                "strip_burnout" => "Burn out the foe's last card",
                 "strip_replace_next" => "Replace next strip action",
                 "retrigger_next" => "Retrigger next",
                 "retrigger_opener" => "Retrigger opener",

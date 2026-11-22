@@ -96,6 +96,7 @@ namespace RPGGame.Tests.Runners
             CharmAndAnimalLadderTests.RunAllTests();
             ActionTriggerBundleApplicatorTests.RunAllTests();
             StripMutationTests.RunAllTests();
+            FragileCardsTests.RunAllTests();
             RetriggerTests.RunAllTests();
             RollProbabilityContentTests.RunAllTests();
             WeaponModTriggerBridgeTests.RunAllTests();

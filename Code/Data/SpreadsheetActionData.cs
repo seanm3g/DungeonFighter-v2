@@ -87,6 +87,8 @@ namespace RPGGame.Data
         public string Verb { get; set; } = "";
         /// <summary>Action role (D5.1): setup / sequence / payoff; JSON only.</summary>
         public string Role { get; set; } = "";
+        /// <summary>Fragile N (D5.4); JSON only.</summary>
+        public string Fragile { get; set; } = "";
         /// <summary>Action cost (<c>HP 5</c>); JSON only, no sheet column yet.</summary>
         public string Cost { get; set; } = "";
         
