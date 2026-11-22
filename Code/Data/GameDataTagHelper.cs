@@ -63,6 +63,27 @@ namespace RPGGame.Data
             return !HasEnvironmentTag(tags) && !HasEnemyTag(tags);
         }
 
+        /// <summary>Tag on actions cut by the step 11 content pass (Documentation/ACTION_CUT_2026-11-22.md).</summary>
+        public const string RetiredTag = "retired";
+
+        /// <summary>
+        /// True for an action retired by the content cut: it still loads and works (old saves, gear that already grants it,
+        /// skill nodes, tests), but never rolls on new gear or into any pool.
+        /// </summary>
+        public static bool IsRetired(IEnumerable<string>? tags) => HasTag(tags, RetiredTag);
+
+        /// <summary>True when an action may roll onto new hero gear: grantable (<see cref="IsGrantableOnHeroGear"/>) and not retired.</summary>
+        public static bool IsRollableOnHeroGear(IEnumerable<string>? tags) => IsGrantableOnHeroGear(tags) && !IsRetired(tags);
+
+        /// <summary>By name: <see cref="IsRollableOnHeroGear"/>; unknown names count as rollable (like <see cref="IsGrantableOnHeroGearByName"/>).</summary>
+        public static bool IsRollableOnHeroGearByName(string? actionName)
+        {
+            if (!IsGrantableOnHeroGearByName(actionName))
+                return false;
+            var data = ActionLoader.GetActionData(actionName!);
+            return data == null || !IsRetired(data.Tags);
+        }
+
         /// <summary>Resolves action tags from loaded game data and applies <see cref="IsGrantableOnHeroGear"/>.</summary>
         public static bool IsGrantableOnHeroGearByName(string? actionName)
         {

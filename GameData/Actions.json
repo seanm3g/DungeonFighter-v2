@@ -137,12 +137,13 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00223\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022IsEnabled\u0022:true}]",
     "damageMod": "25",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:25}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
-    "tags": "bludgeon, class, barbarian"
+    "tags": "bludgeon, class, barbarian, retired"
   },
   {
     "action": "FIGHT BONUS",
     "role": "setup",
     "description": "\u002B1 HIT for the rest of the fight.",
+    "tags": "retired",
     "tier": 1,
     "dps": "75%",
     "numberOfHits": "1",
@@ -182,7 +183,7 @@
     "heroHit": "1",
     "heroCrit": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:1},{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "rare, class, rogue"
+    "tags": "rare, class, rogue, retired"
   },
   {
     "action": "CONCENTRATION",
@@ -198,7 +199,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_combo_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "heroCombo": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022COMBO\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "common"
+    "tags": "common, retired"
   },
   {
     "action": "MEASURED ADVANCE",
@@ -218,7 +219,7 @@
   },
   {
     "action": "CRITICAL ATTACK",
-    "role": "setup",
+    "role": "payoff",
     "description": "Next turn: \u002B1 CRIT.",
     "rarity": "RARE",
     "tier": 1,
@@ -246,7 +247,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroSTR": "5",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022STR\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "common, class, barbarian"
+    "tags": "common, class, barbarian, retired"
   },
   {
     "action": "FIGHTER",
@@ -262,7 +263,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroSTR": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022STR\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
-    "tags": "common, class, barbarian"
+    "tags": "common, class, barbarian, retired"
   },
   {
     "action": "MOMENTUM BASH",
@@ -278,7 +279,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroSTR": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022STR\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
-    "tags": "common, class, barbarian"
+    "tags": "common, class, barbarian, retired"
   },
   {
     "action": "REACTION TRAINING",
@@ -294,7 +295,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroAGI": "5",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AGI\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "common, class, warrior"
+    "tags": "common, class, warrior, retired"
   },
   {
     "action": "DEEP BREATHING",
@@ -310,7 +311,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroAGI": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AGI\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
-    "tags": "common, class, warrior"
+    "tags": "common, class, warrior, retired"
   },
   {
     "action": "DANCE",
@@ -326,7 +327,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroAGI": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AGI\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
-    "tags": "common, class, warrior"
+    "tags": "common, class, warrior, retired"
   },
   {
     "action": "TAKING AIM",
@@ -342,7 +343,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroTECH": "5",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022TECH\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "common, class, rogue"
+    "tags": "common, class, rogue, retired"
   },
   {
     "action": "QUIET MIND",
@@ -358,7 +359,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroTECH": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022TECH\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
-    "tags": "common, class, rogue"
+    "tags": "common, class, rogue, retired"
   },
   {
     "action": "FOCUS",
@@ -374,7 +375,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroTECH": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022TECH\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
-    "tags": "common, class, rogue"
+    "tags": "common, class, rogue, retired"
   },
   {
     "action": "READ BOOK",
@@ -406,7 +407,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroINT": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022INT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
-    "tags": "common, class, wizard"
+    "tags": "common, class, wizard, retired"
   },
   {
     "action": "DUNGEON ANALYSIS",
@@ -422,7 +423,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_stat_bonus\u0022,\u0022IsEnabled\u0022:true}]",
     "heroINT": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022INT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
-    "tags": "common, class, wizard"
+    "tags": "common, class, wizard, retired"
   },
   {
     "action": "SPRINT",
@@ -437,7 +438,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "speedMod": "5",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "swift"
+    "tags": "swift, retired"
   },
   {
     "action": "RUSH",
@@ -452,7 +453,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "speedMod": "5",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:5}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
-    "tags": "swift"
+    "tags": "swift, retired"
   },
   {
     "action": "MOMENTUM",
@@ -467,7 +468,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022FIGHT\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "speedMod": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022FIGHT\u0022,\u0022cadenceType\u0022:\u0022FIGHT\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022FIGHT\u0022}]}",
-    "tags": "swift, class, warrior"
+    "tags": "swift, class, warrior, retired"
   },
   {
     "action": "MARATHON",
@@ -482,7 +483,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022DUNGEON\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "speedMod": "0.5",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022DUNGEON\u0022,\u0022cadenceType\u0022:\u0022DUNGEON\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:0.5}],\u0022durationType\u0022:\u0022DUNGEON\u0022}]}",
-    "tags": "swift, class, warrior"
+    "tags": "swift, class, warrior, retired"
   },
   {
     "action": "STRONGER",
@@ -497,7 +498,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022IsEnabled\u0022:true}]",
     "damageMod": "25",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:25}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
-    "tags": "bludgeon, class, barbarian"
+    "tags": "bludgeon, class, barbarian, retired"
   },
   {
     "action": "RAPID STRIKE",
@@ -523,12 +524,13 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_amp\u0022,\u0022IsEnabled\u0022:true}]",
     "ampMod": "10",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AMP_MOD\u0022,\u0022value\u0022:10}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
-    "tags": "focus, class, wizard"
+    "tags": "focus, class, wizard, retired"
   },
   {
     "action": "SHARPEN",
     "role": "setup",
     "description": "Next turn: \u002B4 weapon damage.",
+    "tags": "retired",
     "tier": 1,
     "dps": "83%",
     "numberOfHits": "1",
@@ -543,6 +545,7 @@
     "action": "HONE",
     "role": "setup",
     "description": "\u002B1 weapon damage for the rest of the fight.",
+    "tags": "retired",
     "tier": 1,
     "dps": "71%",
     "numberOfHits": "1",
@@ -557,6 +560,7 @@
     "action": "WHETSTONE",
     "role": "setup",
     "description": "\u002B1 weapon damage for the rest of the dungeon.",
+    "tags": "retired",
     "tier": 1,
     "dps": "59%",
     "numberOfHits": "1",
@@ -571,6 +575,7 @@
     "action": "LOOSE GRIP",
     "role": "setup",
     "description": "Next turn: \u002B2 weapon speed, -2 weapon damage.",
+    "tags": "retired",
     "tier": 1,
     "dps": "112%",
     "numberOfHits": "3",
@@ -586,6 +591,7 @@
     "action": "JUICED",
     "role": "setup",
     "description": "Next turn: \u002B1 weapon speed.",
+    "tags": "retired",
     "tier": 1,
     "dps": "90%",
     "numberOfHits": "1",
@@ -600,6 +606,7 @@
     "action": "BLUR",
     "role": "setup",
     "description": "Next 2 turns: \u002B1 weapon speed.",
+    "tags": "retired",
     "tier": 1,
     "dps": "83%",
     "numberOfHits": "2",
@@ -662,7 +669,7 @@
     "block": "0",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022weaken\u0022,\u0022IsEnabled\u0022:true}]",
     "weaken": "1",
-    "tags": "hybrid, hexblade, rogue, wizard"
+    "tags": "hybrid, hexblade, rogue, wizard, retired"
   },
   {
     "action": "SLOW",
@@ -676,7 +683,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022slow\u0022,\u0022IsEnabled\u0022:true}]",
     "slow": "1",
-    "tags": "hybrid, spellblade, warrior, wizard"
+    "tags": "hybrid, spellblade, warrior, wizard, retired"
   },
   {
     "action": "HARDEN",
@@ -691,7 +698,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022harden\u0022,\u0022IsEnabled\u0022:true}]",
     "harden": "1",
     "selfTargetEffects": "harden",
-    "tags": "class, warrior"
+    "tags": "class, warrior, retired"
   },
   {
     "action": "PIERCE",
@@ -705,7 +712,7 @@
     "block": "180",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022pierce\u0022,\u0022IsEnabled\u0022:true}]",
     "pierce": "1",
-    "tags": "hybrid, duelist, warrior, rogue"
+    "tags": "hybrid, duelist, warrior, rogue, retired"
   },
   {
     "action": "CONFUSE",
@@ -719,7 +726,7 @@
     "block": "180",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022confuse\u0022,\u0022IsEnabled\u0022:true}]",
     "confuse": "1",
-    "tags": "hybrid, hexblade, rogue, wizard"
+    "tags": "hybrid, hexblade, rogue, wizard, retired"
   },
   {
     "action": "SELF TARGET",
@@ -751,6 +758,7 @@
     "action": "UNLUCK",
     "role": "setup",
     "description": "Next action: roll twice, keep the lower.",
+    "tags": "retired",
     "tier": 2,
     "dps": "100%",
     "numberOfHits": "1",
@@ -762,7 +770,7 @@
   },
   {
     "action": "JAB",
-    "role": "setup",
+    "role": "payoff",
     "description": "Jam: the enemy\u0027s next card is skipped.",
     "tier": 2,
     "dps": "88%",
@@ -785,7 +793,7 @@
     "block": "180",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022expose\u0022,\u0022IsEnabled\u0022:true}]",
     "expose": "1",
-    "tags": "hybrid, ravager, barbarian, rogue"
+    "tags": "hybrid, ravager, barbarian, rogue, retired"
   },
   {
     "action": "SET BONUS",
@@ -813,7 +821,7 @@
   },
   {
     "action": "BERSERKER",
-    "role": "setup",
+    "role": "payoff",
     "description": "\u002B1% damage for every 1% of HP you are missing.",
     "tier": 3,
     "dps": "92%",
@@ -838,7 +846,7 @@
     "heroHit": "-1",
     "heroCrit": "2",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:2},{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:-1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "hybrid, ravager, barbarian, rogue"
+    "tags": "hybrid, ravager, barbarian, rogue, retired"
   },
   {
     "action": "GAMBLERS BLESSING",
@@ -856,7 +864,7 @@
   },
   {
     "action": "HAYMAKER",
-    "role": "setup",
+    "role": "payoff",
     "description": "No guard while swinging. Next turn: -2 HIT.",
     "tier": 3,
     "dps": "120%",
@@ -883,7 +891,7 @@
     "heroCombo": "1",
     "expose": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:2,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022COMBO\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "class, barbarian"
+    "tags": "class, barbarian, retired"
   },
   {
     "action": "BASH",
@@ -897,7 +905,7 @@
     "block": "180",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00222\u0022,\u0022mechanics\u0022:\u0022expose\u0022,\u0022IsEnabled\u0022:true}]",
     "expose": "1",
-    "tags": "class, barbarian"
+    "tags": "class, barbarian, retired"
   },
   {
     "action": "STRIP JUMP",
@@ -923,7 +931,7 @@
     "speed": "0.50",
     "block": "100",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_skip\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, class, wizard"
+    "tags": "action, class, wizard, retired"
   },
   {
     "action": "STRIP REPEAT",
@@ -936,7 +944,7 @@
     "speed": "1.20",
     "block": "180",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCOMBO\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_repeat\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, hybrid, spellblade, warrior, wizard"
+    "tags": "action, hybrid, spellblade, warrior, wizard, retired"
   },
   {
     "action": "STRIP LOOP",
@@ -963,7 +971,7 @@
     "block": "0",
     "onMiss": "1",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONMISS\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_stop\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, hybrid, duelist, warrior, rogue"
+    "tags": "action, hybrid, duelist, warrior, rogue, retired"
   },
   {
     "action": "STRIP RANDOM",
@@ -976,7 +984,7 @@
     "speed": "1.00",
     "block": "180",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_random\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, class, wizard"
+    "tags": "action, class, wizard, retired"
   },
   {
     "action": "STRIP SHUFFLE",
@@ -989,7 +997,7 @@
     "speed": "0.90",
     "block": "100",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONFIRSTHIT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_shuffle\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, class, wizard"
+    "tags": "action, class, wizard, retired"
   },
   {
     "action": "STRIP REPLACE",
@@ -1002,7 +1010,7 @@
     "speed": "0.60",
     "block": "100",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_replace_next:STRIKE\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, class, rogue"
+    "tags": "action, class, rogue, retired"
   },
   {
     "action": "RETRIGGER NEXT",
@@ -1015,7 +1023,7 @@
     "speed": "1.40",
     "block": "0",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCOMBO\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_next\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, hybrid, spellblade, warrior, wizard"
+    "tags": "action, hybrid, spellblade, warrior, wizard, retired"
   },
   {
     "action": "RETRIGGER OPENER",
@@ -1068,7 +1076,7 @@
     "speed": "0.75",
     "block": "100",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022FIGHT\u0022,\u0022mechanics\u0022:\u0022salvage_miss\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, hybrid, warbrute, barbarian, warrior"
+    "tags": "action, hybrid, warbrute, barbarian, warrior, retired"
   },
   {
     "action": "CRIT FACES",
@@ -1094,7 +1102,7 @@
     "speed": "0.80",
     "block": "180",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022replace_next_roll:20\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, class, rogue"
+    "tags": "action, class, rogue, retired"
   },
   {
     "action": "EXPLODING DICE",
@@ -1122,7 +1130,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONNATURALROLL\u0022,\u0022count\u0022:\u00227\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, hybrid, hexblade, rogue, wizard"
+    "tags": "action, hybrid, hexblade, rogue, wizard, retired"
   },
   {
     "action": "CRIT HEAL",
@@ -1138,7 +1146,7 @@
     "heroHeal": "10",
     "onCrit": "1",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCRITICAL\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, hybrid, ravager, barbarian, rogue"
+    "tags": "action, hybrid, ravager, barbarian, rogue, retired"
   },
   {
     "action": "COMBO END HEAL",
@@ -1153,7 +1161,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "4",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCOMBOEND\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, class, warrior"
+    "tags": "action, class, warrior, retired"
   },
   {
     "action": "CRIT MISS HEAL",
@@ -1168,7 +1176,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCRITICALMISS\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, class, barbarian"
+    "tags": "action, class, barbarian, retired"
   },
   {
     "action": "AFTER MISS HEAL",
@@ -1183,7 +1191,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHeal": "10",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONAFTERMISS\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, hybrid, warbrute, barbarian, warrior"
+    "tags": "action, hybrid, warbrute, barbarian, warrior, retired"
   },
   {
     "action": "ROOM CLEAR HEAL",
@@ -1200,7 +1208,7 @@
     "onRoomsCleared": "1",
     "triggerConditions": "ONROOMSCLEARED:1",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONROOMSCLEARED\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action"
+    "tags": "action, retired"
   },
   {
     "action": "ROLL FIFTEEN",
@@ -1217,7 +1225,7 @@
     "onRollValue": "15",
     "triggerConditions": "ONROLLVALUE",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONROLLVALUE\u0022,\u0022count\u0022:\u002215\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022heal\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, class, rogue"
+    "tags": "action, class, rogue, retired"
   },
   {
     "action": "STRIP DISABLE",
@@ -1230,7 +1238,7 @@
     "speed": "1.50",
     "block": "100",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022strip_disable\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "action, class, wizard"
+    "tags": "action, class, wizard, retired"
   },
   {
     "action": "MIGHTY SWING",
@@ -1245,7 +1253,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022pierce\u0022,\u0022IsEnabled\u0022:true}]",
     "pierce": "1",
-    "tags": "rare, class, barbarian, bludgeon"
+    "tags": "rare, class, barbarian, bludgeon, retired"
   },
   {
     "action": "WARCRY",
@@ -1261,7 +1269,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022weaken\u0022,\u0022IsEnabled\u0022:true}]",
     "weaken": "1",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022FIGHT\u0022,\u0022mechanics\u0022:\u0022salvage_miss\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "common, class, barbarian"
+    "tags": "common, class, barbarian, retired"
   },
   {
     "action": "BARBARIAN RAGE",
@@ -1280,7 +1288,7 @@
     "onKill": "1",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONKILL\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022retrigger_opener\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:2,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:25},{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:10}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
-    "tags": "rare, class, barbarian, swift, bludgeon"
+    "tags": "rare, class, barbarian, swift, bludgeon, retired"
   },
   {
     "action": "CHALLENGE",
@@ -1297,7 +1305,7 @@
     "heroHit": "1",
     "weaken": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "common, class, warrior"
+    "tags": "common, class, warrior, retired"
   },
   {
     "action": "MEASURED CUT",
@@ -1313,7 +1321,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_combo_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "heroCombo": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022COMBO\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "common, class, warrior"
+    "tags": "common, class, warrior, retired"
   },
   {
     "action": "MISDIRECT",
@@ -1369,7 +1377,7 @@
     "speed": "0.90",
     "block": "100",
     "triggerBundlesJson": "[{\u0022identityName\u0022:null,\u0022when\u0022:\u0022ONCONNECT\u0022,\u0022count\u0022:\u00221\u0022,\u0022scope\u0022:\u0022\u0022,\u0022mechanics\u0022:\u0022replace_next_roll:18\u0022,\u0022value\u0022:null,\u0022filters\u0022:null,\u0022scaleFrom\u0022:null,\u0022description\u0022:null,\u0022IsEnabled\u0022:true}]",
-    "tags": "rare, class, wizard"
+    "tags": "rare, class, wizard, retired"
   },
   {
     "action": "CHANNEL",
@@ -1406,7 +1414,7 @@
   },
   {
     "action": "BLUDGEON",
-    "role": "setup",
+    "role": "payoff",
     "description": "Jam: the enemy\u0027s next card is skipped.",
     "rarity": "COMMON",
     "tier": 3,
@@ -1436,7 +1444,7 @@
   },
   {
     "action": "AVENGE",
-    "role": "setup",
+    "role": "payoff",
     "description": "Finisher. On connect, add Warrior tag to all actions (fight-scoped).",
     "rarity": "RARE",
     "tier": 3,
@@ -1466,7 +1474,7 @@
   },
   {
     "action": "CONCENTRATED CHAOS",
-    "role": "setup",
+    "role": "payoff",
     "description": "Finisher. Gains damage from skipped/disabled strip slots.",
     "rarity": "RARE",
     "tier": 3,
@@ -1491,7 +1499,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022expose\u0022,\u0022IsEnabled\u0022:true}]",
     "expose": "1",
-    "tags": "common, class, barbarian, mace"
+    "tags": "common, class, barbarian, mace, retired"
   },
   {
     "action": "PARRY",
@@ -1507,7 +1515,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022harden\u0022,\u0022IsEnabled\u0022:true}]",
     "harden": "1",
     "selfTargetEffects": "harden",
-    "tags": "common, class, warrior, sword"
+    "tags": "common, class, warrior, sword, retired"
   },
   {
     "action": "LEECHING CUT",
@@ -1521,7 +1529,7 @@
     "speed": "0.90",
     "block": "100",
     "lifesteal": "2%",
-    "tags": "common, class, rogue, dagger"
+    "tags": "common, class, rogue, dagger, retired"
   },
   {
     "action": "FROST BOLT",
@@ -1536,7 +1544,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022slow\u0022,\u0022IsEnabled\u0022:true}]",
     "slow": "1",
-    "tags": "common, class, wizard, wand"
+    "tags": "common, class, wizard, wand, retired"
   },
   {
     "action": "IRON CULL",
@@ -1810,7 +1818,7 @@
     "damage": "130%",
     "speed": "1.30",
     "block": "180",
-    "tags": "common, hybrid, warbrute, barbarian, warrior"
+    "tags": "common, hybrid, warbrute, barbarian, warrior, retired"
   },
   {
     "action": "WARBRUTE SMASH",
@@ -1823,7 +1831,7 @@
     "damage": "170%",
     "speed": "1.70",
     "block": "180",
-    "tags": "common, hybrid, warbrute, barbarian, warrior"
+    "tags": "common, hybrid, warbrute, barbarian, warrior, retired"
   },
   {
     "action": "PROWESS RUSH",
@@ -1836,7 +1844,7 @@
     "damage": "60%",
     "speed": "0.60",
     "block": "180",
-    "tags": "common, hybrid, ravager, barbarian, rogue"
+    "tags": "common, hybrid, ravager, barbarian, rogue, retired"
   },
   {
     "action": "RAVAGER FLURRY",
@@ -1849,7 +1857,7 @@
     "damage": "25%",
     "speed": "0.90",
     "block": "180",
-    "tags": "common, hybrid, ravager, barbarian, rogue"
+    "tags": "common, hybrid, ravager, barbarian, rogue, retired"
   },
   {
     "action": "WILLFIRE",
@@ -1862,7 +1870,7 @@
     "damage": "110.0%",
     "speed": "1.10",
     "block": "180",
-    "tags": "common, hybrid, ragecaller, barbarian, wizard"
+    "tags": "common, hybrid, ragecaller, barbarian, wizard, retired"
   },
   {
     "action": "RAGECALLER HOWL",
@@ -1875,7 +1883,7 @@
     "damage": "70%",
     "speed": "0.80",
     "block": "180",
-    "tags": "common, hybrid, ragecaller, barbarian, wizard"
+    "tags": "common, hybrid, ragecaller, barbarian, wizard, retired"
   },
   {
     "action": "FINESSE THRUST",
@@ -1888,7 +1896,7 @@
     "damage": "75%",
     "speed": "0.70",
     "block": "180",
-    "tags": "common, hybrid, duelist, warrior, rogue"
+    "tags": "common, hybrid, duelist, warrior, rogue, retired"
   },
   {
     "action": "DUELIST FEINT",
@@ -1901,7 +1909,7 @@
     "damage": "50%",
     "speed": "0.60",
     "block": "180",
-    "tags": "common, hybrid, duelist, warrior, rogue"
+    "tags": "common, hybrid, duelist, warrior, rogue, retired"
   },
   {
     "action": "WITS ARC",
@@ -1914,7 +1922,7 @@
     "damage": "50%",
     "speed": "0.90",
     "block": "180",
-    "tags": "common, hybrid, spellblade, warrior, wizard"
+    "tags": "common, hybrid, spellblade, warrior, wizard, retired"
   },
   {
     "action": "SPELLBLADE WEAVE",
@@ -1927,7 +1935,7 @@
     "damage": "30%",
     "speed": "0.85",
     "block": "180",
-    "tags": "common, hybrid, spellblade, warrior, wizard"
+    "tags": "common, hybrid, spellblade, warrior, wizard, retired"
   },
   {
     "action": "MIND HEX",
@@ -1940,7 +1948,7 @@
     "damage": "60%",
     "speed": "0.75",
     "block": "180",
-    "tags": "common, hybrid, hexblade, rogue, wizard"
+    "tags": "common, hybrid, hexblade, rogue, wizard, retired"
   },
   {
     "action": "HEXBLADE CURSE",
@@ -1953,7 +1961,7 @@
     "damage": "80%",
     "speed": "1.05",
     "block": "180",
-    "tags": "common, hybrid, hexblade, rogue, wizard"
+    "tags": "common, hybrid, hexblade, rogue, wizard, retired"
   },
   {
     "action": "CASH IN",
@@ -1971,7 +1979,7 @@
   {
     "action": "DETONATE",
     "role": "payoff",
-    "description": "Spend the target\u0027s largest status (Expose, Poison, Bleed or Burn): \u002B6% damage per stack spent.",
+    "description": "Spend the target\u0027s largest status: \u002B6% damage per stack spent.",
     "tier": 3,
     "dps": "90%",
     "numberOfHits": "1",
@@ -2005,7 +2013,7 @@
     "speed": "1.00",
     "block": "100",
     "verb": "CASH FULLEST 100 INTO PRIMARY",
-    "tags": "action, verb, store"
+    "tags": "action, verb, store, retired"
   },
   {
     "action": "BULWARK",
@@ -2018,7 +2026,7 @@
     "speed": "1.00",
     "block": "100",
     "verb": "CASH FULLEST 100 INTO temphp",
-    "tags": "action, verb, store, class, warrior"
+    "tags": "action, verb, store, class, warrior, retired"
   },
   {
     "action": "GRIT TEETH",
@@ -2031,7 +2039,7 @@
     "speed": "1.00",
     "block": "100",
     "verb": "CASH FULLEST 100 INTO harden",
-    "tags": "action, verb, store, class, barbarian"
+    "tags": "action, verb, store, class, barbarian, retired"
   },
   {
     "action": "CENTER",
@@ -2044,7 +2052,7 @@
     "speed": "1.00",
     "block": "100",
     "verb": "CASH FULLEST 100 INTO focus",
-    "tags": "action, verb, store, class, wizard"
+    "tags": "action, verb, store, class, wizard, retired"
   },
   {
     "action": "BLOODLET",
@@ -2070,7 +2078,7 @@
     "speed": "1.00",
     "block": "100",
     "verb": "CASH FULLEST 100 INTO haste",
-    "tags": "action, verb, store, hybrid, duelist, warrior, rogue"
+    "tags": "action, verb, store, hybrid, duelist, warrior, rogue, retired"
   },
   {
     "action": "IGNITE",
@@ -2083,7 +2091,7 @@
     "speed": "1.00",
     "block": "100",
     "verb": "CASH FULLEST 100 INTO burn",
-    "tags": "action, verb, store, hybrid, ragecaller, barbarian, wizard"
+    "tags": "action, verb, store, hybrid, ragecaller, barbarian, wizard, retired"
   },
   {
     "action": "LAY BARE",
@@ -2096,7 +2104,7 @@
     "speed": "1.00",
     "block": "100",
     "verb": "CASH FULLEST 100 INTO expose",
-    "tags": "action, verb, store, hybrid, ravager, barbarian, rogue"
+    "tags": "action, verb, store, hybrid, ravager, barbarian, rogue, retired"
   },
   {
     "action": "STEEL NERVE",
@@ -2109,7 +2117,7 @@
     "speed": "1.00",
     "block": "100",
     "verb": "CASH FULLEST 100 INTO fortify",
-    "tags": "action, verb, store, hybrid, warbrute, barbarian, warrior"
+    "tags": "action, verb, store, hybrid, warbrute, barbarian, warrior, retired"
   },
   {
     "action": "PRELUDE",
@@ -2124,7 +2132,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00223\u0022,\u0022mechanics\u0022:\u0022hero_next_action_amp\u0022,\u0022IsEnabled\u0022:true}]",
     "ampMod": "15",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AMP_MOD\u0022,\u0022value\u0022:15}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
-    "tags": "action, verb, prep, hybrid, spellblade, warrior, wizard, focus"
+    "tags": "action, verb, prep, hybrid, spellblade, warrior, wizard, focus, retired"
   },
   {
     "action": "BLOOD OATH",
@@ -2140,24 +2148,24 @@
     "cost": "HP 5",
     "damageMod": "60",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:60}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
-    "tags": "action, verb, prep, hybrid, ragecaller, barbarian, wizard, bludgeon"
+    "tags": "action, verb, prep, hybrid, ragecaller, barbarian, wizard, bludgeon, retired"
   },
   {
     "action": "VENOM COAT",
-    "role": "setup",
-    "description": "Poison the target (1.5% max HP per tick).",
+    "role": "payoff",
+    "description": "2 Bleed on the target (ticks when it acts).",
     "tier": 3,
     "dps": "75%",
     "numberOfHits": "1",
     "damage": "60%",
     "speed": "0.80",
     "block": "100",
-    "verb": "APPLY poison 6",
+    "verb": "APPLY bleed 2",
     "tags": "action, status, poison, class, rogue"
   },
   {
     "action": "OPEN VEIN",
-    "role": "setup",
+    "role": "payoff",
     "description": "2 Bleed on the target (ticks when it acts).",
     "tier": 3,
     "dps": "76%",
@@ -2170,7 +2178,7 @@
   },
   {
     "action": "STOKE",
-    "role": "setup",
+    "role": "payoff",
     "description": "2 Burn on the target.",
     "tier": 3,
     "dps": "71%",
@@ -2179,7 +2187,7 @@
     "speed": "0.85",
     "block": "100",
     "verb": "APPLY burn 2",
-    "tags": "action, status, burn, hybrid, ragecaller, barbarian, wizard"
+    "tags": "action, status, burn, class, wizard"
   },
   {
     "action": "CORRODE",
@@ -2192,7 +2200,7 @@
     "speed": "0.85",
     "block": "100",
     "verb": "APPLY acid 1",
-    "tags": "action, status, acid, hybrid, hexblade, rogue, wizard"
+    "tags": "action, status, acid, hybrid, hexblade, rogue, wizard, retired"
   },
   {
     "action": "DAZE",
@@ -2205,7 +2213,7 @@
     "speed": "1.20",
     "block": "100",
     "verb": "APPLY stun 1",
-    "tags": "action, status, stun, class, barbarian"
+    "tags": "action, status, stun, class, barbarian, retired"
   },
   {
     "action": "BRACE",
@@ -2218,7 +2226,7 @@
     "speed": "0.80",
     "block": "100",
     "verb": "APPLY fortify 2",
-    "tags": "action, status, fortify, class, warrior"
+    "tags": "action, status, fortify, class, warrior, retired"
   },
   {
     "action": "LUNGE",
@@ -2234,12 +2242,12 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022IsEnabled\u0022:true}]",
     "speedMod": "10",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:10}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
-    "tags": "common, class, warrior, swift"
+    "tags": "common, class, warrior, swift, retired"
   },
   {
     "action": "HOLD THE LINE",
     "role": "setup",
-    "description": "2 Harden (you take less damage).",
+    "description": "Gains 2 Guard (you take less damage).",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "50%",
@@ -2266,7 +2274,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00222\u0022,\u0022mechanics\u0022:\u0022hero_combo_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "heroCombo": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:2,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022COMBO\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "common, class, warrior"
+    "tags": "common, class, warrior, retired"
   },
   {
     "action": "LOW BLOW",
@@ -2281,7 +2289,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022weaken\u0022,\u0022IsEnabled\u0022:true}]",
     "weaken": "1",
-    "tags": "common, class, rogue"
+    "tags": "common, class, rogue, retired"
   },
   {
     "action": "FAN OF KNIVES",
@@ -2298,7 +2306,7 @@
   },
   {
     "action": "SHOULDER CHECK",
-    "role": "setup",
+    "role": "payoff",
     "description": "Jam: the enemy\u0027s next card is skipped.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2313,7 +2321,7 @@
   {
     "action": "IRON GUARD",
     "role": "setup",
-    "description": "Harden. Next action: \u002B25% damage.",
+    "description": "Gains 1 Guard. Next action: \u002B25% damage.",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "67%",
@@ -2340,7 +2348,7 @@
     "block": "100",
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022pierce\u0022,\u0022IsEnabled\u0022:true}]",
     "pierce": "1",
-    "tags": "common, hybrid, warbrute, barbarian, warrior"
+    "tags": "common, hybrid, warbrute, barbarian, warrior, retired"
   },
   {
     "action": "GUTTING STRIKE",
@@ -2354,11 +2362,11 @@
     "speed": "0.90",
     "block": "100",
     "verb": "APPLY bleed 1",
-    "tags": "common, hybrid, ravager, barbarian, rogue, status, bleed"
+    "tags": "common, hybrid, ravager, barbarian, rogue, status, bleed, retired"
   },
   {
     "action": "FLAME BRAND",
-    "role": "setup",
+    "role": "payoff",
     "description": "2 Burn on the target.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2385,7 +2393,7 @@
     "ampMod": "25",
     "expose": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AMP_MOD\u0022,\u0022value\u0022:25}],\u0022durationType\u0022:\u0022ACTION\u0022}]}",
-    "tags": "common, hybrid, ragecaller, barbarian, wizard, focus"
+    "tags": "common, hybrid, ragecaller, barbarian, wizard, focus, retired"
   },
   {
     "action": "FEINT AND THRUST",
@@ -2401,12 +2409,12 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_hit_threshold\u0022,\u0022IsEnabled\u0022:true}]",
     "heroHit": "1",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022HIT\u0022,\u0022value\u0022:1}],\u0022durationType\u0022:\u0022TURN\u0022}]}",
-    "tags": "common, hybrid, duelist, warrior, rogue"
+    "tags": "common, hybrid, duelist, warrior, rogue, retired"
   },
   {
     "action": "RIPOSTE",
     "role": "setup",
-    "description": "Harden. Next turn: \u002B1 CRIT.",
+    "description": "Gains 1 Guard. Next turn: \u002B1 CRIT.",
     "rarity": "COMMON",
     "tier": 3,
     "dps": "88%",
@@ -2435,7 +2443,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022weaken, slow\u0022,\u0022IsEnabled\u0022:true}]",
     "weaken": "1",
     "slow": "1",
-    "tags": "common, hybrid, duelist, warrior, rogue"
+    "tags": "common, hybrid, duelist, warrior, rogue, retired"
   },
   {
     "action": "GATHERING STORM",
@@ -2451,7 +2459,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00223\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022timing\u0022:{\u0022shape\u0022:\u0022ramp\u0022},\u0022IsEnabled\u0022:true}]",
     "damageMod": "10",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:10}],\u0022durationType\u0022:\u0022TURN\u0022,\u0022timing\u0022:{\u0022shape\u0022:\u0022ramp\u0022}}]}",
-    "tags": "common, class, barbarian, bludgeon"
+    "tags": "common, class, barbarian, bludgeon, retired"
   },
   {
     "action": "LIT FUSE",
@@ -2467,7 +2475,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022timing\u0022:{\u0022delay\u0022:2},\u0022IsEnabled\u0022:true}]",
     "damageMod": "50",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:50}],\u0022durationType\u0022:\u0022TURN\u0022,\u0022timing\u0022:{\u0022delay\u0022:2}}]}",
-    "tags": "common, class, barbarian, bludgeon"
+    "tags": "common, class, barbarian, bludgeon, retired"
   },
   {
     "action": "HEADSMAN\u0027S PROMISE",
@@ -2499,7 +2507,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00224\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022timing\u0022:{\u0022shape\u0022:\u0022ramp\u0022,\u0022untilMiss\u0022:true},\u0022IsEnabled\u0022:true}]",
     "damageMod": "10",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:4,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:10}],\u0022durationType\u0022:\u0022TURN\u0022,\u0022timing\u0022:{\u0022shape\u0022:\u0022ramp\u0022,\u0022untilMiss\u0022:true}}]}",
-    "tags": "rare, hybrid, ravager, barbarian, rogue, bludgeon"
+    "tags": "rare, hybrid, ravager, barbarian, rogue, bludgeon, retired"
   },
   {
     "action": "MARCHING DRUM",
@@ -2531,7 +2539,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00222\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022timing\u0022:{\u0022delay\u0022:1},\u0022IsEnabled\u0022:true}]",
     "speedMod": "20",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:2,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:20}],\u0022durationType\u0022:\u0022ACTION\u0022,\u0022timing\u0022:{\u0022delay\u0022:1}}]}",
-    "tags": "common, class, warrior, swift"
+    "tags": "common, class, warrior, swift, retired"
   },
   {
     "action": "OPENING GAMBIT",
@@ -2564,7 +2572,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00223\u0022,\u0022mechanics\u0022:\u0022hero_next_action_speed\u0022,\u0022timing\u0022:{\u0022shape\u0022:\u0022decay\u0022},\u0022IsEnabled\u0022:true}]",
     "speedMod": "10",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022SPEED_MOD\u0022,\u0022value\u0022:10}],\u0022durationType\u0022:\u0022ACTION\u0022,\u0022timing\u0022:{\u0022shape\u0022:\u0022decay\u0022}}]}",
-    "tags": "common, class, warrior, swift"
+    "tags": "common, class, warrior, swift, retired"
   },
   {
     "action": "PATIENT BLADE",
@@ -2581,7 +2589,7 @@
     "heroCrit": "2",
     "damageMod": "20",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:2,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:2},{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:20}],\u0022durationType\u0022:\u0022TURN\u0022,\u0022timing\u0022:{\u0022delay\u0022:1}}]}",
-    "tags": "common, class, rogue, bludgeon"
+    "tags": "common, class, rogue, bludgeon, retired"
   },
   {
     "action": "THIRD CUT",
@@ -2613,7 +2621,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022TURN\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022timing\u0022:{\u0022perSlot\u0022:true},\u0022IsEnabled\u0022:true}]",
     "damageMod": "15",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:15}],\u0022durationType\u0022:\u0022TURN\u0022,\u0022timing\u0022:{\u0022perSlot\u0022:true}}]}",
-    "tags": "rare, class, rogue, bludgeon"
+    "tags": "rare, class, rogue, bludgeon, retired"
   },
   {
     "action": "EVEN ODDS",
@@ -2629,7 +2637,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00222\u0022,\u0022mechanics\u0022:\u0022hero_next_action_damage\u0022,\u0022timing\u0022:{\u0022slotIf\u0022:\u0022even\u0022},\u0022IsEnabled\u0022:true}]",
     "damageMod": "40",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:2,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:40}],\u0022durationType\u0022:\u0022ACTION\u0022,\u0022timing\u0022:{\u0022slotIf\u0022:\u0022even\u0022}}]}",
-    "tags": "common, hybrid, hexblade, rogue, wizard, bludgeon"
+    "tags": "common, hybrid, hexblade, rogue, wizard, bludgeon, retired"
   },
   {
     "action": "CRESCENDO",
@@ -2661,7 +2669,7 @@
     "cadenceBundlesJson": "[{\u0022cadence\u0022:\u0022ACTION\u0022,\u0022enable\u0022:\u00221\u0022,\u0022duration\u0022:\u00221\u0022,\u0022mechanics\u0022:\u0022hero_next_action_amp\u0022,\u0022timing\u0022:{\u0022slot\u0022:\u00225\u0022},\u0022IsEnabled\u0022:true}]",
     "ampMod": "50",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022ACTION\u0022,\u0022cadenceType\u0022:\u0022ACTION\u0022,\u0022count\u0022:1,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022AMP_MOD\u0022,\u0022value\u0022:50}],\u0022durationType\u0022:\u0022ACTION\u0022,\u0022timing\u0022:{\u0022slot\u0022:\u00225\u0022}}]}",
-    "tags": "rare, class, wizard, focus"
+    "tags": "rare, class, wizard, focus, retired"
   },
   {
     "action": "RISING CHORD",
@@ -2694,7 +2702,7 @@
     "heroCombo": "1",
     "damageMod": "15",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022COMBO\u0022,\u0022value\u0022:1},{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:15}],\u0022durationType\u0022:\u0022TURN\u0022,\u0022timing\u0022:{\u0022slotIf\u0022:\u0022\\u003E=3\u0022}}]}",
-    "tags": "common, hybrid, spellblade, warrior, wizard, bludgeon"
+    "tags": "common, hybrid, spellblade, warrior, wizard, bludgeon, retired"
   },
   {
     "action": "HOURGLASS",
@@ -2710,7 +2718,7 @@
     "heroCrit": "1",
     "damageMod": "15",
     "actionAttackBonusesJson": "{\u0022bonusGroups\u0022:[{\u0022keyword\u0022:\u0022TURN\u0022,\u0022cadenceType\u0022:\u0022TURN\u0022,\u0022count\u0022:3,\u0022bonuses\u0022:[{\u0022type\u0022:\u0022CRIT\u0022,\u0022value\u0022:1},{\u0022type\u0022:\u0022DAMAGE_MOD\u0022,\u0022value\u0022:15}],\u0022durationType\u0022:\u0022TURN\u0022,\u0022timing\u0022:{\u0022delay\u0022:3}}]}",
-    "tags": "bludgeon"
+    "tags": "bludgeon, retired"
   },
   {
     "action": "NEXT TIME",
@@ -2729,7 +2737,7 @@
   },
   {
     "action": "STAGGERING BLOW",
-    "role": "setup",
+    "role": "payoff",
     "description": "2 Stagger on the target: its next action takes 15% longer per stack.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2753,7 +2761,7 @@
     "speed": "0.80",
     "block": "100",
     "verb": "APPLY haste 2",
-    "tags": "action, status, haste, class, barbarian"
+    "tags": "action, status, haste, class, barbarian, retired"
   },
   {
     "action": "SUNDER",
@@ -2767,11 +2775,11 @@
     "speed": "0.90",
     "block": "100",
     "verb": "APPLY brittle 2",
-    "tags": "action, status, brittle, hybrid, warbrute, barbarian, warrior"
+    "tags": "action, status, brittle, hybrid, warbrute, barbarian, warrior, retired"
   },
   {
     "action": "GUT CHECK",
-    "role": "setup",
+    "role": "payoff",
     "description": "2 Stagger on the target: its next action takes 15% longer per stack.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2795,7 +2803,7 @@
     "speed": "0.85",
     "block": "100",
     "verb": "APPLY slow 2",
-    "tags": "action, status, slow, class, warrior, swift"
+    "tags": "action, status, slow, class, warrior, swift, retired"
   },
   {
     "action": "RATTLING BLOW",
@@ -2809,7 +2817,7 @@
     "speed": "0.90",
     "block": "100",
     "verb": "APPLY rattle 2",
-    "tags": "action, status, rattle, class, warrior"
+    "tags": "action, status, rattle, class, warrior, retired"
   },
   {
     "action": "QUICKSTEP",
@@ -2837,7 +2845,7 @@
     "speed": "0.80",
     "block": "100",
     "verb": "APPLY stagger 1",
-    "tags": "action, status, stagger, hybrid, duelist, warrior, rogue"
+    "tags": "action, status, stagger, hybrid, duelist, warrior, rogue, retired"
   },
   {
     "action": "FIND WEAKNESS",
@@ -2851,7 +2859,7 @@
     "speed": "0.85",
     "block": "100",
     "verb": "APPLY brittle 2",
-    "tags": "action, status, brittle, class, rogue"
+    "tags": "action, status, brittle, class, rogue, retired"
   },
   {
     "action": "FADE STEP",
@@ -2865,7 +2873,7 @@
     "speed": "0.75",
     "block": "100",
     "verb": "APPLY haste 1",
-    "tags": "action, status, haste, class, rogue"
+    "tags": "action, status, haste, class, rogue, retired"
   },
   {
     "action": "HEX",
@@ -2879,7 +2887,7 @@
     "speed": "0.85",
     "block": "100",
     "verb": "APPLY weaken 3",
-    "tags": "action, status, weaken, hybrid, hexblade, rogue, wizard"
+    "tags": "action, status, weaken, hybrid, hexblade, rogue, wizard, retired"
   },
   {
     "action": "JINX",
@@ -2893,7 +2901,7 @@
     "speed": "0.90",
     "block": "100",
     "verb": "APPLY rattle 3",
-    "tags": "action, status, rattle, class, wizard, focus"
+    "tags": "action, status, rattle, class, wizard, focus, retired"
   },
   {
     "action": "ENERVATE",
@@ -2907,7 +2915,7 @@
     "speed": "0.95",
     "block": "100",
     "verb": "APPLY weaken 2",
-    "tags": "action, status, weaken, class, wizard"
+    "tags": "action, status, weaken, class, wizard, retired"
   },
   {
     "action": "TIME WARP",
@@ -2921,7 +2929,7 @@
     "speed": "0.85",
     "block": "100",
     "verb": "APPLY haste 2",
-    "tags": "action, status, haste, hybrid, spellblade, warrior, wizard"
+    "tags": "action, status, haste, hybrid, spellblade, warrior, wizard, retired"
   },
   {
     "action": "CRYSTALLIZE",
@@ -2935,7 +2943,7 @@
     "speed": "0.90",
     "block": "100",
     "verb": "APPLY brittle 2",
-    "tags": "action, status, brittle, hybrid, ragecaller, barbarian, wizard"
+    "tags": "action, status, brittle, hybrid, ragecaller, barbarian, wizard, retired"
   },
   {
     "action": "TOPPLE",
@@ -2963,7 +2971,7 @@
     "speed": "1.00",
     "block": "100",
     "verb": "CASH brittle 100",
-    "tags": "action, verb, store, hybrid, ravager, barbarian, rogue"
+    "tags": "action, verb, store, hybrid, ravager, barbarian, rogue, retired"
   },
   {
     "action": "FLASH CUT",
@@ -2991,7 +2999,7 @@
     "speed": "0.95",
     "block": "100",
     "verb": "CASH rattle 100",
-    "tags": "action, verb, store, class, wizard"
+    "tags": "action, verb, store, class, wizard, retired"
   },
   {
     "action": "COILED STRIKE",
@@ -3007,7 +3015,7 @@
     "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_damage\",\"timing\":{\"ifTag\":\"bludgeon\"},\"IsEnabled\":true}]",
     "damageMod": "50",
     "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":1,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":50}],\"durationType\":\"TURN\",\"timing\":{\"ifTag\":\"bludgeon\"}}]}",
-    "tags": "common, class, barbarian"
+    "tags": "common, class, barbarian, retired"
   },
   {
     "action": "DRILL",
@@ -3023,7 +3031,7 @@
     "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"2\",\"mechanics\":\"hero_next_action_speed\",\"timing\":{\"ifTag\":\"swift\"},\"IsEnabled\":true}]",
     "speedMod": "25",
     "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":2,\"bonuses\":[{\"type\":\"SPEED_MOD\",\"value\":25}],\"durationType\":\"TURN\",\"timing\":{\"ifTag\":\"swift\"}}]}",
-    "tags": "common, class, warrior"
+    "tags": "common, class, warrior, retired"
   },
   {
     "action": "PRIMER",
@@ -3039,7 +3047,7 @@
     "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_amp\",\"timing\":{\"ifTag\":\"focus\"},\"IsEnabled\":true}]",
     "ampMod": "40",
     "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":1,\"bonuses\":[{\"type\":\"AMP_MOD\",\"value\":40}],\"durationType\":\"TURN\",\"timing\":{\"ifTag\":\"focus\"}}]}",
-    "tags": "common, class, wizard"
+    "tags": "common, class, wizard, retired"
   },
   {
     "action": "FEINT",
@@ -3055,7 +3063,7 @@
     "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_damage\",\"timing\":{\"ifTag\":\"rogue\"},\"IsEnabled\":true}]",
     "damageMod": "40",
     "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":1,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":40}],\"durationType\":\"TURN\",\"timing\":{\"ifTag\":\"rogue\"}}]}",
-    "tags": "common, hybrid, duelist, warrior, rogue"
+    "tags": "common, hybrid, duelist, warrior, rogue, retired"
   },
   {
     "action": "SET THE TRAP",
@@ -3087,7 +3095,7 @@
     "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_damage\",\"timing\":{\"perTag\":\"warbrute\"},\"IsEnabled\":true}]",
     "damageMod": "8",
     "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":1,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":8}],\"durationType\":\"TURN\",\"timing\":{\"perTag\":\"warbrute\"}}]}",
-    "tags": "common, hybrid, warbrute, barbarian, warrior"
+    "tags": "common, hybrid, warbrute, barbarian, warrior, retired"
   },
   {
     "action": "CHORUS",
@@ -3103,7 +3111,7 @@
     "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_amp\",\"timing\":{\"perTag\":\"wizard\"},\"IsEnabled\":true}]",
     "ampMod": "10",
     "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":1,\"bonuses\":[{\"type\":\"AMP_MOD\",\"value\":10}],\"durationType\":\"TURN\",\"timing\":{\"perTag\":\"wizard\"}}]}",
-    "tags": "common, class, wizard, focus"
+    "tags": "common, class, wizard, focus, retired"
   },
   {
     "action": "PACK TACTICS",
@@ -3119,7 +3127,7 @@
     "cadenceBundlesJson": "[{\"cadence\":\"TURN\",\"enable\":\"1\",\"duration\":\"1\",\"mechanics\":\"hero_next_action_damage\",\"timing\":{\"perTag\":\"status\"},\"IsEnabled\":true}]",
     "damageMod": "8",
     "actionAttackBonusesJson": "{\"bonusGroups\":[{\"keyword\":\"TURN\",\"cadenceType\":\"TURN\",\"count\":1,\"bonuses\":[{\"type\":\"DAMAGE_MOD\",\"value\":8}],\"durationType\":\"TURN\",\"timing\":{\"perTag\":\"status\"}}]}",
-    "tags": "common, class, rogue"
+    "tags": "common, class, rogue, retired"
   },
   {
     "action": "UNLEASH",
@@ -3208,5 +3216,19 @@
     "speed": "1.00",
     "block": "180",
     "tags": "class, wizard, wand"
+  },
+  {
+    "action": "SWORN RETORT",
+    "role": "payoff",
+    "verb": "CASH harden 100",
+    "description": "Spend your Guard: \u002B8% damage per stack spent.",
+    "rarity": "COMMON",
+    "tier": 3,
+    "dps": "105%",
+    "numberOfHits": "1",
+    "damage": "105%",
+    "speed": "1.00",
+    "block": "100",
+    "tags": "action, verb, store, class, warrior, sword"
   }
 ]

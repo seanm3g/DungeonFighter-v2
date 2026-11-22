@@ -61,6 +61,7 @@ namespace RPGGame.Tests.Runners
             ("LootContext", () => LootContextTests.RunAllTests()),
             ("ItemRoller", () => ItemRollerTests.RunAllTests()),
             ("ActionRoles", () => ActionRolesTests.RunAllTests()),
+            ("ActionCut", () => ActionCutTests.RunAllTests()),
             ("WeaponUpgrade", () => WeaponUpgradeTests.RunAllTests()),
             ("RebuildStep4", () => RPGGame.Tests.Unit.World.RebuildStep4Tests.RunAllTests()),
             ("GameDataValidator", () => GameDataValidatorTests.RunAllTests()),

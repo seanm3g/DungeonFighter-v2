@@ -625,7 +625,7 @@ class ModifierAssigner:
             names = []
             for a in actions:
                 tags = {t.strip().lower() for t in (a.get("tags") or "").split(",") if t.strip()}
-                if tags & BASIC_ACTION_TAGS or a.get("materialScale") or not a.get("action"):
+                if tags & BASIC_ACTION_TAGS or "retired" in tags or a.get("materialScale") or not a.get("action"):
                     continue
                 if tags & {c, CLASS_WEAPON_TAG[c]}:
                     names.append(a["action"].strip())

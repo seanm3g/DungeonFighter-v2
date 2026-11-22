@@ -25,7 +25,7 @@
     "class": "wizard",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "ONCONNECT EVERY 2 IF ACTION CORRODE -> APPLY rattle 1"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION EXPLODING_DICE -> APPLY rattle 1"
   },
   {
     "slot": "head",
@@ -53,7 +53,7 @@
     "class": "barbarian",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "ONCOMBO IF ACTION BLOOD_FRENZY -> MINT RAGE 1"
+    "modifier": "ONCOMBO IF ACTION HAYMAKER -> MINT RAGE 1"
   },
   {
     "slot": "head",
@@ -81,7 +81,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE IF ACTION CRESCENDO -> TAGAS store"
+    "modifier": "WHILE IF ACTION FLAME_BRAND -> TAGAS store"
   },
   {
     "slot": "head",
@@ -137,7 +137,7 @@
     "class": "barbarian",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCONNECT EVERY 2 IF ACTION BLOOD_OATH -> APPLY stagger 1"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION HEADSMAN'S_PROMISE -> APPLY stagger 1"
   },
   {
     "slot": "head",
@@ -221,7 +221,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "ONCOMBO IF ACTION CRYSTALLIZE -> MINT LENS 1"
+    "modifier": "ONCOMBO IF ACTION GLASS_NOVA -> MINT LENS 1"
   },
   {
     "slot": "head",
@@ -249,7 +249,7 @@
     "class": "wizard",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCONNECT EVERY 2 IF ACTION DETONATE -> APPLY weaken 1"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION READ_BOOK -> APPLY weaken 1"
   },
   {
     "slot": "head",
@@ -277,7 +277,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE IF ACTION DISTILL -> TAGAS focus"
+    "modifier": "WHILE IF ACTION RETRIGGER_SLOT -> TAGAS focus"
   },
   {
     "slot": "head",
@@ -305,7 +305,7 @@
     "class": "rogue",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCONNECT EVERY 2 IF ACTION CRIT_FACES -> APPLY mark 1"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION GUT_CHECK -> APPLY mark 1"
   },
   {
     "slot": "head",
@@ -781,7 +781,7 @@
     "class": "wizard",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE -> RANK z-resonate 1"
+    "modifier": "WHILE -> RANK z-clarity 1"
   },
   {
     "slot": "head",
@@ -865,7 +865,7 @@
     "class": "barbarian",
     "defenseMin": 5,
     "defenseMax": 7,
-    "modifier": "WHILE -> RANK b-scar 1"
+    "modifier": "WHILE -> RANK b-gut 1"
   },
   {
     "slot": "head",
@@ -1229,7 +1229,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK z-sigil 1"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK z-kindle 1"
   },
   {
     "slot": "head",
@@ -1257,7 +1257,7 @@
     "class": "barbarian",
     "defenseMin": 12,
     "defenseMax": 16,
-    "modifier": "WHILE -> RANK b-trance 1; WHILE -> RANK b-age1 1"
+    "modifier": "WHILE -> RANK b-headsman 1; WHILE -> RANK b-trance 1"
   },
   {
     "slot": "head",
@@ -1341,7 +1341,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE -> RANK z-slotInt 1; WHILE -> RANK z-weave 1"
+    "modifier": "WHILE -> RANK z-lash 1; WHILE -> RANK z-refract 1"
   },
   {
     "slot": "head",
@@ -1369,7 +1369,7 @@
     "class": "barbarian",
     "defenseMin": 20,
     "defenseMax": 26,
-    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK b-age1 1"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK b-synth 1"
   },
   {
     "slot": "head",
@@ -1481,7 +1481,7 @@
     "class": "rogue",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF ACTION CRIT_HEAL -> TAGAS status"
+    "modifier": "WHILE IF ACTION JAB -> TAGAS status"
   },
   {
     "slot": "chest",
@@ -1509,7 +1509,7 @@
     "class": "barbarian",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE IF ACTION BLOOD_RUSH -> TAGAS warbrute"
+    "modifier": "WHILE IF ACTION IRON_GUARD -> TAGAS warbrute"
   },
   {
     "slot": "chest",
@@ -1593,7 +1593,7 @@
     "class": "warrior",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCOMBO IF ACTION BRACE -> MINT STREAK 1"
+    "modifier": "ONCOMBO IF ACTION IRON_GUARD -> MINT STREAK 1"
   },
   {
     "slot": "chest",
@@ -1649,7 +1649,7 @@
     "class": "warrior",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "ONCONNECT EVERY 2 IF ACTION CADENCE_STRIKE -> APPLY stagger 1"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION JAB -> APPLY stagger 1"
   },
   {
     "slot": "chest",
@@ -1761,7 +1761,7 @@
     "class": "warrior",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE IF ACTION CHALLENGE -> TAGAS swift"
+    "modifier": "WHILE IF ACTION LAST_OATH -> TAGAS swift"
   },
   {
     "slot": "chest",
@@ -2181,7 +2181,7 @@
     "class": "barbarian",
     "defenseMin": 11,
     "defenseMax": 15,
-    "modifier": "WHILE -> RANK b-blood 1"
+    "modifier": "WHILE -> RANK b-trance 1"
   },
   {
     "slot": "chest",
@@ -2349,7 +2349,7 @@
     "class": "rogue",
     "defenseMin": 8,
     "defenseMax": 12,
-    "modifier": "WHILE -> RANK r-streak 1"
+    "modifier": "WHILE -> RANK r-cut 1"
   },
   {
     "slot": "chest",
@@ -2741,7 +2741,7 @@
     "class": "wizard",
     "defenseMin": 17,
     "defenseMax": 23,
-    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK z-weave 1"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK z-odds 1"
   },
   {
     "slot": "chest",
@@ -2769,7 +2769,7 @@
     "class": "barbarian",
     "defenseMin": 23,
     "defenseMax": 31,
-    "modifier": "WHILE -> RANK b-empty 1; WHILE -> RANK b-gut 1"
+    "modifier": "WHILE -> RANK b-encore 1; WHILE -> RANK b-knuckle 1"
   },
   {
     "slot": "chest",
@@ -2825,7 +2825,7 @@
     "class": "warrior",
     "defenseMin": 33,
     "defenseMax": 45,
-    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK w-polish 1"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK w-march 1"
   },
   {
     "slot": "chest",
@@ -2853,7 +2853,7 @@
     "class": "rogue",
     "defenseMin": 21,
     "defenseMax": 29,
-    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK r-toxin 1"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK r-draught 1"
   },
   {
     "slot": "chest",
@@ -2881,7 +2881,7 @@
     "class": "barbarian",
     "defenseMin": 25,
     "defenseMax": 33,
-    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK b-frenzy 1"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK b-gut 1"
   },
   {
     "slot": "chest",
@@ -2965,7 +2965,7 @@
     "class": "barbarian",
     "defenseMin": 19,
     "defenseMax": 25,
-    "modifier": "WHILE -> RANK b-gut 1; WHILE -> RANK b-knuckle 1"
+    "modifier": "WHILE -> RANK b-headsman 1; WHILE -> RANK b-encore 1"
   },
   {
     "slot": "chest",
@@ -3021,7 +3021,7 @@
     "class": "barbarian",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCOMBO IF ACTION BLUDGEON -> MINT TRIUMPH 1"
+    "modifier": "ONCOMBO IF ACTION MIGHT -> MINT TRIUMPH 1"
   },
   {
     "slot": "legs",
@@ -3049,7 +3049,7 @@
     "class": "barbarian",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "ONCONNECT EVERY 2 IF ACTION BODY_BLOW -> APPLY expose 1"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION OPEN_VEIN -> APPLY expose 1"
   },
   {
     "slot": "legs",
@@ -3077,7 +3077,7 @@
     "class": "wizard",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "ONCOMBO IF ACTION DUNGEON_ANALYSIS -> MINT LENS 1"
+    "modifier": "ONCOMBO IF ACTION RISING_CHORD -> MINT LENS 1"
   },
   {
     "slot": "legs",
@@ -3133,7 +3133,7 @@
     "class": "wizard",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "ONCONNECT EVERY 2 IF ACTION ECHO_SPELL -> APPLY weaken 1"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION SET_THE_TRAP -> APPLY weaken 1"
   },
   {
     "slot": "legs",
@@ -3161,7 +3161,7 @@
     "class": "barbarian",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE IF ACTION CLEAVE_THROUGH -> TAGAS warbrute"
+    "modifier": "WHILE IF ACTION RETRIGGER_OPENER -> TAGAS warbrute"
   },
   {
     "slot": "legs",
@@ -3189,7 +3189,7 @@
     "class": "rogue",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "ONCOMBO IF ACTION DISARM -> MINT TROPHY 1"
+    "modifier": "ONCOMBO IF ACTION LOADED_DICE -> MINT TROPHY 1"
   },
   {
     "slot": "legs",
@@ -3217,7 +3217,7 @@
     "class": "rogue",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCONNECT EVERY 2 IF ACTION DISTILL -> APPLY mark 1"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION MISDIRECT -> APPLY mark 1"
   },
   {
     "slot": "legs",
@@ -3273,7 +3273,7 @@
     "class": "rogue",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "WHILE IF ACTION DUELIST_FEINT -> TAGAS duelist"
+    "modifier": "WHILE IF ACTION OPEN_VEIN -> TAGAS duelist"
   },
   {
     "slot": "legs",
@@ -3637,7 +3637,7 @@
     "class": "warrior",
     "defenseMin": 8,
     "defenseMax": 12,
-    "modifier": "WHILE -> RANK w-streak 1"
+    "modifier": "WHILE -> RANK w-metronome 1"
   },
   {
     "slot": "legs",
@@ -3721,7 +3721,7 @@
     "class": "barbarian",
     "defenseMin": 10,
     "defenseMax": 14,
-    "modifier": "WHILE -> RANK b-kin 1"
+    "modifier": "WHILE -> RANK b-synth 1"
   },
   {
     "slot": "legs",
@@ -3749,7 +3749,7 @@
     "class": "barbarian",
     "defenseMin": 10,
     "defenseMax": 14,
-    "modifier": "WHILE -> RANK b-kin 1"
+    "modifier": "WHILE -> RANK b-synth 1"
   },
   {
     "slot": "legs",
@@ -4169,7 +4169,7 @@
     "class": "rogue",
     "defenseMin": 28,
     "defenseMax": 38,
-    "modifier": "WHILE -> RANK r-age1 1; WHILE -> RANK r-draught 1"
+    "modifier": "WHILE -> RANK r-grease 1; WHILE -> RANK r-setup 1"
   },
   {
     "slot": "legs",
@@ -4225,7 +4225,7 @@
     "class": "warrior",
     "defenseMin": 22,
     "defenseMax": 30,
-    "modifier": "WHILE -> RANK w-age1 1; WHILE -> RANK w-flowing 1"
+    "modifier": "WHILE -> RANK w-phalanx 1; WHILE -> RANK w-flowcrest 1"
   },
   {
     "slot": "legs",
@@ -4337,7 +4337,7 @@
     "class": "warrior",
     "defenseMin": 20,
     "defenseMax": 26,
-    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK w-flowcrest 1"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK w-synth 1"
   },
   {
     "slot": "legs",
@@ -4393,7 +4393,7 @@
     "class": "barbarian",
     "defenseMin": 31,
     "defenseMax": 41,
-    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK b-knuckle 1"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK b-trance 1"
   },
   {
     "slot": "legs",
@@ -4505,7 +4505,7 @@
     "class": "rogue",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "ONCOMBO IF ACTION ENRAGE -> MINT TROPHY 1"
+    "modifier": "ONCOMBO IF ACTION RIPOSTE -> MINT TROPHY 1"
   },
   {
     "slot": "feet",
@@ -4561,7 +4561,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "WHILE IF ACTION EMPOWERED -> TAGAS focus"
+    "modifier": "WHILE IF ACTION STOKE -> TAGAS focus"
   },
   {
     "slot": "feet",
@@ -4589,7 +4589,7 @@
     "class": "warrior",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "ONCOMBO IF ACTION CLEAVE_THROUGH -> MINT STREAK 1"
+    "modifier": "ONCOMBO IF ACTION MARCHING_DRUM -> MINT STREAK 1"
   },
   {
     "slot": "feet",
@@ -4617,7 +4617,7 @@
     "class": "warrior",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCONNECT EVERY 2 IF ACTION CODA -> APPLY stagger 1"
+    "modifier": "ONCONNECT EVERY 2 IF ACTION OPENING_GAMBIT -> APPLY stagger 1"
   },
   {
     "slot": "feet",
@@ -4673,7 +4673,7 @@
     "class": "warrior",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE IF ACTION COMBO_END_HEAL -> TAGAS warbrute"
+    "modifier": "WHILE IF ACTION QUICKSTEP -> TAGAS warbrute"
   },
   {
     "slot": "feet",
@@ -4701,7 +4701,7 @@
     "class": "barbarian",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "ONCOMBO IF ACTION COILED_STRIKE -> MINT CRISIS 1"
+    "modifier": "ONCOMBO IF ACTION SHATTERING_BLOW -> MINT CRISIS 1"
   },
   {
     "slot": "feet",
@@ -5121,7 +5121,7 @@
     "class": "barbarian",
     "defenseMin": 8,
     "defenseMax": 10,
-    "modifier": "WHILE -> RANK b-scar 1"
+    "modifier": "WHILE -> RANK b-encore 1"
   },
   {
     "slot": "feet",
@@ -5177,7 +5177,7 @@
     "class": "warrior",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "WHILE -> RANK w-flowing 1"
+    "modifier": "WHILE -> RANK w-flowcrest 1"
   },
   {
     "slot": "feet",
@@ -5597,7 +5597,7 @@
     "class": "wizard",
     "defenseMin": 17,
     "defenseMax": 23,
-    "modifier": "WHILE -> RANK z-age1 1; WHILE -> RANK z-clarity 1"
+    "modifier": "WHILE -> RANK z-refract 1; WHILE -> RANK z-synth 1"
   },
   {
     "slot": "feet",
@@ -5625,7 +5625,7 @@
     "class": "rogue",
     "defenseMin": 14,
     "defenseMax": 18,
-    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK r-cut 1"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK r-opportunist 1"
   },
   {
     "slot": "feet",
@@ -5681,7 +5681,7 @@
     "class": "barbarian",
     "defenseMin": 17,
     "defenseMax": 23,
-    "modifier": "WHILE -> RANK b-trance 1; WHILE -> RANK b-blood 1"
+    "modifier": "WHILE -> RANK b-frenzy 1; WHILE -> RANK b-trance 1"
   },
   {
     "slot": "feet",
@@ -5737,7 +5737,7 @@
     "class": "barbarian",
     "defenseMin": 10,
     "defenseMax": 14,
-    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK b-age1 1"
+    "modifier": "WHILE -> SETCOUNT 1; WHILE -> RANK b-headsman 1"
   },
   {
     "slot": "feet",
@@ -5765,7 +5765,7 @@
     "class": "rogue",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "WHILE -> RANK r-draught 1; WHILE -> RANK r-insight 1"
+    "modifier": "WHILE -> RANK r-setup 1; WHILE -> RANK r-toxin 1"
   },
   {
     "slot": "feet",
@@ -5821,7 +5821,7 @@
     "class": "warrior",
     "defenseMin": 12,
     "defenseMax": 16,
-    "modifier": "WHILE -> RANK w-hitagi 1; WHILE -> RANK w-march 1"
+    "modifier": "WHILE -> RANK w-flowing 1; WHILE -> RANK w-phalanx 1"
   },
   {
     "slot": "feet",

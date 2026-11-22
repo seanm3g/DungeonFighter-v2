@@ -58,9 +58,10 @@ namespace RPGGame.Data
         public static bool IsInClassPool(IEnumerable<string>? tags, IReadOnlyCollection<string> heroClassTags) =>
             IsNeutral(tags) || IsClassActionFor(tags, heroClassTags);
 
-        /// <summary>False for starter attacks, <c>unique</c> rows and material set converts.</summary>
+        /// <summary>False for starter attacks, <c>unique</c> rows, material set converts and retired cards (step 11 cut).</summary>
         public static bool CanRollOnGear(ActionData? data) =>
-            data == null || (!IsBasicAttack(data.Tags) && string.IsNullOrWhiteSpace(data.MaterialScale));
+            data == null || (!IsBasicAttack(data.Tags) && string.IsNullOrWhiteSpace(data.MaterialScale)
+                && !GameDataTagHelper.IsRetired(data.Tags));
 
         /// <summary>The hero's class tags for <paramref name="item"/>: <paramref name="heroClassTags"/>, else the weapon's own class.</summary>
         public static IReadOnlyCollection<string> ResolveClassTags(Item item, IReadOnlyCollection<string>? heroClassTags)

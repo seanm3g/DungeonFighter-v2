@@ -99,7 +99,7 @@ namespace RPGGame
             return ActionLoader.GetActiveSetActionData()
                 .Where(a => a.Tags != null &&
                             GameDataTagHelper.HasItemPoolTag(a.Tags) &&
-                            GameDataTagHelper.IsGrantableOnHeroGear(a.Tags) &&
+                            GameDataTagHelper.IsRollableOnHeroGear(a.Tags) &&
                             !a.Tags.Any(t => string.Equals(t, "unique", StringComparison.OrdinalIgnoreCase)))
                 .Select(a => a.Name)
                 .Where(n => !string.IsNullOrWhiteSpace(n))
@@ -111,7 +111,7 @@ namespace RPGGame
             return ActionLoader.GetActiveSetActionData()
                 .Where(a => a.Tags != null &&
                             GameDataTagHelper.HasActionPoolTag(a.Tags) &&
-                            GameDataTagHelper.IsGrantableOnHeroGear(a.Tags) &&
+                            GameDataTagHelper.IsRollableOnHeroGear(a.Tags) &&
                             !a.Tags.Any(t => string.Equals(t, "unique", StringComparison.OrdinalIgnoreCase)))
                 .Select(a => a.Name)
                 .Where(n => !string.IsNullOrWhiteSpace(n))
@@ -203,7 +203,7 @@ namespace RPGGame
                 if (actionData.WeaponTypes != null && 
                     actionData.WeaponTypes.Any(wt => wt.Equals(weaponTypeName, StringComparison.OrdinalIgnoreCase)))
                 {
-                    if (!GameDataTagHelper.IsGrantableOnHeroGear(actionData.Tags))
+                    if (!GameDataTagHelper.IsRollableOnHeroGear(actionData.Tags))
                         continue;
                     weaponActions.Add(actionData.Name);
                 }
@@ -222,7 +222,7 @@ namespace RPGGame
                                     action.Tags.Any(tag => tag.Equals(weaponTag, StringComparison.OrdinalIgnoreCase)) &&
                                     !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
                                     !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)) &&
-                                    GameDataTagHelper.IsGrantableOnHeroGear(action.Tags))
+                                    GameDataTagHelper.IsRollableOnHeroGear(action.Tags))
                     .Select(action => action.Name)
                     .ToList();
             }
@@ -266,7 +266,7 @@ namespace RPGGame
                                 action.Tags.Any(tag => tag.Equals("weapon", StringComparison.OrdinalIgnoreCase)) &&
                                 !action.Tags.Any(tag => tag.Equals("unique", StringComparison.OrdinalIgnoreCase)) &&
                                 !action.Tags.Any(tag => tag.Equals("class", StringComparison.OrdinalIgnoreCase)) &&
-                                GameDataTagHelper.IsGrantableOnHeroGear(action.Tags))
+                                GameDataTagHelper.IsRollableOnHeroGear(action.Tags))
                 .Select(action => action.Name)
                 .ToList();
 
@@ -277,7 +277,7 @@ namespace RPGGame
         {
             if (string.IsNullOrEmpty(actionName))
                 return null;
-            return GameDataTagHelper.IsGrantableOnHeroGearByName(actionName) ? actionName : null;
+            return GameDataTagHelper.IsRollableOnHeroGearByName(actionName) ? actionName : null;
         }
 
         /// <summary>

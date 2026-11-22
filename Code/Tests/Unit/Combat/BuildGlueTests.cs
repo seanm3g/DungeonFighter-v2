@@ -41,7 +41,7 @@ namespace RPGGame.Tests.Unit.Combat
         {
             EnemyActionCatalog.Reload();
             string? template = EnemyActionCatalog.ResolveTemplateName("POISON BITE");
-            TestBase.AssertEqual("ENEMY VENOM", template, "POISON BITE resolves to the Venom kit",
+            TestBase.AssertEqual("ENEMY REND", template, "POISON BITE resolves to the Rend kit (Venom merged into Rend, step 11)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             var action = EnemyActionCatalog.TryCreate("POISON BITE");
             TestBase.AssertNotNull(action, "kit action is created", ref _testsRun, ref _testsPassed, ref _testsFailed);

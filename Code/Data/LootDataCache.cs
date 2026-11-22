@@ -154,7 +154,7 @@ namespace RPGGame
             if (actionDataList != null && actionDataList.Count > 0)
             {
                 ActionBonuses = actionDataList
-                    .Where(a => GameDataTagHelper.IsGrantableOnHeroGear(a.Tags))
+                    .Where(a => GameDataTagHelper.IsRollableOnHeroGear(a.Tags))
                     .Select(a => new ActionBonus
                     {
                         Name = a.Name,

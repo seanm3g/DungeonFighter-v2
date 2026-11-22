@@ -759,7 +759,7 @@
       "Sand Shackle"
     ],
     "kit": [
-      "ENEMY PIERCE",
+      "ENEMY SUNDER",
       "ENEMY ENSNARE"
     ],
     "isLiving": true,
@@ -799,7 +799,7 @@
       "Sand Spray"
     ],
     "kit": [
-      "ENEMY PIERCE",
+      "ENEMY SUNDER",
       "ENEMY ENSNARE"
     ],
     "isLiving": true,
@@ -841,7 +841,7 @@
       "Quicksand Wake"
     ],
     "kit": [
-      "ENEMY PIERCE",
+      "ENEMY SUNDER",
       "ENEMY ENSNARE"
     ],
     "isLiving": true,
@@ -885,7 +885,7 @@
       "Pinning Claw"
     ],
     "kit": [
-      "ENEMY PIERCE",
+      "ENEMY SUNDER",
       "ENEMY ENSNARE"
     ],
     "isLiving": true,
@@ -929,7 +929,7 @@
     ],
     "kit": [
       "ENEMY ENSNARE",
-      "ENEMY PIERCE"
+      "ENEMY SUNDER"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1134,8 +1134,8 @@
       "Tomb Dust Slam"
     ],
     "kit": [
-      "ENEMY CURSE",
-      "ENEMY VENOM"
+      "ENEMY SUNDER",
+      "ENEMY REND"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1174,8 +1174,8 @@
       "Life Tithe"
     ],
     "kit": [
-      "ENEMY VENOM",
-      "ENEMY MEND"
+      "ENEMY REND",
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1216,8 +1216,8 @@
       "Sunlit Renewal"
     ],
     "kit": [
-      "ENEMY CURSE",
-      "ENEMY MEND"
+      "ENEMY SUNDER",
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1259,8 +1259,8 @@
       "Venom Mandibles"
     ],
     "kit": [
-      "ENEMY CURSE",
-      "ENEMY VENOM"
+      "ENEMY SUNDER",
+      "ENEMY REND"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1303,8 +1303,8 @@
       "Tomb Feast"
     ],
     "kit": [
-      "ENEMY CURSE",
-      "ENEMY MEND"
+      "ENEMY SUNDER",
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1341,8 +1341,8 @@
       "Pharaoh\u0027s Curse"
     ],
     "kit": [
-      "ENEMY MEND",
-      "ENEMY CURSE"
+      "ENEMY DRAIN",
+      "ENEMY SUNDER"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1378,8 +1378,8 @@
       "Death Bolt"
     ],
     "kit": [
-      "ENEMY MEND",
-      "ENEMY CURSE"
+      "ENEMY DRAIN",
+      "ENEMY SUNDER"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1420,8 +1420,8 @@
       "Linen Leech"
     ],
     "kit": [
-      "ENEMY VENOM",
-      "ENEMY MEND"
+      "ENEMY REND",
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1457,8 +1457,8 @@
       "Ancestral Renewal"
     ],
     "kit": [
-      "ENEMY CURSE",
-      "ENEMY MEND"
+      "ENEMY SUNDER",
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1658,7 +1658,7 @@
       "Thrashing Gulps"
     ],
     "kit": [
-      "ENEMY CONCUSS",
+      "ENEMY ENSNARE",
       "ENEMY FRENZY"
     ],
     "isLiving": true,
@@ -1695,7 +1695,7 @@
       "Deserter\u0027s Cleave"
     ],
     "kit": [
-      "ENEMY CONCUSS",
+      "ENEMY ENSNARE",
       "ENEMY CRUSH"
     ],
     "isLiving": true,
@@ -1732,7 +1732,7 @@
       "Thunderfall"
     ],
     "kit": [
-      "ENEMY CONCUSS",
+      "ENEMY ENSNARE",
       "ENEMY CRUSH"
     ],
     "isLiving": true,
@@ -1771,7 +1771,7 @@
     ],
     "kit": [
       "ENEMY FRENZY",
-      "ENEMY CONCUSS"
+      "ENEMY ENSNARE"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -1810,7 +1810,7 @@
     ],
     "kit": [
       "ENEMY CRUSH",
-      "ENEMY CONCUSS"
+      "ENEMY ENSNARE"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3345,7 +3345,7 @@
       "Bush Ambush"
     ],
     "kit": [
-      "ENEMY CONCUSS",
+      "ENEMY ENSNARE",
       "ENEMY JAM"
     ],
     "isLiving": true,
@@ -3461,7 +3461,7 @@
       "Broken Loop"
     ],
     "kit": [
-      "ENEMY CONCUSS",
+      "ENEMY ENSNARE",
       "ENEMY SHATTER"
     ],
     "isLiving": true,
@@ -3536,7 +3536,7 @@
     ],
     "kit": [
       "ENEMY JAM",
-      "ENEMY CONCUSS"
+      "ENEMY ENSNARE"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3648,7 +3648,7 @@
       "Bramble Snare"
     ],
     "kit": [
-      "ENEMY VENOM",
+      "ENEMY REND",
       "ENEMY ENSNARE"
     ],
     "isLiving": true,
@@ -3688,7 +3688,7 @@
       "Vine Whip"
     ],
     "kit": [
-      "ENEMY MEND",
+      "ENEMY DRAIN",
       "ENEMY ENSNARE"
     ],
     "isLiving": true,
@@ -3727,7 +3727,7 @@
       "Coil Bind"
     ],
     "kit": [
-      "ENEMY VENOM",
+      "ENEMY REND",
       "ENEMY ENSNARE"
     ],
     "isLiving": true,
@@ -3767,7 +3767,7 @@
       "Sticky Nectar"
     ],
     "kit": [
-      "ENEMY VENOM",
+      "ENEMY REND",
       "ENEMY ENSNARE"
     ],
     "isLiving": true,
@@ -3806,8 +3806,8 @@
       "Pollinate"
     ],
     "kit": [
-      "ENEMY VENOM",
-      "ENEMY MEND"
+      "ENEMY REND",
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3843,7 +3843,7 @@
       "Hamstring"
     ],
     "kit": [
-      "ENEMY VENOM",
+      "ENEMY REND",
       "ENEMY ENSNARE"
     ],
     "isLiving": true,
@@ -3881,7 +3881,7 @@
     ],
     "kit": [
       "ENEMY ENSNARE",
-      "ENEMY MEND"
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3919,7 +3919,7 @@
     ],
     "kit": [
       "ENEMY ENSNARE",
-      "ENEMY MEND"
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3957,7 +3957,7 @@
     ],
     "kit": [
       "ENEMY ENSNARE",
-      "ENEMY MEND"
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3994,7 +3994,7 @@
     ],
     "kit": [
       "ENEMY ENSNARE",
-      "ENEMY PIERCE"
+      "ENEMY SUNDER"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -4034,7 +4034,7 @@
       "Blood Suck"
     ],
     "kit": [
-      "ENEMY PIERCE",
+      "ENEMY SUNDER",
       "ENEMY DRAIN"
     ],
     "isLiving": true,
@@ -4071,7 +4071,7 @@
       "Mire Slam"
     ],
     "kit": [
-      "ENEMY PIERCE",
+      "ENEMY SUNDER",
       "ENEMY ENSNARE"
     ],
     "isLiving": true,
@@ -4109,7 +4109,7 @@
       "Undertow Drag"
     ],
     "kit": [
-      "ENEMY PIERCE",
+      "ENEMY SUNDER",
       "ENEMY ENSNARE"
     ],
     "isLiving": true,
@@ -4146,7 +4146,7 @@
       "Leeching Coil"
     ],
     "kit": [
-      "ENEMY PIERCE",
+      "ENEMY SUNDER",
       "ENEMY DRAIN"
     ],
     "isLiving": true,
@@ -4262,7 +4262,7 @@
     ],
     "kit": [
       "ENEMY ENSNARE",
-      "ENEMY PIERCE"
+      "ENEMY SUNDER"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -4453,7 +4453,7 @@
     ],
     "kit": [
       "ENEMY ENSNARE",
-      "ENEMY MEND"
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -4610,7 +4610,7 @@
       "Splash"
     ],
     "kit": [
-      "ENEMY MEND",
+      "ENEMY DRAIN",
       "ENEMY SCORCH"
     ],
     "isLiving": true,
@@ -4648,7 +4648,7 @@
     ],
     "kit": [
       "ENEMY ENSNARE",
-      "ENEMY MEND"
+      "ENEMY DRAIN"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
