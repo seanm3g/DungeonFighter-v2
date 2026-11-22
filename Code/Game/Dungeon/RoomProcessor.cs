@@ -230,6 +230,23 @@
                         canvasUISafe.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
                         await SimulationPacing.DelayAfterLogRevealAsync(customUIManager, 2000, stateManager.CurrentPlayer);
                     }
+
+                    // D8.10: 1 in 4 empty rooms holds a non-hostile encounter (wanderer, shrine, trapped creature, merchant).
+                    if (stateManager.CurrentPlayer != null)
+                    {
+                        var encounter = RoomEncounters.TryEncounter(stateManager.CurrentPlayer, stateManager.CurrentDungeon, RandomUtility.Ambient);
+                        if (encounter.Count > 0 && !RPGGame.Combat.CombatUiMuteScope.IsMuted)
+                        {
+                            foreach (string line in encounter)
+                                displayManager.AddCombatEvent(line, stateManager.CurrentPlayer);
+                            displayManager.AddCombatEvent("", stateManager.CurrentPlayer);
+                            if (customUIManager is CanvasUICoordinator canvasUIEncounter)
+                            {
+                                canvasUIEncounter.RenderRoomEntry(room, stateManager.CurrentPlayer, stateManager.CurrentDungeon?.Name);
+                                await SimulationPacing.DelayAfterLogRevealAsync(customUIManager, 2000, stateManager.CurrentPlayer);
+                            }
+                        }
+                    }
                 }
                 else
                 {

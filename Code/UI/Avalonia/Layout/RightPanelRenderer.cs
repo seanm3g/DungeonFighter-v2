@@ -143,7 +143,7 @@ namespace RPGGame.UI.Avalonia.Layout
             {
                 canvas.AddText(x, y, AsciiArtAssets.UIText.CreateHeader("DUNGEON"), AsciiArtAssets.Colors.Gold);
                 y += 2;
-                y = DrawHubDungeonEntry(x, y, maxW, panelBottom, current);
+                y = DrawHubDungeonEntry(x, y, maxW, panelBottom, current, character);
                 int rooms = current.Rooms?.Count ?? 0;
                 if (rooms > 0 && y <= panelBottom)
                 {
@@ -186,7 +186,7 @@ namespace RPGGame.UI.Avalonia.Layout
 
             int entriesHeight = offered.Count == 0 ? 1 : 0;
             foreach (var d in offered)
-                entriesHeight += HubDungeonEntryHeight(d, entryW) + 1;
+                entriesHeight += HubDungeonEntryHeight(d, entryW, character) + 1;
             int blockHeight = titleRows * 2 + 1 + labelRows + (hasRegionName ? 1 : 0) + 1 + labelRows + 1 + entriesHeight;
             // The title is the panel's big button: its bottom ("DUNGEON") sits on the panel's vertical midpoint, the
             // region and dungeon list hang below, and the title lifts only as far as the list needs to fit.
@@ -231,7 +231,7 @@ namespace RPGGame.UI.Avalonia.Layout
                     y++;
                     break;
                 }
-                y = DrawHubDungeonEntry(entryX, y, entryW, panelBottom, offered[i]);
+                y = DrawHubDungeonEntry(entryX, y, entryW, panelBottom, offered[i], character);
                 y++;
             }
 
@@ -251,9 +251,9 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         /// <summary>Rows <see cref="DrawHubDungeonEntry"/> uses for <paramref name="dungeon"/> (name, level, up to two foe lines).</summary>
-        private static int HubDungeonEntryHeight(Dungeon dungeon, int maxW)
+        private static int HubDungeonEntryHeight(Dungeon dungeon, int maxW, Character? hero = null)
         {
-            int rows = 2;
+            int rows = 2 + MatchupLines(dungeon, hero, maxW).Count;
             if (dungeon.PossibleEnemies != null && dungeon.PossibleEnemies.Count > 0)
             {
                 var foes = new List<string>();
@@ -266,7 +266,16 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         /// <summary>One dungeon: themed name, level and theme, then its foes. Returns the next free row.</summary>
-        private int DrawHubDungeonEntry(int x, int y, int maxW, int panelBottom, Dungeon dungeon)
+        /// <summary>The matchup card's lines (D0.8): families with ✓ / ✗ / ~ for the hero's class, what they're weak to, Fernis.</summary>
+        private static List<string> MatchupLines(Dungeon dungeon, Character? hero, int maxW)
+        {
+            var lines = new List<string>();
+            foreach (string line in DungeonMatchup.Evaluate(dungeon, hero).Lines())
+                lines.AddRange(WrapWords(line, maxW, 2));
+            return lines;
+        }
+
+        private int DrawHubDungeonEntry(int x, int y, int maxW, int panelBottom, Dungeon dungeon, Character? hero = null)
         {
             string name = RightPanelContentText.EllipsizeToPanelWidth(dungeon.Name);
             if (!string.IsNullOrEmpty(dungeon.Theme))
@@ -298,6 +307,18 @@ namespace RPGGame.UI.Avalonia.Layout
                     canvas.AddText(x, y, line, AsciiArtAssets.Colors.Gray);
                     y++;
                 }
+            }
+
+            foreach (string line in MatchupLines(dungeon, hero, maxW))
+            {
+                if (y > panelBottom)
+                    break;
+                var color = line.StartsWith(DungeonMatchup.Good, StringComparison.Ordinal) ? AsciiArtAssets.Colors.Green
+                    : line.StartsWith(DungeonMatchup.Bad, StringComparison.Ordinal) ? AsciiArtAssets.Colors.Red
+                    : line.StartsWith("Fernis:", StringComparison.Ordinal) ? AsciiArtAssets.Colors.Yellow
+                    : AsciiArtAssets.Colors.Gray;
+                canvas.AddText(x, y, line, color);
+                y++;
             }
 
             return y;

@@ -140,6 +140,13 @@ namespace RPGGame
                 return;
             }
 
+            // D1.4: a region can require a level or an attribute.
+            if (!RegionRequirements.Meets(destination, stateManager.CurrentPlayer, out string missing))
+            {
+                ShowMessageEvent?.Invoke($"{destination.DisplayName} requires {missing}.");
+                return;
+            }
+
             // With the canvas UI, ask first (travel time and danger); headless travels straight away.
             if (customUIManager is CanvasUICoordinator)
             {

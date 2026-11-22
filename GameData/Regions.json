@@ -6,6 +6,7 @@
     "description": "Trade-roads under old trees, where dens and hedge mazes hide the first real dangers.",
     "minLevel": 1,
     "maxLevel": 5,
+    "requirements": [],
     "mapX": 12,
     "mapY": 72,
     "linkedDungeonThemes": [
@@ -21,6 +22,7 @@
     "description": "Reed beds and still pools that show you a little more than your reflection.",
     "minLevel": 6,
     "maxLevel": 10,
+    "requirements": ["level 5"],
     "mapX": 30,
     "mapY": 86,
     "linkedDungeonThemes": [
@@ -36,6 +38,7 @@
     "description": "Forges and vaults where oaths were tempered in heat and brittle glass.",
     "minLevel": 11,
     "maxLevel": 15,
+    "requirements": ["level 10"],
     "mapX": 63,
     "mapY": 88,
     "linkedDungeonThemes": [
@@ -51,6 +54,7 @@
     "description": "Dunes, glass plains and a single oasis under a merciless sun.",
     "minLevel": 16,
     "maxLevel": 20,
+    "requirements": ["level 15"],
     "mapX": 92,
     "mapY": 28,
     "linkedDungeonThemes": [
@@ -66,6 +70,7 @@
     "description": "The canopy closes and the brush grows teeth; packs hunt in the green dark.",
     "minLevel": 21,
     "maxLevel": 25,
+    "requirements": ["level 20"],
     "mapX": 20,
     "mapY": 52,
     "linkedDungeonThemes": [
@@ -81,6 +86,7 @@
     "description": "Springs and grottos where the tide runs underground.",
     "minLevel": 26,
     "maxLevel": 30,
+    "requirements": ["level 25"],
     "mapX": 45,
     "mapY": 78,
     "linkedDungeonThemes": [
@@ -96,6 +102,7 @@
     "description": "Ash falls like snow across ridges of black stone.",
     "minLevel": 31,
     "maxLevel": 35,
+    "requirements": ["level 30"],
     "mapX": 76,
     "mapY": 76,
     "linkedDungeonThemes": [
@@ -111,6 +118,7 @@
     "description": "Wind-scoured desert ringed by tombs of forgotten kings.",
     "minLevel": 36,
     "maxLevel": 40,
+    "requirements": ["level 35"],
     "mapX": 70,
     "mapY": 30,
     "linkedDungeonThemes": [
@@ -126,6 +134,7 @@
     "description": "Roots older than kingdoms split the ruins; the maze walls move when unwatched.",
     "minLevel": 41,
     "maxLevel": 45,
+    "requirements": ["level 40"],
     "mapX": 8,
     "mapY": 36,
     "linkedDungeonThemes": [
@@ -141,6 +150,7 @@
     "description": "Half-drowned temples that still ring with hymns at high water.",
     "minLevel": 46,
     "maxLevel": 50,
+    "requirements": ["level 45"],
     "mapX": 40,
     "mapY": 62,
     "linkedDungeonThemes": [
@@ -156,6 +166,7 @@
     "description": "Lava caves beneath a temple that burns without fuel.",
     "minLevel": 51,
     "maxLevel": 55,
+    "requirements": ["level 50"],
     "mapX": 90,
     "mapY": 64,
     "linkedDungeonThemes": [
@@ -171,6 +182,7 @@
     "description": "Pyramids at the foot of the mountains, their curses carried on the wind.",
     "minLevel": 56,
     "maxLevel": 60,
+    "requirements": ["level 55"],
     "mapX": 54,
     "mapY": 22,
     "linkedDungeonThemes": [
@@ -186,6 +198,7 @@
     "description": "A forest at permanent dusk where every den has a crowned alpha.",
     "minLevel": 61,
     "maxLevel": 65,
+    "requirements": ["level 60"],
     "mapX": 24,
     "mapY": 24,
     "linkedDungeonThemes": [
@@ -201,6 +214,7 @@
     "description": "The pond floor drops away into black water that watches back.",
     "minLevel": 66,
     "maxLevel": 70,
+    "requirements": ["level 65"],
     "mapX": 55,
     "mapY": 66,
     "linkedDungeonThemes": [
@@ -216,6 +230,7 @@
     "description": "Where broken promises are burned, along with whoever made them.",
     "minLevel": 71,
     "maxLevel": 75,
+    "requirements": ["level 70"],
     "mapX": 70,
     "mapY": 55,
     "linkedDungeonThemes": [
@@ -231,6 +246,7 @@
     "description": "Cliffs so high the clouds pass below your feet.",
     "minLevel": 76,
     "maxLevel": 80,
+    "requirements": ["level 75"],
     "mapX": 40,
     "mapY": 10,
     "linkedDungeonThemes": [
@@ -246,6 +262,7 @@
     "description": "The heartwood of the world, where the oldest beasts keep their vigil.",
     "minLevel": 81,
     "maxLevel": 85,
+    "requirements": ["level 80"],
     "mapX": 31,
     "mapY": 42,
     "linkedDungeonThemes": [
@@ -261,6 +278,7 @@
     "description": "The seat of the drowned court, where the throne is never empty.",
     "minLevel": 86,
     "maxLevel": 90,
+    "requirements": ["level 85"],
     "mapX": 48,
     "mapY": 50,
     "linkedDungeonThemes": [
@@ -276,6 +294,7 @@
     "description": "The heart of the fire, ruled from a throne of slag and gold.",
     "minLevel": 91,
     "maxLevel": 95,
+    "requirements": ["level 90"],
     "mapX": 82,
     "mapY": 42,
     "linkedDungeonThemes": [
@@ -291,6 +310,7 @@
     "description": "The roof of the world, where storms are born and titans sleep.",
     "minLevel": 96,
     "maxLevel": 100,
+    "requirements": ["level 95"],
     "mapX": 62,
     "mapY": 6,
     "linkedDungeonThemes": [

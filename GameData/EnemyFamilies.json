@@ -1,0 +1,66 @@
+{
+  "_doc": "Six enemy families mirroring the classes (Documentation/CORE_DESIGN_PASS_2026-11-17.md, D8.1). Presentation and matchups only: an enemy's stat profile still comes from its archetype (Enemies.json), so nothing here changes balance. archetypes = the archetypes that read as this family; beastWhenNoHands = a Berserker without hands is a Beast. playsLike / punishedBy are in hero words; punishedByClasses / punishesClasses drive the dungeon-select matchup marks. fernis = his matchup line, the opposite of good advice (D9.7). All text REVIEW.",
+  "beastWhenNoHands": true,
+  "families": [
+    {
+      "id": "brute",
+      "name": "Brute",
+      "archetypes": ["Brute", "Berserker", "Warlord"],
+      "playsLike": "hits hard, swings slow",
+      "punishedBy": "Guard and fast chains",
+      "punishedByClasses": ["warrior"],
+      "punishesClasses": ["rogue"],
+      "fernis": "Brutes ahead. Drop the shield, you'll want both hands free to apologize."
+    },
+    {
+      "id": "knight",
+      "name": "Knight",
+      "archetypes": ["Knight", "Duelist"],
+      "playsLike": "armored, outlasts you",
+      "punishedBy": "Burn and long chains",
+      "punishedByClasses": ["wizard"],
+      "punishesClasses": ["barbarian"],
+      "fernis": "Knights. Wear your heaviest armor and don't bother with fire, trust me."
+    },
+    {
+      "id": "assassin",
+      "name": "Assassin",
+      "archetypes": ["Assassin"],
+      "playsLike": "fast, crits, fragile",
+      "punishedBy": "Guard and an early hit",
+      "punishedByClasses": ["warrior"],
+      "punishesClasses": ["wizard"],
+      "fernis": "Assassins. Take your time with the long spells, they love waiting."
+    },
+    {
+      "id": "sage",
+      "name": "Sage",
+      "archetypes": ["Sage"],
+      "playsLike": "builds up, then casts long chains",
+      "punishedBy": "Stagger and an early burst",
+      "punishedByClasses": ["barbarian"],
+      "punishesClasses": ["warrior"],
+      "fernis": "Sages in there. Let them finish their chains, it's only polite."
+    },
+    {
+      "id": "trickster",
+      "name": "Trickster",
+      "archetypes": ["Trickster", "Acrobat"],
+      "playsLike": "slippery, messes with your dice",
+      "punishedBy": "reliable rolls (Technique)",
+      "punishedByClasses": ["rogue"],
+      "punishesClasses": ["barbarian"],
+      "fernis": "Tricksters. Swing wild, accuracy is overrated."
+    },
+    {
+      "id": "beast",
+      "name": "Beast",
+      "archetypes": [],
+      "playsLike": "relentless, hits often",
+      "punishedBy": "Burn and Guard",
+      "punishedByClasses": ["wizard"],
+      "punishesClasses": ["rogue"],
+      "fernis": "Beasts. They love a good stab, go cuddle one."
+    }
+  ]
+}

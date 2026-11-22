@@ -30,8 +30,15 @@ namespace RPGGame
         /// </summary>
         public static void ApplyPrefixEffects(Enemy enemy, EnemyPrefixData prefix)
         {
-            if (enemy == null || prefix == null || prefix.Effects.Count == 0 || !AffixFeatures.Prefix)
+            if (enemy == null || prefix == null || !AffixFeatures.Prefix)
                 return;
+            // D8.2: the prefix is the enemy's one visible modifier (its rule or its affinity, D8.9); it replaces the
+            // region / dungeon affix.
+            if (AffixFeatures.OneModifier)
+            {
+                enemy.Affixes.Clear();
+                enemy.RegionAffixName = null;
+            }
             foreach (var effect in prefix.Effects)
             {
                 var affix = new EnemyAffixDef
@@ -156,7 +163,15 @@ namespace RPGGame
 
             bool rare = string.Equals(data?.Rarity, "rare", StringComparison.OrdinalIgnoreCase);
             if ((rare || forceDungeonAffix) && identity?.Affix != null && AffixFeatures.Dungeon)
+            {
+                // D8.2: one visible modifier: the dungeon affix replaces the region family.
+                if (AffixFeatures.OneModifier)
+                {
+                    enemy.Affixes.Clear();
+                    enemy.RegionAffixName = null;
+                }
                 enemy.Affixes.Add(identity.Affix);
+            }
 
             if (identity != null && enemy.Weapon != null && !string.IsNullOrWhiteSpace(identity.Material))
                 enemy.Weapon.Material = identity.Material;

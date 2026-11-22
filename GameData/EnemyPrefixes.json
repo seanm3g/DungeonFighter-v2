@@ -1,5 +1,5 @@
 {
-  "description": "Enemy prefixes rolled when a room's enemy is created (and the final boss's Demon mark). A prefix renames the enemy, adds its tags (StatusAffinities.json reads them for immunities and weaknesses) and adds its effects as enemy affixes (EnemyAffixRuntime levers: hp / damage / speed (belowHealth gates) / onhit / start / taken (weapons filter) / evasion (stacks = hit faces) / extraaction (stacks = signature actions)). The Demon's mechanics come from EnemyAffixes.json.",
+  "description": "Enemy prefixes rolled when a room's enemy is created (and the final boss's Demon mark). A prefix renames the enemy, adds its tags (StatusAffinities.json reads them for immunities and weaknesses) and adds its effects as enemy affixes (EnemyAffixRuntime levers: hp / damage / speed (belowHealth gates) / onhit / start / taken (weapons filter) / evasion (stacks = hit faces) / extraaction (stacks = signature actions)). The Demon's mechanics come from EnemyAffixes.json. Since 2026-11-21 (D8.5, D8.9) each prefix has one rule, tied to an affinity or a core status, and replaces the enemy's region / dungeon affix (D8.2, one visible modifier). REVIEW.",
   "roomRoll": {
     "chance": 0.12,
     "chancePerLevel": 0.002,
@@ -11,146 +11,316 @@
       "name": "Demonic",
       "bossOnly": true,
       "weight": 0,
-      "tags": [ "demon", "fiend", "infernal" ],
+      "tags": [
+        "demon",
+        "fiend",
+        "infernal"
+      ],
       "description": "Final-boss mark: signature kit, region affix a rank up, dungeon affix and a second phase at 50% HP (EnemyAffixes.json)."
     },
     {
       "name": "Undead",
       "weight": 3,
-      "requiresTags": [ "living" ],
-      "excludesTags": [ "undead", "elemental", "plant" ],
-      "tags": [ "undead", "risen" ],
-      "description": "+15% HP. Immune to Poison and Bleed, takes 1.5x Burn.",
-      "effects": [ { "lever": "hp", "value": 0.15 } ]
+      "requiresTags": [
+        "living"
+      ],
+      "excludesTags": [
+        "undead",
+        "elemental",
+        "plant"
+      ],
+      "tags": [
+        "undead",
+        "risen"
+      ],
+      "description": "Immune to Bleed; Burn hits it 1.5x.",
+      "effects": []
     },
     {
       "name": "Skeleton",
       "weight": 2,
-      "requiresTags": [ "living", "has_legs" ],
-      "excludesTags": [ "undead", "elemental", "plant", "tiny" ],
-      "tags": [ "undead", "skeleton", "brittle" ],
-      "description": "Takes 25% less from swords and daggers, 30% more from maces. Immune to Poison and Bleed.",
+      "requiresTags": [
+        "living",
+        "has_legs"
+      ],
+      "excludesTags": [
+        "undead",
+        "elemental",
+        "plant",
+        "tiny"
+      ],
+      "tags": [
+        "undead",
+        "skeleton",
+        "brittle"
+      ],
+      "description": "Takes 25% less from swords and daggers, 30% more from maces. Immune to Bleed.",
       "effects": [
-        { "lever": "taken", "value": -0.25, "weapons": [ "sword", "dagger" ] },
-        { "lever": "taken", "value": 0.3, "weapons": [ "mace" ] }
+        {
+          "lever": "taken",
+          "value": -0.25,
+          "weapons": [
+            "sword",
+            "dagger"
+          ]
+        },
+        {
+          "lever": "taken",
+          "value": 0.3,
+          "weapons": [
+            "mace"
+          ]
+        }
       ]
     },
     {
       "name": "Ghost",
       "weight": 2,
-      "requiresTags": [ "living" ],
-      "excludesTags": [ "undead", "elemental", "giant" ],
-      "tags": [ "undead", "ghost", "incorporeal" ],
+      "requiresTags": [
+        "living"
+      ],
+      "excludesTags": [
+        "undead",
+        "elemental",
+        "giant"
+      ],
+      "tags": [
+        "undead",
+        "ghost",
+        "incorporeal"
+      ],
       "description": "Takes 30% less from maces, swords and daggers (wands hit it normally). Immune to Poison and Bleed.",
-      "effects": [ { "lever": "taken", "value": -0.3, "weapons": [ "mace", "sword", "dagger" ] } ]
+      "effects": [
+        {
+          "lever": "taken",
+          "value": -0.3,
+          "weapons": [
+            "mace",
+            "sword",
+            "dagger"
+          ]
+        }
+      ]
     },
     {
       "name": "Giant",
       "weight": 2,
-      "excludesTags": [ "giant", "tiny", "minion" ],
-      "tags": [ "giant", "huge" ],
-      "description": "+30% HP and +20% damage, swings 15% slower.",
+      "excludesTags": [
+        "giant",
+        "tiny",
+        "minion"
+      ],
+      "tags": [
+        "giant",
+        "huge"
+      ],
+      "description": "+30% HP.",
       "effects": [
-        { "lever": "hp", "value": 0.3 },
-        { "lever": "damage", "value": 0.2 },
-        { "lever": "speed", "value": -0.15 }
+        {
+          "lever": "hp",
+          "value": 0.3
+        }
       ]
     },
     {
       "name": "Tiny",
       "weight": 2,
-      "excludesTags": [ "tiny", "giant", "boss" ],
-      "tags": [ "tiny", "small" ],
-      "description": "-25% HP, swings 20% faster, and you need 1 higher to hit it.",
+      "excludesTags": [
+        "tiny",
+        "giant",
+        "boss"
+      ],
+      "tags": [
+        "tiny",
+        "small"
+      ],
+      "description": "Hard to hit: you lose 1 hit face against it.",
       "effects": [
-        { "lever": "hp", "value": -0.25 },
-        { "lever": "speed", "value": 0.2 },
-        { "lever": "evasion", "stacks": 1 }
+        {
+          "lever": "evasion",
+          "stacks": 1
+        }
       ]
     },
     {
       "name": "Feral",
       "weight": 3,
-      "requiresTags": [ "living" ],
-      "excludesTags": [ "undead", "elemental", "plant" ],
-      "tags": [ "feral", "beast" ],
+      "requiresTags": [
+        "living"
+      ],
+      "excludesTags": [
+        "undead",
+        "elemental",
+        "plant"
+      ],
+      "tags": [
+        "feral",
+        "beast"
+      ],
       "description": "Swings 30% faster below half HP.",
-      "effects": [ { "lever": "speed", "value": 0.3, "belowHealth": 0.5 } ]
+      "effects": [
+        {
+          "lever": "speed",
+          "value": 0.3,
+          "belowHealth": 0.5
+        }
+      ]
     },
     {
       "name": "Armored",
       "weight": 2,
-      "excludesTags": [ "elemental", "plant", "incorporeal" ],
-      "tags": [ "armored", "plated" ],
-      "description": "Starts each fight with 3 Fortify. Takes 2x Acid.",
-      "effects": [ { "lever": "start", "status": "fortify", "stacks": 3 } ]
+      "excludesTags": [
+        "elemental",
+        "plant",
+        "incorporeal"
+      ],
+      "tags": [
+        "armored",
+        "plated"
+      ],
+      "description": "Starts each fight with 3 Guard.",
+      "effects": [
+        {
+          "lever": "start",
+          "status": "harden",
+          "stacks": 3
+        }
+      ]
     },
     {
       "name": "Ancient",
       "weight": 1,
       "minLevel": 35,
-      "excludesTags": [ "young", "minion" ],
-      "tags": [ "ancient", "elder" ],
-      "description": "+10% HP and one more action from its dungeon's signature kit.",
+      "excludesTags": [
+        "young",
+        "minion"
+      ],
+      "tags": [
+        "ancient",
+        "elder"
+      ],
+      "description": "Knows one more signature attack.",
       "effects": [
-        { "lever": "hp", "value": 0.1 },
-        { "lever": "extraaction", "stacks": 1 }
+        {
+          "lever": "extraaction",
+          "stacks": 1
+        }
       ]
     },
     {
       "name": "Corrupted",
       "weight": 2,
       "minLevel": 20,
-      "tags": [ "corrupted", "shadow" ],
-      "description": "25% chance to Weaken on hit.",
-      "effects": [ { "lever": "onhit", "status": "weaken", "chance": 0.25 } ]
+      "tags": [
+        "corrupted",
+        "shadow"
+      ],
+      "description": "25% chance to Rattle you on hit.",
+      "effects": [
+        {
+          "lever": "onhit",
+          "status": "rattle",
+          "chance": 0.25
+        }
+      ]
     },
     {
       "name": "Blazing",
       "weight": 2,
-      "excludesTags": [ "water", "plant" ],
-      "tags": [ "fire", "burning" ],
+      "excludesTags": [
+        "water",
+        "plant"
+      ],
+      "tags": [
+        "fire",
+        "burning"
+      ],
       "description": "30% chance to Burn on hit. Immune to Burn.",
-      "effects": [ { "lever": "onhit", "status": "burn", "chance": 0.3 } ]
+      "effects": [
+        {
+          "lever": "onhit",
+          "status": "burn",
+          "chance": 0.3
+        }
+      ]
     },
     {
       "name": "Frozen",
       "weight": 2,
-      "excludesTags": [ "fire" ],
-      "tags": [ "ice", "frozen" ],
-      "description": "30% chance to Slow on hit, but brittle: takes 15% more damage and 2x Burn.",
+      "excludesTags": [
+        "fire"
+      ],
+      "tags": [
+        "ice",
+        "frozen"
+      ],
+      "description": "30% chance to Stagger you on hit.",
       "effects": [
-        { "lever": "onhit", "status": "slow", "chance": 0.3 },
-        { "lever": "taken", "value": 0.15 }
+        {
+          "lever": "onhit",
+          "status": "stagger",
+          "chance": 0.3
+        }
       ]
     },
     {
       "name": "Venomous",
       "weight": 2,
-      "requiresTags": [ "living" ],
-      "excludesTags": [ "undead", "elemental" ],
-      "tags": [ "venomous", "poison" ],
-      "description": "30% chance to Poison on hit (0.25% max HP per tick). Immune to Poison.",
-      "effects": [ { "lever": "onhit", "status": "poison", "chance": 0.3, "value": 0.25 } ]
+      "requiresTags": [
+        "living"
+      ],
+      "excludesTags": [
+        "undead",
+        "elemental"
+      ],
+      "tags": [
+        "venomous",
+        "poison"
+      ],
+      "description": "30% chance to Bleed you on hit.",
+      "effects": [
+        {
+          "lever": "onhit",
+          "status": "bleed",
+          "chance": 0.3
+        }
+      ]
     },
     {
       "name": "Hallowed",
       "weight": 1,
-      "excludesTags": [ "undead", "demon" ],
-      "tags": [ "celestial", "holy" ],
-      "description": "+15% HP and starts each fight with 1 Harden. Immune to Weaken.",
+      "excludesTags": [
+        "undead",
+        "demon"
+      ],
+      "tags": [
+        "celestial",
+        "holy"
+      ],
+      "description": "Starts each fight with 1 Guard.",
       "effects": [
-        { "lever": "hp", "value": 0.15 },
-        { "lever": "start", "status": "harden", "stacks": 1 }
+        {
+          "lever": "start",
+          "status": "harden",
+          "stacks": 1
+        }
       ]
     },
     {
       "name": "Cursed",
       "weight": 1,
       "minLevel": 10,
-      "tags": [ "cursed" ],
+      "tags": [
+        "cursed"
+      ],
       "description": "25% chance to Expose on hit.",
-      "effects": [ { "lever": "onhit", "status": "expose", "chance": 0.25 } ]
+      "effects": [
+        {
+          "lever": "onhit",
+          "status": "expose",
+          "chance": 0.25
+        }
+      ]
     }
   ]
 }

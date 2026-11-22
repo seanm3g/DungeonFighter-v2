@@ -16,7 +16,8 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
 |---|---|---|---|
 | Phase 11 item rolls | done | `6cd48a60` | 15063 passed / 0 failed |
 | 3.1 Action roles, class hits | done | `9c9d9d9d` | 15074 passed / 0 failed |
-| 3.2 + 3.3 Fernis, swing moments, fight results | done | (this commit) | 15086 passed / 2 failed (both flaky, see below) |
+| 3.2 + 3.3 Fernis, swing moments, fight results | done | `8123dd8b` | 15086 passed / 2 failed (both flaky, see below) |
+| 4 Families, matchups, one modifier, prefixes, regions, encounters | partial | (this commit) | 15106 passed / 0 failed |
 
 ## Phase 11 — item rolls (D11.1–D11.12)
 - **Class affinity (D11.7):** every rolled item has one of 10 affinities (`Item.ClassAffinity`, saved as
@@ -86,3 +87,42 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
 - **Tests:** new `FernisTests` (12 checks). Full run: 15086 passed, 2 failed. Both are known flaky: Stable "both
   fighters are out at once" (a fighter dies in room 1; listed in the 11-21 overnight report) and MCP "Expected
   DungeonSelection, got Death" (the hero died in the straight-in first dungeon); the MCP suite passed 4 of 4 reruns.
+
+## Step 4 — Dungeons, rooms, bosses, regions (partial)
+
+### Done
+- **Six enemy families (D8.1)** in `GameData/EnemyFamilies.json` (`EnemyFamilies`): Brute (Brute, Berserker,
+  Warlord), Knight (Knight, Duelist), Assassin, Sage, Trickster (Trickster, Acrobat) and Beast (a living Berserker
+  without hands: Wolf, Bear, Boar, hounds). Each has "plays like" / "punished by" in hero words and a Fernis line.
+  **Presentation only:** an enemy's stats still come from its 9-archetype profile, so no numbers move. All 128
+  enemies map to a family. Family text and class matchups are **REVIEW**.
+- **Matchup lines on dungeon select (D0.8)** (`DungeonMatchup`, hub right panel): a ✓ / ✗ / ~ for the hero's class
+  with the dungeon's families ("✓ Brute ×2, Beast"), what the main family is weak to, the dungeon's lesson (its
+  identity affix) and material, and Fernis's line, which gives the opposite advice (D9.7) while the mark stays
+  true. Class matchups: each family is punished by one class and punishes one (Brute: Warrior / Rogue, Knight:
+  Wizard / Barbarian, Assassin: Warrior / Wizard, Sage: Barbarian / Warrior, Trickster: Rogue / Barbarian, Beast:
+  Wizard / Rogue) — **REVIEW**. Not checked on screen.
+- **One visible modifier (D8.2)** (`AffixFeatures.OneModifier`, on; key `onemodifier` turns it off in
+  `--features-off`): a room enemy keeps one of prefix > dungeon affix > region family. The Demon is exempt.
+  **Gameplay effect:** prefixed and Rare enemies lose their region affix, so they are somewhat weaker than in
+  over-v57's calibration.
+- **Prefixes reworked to one rule each (D8.5, D8.9)** in `EnemyPrefixes.json`, on core statuses: Undead = its
+  affinity only (immune to Bleed, Burn ×1.5), Giant = +30% HP, Tiny = evasion, Armored = 3 Guard, Ancient = one more
+  signature, Corrupted → Rattle on hit, Frozen → Stagger on hit, Venomous → Bleed on hit, Hallowed = 1 Guard;
+  Skeleton, Ghost, Feral, Blazing, Cursed unchanged. **REVIEW** (the rules are placeholders the doc allows).
+- **Region requirements (D1.4)**: `Regions.json` `requirements` ("level n", "STR n", ...), checked by
+  `RegionRequirements` before travel ("Rimewater requires level 5"). Seeded with level = the region's minimum − 1;
+  no attribute requirements yet (**REVIEW**).
+- **Non-hostile encounters (D8.10)** (`RoomEncounters`): 1 in 4 rooms without enemies holds a wanderer (a true hint
+  about the boss's family), a shrine (+15% HP), a trapped creature (a consumable, or a 5% HP bite) or a merchant (a
+  consumable), each with a Fernis line. They play out on entry; the design pictures choices (**REVIEW**). They also
+  run in sims (their HP effects are real); only the text is muted.
+
+### Not done (needs content or a screen)
+- Region → dungeons → rooms → enemies restructure and regional rosters (D8.8): a content rewrite of Rooms.json /
+  Dungeons.json; today dungeons still list `possibleEnemies`.
+- Enemies as skins over archetype × kit × strip length (D8.8): needs the ~10 enemy kit templates of step 11.
+- Room twists from the first dungeon (D8.11): room affixes already roll at 40% with no level gate, so this looks
+  already true; not changed.
+- Enemy strips short, Demons longest (D8.4): 124 of 128 enemies run 2 cards and the Demon gets up to 5; already in
+  line, not changed.

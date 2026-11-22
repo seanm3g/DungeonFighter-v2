@@ -35,6 +35,12 @@ namespace RPGGame
         /// </summary>
         public string SettlementType { get; set; } = "";
 
+        /// <summary>
+        /// Travel requirements (D1.4): "level 6", "STR 20", "AGI 15", "TEC 15", "INT 15". All must be met to travel here.
+        /// Empty = open. See <see cref="RegionRequirements"/>.
+        /// </summary>
+        public List<string> Requirements { get; set; } = new();
+
         /// <summary>Lowest dungeon level offered in this region (0 with <see cref="MaxLevel"/> 0 = legacy hero-level scaling).</summary>
         public int MinLevel { get; set; }
 
