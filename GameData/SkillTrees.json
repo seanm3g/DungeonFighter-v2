@@ -282,8 +282,8 @@
         {
           "name": "Venom Mace",
           "type": "Passive",
-          "effect": "Mace hits against Poisoned enemies resolve one Poison tick and convert one stack into Acid.",
-          "payoff": "Poison becomes impact.",
+          "effect": "Mace hits against Bleeding enemies turn 2 Bleed into 1 Stagger.",
+          "payoff": "Bleed becomes impact.",
           "customEffectId": "venom_mace",
           "id": "b-venom",
           "branch": "Iron",
@@ -1781,8 +1781,8 @@
         {
           "name": "Envenomed Edge",
           "type": "Passive",
-          "effect": "Dagger hits convert one Poison stack into two Bleed; critical hits convert two.",
-          "payoff": "Poison becomes Bleed.",
+          "effect": "Hits on a Burning enemy turn 1 Burn into 2 Bleed; critical hits convert twice.",
+          "payoff": "Fire becomes Bleed.",
           "customEffectId": "envenomed_edge",
           "id": "r-edge",
           "branch": "Obsidian",
@@ -2603,7 +2603,7 @@
         {
           "name": "Thermal Shock",
           "type": "Passive",
-          "effect": "Slow on Burning: {100}% chance to consume both and Stun; Burn on Slowed instead adds Expose.",
+          "effect": "Stagger on a Burning enemy: {100}% chance to spend the Stagger for 2 Expose.",
           "payoff": "Fire and frost collide.",
           "customEffectId": "thermal_shock",
           "id": "z-shock",

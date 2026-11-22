@@ -1,23 +1,23 @@
 {
-  "description": "Conversion table (Documentation/BUILD_SYSTEM_CONDENSED.md section 8): status-to-status conversions on the target, owned by skill nodes (owner = customEffectId). Each row is a coded ONCONNECT rule of the node that owns it (Code/Combat/Rules/SkillRules.cs), resolved in the rule engine's order: early rows in the gain phase, late rows after. requires: target statuses that must be up (live intensity / turns). chance: 'power' = the owner's rank x power. repeatOnCrit: passes on a critical. consume / produce units: a number, 'all', or 'half:<store>' (half the live amount before consuming, at least 1). Poison units are 0.25% max HP. DoTs are queued (they land on the target's next tick).",
+  "description": "Conversion table (Documentation/BUILD_SYSTEM_CONDENSED.md section 8): status-to-status conversions on the target, owned by skill nodes (owner = customEffectId). Each row is a coded ONCONNECT rule of the node that owns it (Code/Combat/Rules/SkillRules.cs), resolved in the rule engine's order: early rows in the gain phase, late rows after. requires: target statuses that must be up (live intensity / turns). chance: 'power' = the owner's rank x power. repeatOnCrit: passes on a critical. consume / produce units: a number, 'all', or 'half:<store>' (half the live amount before consuming, at least 1). Step 11 (2026-11-22): rows that read Poison or Slow (retired) now read Bleed / Stagger; Kindle has no owning node. DoTs are queued (they land on the target's next tick).",
   "rows": [
     {
       "id": "venom_mace",
       "owner": "venom_mace",
       "phase": "early",
-      "label": "Poison → Acid",
-      "requires": ["poison"],
-      "consume": [{ "store": "poison", "units": "4" }],
-      "produce": [{ "store": "acid", "units": "1" }]
+      "label": "Bleed → Stagger",
+      "requires": ["bleed"],
+      "consume": [{ "store": "bleed", "units": "2" }],
+      "produce": [{ "store": "stagger", "units": "1" }]
     },
     {
       "id": "envenomed_edge",
       "owner": "envenomed_edge",
       "phase": "early",
-      "label": "Poison → Bleed 1:2",
-      "requires": ["poison"],
+      "label": "Burn → Bleed 1:2",
+      "requires": ["burn"],
       "repeatOnCrit": 2,
-      "consume": [{ "store": "poison", "units": "4" }],
+      "consume": [{ "store": "burn", "units": "1" }],
       "produce": [{ "store": "bleed", "units": "2" }]
     },
     {
@@ -33,20 +33,20 @@
       "id": "kindle",
       "owner": "kindle",
       "phase": "late",
-      "label": "Poison on Burning → Acid + Burn",
-      "requires": ["burn", "poison"],
-      "consume": [{ "store": "poison", "units": "4" }],
-      "produce": [{ "store": "acid", "units": "1" }, { "store": "burn", "units": "1" }]
+      "label": "Bleed on Burning → Expose + Burn",
+      "requires": ["burn", "bleed"],
+      "consume": [{ "store": "bleed", "units": "2" }],
+      "produce": [{ "store": "expose", "units": "1" }, { "store": "burn", "units": "1" }]
     },
     {
       "id": "thermal_shock",
       "owner": "thermal_shock",
       "phase": "late",
-      "label": "Burn + Slow → Stun",
-      "requires": ["burn", "slow"],
+      "label": "Burn + Stagger → Expose",
+      "requires": ["burn", "stagger"],
       "chance": "power",
-      "consume": [{ "store": "burn", "units": "all" }, { "store": "slow", "units": "all" }],
-      "produce": [{ "store": "stun", "units": "1" }]
+      "consume": [{ "store": "stagger", "units": "all" }],
+      "produce": [{ "store": "expose", "units": "2" }]
     }
   ]
 }

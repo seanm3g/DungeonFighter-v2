@@ -159,7 +159,18 @@ namespace RPGGame.Tests.Unit
             var foe = new Character("EdgeFoe", 5);
             foe.BleedIntensity = 4;
             TestBase.AssertEqual(0, ConversionTable.ApplyRow(hero, foe, edge, isCritical: true),
-                "a row that requires a retired status (Poison) never fires", ref _run, ref _passed, ref _failed);
+                "Envenomed Edge needs Burn on the target (step 11: it read Poison, a retired status)", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(ConversionTable.Rows.All(r => r.Requires.All(s => s is not ("poison" or "slow" or "stun" or "acid"))),
+                "no conversion row requires a retired status", ref _run, ref _passed, ref _failed);
+            var burning = new Character("BurnFoe", 5);
+            burning.BurnIntensity = 3;
+            TestBase.AssertEqual(2, ConversionTable.ApplyRow(hero, burning, edge, isCritical: true), "Envenomed Edge converts twice on a crit", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(4, burning.PendingBleedFromHits, "1 Burn becomes 2 Bleed, twice", ref _run, ref _passed, ref _failed);
+            var mace = ConversionTable.Rows.First(r => r.Id == "venom_mace");
+            var bleeding = new Character("BleedFoe", 5);
+            bleeding.BleedIntensity = 4;
+            TestBase.AssertEqual(1, ConversionTable.ApplyRow(hero, bleeding, mace, isCritical: false), "Venom Mace fires on a Bleeding target", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(Stores.Get(bleeding, "stagger") > 0 && bleeding.BleedIntensity == 2, "2 Bleed became 1 Stagger", ref _run, ref _passed, ref _failed);
             var hemorrhage = ConversionTable.Rows.First(r => r.Id == "hemorrhage");
             int passes = ConversionTable.ApplyRow(hero, foe, hemorrhage, isCritical: true);
             TestBase.AssertEqual(1, passes, "Hemorrhage converts once", ref _run, ref _passed, ref _failed);

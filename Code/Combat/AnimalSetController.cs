@@ -9,7 +9,8 @@ namespace RPGGame
     /// Charm slot is excluded from counts (gear slots only).
     /// <para>Taxon set bonuses (2+ pieces of one taxon; scaled by the charm ladder and the 3+ specific heighten):
     /// Beast +6% damage, Bird +8% speed, Shell −8% damage taken, Reptile +4% damage / −4% taken,
-    /// Bug +5% speed / +3% damage, Fish −6% damage taken, Mythic +5% AMP.</para>
+    /// Bug +5% speed / +3% damage, Fish −6% damage taken, Mythic +3% damage / +3% speed (step 11: its old +5% AMP had no
+    /// reader after the extra AMP paths went in step 12; REVIEW).</para>
     /// </summary>
     public static class AnimalSetController
     {
@@ -18,21 +19,20 @@ namespace RPGGame
         public const int SpecificThreshold = 3;
         public const int BaseGeneralSpeedPct = 3;
         public const int BaseBirdSpeedPct = 8;
-        public const int BaseMythicAmpPct = 5;
         public const double SpecificHeightenFactor = 1.5;
 
         /// <summary>One taxon's set bonus at base strength (percent points).</summary>
-        public readonly record struct TaxonBonus(string Taxon, string Name, double DamagePct, double SpeedPct, double AmpPct, double DamageTakenPct);
+        public readonly record struct TaxonBonus(string Taxon, string Name, double DamagePct, double SpeedPct, double DamageTakenPct);
 
         private static readonly Dictionary<string, TaxonBonus> TaxonBonuses = new(StringComparer.OrdinalIgnoreCase)
         {
-            ["beast"] = new TaxonBonus("beast", "Ferocity", 6, 0, 0, 0),
-            ["bird"] = new TaxonBonus("bird", "Swiftness", 0, BaseBirdSpeedPct, 0, 0),
-            ["shell"] = new TaxonBonus("shell", "Carapace", 0, 0, 0, 8),
-            ["reptile"] = new TaxonBonus("reptile", "Scaled Hide", 4, 0, 0, 4),
-            ["bug"] = new TaxonBonus("bug", "Swarm", 3, 5, 0, 0),
-            ["fish"] = new TaxonBonus("fish", "Slippery", 0, 0, 0, 6),
-            ["mythic"] = new TaxonBonus("mythic", "Legend", 0, 0, BaseMythicAmpPct, 0),
+            ["beast"] = new TaxonBonus("beast", "Ferocity", 6, 0, 0),
+            ["bird"] = new TaxonBonus("bird", "Swiftness", 0, BaseBirdSpeedPct, 0),
+            ["shell"] = new TaxonBonus("shell", "Carapace", 0, 0, 8),
+            ["reptile"] = new TaxonBonus("reptile", "Scaled Hide", 4, 0, 4),
+            ["bug"] = new TaxonBonus("bug", "Swarm", 3, 5, 0),
+            ["fish"] = new TaxonBonus("fish", "Slippery", 0, 0, 6),
+            ["mythic"] = new TaxonBonus("mythic", "Legend", 3, 3, 0),
         };
 
         /// <summary>Active taxon bonuses (2+ pieces), already scaled by <see cref="GetTaxonMagnitudeMultiplier"/>.</summary>
@@ -53,7 +53,6 @@ namespace RPGGame
                 {
                     DamagePct = b.DamagePct * mult,
                     SpeedPct = b.SpeedPct * mult,
-                    AmpPct = b.AmpPct * mult,
                     DamageTakenPct = b.DamageTakenPct * mult
                 }, n));
             }
@@ -97,7 +96,6 @@ namespace RPGGame
             var parts = new List<string>();
             if (b.DamagePct > 0) parts.Add($"+{b.DamagePct:0.#}% damage");
             if (b.SpeedPct > 0) parts.Add($"+{b.SpeedPct:0.#}% speed");
-            if (b.AmpPct > 0) parts.Add($"+{b.AmpPct:0.#}% AMP");
             if (b.DamageTakenPct > 0) parts.Add($"-{b.DamageTakenPct:0.#}% damage taken");
             return $"{b.Name}: {string.Join(", ", parts)}";
         }
