@@ -204,7 +204,7 @@ namespace RPGGame
             "acid" => "Acid: corrosion that hurts over time and eats away armor.",
             "stun" => "Stunned: dazed and unable to act.",
             "weaken" => "Weakened: blows land with less force.",
-            "harden" => "Hardened: braced to take hits.",
+            "harden" => "Guard: braced to take hits.",
             "fortify" => "Fortified: armor reinforced.",
             "focus" => "Focused: strikes are lined up for extra damage.",
             "expose" or "vulnerability" or "armorbreak" => "Exposed: guard is down; Defense is reduced, and at full stacks armor is stripped.",

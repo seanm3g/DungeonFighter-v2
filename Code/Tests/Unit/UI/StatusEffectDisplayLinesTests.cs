@@ -21,7 +21,7 @@ namespace RPGGame.Tests.Unit.UI
 
             var tempRoll = TestDataBuilders.Character().WithName("TempRoll").WithStats(10, 10, 10, 0).Build();
             tempRoll.Effects.SetTempRollBonus(2, 3);
-            var tempRollLines = StatusEffectDisplayLines.Build(tempRoll, tempRoll);
+            var tempRollLines = StatusEffectDisplayLines.BuildAttachedLines(tempRoll);
             TestBase.AssertTrue(tempRollLines.Any(l => l.Contains("Accuracy +2") && l.Contains("3 turns")), "temp roll bonus merges into Accuracy +N with turn count", ref run, ref passed, ref failed);
 
             var turnAcc = TestDataBuilders.Character().WithName("TurnAcc").WithStats(10, 10, 10, 0).Build();
@@ -40,7 +40,7 @@ namespace RPGGame.Tests.Unit.UI
                     }
                 }
             });
-            var turnAccLines = StatusEffectDisplayLines.Build(turnAcc, turnAcc);
+            var turnAccLines = StatusEffectDisplayLines.BuildAttachedLines(turnAcc);
             TestBase.AssertTrue(turnAccLines.Any(l => l.Contains("Accuracy +3") && l.Contains("3 turns")),
                 "TURN cadence accuracy shows remaining turn count", ref run, ref passed, ref failed);
 
@@ -60,7 +60,7 @@ namespace RPGGame.Tests.Unit.UI
                     }
                 }
             });
-            var turnHitLines = StatusEffectDisplayLines.Build(turnHit, turnHit);
+            var turnHitLines = StatusEffectDisplayLines.BuildAttachedLines(turnHit);
             TestBase.AssertTrue(turnHitLines.Any(l => l.Contains("+1 HIT") && l.Contains("2 turns")),
                 "TURN HIT bonus shows as status line", ref run, ref passed, ref failed);
 
@@ -83,7 +83,7 @@ namespace RPGGame.Tests.Unit.UI
                     new ActionAttackBonusItem { Type = "HIT", Value = 2 }
                 }
             });
-            var stackLines = StatusEffectDisplayLines.Build(stackA, stackA);
+            var stackLines = StatusEffectDisplayLines.BuildAttachedLines(stackA);
             TestBase.AssertTrue(stackLines.Count(l => l.Contains("TURN x")) >= 2,
                 "two concurrent TURN groups both visible for stacking", ref run, ref passed, ref failed);
 
@@ -111,7 +111,7 @@ namespace RPGGame.Tests.Unit.UI
             TestBase.AssertEqual("bleed", StatusEffectDisplayLines.IconKeyFor(iconLines.First(l => l.StartsWith("Bleed"))), "bleed line maps to bleed icon", ref run, ref passed, ref failed);
             TestBase.AssertEqual("poison", StatusEffectDisplayLines.IconKeyFor(iconLines.First(l => l.StartsWith("Poison"))), "poison line maps to poison icon", ref run, ref passed, ref failed);
             TestBase.AssertEqual("burn", StatusEffectDisplayLines.IconKeyFor(iconLines.First(l => l.StartsWith("Burn"))), "burn line maps to burn icon", ref run, ref passed, ref failed);
-            TestBase.AssertEqual("accuracy", StatusEffectDisplayLines.IconKeyFor(iconLines.First(l => l.StartsWith("Accuracy"))), "accuracy line maps to accuracy icon", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("accuracy", StatusEffectDisplayLines.IconKeyFor(StatusEffectDisplayLines.BuildAttachedLines(iconHero).First(l => l.StartsWith("Accuracy"))), "accuracy line maps to accuracy icon", ref run, ref passed, ref failed);
             TestBase.AssertEqual("2", StatusEffectDisplayLines.SplitIcon("Bleed 2").Text, "icon replaces bleed's name", ref run, ref passed, ref failed);
             TestBase.AssertEqual("x2 (3t)", StatusEffectDisplayLines.SplitIcon("HP Regen x2 (3t)").Text, "icon replaces a two-word name", ref run, ref passed, ref failed);
             TestBase.AssertEqual(("shield", "Shield"), StatusEffectDisplayLines.SplitIcon("Shield"), "a bare name keeps its words beside its icon", ref run, ref passed, ref failed);
@@ -153,7 +153,7 @@ namespace RPGGame.Tests.Unit.UI
                     }
                 }
             });
-            var turnAdvLines = StatusEffectDisplayLines.Build(turnAdv, turnAdv);
+            var turnAdvLines = StatusEffectDisplayLines.BuildAttachedLines(turnAdv);
             TestBase.AssertTrue(turnAdvLines.Any(l => l.Contains("Advantage") && l.Contains("2 turns")),
                 "TURN cadence advantage shows as status line", ref run, ref passed, ref failed);
 
@@ -162,32 +162,32 @@ namespace RPGGame.Tests.Unit.UI
             {
                 new ActionAttackBonusItem { Type = MultiDiceRollMapper.DisadvantageBonusType, Value = 0 }
             });
-            var actionDisLines = StatusEffectDisplayLines.Build(actionDis, actionDis);
+            var actionDisLines = StatusEffectDisplayLines.BuildAttachedLines(actionDis);
             TestBase.AssertTrue(actionDisLines.Any(l => l.Contains("Disadvantage") && l.Contains("next action")),
                 "pending ACTION disadvantage shows as status line", ref run, ref passed, ref failed);
 
             var keywordHero = TestDataBuilders.Character().WithName("KeywordHero").WithStats(10, 10, 10, 0).Build();
-            var emptyKeyword = StatusEffectDisplayLines.Build(keywordHero, keywordHero);
+            var emptyKeyword = StatusEffectDisplayLines.BuildAttachedLines(keywordHero);
             TestBase.AssertTrue(!emptyKeyword.Any(l => l.Contains("CRISIS") || l.Contains("DRAG")),
                 "empty keyword bank is omitted from status effects", ref run, ref passed, ref failed);
 
             keywordHero.Effects.AddMaterialKeyword("CRISIS", 4);
-            var crisisLines = StatusEffectDisplayLines.Build(keywordHero, keywordHero);
+            var crisisLines = StatusEffectDisplayLines.BuildAttachedLines(keywordHero);
             TestBase.AssertTrue(crisisLines.Any(l => l == "CRISIS x4"),
                 "minted CRISIS count appears as status-effect counter", ref run, ref passed, ref failed);
 
             keywordHero.Effects.AddMaterialKeyword("CRISIS", 2);
-            var updatedCrisis = StatusEffectDisplayLines.Build(keywordHero, keywordHero);
+            var updatedCrisis = StatusEffectDisplayLines.BuildAttachedLines(keywordHero);
             TestBase.AssertTrue(updatedCrisis.Any(l => l == "CRISIS x6"),
                 "status-effect keyword counter updates when more is minted", ref run, ref passed, ref failed);
 
             keywordHero.Effects.AddMaterialKeyword("DRAG", 1);
-            var twoKeywords = StatusEffectDisplayLines.Build(keywordHero, keywordHero);
+            var twoKeywords = StatusEffectDisplayLines.BuildAttachedLines(keywordHero);
             TestBase.AssertTrue(twoKeywords[0] == "CRISIS x6" && twoKeywords.Any(l => l == "DRAG x1"),
                 "multiple keywords listed, CRISIS before DRAG", ref run, ref passed, ref failed);
 
             keywordHero.Effects.ClearMaterialKeywordBank();
-            var cleared = StatusEffectDisplayLines.Build(keywordHero, keywordHero);
+            var cleared = StatusEffectDisplayLines.BuildAttachedLines(keywordHero);
             TestBase.AssertTrue(!cleared.Any(l => l.Contains("CRISIS") || l.Contains("DRAG")),
                 "cleared keyword bank removes status-effect counters", ref run, ref passed, ref failed);
 
@@ -195,7 +195,7 @@ namespace RPGGame.Tests.Unit.UI
             luckyHero.Equipment.Head = new HeadItem("Helmet", 1, 1) { Material = "Leather" };
             luckyHero.Equipment.Body = new ChestItem("Armor", 1, 1) { Material = "Leather" };
             luckyHero.Equipment.Feet = new FeetItem("Boots", 1, 1) { Material = "Leather" };
-            var luckyLines = StatusEffectDisplayLines.Build(luckyHero, luckyHero);
+            var luckyLines = StatusEffectDisplayLines.BuildAttachedLines(luckyHero);
             string luckyLine = LeatherSetBonus.FormatLuckyStatusLine(luckyHero);
             TestBase.AssertTrue(luckyLines.Contains(luckyLine),
                 "Leather set Lucky appears as a status effect line", ref run, ref passed, ref failed);
@@ -205,6 +205,39 @@ namespace RPGGame.Tests.Unit.UI
                 "Lucky status uses lucky color template", ref run, ref passed, ref failed);
             TestBase.AssertEqual("lucky", StatusEffectColorHelper.GetTemplateName(luckyLine),
                 "Lucky line uses lucky color template", ref run, ref passed, ref failed);
+
+            // D3.7: the status panel shows statuses only; stores, grants and charges live with their owner.
+            var owned = TestDataBuilders.Character().WithName("OwnedHero").WithStats(10, 10, 10, 0).Build();
+            owned.Effects.AddMaterialKeyword("CRISIS", 2);
+            owned.Effects.SetTempRollBonus(2, 3);
+            owned.Effects.HasShield = true;
+            owned.Effects.RerollCharges = 1;
+            owned.Effects.AddPendingActionBonusesNextHeroRoll(new System.Collections.Generic.List<ActionAttackBonusItem>
+            {
+                new ActionAttackBonusItem { Type = "COMBO", Value = 1 }
+            });
+            var ownedPanel = StatusEffectDisplayLines.Build(owned, owned);
+            TestBase.AssertEqual(0, ownedPanel.Count, $"stores, grants and charges are not on the status panel, got: {string.Join(" | ", ownedPanel)}", ref run, ref passed, ref failed);
+            var ownedAttached = StatusEffectDisplayLines.BuildAttachedLines(owned);
+            TestBase.AssertTrue(ownedAttached.Contains("CRISIS x2") && ownedAttached.Contains("Shield") && ownedAttached.Contains("Reroll x1")
+                && ownedAttached.Any(l => l.StartsWith("Next action:", StringComparison.Ordinal)),
+                $"attached lines carry them instead, got: {string.Join(" | ", ownedAttached)}", ref run, ref passed, ref failed);
+
+            var core = TestDataBuilders.Character().WithName("CoreHero").WithStats(10, 10, 10, 0).Build();
+            core.HardenStacks = 2; core.HardenTurns = 3;
+            core.ApplyRollPenalty(1, 2);
+            core.StaggerStacks = 2;
+            core.HasteStacks = 3;
+            core.IsMarked = true; core.MarkTurns = 2;
+            var coreLines = StatusEffectDisplayLines.Build(core, core);
+            TestBase.AssertTrue(coreLines.Contains("Guard x2 (3t)"), $"Harden shows as Guard with turns left, got: {string.Join(" | ", coreLines)}", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(coreLines.Any(l => l.StartsWith("Rattle -1", StringComparison.Ordinal) && l.Contains("2 turns")), "roll penalty shows as Rattle with turns left", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(coreLines.Contains("Stagger x2 (next swing)"), "Stagger shows it hits the next swing", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(coreLines.Contains("Haste x3 (3 swings)"), "Haste shows swings left", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(coreLines.Any(l => l.StartsWith("Marked (2 turns", StringComparison.Ordinal)), "Mark shows turns left", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("harden", StatusEffectDisplayLines.IconKeyFor("Guard x2 (3t)"), "Guard uses the harden icon", ref run, ref passed, ref failed);
+            TestBase.AssertEqual("x2 (3t)", StatusEffectDisplayLines.SplitIcon("Guard x2 (3t)").Text, "Guard icon replaces its name", ref run, ref passed, ref failed);
+            TestBase.AssertTrue(StatusEffectDisplayLines.IconKeyFor("Rattle -1 (2 turns)") != null, "Rattle has an icon", ref run, ref passed, ref failed);
 
             TestBase.PrintSummary("StatusEffectDisplayLines Tests", run, passed, failed);
         }

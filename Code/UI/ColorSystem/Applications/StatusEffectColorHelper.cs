@@ -47,6 +47,10 @@ namespace RPGGame.UI.ColorSystem.Applications
             // Advanced status effects (use corrupted template as default for debuffs)
             { "VULNERABILITY", "corrupted" },
             { "HARDEN", "holy" },
+            { "GUARD", "holy" },
+            { "RATTLE", "corrupted" },
+            { "STAGGER", "corrupted" },
+            { "HASTE", "arcane" },
             { "FORTIFY", "holy" },
             { "FOCUS", "arcane" },
             { "EXPOSE", "corrupted" },
