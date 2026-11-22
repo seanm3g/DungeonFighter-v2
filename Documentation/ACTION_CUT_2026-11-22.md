@@ -34,8 +34,8 @@ the 7-status core plus Mark and Haste. Every line here is a first pass for you t
 | Environments | 30 rows | 30 named rows on **8 hazard kinds** (see below) | ~8 |
 | **Total distinct mechanics** | ~270 | **~104** | ~100 |
 
-Outside the count: the 5 `unique` rows (OPENER, FINISHER, SELF TARGET, SET BONUS, FLIP ROOM SWITCH) and PUNCH are
-internal rows that never roll. The **12 hybrid skill-node cards** (BODY BLOW … HEXBLADE CURSE) are retired from
+Outside the count: the 5 `unique` rows (OPENER, FINISHER, SELF TARGET, SET BONUS, FLIP ROOM SWITCH) never roll, and
+PUNCH (the pre-weapon fist) is now tagged `retired` too: it was rolling onto gear as a neutral card. The **12 hybrid skill-node cards** (BODY BLOW … HEXBLADE CURSE) are retired from
 rolls but their skill nodes still grant them — see question 1.
 
 ## Kept (85 rows; 1 new)
@@ -143,7 +143,7 @@ IRON CULL, STEEL CREST, BONE WRATH, DRUM CUT, GOLD ANCHOR, MITHRIL FLOW, GLASS N
 REFRACT, RESONATE, LANDSLIDE, QUIRK, STARFALL — all payoffs; one per kept material set (Wood / Cloth / Unknown
 converts were deleted in step 12; the Mythic Legend set has no convert).
 
-## Retired (129 rows, tag `retired`)
+## Retired (130 rows with PUNCH, tag `retired`)
 
 | Card | Reason |
 |---|---|
@@ -299,6 +299,98 @@ corrode any more. Numbers are unchanged.
 | Bleed (no damage) | Pollen Cloud, Curse of the Tomb |
 | Burn + damage | Ember Rain, Sacred Flames, Lava Splash, Scalding Vent |
 | Expose | Corroding Brine |
+
+
+## Lore flavor lines (step 11.4) — **REVIEW**
+
+New `flavor` column on actions (`Action.Flavor`, carried through the sheet → data → action pipeline like `role` /
+`fragile`). It shows as its own paragraph in the action tooltip (under "Does", so also in MCP `get_action_details`)
+and as its own beat under the action line in the loot reveal; never in the description, and not on the compact strip
+card. Source: the collaborator's Faerlan artifact, **Common knowledge and Legend / scholar lenses only** (the Truth
+lens and the original prose were not used). The artifact read returned a partial summary; the saved page was parsed for
+those two lenses only (676 records, 867 public tells). Lines are short adaptations, a few quoting a saying of under 15
+words; tone melancholic. Rarity rule used: starters (Common starter gear) get none; every other kept card gets one line
+(actions start at Uncommon, D5.6); Rare cards and Fragile cards get a two-sentence history beat.
+
+| Card | Flavor | Record |
+|---|---|---|
+| SHATTERING BLOW | "Barbarian" was a clerk's mark in the margin beside the names that would not line up. Most of those names were struck through the same winter. | TM-word-barbarian |
+| BLUDGEON | "Say it once, hit it twice." — the Hammerdowns | EV-first-forfeiture |
+| MIGHT | Every smith calls the next one brother. The old forges took them young, from every hill. | EV-forge-clan-apprentices |
+| STAGGERING BLOW | "Don't try to kill the fear. Stand it off till morning." — hill saying | EV-ald-and-shek |
+| TOPPLE | The borders are only where four tired armies stopped walking. | EV-twenty-seats |
+| UNLEASH | "Light the brand first, ask after." — the Lintel-Light | TM-bread-peace |
+| BERSERKER | "Kill it twice." — what the Boneyard tells its new hands | EV-kill-it-twice |
+| HAYMAKER | "Now it's what you call anyone who hits that hard." — on the word barbarian | TM-word-barbarian |
+| HEADSMAN'S PROMISE | At Rennow the cord-man read the debt aloud first. No one in the square stopped him. | EV-quittance-at-rennow |
+| RETRIGGER OPENER | Fight on Aldergate and the field keeps you. It sends you back up, crawling. | EV-second-inheritance |
+| LAST OATH | "A warrior's sworn. Sworn to what doesn't matter much anymore." Four houses swore at Emberfall; the oath outlived all four of them. | TM-word-warrior, EV-standing-ban |
+| HOLD THE LINE | A lone sentinel would not leave a wall nobody was left to defend. | EV-sentinel-who-stayed |
+| CUNNING | Verah took the land with a pen and a kept promise, and never drew a sword. | EV-verahs-gathering |
+| AVENGE | "Four hundred went west. We still set their places." Nobody at that table says whose turn it is to stop. | EV-red-autumn |
+| RETRIGGER FINISHER | Three strokes and a stop meant something wrong on the next ridge. Grandmother could still ring it. | EV-forge-bells |
+| MARCHING DRUM | "Down to the heart we go, and home again we'll come." The mourners sing the last line differently. | EV-march-song |
+| OPENING GAMBIT | Sarel held the chokepoint alone, with a spear that was not hers. | PE-sarel-of-the-long-watch |
+| QUICKSTEP | Brave Robin ran the smoke with the letters in his teeth. | EV-smog-runners |
+| FLASH CUT | The Crown's last rider is still riding, they say, looking for a station with a fresh horse. | EV-last-relay-ride |
+| SWORN RETORT | "Inside the lintel, your enemy is your guest." Outside it, the debt comes due. | EV-compact-of-waystations |
+| SNAPPING EDGE | "If somebody hands you a blade and says it's lent, don't you dare sell it." It took one of their own to sell the Lent Arms, and one night to buy them. | GR-lent-arms, EV-night-of-the-lent-arms |
+| CONCENTRATE | Count a ferryman's dots and you know how far he's rowed. | EV-ferrymens-marks |
+| FAN OF KNIVES | Red pot for the rattler, white for the sand-thing. You only mix them up once. | EV-two-snakes-road |
+| BLOODLET | "Take your grudge to the cord-men and it gets settled." — the Quittance | GR-quittance |
+| VENOM COAT | "Tie them red at the ankle and they'll lie where you leave them." | EV-ankle-cord |
+| LOADED DICE | "The pebble doesn't care what you own." At Cresthollow they still draw lots for the chair, and the lords still lose. | EV-cresthollow-lots |
+| CRIT FACES | He said the sprite only looks wild. It's counting too. | EV-gamblers-sprite |
+| GAMBLERS BLESSING | Clipped coin's no good for bread, but it's fine for a game. | EV-clipped-coin-game |
+| MISDIRECT | "A rogue's not on anybody's list. Some find that useful." | TM-word-rogue |
+| THIRD CUT | "One for the floor, two for the wall, three and you're past them all." — corridor count | EV-corridor-count |
+| GLASS NOVA | A proud king saw a shining city across the glass and walked his whole army into it. The Glass Plains kept every one of them. | EV-glass-plains-muster |
+| READ BOOK | "We keep our own mistakes in the margin, where the next reader will find them." — the Chronicle-Keepers | GR-chronicle-keepers |
+| CONCENTRATED CHAOS | Twenty-three rings cut in a row, each smaller than the last; the last is only a dot. No one carved a twenty-fourth. | GR-twenty-three-unmakings |
+| ECHO SPELL | "It only says the last thing they said. That's the cruel part." The widows still go down to the pond to listen. | EV-echo-widow |
+| RETRIGGER SLOT | The pond gives back what it took, but only the voice. | EV-fog-voice |
+| STRIP JUMP | "The road bends there because it always has. Don't straighten it." | EV-leaf-of-ilvane |
+| RISING CHORD | "One bell rings, every town comes." — the League of Bells | EV-league-of-bells |
+| CHANNEL | The old fire-towers were lit by children who could hear the birds under the water. | EV-fire-towers |
+| CRESCENDO | Every surviving version of the song ends differently. | EV-siege-of-emberfall |
+| STOKE | "We keep the flame lit so the dark knows we are awake." — the Sun Priests | FA-sun-priests |
+| OPEN VEIN | "Rub ash into the old cuts. The land should know someone saw them." — Long Grief saying | FA-long-grief |
+| GUT CHECK | "Hungry is better than eaten." — the apron hamlets | EV-apron-hamlet |
+| SHOULDER CHECK | A good fence costs less than a hunter and never asks for supper. | EV-palisades |
+| IRON GUARD | The lords had swords and the forge had hammers. Ask whose hall is still standing. | EV-smoke-year-war |
+| JAB | "Ask the word. If the answer comes back crooked, don't wait for a second one." | EV-countersign |
+| RIPOSTE | She beat three men with a book borrowed from the river. | EV-winnas-three-challenges |
+| CODA | "One fire left. We keep it." — the last of the Ember Watch | EV-last-fire-of-the-ember-watch |
+| STRIP LOOP | Corridor, summit, mound, like beads on a string. Grandmother walked it, and walked it back. | EV-guides-line |
+| EXPLODING DICE | Pick up a lantern at the fair. If it lights for you, someone will buy you dinner. | EV-lantern-fair |
+| SET THE TRAP | "Don't open the jar." | EV-jar-rule |
+| DETONATE | The burners dug too deep and lit the hill itself. It has not gone out. | EV-ground-that-wont-go-out |
+| FLAME BRAND | The lords chained the fire to their ledgers, and the fire went up the mountain to be free. | EV-fire-sermons |
+| CASH IN | A string of chits was a full skin of water, until it was a string of mud. | TM-well-chits |
+| RESTORE | "Go to the woman at Solvane. She'll set your leg and forget your face." | EV-bonesetter-of-solvane |
+| STEADY HAND | "Weigh it first." Nobody has taken coin by count since the clipped years. | EV-clipped-years |
+| KEEN EYE | Past the third hour the glare draws shapes on the plain, and you can't tell a rider from a rock. | EV-glare-visors |
+| LUCK | A luck-stone is a luck-stone. The flock on the Highspine screams at every party anyway. | EV-featherfalls-echo |
+| RAPID STRIKE | "One takes the hawk. One watches the edge. Swap, and you're both dead." — cragsmen | EV-cragsmen-of-the-cliffs-edge |
+| PHANTOM FOLLOW-UP | Camp below the old fires and you'll see him: sword-belt and no sword, walking east. | EV-deserter-shades-warning |
+| NEXT TIME | Grandfather said a rider came through every third day, once. Then they stopped. | GR-the-relay |
+| MEASURED ADVANCE | "Last year's poles will drown you." — fen pilots | EV-moving-channel |
+| CRITICAL ATTACK | Star-iron came down out of the sky. You can't melt it, so you grind it. Old Osgar turned the stone till the stone was gone, and the knife was still a lump. | TM-star-iron, EV-first-star-iron |
+| IRON CULL | The coast-smiths drowned their own mines sooner than sell their iron to the Crown. | EV-fire-coast-rising |
+| STEEL CREST | Watered steel is a highland secret. A man in Solvane still makes it, if you have the coin. | EV-watered-steel |
+| BONE WRATH | The bone sang out the name of the man who killed its owner, and they hanged him for it. | EV-shepherds-pipe |
+| DRUM CUT | We danced on the weir the winter the bread ran out. Then we didn't dance for seven years. | EV-hunger-fair-on-the-ice |
+| GOLD ANCHOR | Four lords went down and the gold came up, and the old ones wept to give it. | GR-players-of-the-long-cart |
+| MITHRIL FLOW | Men came out of the ice selling a plate no knife would mark. | EV-rime-traders |
+| GLASS NICK | Sootmark tried to make the old green glass and got bottles fit for vinegar. | EV-copied-glass |
+| UMBRA | The old ones had a word for a thing you can only see by the hole it makes in the stars. | EV-black-hides |
+| HEADHUNT | Don't cross Blackglass in a full iron harness at noon. There are helmets out there to prove it. | EV-noon-at-blackglass |
+| WILLOW LASH | The water came when the willow women said it could. | EV-willow-women |
+| REFRACT | The warden woke something under Fennik, and they had to hang her for it. That's the law. | EV-silver-wardens |
+| RESONATE | Spring-crystal is pretty until it has sat in a case a season. | EV-spring-crystal-gatherers |
+| LANDSLIDE | The ford stones were here before anybody. The river put them down. | EV-ford-stones |
+| QUIRK | "A statue's hand with knuckles. Tell me what statue needs knuckles." | EV-hand-in-the-guildhall |
+| STARFALL | "The sky threw down its own iron to arm the faithful. It answers only a clean hand." — Sun Priest preaching | TM-star-iron |
 
 ## Rename proposals (not done; D9.12 says renames happen once)
 

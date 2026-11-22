@@ -58,6 +58,7 @@ namespace RPGGame.Data
             action.Verb = GetStringValue(root, "verb");
             action.Role = GetStringValue(root, "role");
             action.Fragile = GetStringValue(root, "fragile");
+            action.Flavor = GetStringValue(root, "flavor");
             action.Cost = GetStringValue(root, "cost");
             action.HeroAccuracy = GetStringValue(root, "heroAccuracy");
             action.HeroHit = GetStringValue(root, "heroHit");
@@ -210,6 +211,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "verb", value.Verb);
             WriteIfNotEmpty(writer, "role", value.Role);
             WriteIfNotEmpty(writer, "fragile", value.Fragile);
+            WriteIfNotEmpty(writer, "flavor", value.Flavor);
             WriteIfNotEmpty(writer, "cost", value.Cost);
             WriteIfNotEmpty(writer, "heroAccuracy", value.HeroAccuracy);
             WriteIfNotEmpty(writer, "heroHit", value.HeroHit);

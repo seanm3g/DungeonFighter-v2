@@ -692,6 +692,11 @@ namespace RPGGame
             }
             if (result.Count >= maxLines) return result;
 
+            // Lore flavor (D9.12): its own paragraph under the rules, never part of the description.
+            if (!string.IsNullOrWhiteSpace(action.Flavor))
+                AddWrapped(action.Flavor.Trim());
+            if (result.Count >= maxLines) return result;
+
             var stats = BuildPrimaryStatSegments(character, action, panelIndex, swingLineMode);
             if (stats.Count > 0)
             {

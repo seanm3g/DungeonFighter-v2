@@ -89,6 +89,9 @@ namespace RPGGame.Data
         /// <summary>Fragile N (D5.4): uses per fight before the card burns out; empty = not fragile.</summary>
         [JsonPropertyName("fragile")]
         public string Fragile { get; set; } = "";
+        /// <summary>Lore flavor line (D9.12): history text shown on its own line under the rules, never mixed into the description; empty = none.</summary>
+        [JsonPropertyName("flavor")]
+        public string Flavor { get; set; } = "";
 
         /// <summary>Action cost paid when it resolves (<c>HP 5</c> = 5% max HP); see <see cref="RPGGame.ActionCost"/>.</summary>
         [JsonPropertyName("cost")]

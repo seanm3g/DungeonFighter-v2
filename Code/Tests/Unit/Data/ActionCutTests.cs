@@ -60,6 +60,20 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(retort != null && VerbPresets.GetSpec(retort) is { Kind: VerbKind.Cash, Store: "harden" },
                 "SWORN RETORT cashes the Warrior's Guard", ref _run, ref _passed, ref _failed);
 
+            // Lore flavor (D9.12, step 11.4): every kept non-starter card has a line; starters have none; it is its own
+            // tooltip line and never part of the description.
+            var noFlavor = rollable.Where(a => string.IsNullOrWhiteSpace(a.Flavor)).Select(a => a.Name).ToList();
+            TestBase.AssertTrue(noFlavor.Count == 0, $"every kept card has a flavor line ({string.Join(", ", noFlavor.Take(5))})", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(new[] { "SLAM", "STRIKE", "STAB", "MAGIC MISSILE" }.All(n => string.IsNullOrEmpty(ActionLoader.GetAction(n)?.Flavor)),
+                "starters (Common) carry no flavor", ref _run, ref _passed, ref _failed);
+            var vein = ActionLoader.GetAction("OPEN VEIN");
+            TestBase.AssertTrue(vein != null && vein.Flavor.Contains("Rub ash") && !(vein.Description ?? "").Contains("Rub ash"),
+                "OPEN VEIN's flavor loads apart from its rules text", ref _run, ref _passed, ref _failed);
+            var tip = CombatActionStripBuilder.BuildActionTooltipLinesForAction(new Character("FlavorHero", 1), vein, 200, 40);
+            TestBase.AssertTrue(tip.Any(l => l.Contains("Rub ash")), "the tooltip shows the flavor line", ref _run, ref _passed, ref _failed);
+            var roundTrip = ActionDataToSpreadsheetJsonConverter.Merge(ActionLoader.GetActionData("OPEN VEIN")!, null);
+            TestBase.AssertTrue(roundTrip.Flavor.Contains("Rub ash"), "flavor survives the sheet row conversion", ref _run, ref _passed, ref _failed);
+
             // Enemy kits: 11 templates; merged template names still resolve to their new kit.
             EnemyActionCatalog.Reload();
             TestBase.AssertEqual(11, EnemyActionCatalog.TemplateNames.Count, "11 enemy kit templates", ref _run, ref _passed, ref _failed);

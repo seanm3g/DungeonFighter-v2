@@ -173,6 +173,7 @@ namespace RPGGame.Data
             actionData.Verb = spreadsheet.Verb ?? "";
             actionData.Role = spreadsheet.Role ?? "";
             actionData.Fragile = spreadsheet.Fragile ?? "";
+            actionData.Flavor = spreadsheet.Flavor ?? "";
             actionData.Cost = spreadsheet.Cost ?? "";
 
             // Combo properties: hero actions use the combo strip; environment hazards override below.

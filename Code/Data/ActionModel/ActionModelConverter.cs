@@ -323,6 +323,7 @@ namespace RPGGame.Data.ActionModel
             ctx.Use(nameof(SpreadsheetActionJson.Cost));
             ctx.Use(nameof(SpreadsheetActionJson.Role));
             ctx.Use(nameof(SpreadsheetActionJson.Fragile));
+            ctx.Use(nameof(SpreadsheetActionJson.Flavor));
 
             string lifesteal = ctx.Use(nameof(SpreadsheetActionJson.Lifesteal));
             if (lifesteal.Length > 0)

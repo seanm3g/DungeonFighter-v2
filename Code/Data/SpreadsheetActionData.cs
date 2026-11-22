@@ -89,6 +89,8 @@ namespace RPGGame.Data
         public string Role { get; set; } = "";
         /// <summary>Fragile N (D5.4); JSON only.</summary>
         public string Fragile { get; set; } = "";
+        /// <summary>Lore flavor line (D9.12); JSON only.</summary>
+        public string Flavor { get; set; } = "";
         /// <summary>Action cost (<c>HP 5</c>); JSON only, no sheet column yet.</summary>
         public string Cost { get; set; } = "";
         

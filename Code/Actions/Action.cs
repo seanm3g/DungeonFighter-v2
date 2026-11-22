@@ -58,6 +58,8 @@ namespace RPGGame
         public string Role { get; set; } = "";
         /// <summary>Fragile N (D5.4, D5.7): the card works N times a fight, then burns out and the strip closes up; 0 = not fragile. See <see cref="FragileCards"/>.</summary>
         public int Fragile { get; set; }
+        /// <summary>Lore flavor line (D9.12): history text shown on its own line under the rules, never mixed into the description; empty = none.</summary>
+        public string Flavor { get; set; } = "";
         /// <summary>Cost paid when the action resolves (<c>HP 5</c> = 5% max HP); see <see cref="ActionCost"/>.</summary>
         public string Cost { get; set; } = "";
         public bool CausesBleed { get; set; }

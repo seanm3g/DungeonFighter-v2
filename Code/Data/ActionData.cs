@@ -34,6 +34,9 @@ namespace RPGGame
         /// <summary>Fragile N (D5.4): uses per fight before the card burns out; empty = not fragile.</summary>
         [JsonPropertyName("fragile")]
         public string Fragile { get; set; } = "";
+        /// <summary>Lore flavor line (D9.12): history text shown on its own line under the rules, never mixed into the description; empty = none.</summary>
+        [JsonPropertyName("flavor")]
+        public string Flavor { get; set; } = "";
         [JsonPropertyName("cost")]
         public string Cost { get; set; } = "";
         [JsonPropertyName("length")]

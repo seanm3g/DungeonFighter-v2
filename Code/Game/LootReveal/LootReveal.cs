@@ -102,6 +102,9 @@ namespace RPGGame.LootReveal
                     var data = ActionLoader.GetActionData(action);
                     string desc = RuleText.Plain(data?.Description);
                     beats.Add(desc.Length > 0 ? $"▸ {action.ToUpperInvariant()} — {desc}" : $"▸ {action.ToUpperInvariant()}");
+                    // Lore flavor (D9.12): its own beat under the rules line.
+                    if (!string.IsNullOrWhiteSpace(data?.Flavor))
+                        beats.Add($"  {data!.Flavor.Trim()}");
                 }
                 foreach (string rule in RuleText.Lines(item.ImplicitRule, item.Name))
                     beats.Add($"◆ {rule}");
