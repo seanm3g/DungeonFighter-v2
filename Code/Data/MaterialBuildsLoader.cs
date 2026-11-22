@@ -27,10 +27,14 @@ namespace RPGGame.Data
             }
         }
 
+        /// <summary>The builds that form sets in play: all of them, less the cosmetic materials (step 8).</summary>
+        public static IReadOnlyList<MaterialBuildData> GetActive() =>
+            GetAll().Where(b => !ItemMaterialRules.IsCosmetic(b.Material)).ToList();
+
         public static MaterialBuildData? FindByMaterial(string? material)
         {
             string key = MaterialBuildData.CanonicalMaterialName(material);
-            if (key.Length == 0)
+            if (key.Length == 0 || ItemMaterialRules.IsCosmetic(key))
                 return null;
             foreach (var row in GetAll())
             {

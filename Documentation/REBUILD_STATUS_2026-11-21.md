@@ -20,7 +20,8 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
 | 4 Families, matchups, one modifier, prefixes, regions, encounters | partial | `234f1287` | 15106 passed / 0 failed |
 | 5 Core statuses, NEW moment | partial | `4204f65f` | 15128 passed / 0 failed |
 | 6 Event labels (11), modifiers scoped by rarity | partial | `b582683f` | 15124 + label fixes; affected suites 0 failed |
-| 7 Mythic class-bending rules | done | (this commit) | 15141 passed / 0 failed |
+| 7 Mythic class-bending rules | done | `3c6fc5c9` | 15141 passed / 0 failed |
+| 8 Cosmetic Wood / Cloth / Unknown | partial | (this commit) | 15140 passed / 1 failed (then fixed; ItemRoller 0 failed) |
 
 ## Phase 11 — item rolls (D11.1–D11.12)
 - **Class affinity (D11.7):** every rolled item has one of 10 affinities (`Item.ClassAffinity`, saved as
@@ -183,3 +184,19 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
   placeholders, as the 11-18 defaults allow.
 - Six rarities kept; trade-up stays as the salvage sink (no change needed).
 - Tests: new roller test (every Mythic has exactly one, the rules parse, nothing below Mythic carries one).
+
+## Step 8 — Materials, sets, stores (partial)
+
+### Done
+- **16 materials (D4.3, D4.8):** Wood, Cloth and Unknown are cosmetic (`ItemMaterialRules.CosmeticMaterials`). They
+  no longer drop, form no set (`MaterialBuildsLoader.GetActive`, used by the set controller, the rule book and CASH
+  IN's fullest store), and Unknown no longer joins other sets as a wildcard. Old items keep the material name.
+  `DF_LEGACY_MATERIALS=1` brings them back; `MaterialSetControllerTests` pins the old sets (their code stays until
+  step 12).
+- Already in place before tonight: a material creates its currency, stores bank until the dungeon exit (Dungeon
+  scope), each class's three materials earn on different events (D6.3), verbs are CASH IN / DETONATE (D6.4, D6.6).
+
+### Not done
+- Moving the material earn rules onto chain moments (proposal 3: Willow on action, Crystal on chain complete, ...)
+  and turning roll-detail events into conditions: a design-and-balance pass, not a rename.
+- Spend vs scale on every consumer (D6.9): no consumer data was changed.

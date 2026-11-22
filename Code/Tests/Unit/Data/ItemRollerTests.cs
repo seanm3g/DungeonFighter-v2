@@ -601,7 +601,9 @@ namespace RPGGame.Tests.Unit.Data
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = 10, Weapon = false }, 800))
                 seen.Add(item.Material ?? "");
-            TestBase.AssertTrue(seen.Contains("Wood") && seen.Contains("Cloth"), "Wood and Cloth drop on armor", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // Step 8 (D4.3, D4.8): Wood, Cloth and Unknown are cosmetic and no longer drop.
+            TestBase.AssertTrue(!seen.Contains("Wood") && !seen.Contains("Cloth") && !seen.Contains("Unknown") && seen.Count > 5,
+                $"cosmetic materials no longer drop ({string.Join(", ", seen)})", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestSuffixesNeverRepeatPrefixes()
@@ -971,8 +973,9 @@ namespace RPGGame.Tests.Unit.Data
             var uncommon = Enumerable.Range(0, 3000).Select(_ => ItemMaterialRules.PickNonWeaponMaterial(mods, "Uncommon", rng)).ToList();
             var common = Enumerable.Range(0, 3000).Select(_ => ItemMaterialRules.PickNonWeaponMaterial(mods, "Common", rng)).ToList();
             double unknownShare = uncommon.Count(m => m == "Unknown") / 3000.0;
-            TestBase.AssertTrue(unknownShare < 0.2 && unknownShare > 0,
-                $"off-class Uncommon armor is no longer always Unknown ({unknownShare:P0})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // Step 8: Unknown is cosmetic and no longer drops.
+            TestBase.AssertTrue(unknownShare == 0,
+                $"off-class Uncommon armor never takes the cosmetic Unknown ({unknownShare:P0})", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(uncommon.Any(ItemMaterialRules.IsSetMaterial), "off-class Uncommon armor can take a set material", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!common.Any(m => m is "Unknown" or "Strange" or "Celestial") && !uncommon.Any(m => m is "Strange" or "Celestial"),
                 "classless materials stay at or below the item's rarity", ref _testsRun, ref _testsPassed, ref _testsFailed);

@@ -125,7 +125,7 @@ namespace RPGGame.Tests.Unit
             // Material sets' earn rules sit after the items and before the skill nodes (D6.12), in MaterialBuilds.json order.
             var book = RuleBook.For(hero);
             var sets = book.Where(e => e.Owner.Kind == RuleOwnerKind.Set).ToList();
-            TestBase.AssertEqual(RPGGame.Data.MaterialBuildsLoader.GetAll().Count(b => !string.IsNullOrWhiteSpace(b.Keyword)),
+            TestBase.AssertEqual(RPGGame.Data.MaterialBuildsLoader.GetActive().Count(b => !string.IsNullOrWhiteSpace(b.Keyword)),
                 sets.Count, "every material set has its earn rule in the book", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(sets.All(e => e.Owner.Order > RuleBook.ItemOrder + 4 && e.Owner.Order < RuleBook.SkillOrder),
                 "set owners sort between items and skills", ref _run, ref _passed, ref _failed);

@@ -27,7 +27,7 @@ namespace RPGGame
                 return null;
             MaterialBuildData? best = null;
             int bestUnits = 0;
-            foreach (var build in MaterialBuildsLoader.GetAll())
+            foreach (var build in MaterialBuildsLoader.GetActive())
             {
                 if (string.IsNullOrWhiteSpace(build.Keyword))
                     continue;

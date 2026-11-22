@@ -153,7 +153,7 @@ namespace RPGGame.Combat.Rules
             // Material sets in their fixed MaterialBuilds.json order. Every set's earn rule is listed; the 2-piece gate is
             // checked when it fires (set counts read rules, so they can't be read while the book is built).
             int setIndex = 0;
-            foreach (var build in RPGGame.Data.MaterialBuildsLoader.GetAll())
+            foreach (var build in RPGGame.Data.MaterialBuildsLoader.GetActive())
             {
                 int order = SetOrder + setIndex++;
                 if (string.IsNullOrWhiteSpace(build.WhenToken) || string.IsNullOrWhiteSpace(build.Keyword))

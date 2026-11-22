@@ -16,6 +16,8 @@ namespace RPGGame.Tests.Unit.Combat
 
         public static void RunAllTests()
         {
+            // Step 8: these tests cover the Wood / Cloth / Unknown sets, now cosmetic; the code stays until step 12.
+            using var legacyMaterials = RPGGame.ItemMaterialRules.PinCosmetic(false);
             Console.WriteLine("=== Material Set Controller Tests ===\n");
             _run = _passed = _failed = 0;
 

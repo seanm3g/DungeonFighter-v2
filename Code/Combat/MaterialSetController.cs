@@ -41,6 +41,10 @@ namespace RPGGame
             if (key.Length == 0 || hero == null)
                 return 0;
             bool keyIsWildcard = string.Equals(key, WildcardMaterial, StringComparison.OrdinalIgnoreCase);
+            // Step 8: cosmetic materials form no set and Unknown no longer joins others.
+            if (ItemMaterialRules.IsCosmetic(key))
+                return 0;
+            bool wildcardJoins = !ItemMaterialRules.IsCosmetic(WildcardMaterial);
             var partnerMaterials = keyIsWildcard ? new List<string>() : HybridPartnerMaterials(hero, key);
             int count = 0;
             int joiners = 0;
@@ -51,7 +55,7 @@ namespace RPGGame
                 string itemMat = ItemMaterialRules.RemapLegacyMaterial(item.Material);
                 if (string.Equals(itemMat, key, StringComparison.OrdinalIgnoreCase))
                     count++;
-                else if (!keyIsWildcard && string.Equals(itemMat, WildcardMaterial, StringComparison.OrdinalIgnoreCase))
+                else if (!keyIsWildcard && wildcardJoins && string.Equals(itemMat, WildcardMaterial, StringComparison.OrdinalIgnoreCase))
                     joiners++;
                 else if (partnerMaterials.Any(m => string.Equals(m, itemMat, StringComparison.OrdinalIgnoreCase)))
                     joiners++;
@@ -93,7 +97,7 @@ namespace RPGGame
             var names = new List<string>();
             if (hero == null)
                 return names;
-            foreach (var build in MaterialBuildsLoader.GetAll())
+            foreach (var build in MaterialBuildsLoader.GetActive())
             {
                 if (string.IsNullOrWhiteSpace(build.ConvertAction))
                     continue;
@@ -122,7 +126,7 @@ namespace RPGGame
             }
 
             var knownConverts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var build in MaterialBuildsLoader.GetAll())
+            foreach (var build in MaterialBuildsLoader.GetActive())
             {
                 if (!string.IsNullOrWhiteSpace(build.ConvertAction))
                     knownConverts.Add(build.ConvertAction.Trim());
@@ -709,7 +713,7 @@ namespace RPGGame
             var list = new List<(string Material, int Count)>();
             if (hero == null)
                 return list;
-            foreach (var build in MaterialBuildsLoader.GetAll())
+            foreach (var build in MaterialBuildsLoader.GetActive())
             {
                 if (string.IsNullOrWhiteSpace(build.Material))
                     continue;
