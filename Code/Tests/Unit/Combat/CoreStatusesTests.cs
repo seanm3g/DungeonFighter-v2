@@ -30,6 +30,12 @@ namespace RPGGame.Tests.Unit.Combat
             var results = new List<string>();
             bool stun = registry.ApplyEffect("stun", target, action, results);
             TestBase.AssertTrue(stun && Stores.Get(target, "stagger") > 0, $"a Stun lands as Stagger ({Stores.Get(target, "stagger")})", ref _run, ref _passed, ref _failed);
+            var poisonTarget = MockFactories.CreateMockEnemy("PoisonDummy", 5, 200);
+            bool poison = registry.ApplyEffect("poison", poisonTarget, new Action { Name = "VENOM", CausesPoison = true }, results);
+            TestBase.AssertTrue(poison && poisonTarget.IsBleeding, "a poison card (poison flag only) lands as Bleed", ref _run, ref _passed, ref _failed);
+            var plainTarget = MockFactories.CreateMockEnemy("PlainDummy", 5, 200);
+            TestBase.AssertTrue(!registry.ApplyEffect("bleed", plainTarget, new Action { Name = "PLAIN" }, results) && !plainTarget.IsBleeding,
+                "a card with no bleed or poison flag applies no Bleed", ref _run, ref _passed, ref _failed);
             bool silence = registry.ApplyEffect("silence", target, action, results);
             TestBase.AssertTrue(!silence, "a dropped status applies nothing", ref _run, ref _passed, ref _failed);
 

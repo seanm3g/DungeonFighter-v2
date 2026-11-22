@@ -53,6 +53,11 @@ namespace RPGGame
             string? core = CoreStatuses.Resolve(effectType);
             if (core == null)
                 return false;
+            // Poison loads as Bleed (save migration table): a poison card, kit, affix or mod applies one Bleed
+            // application, though its action carries the poison flag, not the bleed one.
+            if (core == "bleed" && !action.CausesBleed && action.CausesPoison
+                && !string.Equals(effectType.Trim(), "bleed", StringComparison.OrdinalIgnoreCase))
+                action = new Action { Name = action.Name, CausesBleed = true, BleedAmountToAdd = Math.Max(1, action.BleedAmountToAdd) };
             effectType = core;
             // Immune targets never receive the status, so nothing is logged ("is poisoned" on a skeleton).
             if (StatusAffinity.IsImmune(target, effectType))
