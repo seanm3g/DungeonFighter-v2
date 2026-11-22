@@ -514,7 +514,8 @@ namespace RPGGame
             if (action == null || maxLines <= 0 || maxWidth < 4)
                 return lines;
 
-            string desc = ResolveActionCardDescription(action);
+            // D5.1: every card leads with its role ("Payoff · applies 1 Bleed").
+            string desc = ActionRoles.CardLine(action, ResolveActionCardDescription(action));
             if (string.IsNullOrWhiteSpace(desc))
                 return lines;
 

@@ -60,6 +60,7 @@ namespace RPGGame.Tests.Runners
             ("LootTierCalculator", () => LootTierCalculatorTests.RunAllTests()),
             ("LootContext", () => LootContextTests.RunAllTests()),
             ("ItemRoller", () => ItemRollerTests.RunAllTests()),
+            ("ActionRoles", () => ActionRolesTests.RunAllTests()),
             ("GameDataValidator", () => GameDataValidatorTests.RunAllTests()),
             ("ActionDataValidator", () => ActionDataValidatorTests.RunAllTests()),
         };

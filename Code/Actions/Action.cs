@@ -54,6 +54,8 @@ namespace RPGGame
         public string ScaleFormula { get; set; } = "";
         /// <summary>Verb preset spec (<c>CASH FULLEST 75</c>, <c>DETONATE 100</c>, …); see <see cref="VerbPresets"/>.</summary>
         public string Verb { get; set; } = "";
+        /// <summary>Authored role (D5.1); read it through <see cref="ActionRoles.Of"/>, which infers one when empty.</summary>
+        public string Role { get; set; } = "";
         /// <summary>Cost paid when the action resolves (<c>HP 5</c> = 5% max HP); see <see cref="ActionCost"/>.</summary>
         public string Cost { get; set; } = "";
         public bool CausesBleed { get; set; }

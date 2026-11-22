@@ -319,6 +319,7 @@ namespace RPGGame.Data.ActionModel
             // Verb presets run in VerbPresets (store reads/spends); the model has no store primitive yet.
             ctx.Use(nameof(SpreadsheetActionJson.Verb));
             ctx.Use(nameof(SpreadsheetActionJson.Cost));
+            ctx.Use(nameof(SpreadsheetActionJson.Role));
 
             string lifesteal = ctx.Use(nameof(SpreadsheetActionJson.Lifesteal));
             if (lifesteal.Length > 0)

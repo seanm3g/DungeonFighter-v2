@@ -1,6 +1,7 @@
 ﻿[
   {
     "action": "PUNCH",
+    "role": "payoff",
     "dps": "100%",
     "numberOfHits": "1",
     "damage": "100%",
@@ -10,6 +11,8 @@
   },
   {
     "action": "SLAM",
+    "role": "payoff",
+    "verb": "APPLY stagger 1",
     "dps": "120%",
     "numberOfHits": "1",
     "damage": "120%",
@@ -19,6 +22,7 @@
   },
   {
     "action": "WIND UP",
+    "role": "setup",
     "description": "Next action: \u002B25% damage.",
     "dps": "100%",
     "numberOfHits": "1",
@@ -32,6 +36,8 @@
   },
   {
     "action": "STRIKE",
+    "role": "payoff",
+    "verb": "APPLY harden 1",
     "dps": "120%",
     "numberOfHits": "1",
     "damage": "90%",
@@ -41,6 +47,7 @@
   },
   {
     "action": "SLASH",
+    "role": "setup",
     "description": "Next action: \u002B25% speed.",
     "dps": "100%",
     "numberOfHits": "1",
@@ -54,6 +61,8 @@
   },
   {
     "action": "STAB",
+    "role": "payoff",
+    "verb": "APPLY bleed 1",
     "dps": "120%",
     "numberOfHits": "3",
     "damage": "40%",
@@ -63,6 +72,7 @@
   },
   {
     "action": "CUT",
+    "role": "setup",
     "description": "Next action: \u002B1 hit.",
     "dps": "100%",
     "numberOfHits": "1",
@@ -76,6 +86,8 @@
   },
   {
     "action": "MAGIC MISSILE",
+    "role": "payoff",
+    "verb": "APPLY burn 1",
     "description": "\u002B AMP",
     "dps": "1%",
     "numberOfHits": "1",
@@ -86,6 +98,7 @@
   },
   {
     "action": "BOLT",
+    "role": "setup",
     "description": "Next action: \u002B25% AMP.",
     "dps": "100%",
     "numberOfHits": "1",
@@ -99,6 +112,7 @@
   },
   {
     "action": "STEADY HAND",
+    "role": "setup",
     "description": "Next 2 turns: \u002B1 HIT.",
     "tier": 1,
     "dps": "89%",
@@ -112,6 +126,7 @@
   },
   {
     "action": "ACTION BONUS",
+    "role": "setup",
     "description": "Next 3 actions: \u002B25% damage.",
     "tier": 1,
     "dps": "60%",
@@ -126,6 +141,7 @@
   },
   {
     "action": "FIGHT BONUS",
+    "role": "setup",
     "description": "\u002B1 HIT for the rest of the fight.",
     "tier": 1,
     "dps": "75%",
@@ -139,6 +155,7 @@
   },
   {
     "action": "KEEN EYE",
+    "role": "setup",
     "description": "Next 3 turns: \u002B1 CRIT.",
     "tier": 1,
     "dps": "88%",
@@ -152,6 +169,7 @@
   },
   {
     "action": "LUCKY CHARM",
+    "role": "setup",
     "description": "Next turn: \u002B1 HIT and \u002B1 CRIT.",
     "rarity": "RARE",
     "tier": 1,
@@ -168,6 +186,7 @@
   },
   {
     "action": "CONCENTRATION",
+    "role": "setup",
     "description": "Next turn: \u002B1 COMBO.",
     "rarity": "COMMON",
     "tier": 1,
@@ -183,6 +202,7 @@
   },
   {
     "action": "MEASURED ADVANCE",
+    "role": "setup",
     "description": "Next 2 turns: \u002B1 COMBO.",
     "rarity": "COMMON",
     "tier": 1,
@@ -198,6 +218,7 @@
   },
   {
     "action": "CRITICAL ATTACK",
+    "role": "setup",
     "description": "Next turn: \u002B1 CRIT.",
     "rarity": "RARE",
     "tier": 1,
@@ -213,6 +234,7 @@
   },
   {
     "action": "EXTRA EFFORT",
+    "role": "setup",
     "description": "Next turn: \u002B5 STR.",
     "rarity": "COMMON",
     "tier": 1,
@@ -228,6 +250,7 @@
   },
   {
     "action": "FIGHTER",
+    "role": "setup",
     "description": "\u002B1 STR for the rest of the fight.",
     "rarity": "COMMON",
     "tier": 1,
@@ -243,6 +266,7 @@
   },
   {
     "action": "MOMENTUM BASH",
+    "role": "setup",
     "description": "\u002B1 STR for the rest of the dungeon.",
     "rarity": "COMMON",
     "tier": 1,
@@ -258,6 +282,7 @@
   },
   {
     "action": "REACTION TRAINING",
+    "role": "setup",
     "description": "Next turn: \u002B5 AGI.",
     "rarity": "COMMON",
     "tier": 1,
@@ -273,6 +298,7 @@
   },
   {
     "action": "DEEP BREATHING",
+    "role": "setup",
     "description": "\u002B1 AGI for the rest of the fight.",
     "rarity": "COMMON",
     "tier": 1,
@@ -288,6 +314,7 @@
   },
   {
     "action": "DANCE",
+    "role": "setup",
     "description": "\u002B1 AGI for the rest of the dungeon.",
     "rarity": "COMMON",
     "tier": 1,
@@ -303,6 +330,7 @@
   },
   {
     "action": "TAKING AIM",
+    "role": "setup",
     "description": "Next turn: \u002B5 TECH.",
     "rarity": "COMMON",
     "tier": 1,
@@ -318,6 +346,7 @@
   },
   {
     "action": "QUIET MIND",
+    "role": "setup",
     "description": "\u002B1 TECH for the rest of the fight.",
     "rarity": "COMMON",
     "tier": 1,
@@ -333,6 +362,7 @@
   },
   {
     "action": "FOCUS",
+    "role": "setup",
     "description": "\u002B1 TECH for the rest of the dungeon.",
     "rarity": "COMMON",
     "tier": 1,
@@ -348,6 +378,7 @@
   },
   {
     "action": "READ BOOK",
+    "role": "setup",
     "description": "\u002B3 INT for the rest of the dungeon.",
     "rarity": "COMMON",
     "tier": 1,
@@ -363,6 +394,7 @@
   },
   {
     "action": "PRE-FIGHT PLANNING",
+    "role": "setup",
     "description": "\u002B1 INT for the rest of the fight.",
     "rarity": "COMMON",
     "tier": 1,
@@ -378,6 +410,7 @@
   },
   {
     "action": "DUNGEON ANALYSIS",
+    "role": "setup",
     "description": "\u002B1 INT for the rest of the dungeon.",
     "rarity": "COMMON",
     "tier": 1,
@@ -393,6 +426,7 @@
   },
   {
     "action": "SPRINT",
+    "role": "setup",
     "description": "Next turn: \u002B5% speed.",
     "tier": 1,
     "dps": "100%",
@@ -407,6 +441,7 @@
   },
   {
     "action": "RUSH",
+    "role": "setup",
     "description": "Next action: \u002B5% speed.",
     "tier": 1,
     "dps": "100%",
@@ -421,6 +456,7 @@
   },
   {
     "action": "MOMENTUM",
+    "role": "setup",
     "description": "\u002B1% speed for the rest of the fight.",
     "tier": 1,
     "dps": "86%",
@@ -435,6 +471,7 @@
   },
   {
     "action": "MARATHON",
+    "role": "setup",
     "description": "\u002B0.5% speed for the rest of the dungeon.",
     "tier": 1,
     "dps": "71%",
@@ -449,6 +486,7 @@
   },
   {
     "action": "STRONGER",
+    "role": "setup",
     "description": "Next action: \u002B25% damage.",
     "tier": 1,
     "dps": "82%",
@@ -463,6 +501,7 @@
   },
   {
     "action": "RAPID STRIKE",
+    "role": "payoff",
     "description": "4 hits.",
     "tier": 1,
     "dps": "120%",
@@ -473,6 +512,7 @@
   },
   {
     "action": "EMPOWERED",
+    "role": "setup",
     "description": "Next action: \u002B10% AMP.",
     "tier": 1,
     "dps": "86%",
@@ -487,6 +527,7 @@
   },
   {
     "action": "SHARPEN",
+    "role": "setup",
     "description": "Next turn: \u002B4 weapon damage.",
     "tier": 1,
     "dps": "83%",
@@ -500,6 +541,7 @@
   },
   {
     "action": "HONE",
+    "role": "setup",
     "description": "\u002B1 weapon damage for the rest of the fight.",
     "tier": 1,
     "dps": "71%",
@@ -513,6 +555,7 @@
   },
   {
     "action": "WHETSTONE",
+    "role": "setup",
     "description": "\u002B1 weapon damage for the rest of the dungeon.",
     "tier": 1,
     "dps": "59%",
@@ -526,6 +569,7 @@
   },
   {
     "action": "LOOSE GRIP",
+    "role": "setup",
     "description": "Next turn: \u002B2 weapon speed, -2 weapon damage.",
     "tier": 1,
     "dps": "112%",
@@ -540,6 +584,7 @@
   },
   {
     "action": "JUICED",
+    "role": "setup",
     "description": "Next turn: \u002B1 weapon speed.",
     "tier": 1,
     "dps": "90%",
@@ -553,6 +598,7 @@
   },
   {
     "action": "BLUR",
+    "role": "setup",
     "description": "Next 2 turns: \u002B1 weapon speed.",
     "tier": 1,
     "dps": "83%",
@@ -566,6 +612,7 @@
   },
   {
     "action": "OPENER",
+    "role": "setup",
     "description": "OPENER",
     "tier": 1,
     "dps": "117%",
@@ -578,6 +625,7 @@
   },
   {
     "action": "FINISHER",
+    "role": "setup",
     "description": "FINISHER",
     "tier": 1,
     "dps": "122%",
@@ -590,6 +638,7 @@
   },
   {
     "action": "PHANTOM FOLLOW-UP",
+    "role": "setup",
     "description": "Next action: \u002B1 hit.",
     "tier": 2,
     "dps": "89%",
@@ -603,6 +652,7 @@
   },
   {
     "action": "WEAKEN",
+    "role": "setup",
     "description": "Weaken (enemy deals less damage).",
     "tier": 2,
     "dps": "78%",
@@ -616,6 +666,7 @@
   },
   {
     "action": "SLOW",
+    "role": "setup",
     "description": "Slow (enemy acts slower).",
     "tier": 2,
     "dps": "82%",
@@ -629,6 +680,7 @@
   },
   {
     "action": "HARDEN",
+    "role": "setup",
     "description": "Harden (you take less damage).",
     "tier": 2,
     "dps": "64%",
@@ -643,6 +695,7 @@
   },
   {
     "action": "PIERCE",
+    "role": "setup",
     "description": "Ignores armor.",
     "tier": 2,
     "dps": "107%",
@@ -656,6 +709,7 @@
   },
   {
     "action": "CONFUSE",
+    "role": "setup",
     "description": "Confuse (their next target is random).",
     "tier": 2,
     "dps": "71%",
@@ -669,6 +723,7 @@
   },
   {
     "action": "SELF TARGET",
+    "role": "payoff",
     "description": "TARGET YOURSELF",
     "tier": 2,
     "dps": "100%",
@@ -681,6 +736,7 @@
   },
   {
     "action": "LUCK",
+    "role": "setup",
     "description": "Next action: roll twice, keep the higher.",
     "tier": 2,
     "dps": "86%",
@@ -693,6 +749,7 @@
   },
   {
     "action": "UNLUCK",
+    "role": "setup",
     "description": "Next action: roll twice, keep the lower.",
     "tier": 2,
     "dps": "100%",
@@ -705,6 +762,7 @@
   },
   {
     "action": "JAB",
+    "role": "setup",
     "description": "Resets the enemy\u0027s combo.",
     "tier": 2,
     "dps": "88%",
@@ -718,6 +776,7 @@
   },
   {
     "action": "EXPOSE",
+    "role": "setup",
     "description": "Expose (enemy has less defense; at full stacks, armor is stripped).",
     "tier": 2,
     "dps": "80%",
@@ -731,6 +790,7 @@
   },
   {
     "action": "SET BONUS",
+    "role": "payoff",
     "description": "\u002B1 DAMAGE per X tag",
     "tier": 3,
     "dps": "100%",
@@ -742,6 +802,7 @@
   },
   {
     "action": "FLIP ROOM SWITCH",
+    "role": "payoff",
     "description": "triggers environment action",
     "tier": 3,
     "dps": "100%",
@@ -753,6 +814,7 @@
   },
   {
     "action": "BERSERKER",
+    "role": "setup",
     "description": "\u002B1% damage for every 1% of HP you are missing.",
     "tier": 3,
     "dps": "92%",
@@ -765,6 +827,7 @@
   },
   {
     "action": "ENRAGE",
+    "role": "setup",
     "description": "Next 3 turns: \u002B2 CRIT, -1 HIT.",
     "tier": 3,
     "dps": "108%",
@@ -780,6 +843,7 @@
   },
   {
     "action": "GAMBLERS BLESSING",
+    "role": "sequence",
     "description": "On a crit, your next combo action fires again for free.",
     "tier": 3,
     "dps": "100%",
@@ -793,6 +857,7 @@
   },
   {
     "action": "HAYMAKER",
+    "role": "setup",
     "description": "No guard while swinging. Next turn: -2 HIT.",
     "tier": 3,
     "dps": "120%",
@@ -807,6 +872,7 @@
   },
   {
     "action": "TAUNT",
+    "role": "setup",
     "description": "Expose. Next 2 turns: \u002B1 COMBO.",
     "tier": 3,
     "dps": "20%",
@@ -822,6 +888,7 @@
   },
   {
     "action": "BASH",
+    "role": "setup",
     "description": "Expose (enemy has less defense).",
     "tier": 3,
     "dps": "100%",
@@ -835,6 +902,7 @@
   },
   {
     "action": "STRIP JUMP",
+    "role": "sequence",
     "description": "On connect: your combo jumps ahead to slot 3.",
     "tier": 3,
     "dps": "100%",
@@ -847,6 +915,7 @@
   },
   {
     "action": "STRIP SKIP",
+    "role": "sequence",
     "description": "On connect: skip your next combo slot.",
     "tier": 3,
     "dps": "100%",
@@ -859,6 +928,7 @@
   },
   {
     "action": "STRIP REPEAT",
+    "role": "sequence",
     "description": "On combo: repeat your previous combo slot.",
     "tier": 3,
     "dps": "75%",
@@ -871,6 +941,7 @@
   },
   {
     "action": "STRIP LOOP",
+    "role": "sequence",
     "description": "On connect: loop your combo back to the opener.",
     "tier": 3,
     "dps": "75%",
@@ -883,6 +954,7 @@
   },
   {
     "action": "STRIP STOP",
+    "role": "sequence",
     "description": "On miss: end your combo early.",
     "tier": 3,
     "dps": "118%",
@@ -896,6 +968,7 @@
   },
   {
     "action": "STRIP RANDOM",
+    "role": "sequence",
     "description": "On connect: your next combo slot is random.",
     "tier": 3,
     "dps": "100%",
@@ -908,6 +981,7 @@
   },
   {
     "action": "STRIP SHUFFLE",
+    "role": "sequence",
     "description": "First hit of the fight: shuffle your combo order.",
     "tier": 3,
     "dps": "89%",
@@ -920,6 +994,7 @@
   },
   {
     "action": "STRIP REPLACE",
+    "role": "sequence",
     "description": "On connect: your next swing becomes STRIKE.",
     "tier": 3,
     "dps": "92%",
@@ -932,6 +1007,7 @@
   },
   {
     "action": "RETRIGGER NEXT",
+    "role": "sequence",
     "description": "On combo: your next combo action fires immediately.",
     "tier": 3,
     "dps": "40%",
@@ -944,6 +1020,7 @@
   },
   {
     "action": "RETRIGGER OPENER",
+    "role": "sequence",
     "description": "On kill: your opener fires again.",
     "tier": 3,
     "dps": "100%",
@@ -957,6 +1034,7 @@
   },
   {
     "action": "RETRIGGER FINISHER",
+    "role": "sequence",
     "description": "On combo: your finisher fires immediately.",
     "tier": 3,
     "dps": "100%",
@@ -969,6 +1047,7 @@
   },
   {
     "action": "RETRIGGER SLOT",
+    "role": "sequence",
     "description": "On connect: combo slot 2 fires again.",
     "tier": 3,
     "dps": "100%",
@@ -981,6 +1060,7 @@
   },
   {
     "action": "SALVAGE MISS",
+    "role": "setup",
     "description": "On connect: your next miss this fight becomes a hit.",
     "tier": 3,
     "dps": "87%",
@@ -993,6 +1073,7 @@
   },
   {
     "action": "CRIT FACES",
+    "role": "setup",
     "description": "On connect: natural 19s also crit for the rest of the fight.",
     "tier": 3,
     "dps": "67%",
@@ -1005,6 +1086,7 @@
   },
   {
     "action": "REPLACE ROLL",
+    "role": "setup",
     "description": "On connect: your next die roll becomes 20.",
     "tier": 3,
     "dps": "56%",
@@ -1017,6 +1099,7 @@
   },
   {
     "action": "EXPLODING DICE",
+    "role": "setup",
     "description": "Natural 20s explode: roll again and add it.",
     "tier": 3,
     "dps": "100%",
@@ -1029,6 +1112,7 @@
   },
   {
     "action": "NATURAL SEVEN",
+    "role": "setup",
     "description": "Heal 10 when you roll a natural 7.",
     "tier": 3,
     "dps": "88%",
@@ -1043,6 +1127,7 @@
   },
   {
     "action": "CRIT HEAL",
+    "role": "setup",
     "description": "Heal 10 when you land a crit.",
     "tier": 3,
     "dps": "100%",
@@ -1058,6 +1143,7 @@
   },
   {
     "action": "COMBO END HEAL",
+    "role": "setup",
     "description": "Heal 4 when your combo ends.",
     "tier": 3,
     "dps": "100%",
@@ -1072,6 +1158,7 @@
   },
   {
     "action": "CRIT MISS HEAL",
+    "role": "setup",
     "description": "Heal 10 on a critical miss.",
     "tier": 3,
     "dps": "108%",
@@ -1086,6 +1173,7 @@
   },
   {
     "action": "AFTER MISS HEAL",
+    "role": "setup",
     "description": "Heal 10 when you connect right after a miss.",
     "tier": 3,
     "dps": "100%",
@@ -1100,6 +1188,7 @@
   },
   {
     "action": "ROOM CLEAR HEAL",
+    "role": "setup",
     "description": "Heal 10 after clearing your first room.",
     "tier": 3,
     "dps": "80%",
@@ -1116,6 +1205,7 @@
   },
   {
     "action": "ROLL FIFTEEN",
+    "role": "setup",
     "description": "Heal 6 when your attack total is exactly 15.",
     "tier": 3,
     "dps": "88%",
@@ -1132,6 +1222,7 @@
   },
   {
     "action": "STRIP DISABLE",
+    "role": "sequence",
     "description": "On connect: lock this combo slot for the rest of the fight.",
     "tier": 3,
     "dps": "133%",
@@ -1144,6 +1235,7 @@
   },
   {
     "action": "MIGHTY SWING",
+    "role": "setup",
     "description": "Ignores armor.",
     "rarity": "RARE",
     "tier": 3,
@@ -1158,6 +1250,7 @@
   },
   {
     "action": "WARCRY",
+    "role": "setup",
     "description": "Apply Weaken. Next miss salvage for the fight.",
     "rarity": "COMMON",
     "tier": 3,
@@ -1173,6 +1266,7 @@
   },
   {
     "action": "BARBARIAN RAGE",
+    "role": "sequence",
     "description": "Next 2 actions: \u002B25% damage, \u002B10% speed. A kill retriggers your opener.",
     "rarity": "RARE",
     "tier": 3,
@@ -1191,6 +1285,7 @@
   },
   {
     "action": "CHALLENGE",
+    "role": "setup",
     "description": "Weaken. Next turn: \u002B1 HIT.",
     "rarity": "COMMON",
     "tier": 3,
@@ -1207,6 +1302,7 @@
   },
   {
     "action": "MEASURED CUT",
+    "role": "setup",
     "description": "Next turn: \u002B1 COMBO.",
     "rarity": "COMMON",
     "tier": 3,
@@ -1222,6 +1318,7 @@
   },
   {
     "action": "MISDIRECT",
+    "role": "sequence",
     "description": "Low damage. On connect, replace next strip action.",
     "rarity": "COMMON",
     "tier": 3,
@@ -1235,6 +1332,7 @@
   },
   {
     "action": "LOADED DICE",
+    "role": "setup",
     "description": "Replace next natural roll with 12.",
     "rarity": "RARE",
     "tier": 3,
@@ -1248,6 +1346,7 @@
   },
   {
     "action": "ECHO SPELL",
+    "role": "sequence",
     "description": "On Combo, retrigger next strip slot.",
     "rarity": "RARE",
     "tier": 3,
@@ -1261,6 +1360,7 @@
   },
   {
     "action": "REWRITE FATE",
+    "role": "setup",
     "description": "On connect, your next die roll becomes 18.",
     "rarity": "RARE",
     "tier": 3,
@@ -1274,6 +1374,7 @@
   },
   {
     "action": "CHANNEL",
+    "role": "setup",
     "description": "Next action: \u002B50% AMP, -20% speed.",
     "rarity": "COMMON",
     "tier": 3,
@@ -1290,6 +1391,7 @@
   },
   {
     "action": "MIGHT",
+    "role": "setup",
     "description": "\u002B3 STR for the rest of the dungeon.",
     "rarity": "COMMON",
     "tier": 3,
@@ -1305,6 +1407,7 @@
   },
   {
     "action": "BLUDGEON",
+    "role": "setup",
     "description": "Resets the enemy\u0027s combo.",
     "rarity": "COMMON",
     "tier": 3,
@@ -1319,6 +1422,7 @@
   },
   {
     "action": "CUNNING",
+    "role": "setup",
     "description": "\u002B3 AGI for the rest of the dungeon.",
     "rarity": "COMMON",
     "tier": 3,
@@ -1334,6 +1438,7 @@
   },
   {
     "action": "AVENGE",
+    "role": "setup",
     "description": "Finisher. On connect, add Warrior tag to all actions (fight-scoped).",
     "rarity": "RARE",
     "tier": 3,
@@ -1347,6 +1452,7 @@
   },
   {
     "action": "CONCENTRATE",
+    "role": "setup",
     "description": "\u002B3 TECH for the rest of the dungeon.",
     "rarity": "COMMON",
     "tier": 3,
@@ -1362,6 +1468,7 @@
   },
   {
     "action": "CONCENTRATED CHAOS",
+    "role": "setup",
     "description": "Finisher. Gains damage from skipped/disabled strip slots.",
     "rarity": "RARE",
     "tier": 3,
@@ -1375,6 +1482,7 @@
   },
   {
     "action": "SKULL CRACK",
+    "role": "setup",
     "description": "Expose (enemy has less defense).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1389,6 +1497,7 @@
   },
   {
     "action": "PARRY",
+    "role": "setup",
     "description": "Harden (you take less damage).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1404,6 +1513,7 @@
   },
   {
     "action": "LEECHING CUT",
+    "role": "payoff",
     "description": "Heal for 2% of the damage dealt.",
     "rarity": "COMMON",
     "tier": 3,
@@ -1417,6 +1527,7 @@
   },
   {
     "action": "FROST BOLT",
+    "role": "setup",
     "description": "Slow (enemy acts slower).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1431,6 +1542,7 @@
   },
   {
     "action": "IRON CULL",
+    "role": "payoff",
     "description": "\u002B5 damage per CRISIS",
     "tier": 3,
     "dps": "106%",
@@ -1445,6 +1557,7 @@
   },
   {
     "action": "STEEL CREST",
+    "role": "payoff",
     "description": "\u002B5 damage per TRIUMPH",
     "tier": 3,
     "dps": "100%",
@@ -1459,6 +1572,7 @@
   },
   {
     "action": "BONE WRATH",
+    "role": "payoff",
     "description": "\u002B5 damage per RAGE",
     "tier": 3,
     "dps": "108%",
@@ -1473,6 +1587,7 @@
   },
   {
     "action": "DRUM CUT",
+    "role": "payoff",
     "description": "\u002B5 damage per BEAT",
     "tier": 3,
     "dps": "111%",
@@ -1487,6 +1602,7 @@
   },
   {
     "action": "GOLD ANCHOR",
+    "role": "payoff",
     "description": "\u002B5 damage per DRAG",
     "tier": 3,
     "dps": "100%",
@@ -1501,6 +1617,7 @@
   },
   {
     "action": "MITHRIL FLOW",
+    "role": "payoff",
     "description": "\u002B5 damage per STREAK",
     "tier": 3,
     "dps": "110%",
@@ -1515,6 +1632,7 @@
   },
   {
     "action": "GLASS NICK",
+    "role": "payoff",
     "description": "\u002B5 damage per GRAZE",
     "tier": 3,
     "dps": "111%",
@@ -1529,6 +1647,7 @@
   },
   {
     "action": "UMBRA",
+    "role": "payoff",
     "description": "\u002B5 damage per SWING",
     "tier": 3,
     "dps": "108%",
@@ -1543,6 +1662,7 @@
   },
   {
     "action": "HEADHUNT",
+    "role": "payoff",
     "description": "\u002B5 damage per TROPHY",
     "tier": 3,
     "dps": "112%",
@@ -1557,6 +1677,7 @@
   },
   {
     "action": "WILLOW LASH",
+    "role": "payoff",
     "description": "\u002B5 damage per CHAIN",
     "tier": 3,
     "dps": "111%",
@@ -1571,6 +1692,7 @@
   },
   {
     "action": "REFRACT",
+    "role": "payoff",
     "description": "\u002B5 damage per LENS",
     "tier": 3,
     "dps": "105%",
@@ -1585,6 +1707,7 @@
   },
   {
     "action": "RESONATE",
+    "role": "payoff",
     "description": "\u002B5 damage per CONTACT",
     "tier": 3,
     "dps": "109%",
@@ -1599,6 +1722,7 @@
   },
   {
     "action": "LANDSLIDE",
+    "role": "payoff",
     "description": "\u002B5 damage per GRIT",
     "tier": 3,
     "dps": "106%",
@@ -1613,6 +1737,7 @@
   },
   {
     "action": "REVEAL",
+    "role": "payoff",
     "description": "\u002B5 damage per ENIGMA",
     "tier": 3,
     "dps": "109%",
@@ -1627,6 +1752,7 @@
   },
   {
     "action": "QUIRK",
+    "role": "payoff",
     "description": "\u002B5 damage per ODDITY",
     "tier": 3,
     "dps": "106%",
@@ -1641,6 +1767,7 @@
   },
   {
     "action": "STARFALL",
+    "role": "payoff",
     "description": "\u002B5 damage per OMEN",
     "tier": 3,
     "dps": "108%",
@@ -1655,6 +1782,7 @@
   },
   {
     "action": "KINDLE",
+    "role": "payoff",
     "description": "\u002B5 damage per KINDLING",
     "tier": 3,
     "dps": "109%",
@@ -1669,6 +1797,7 @@
   },
   {
     "action": "UNRAVEL",
+    "role": "payoff",
     "description": "\u002B5 damage per FRAY",
     "tier": 3,
     "dps": "107%",
@@ -1683,6 +1812,7 @@
   },
   {
     "action": "BAT SWARM",
+    "role": "payoff",
     "description": "3 hits.",
     "tier": 1,
     "dps": "120%",
@@ -1694,6 +1824,7 @@
   },
   {
     "action": "RAT SWARM",
+    "role": "payoff",
     "description": "7 hits.",
     "tier": 1,
     "dps": "105%",
@@ -1705,6 +1836,7 @@
   },
   {
     "action": "ANT SWARM",
+    "role": "payoff",
     "description": "1 hit per living ant.",
     "tier": 1,
     "dps": "120%",
@@ -1716,6 +1848,7 @@
   },
   {
     "action": "BODY BLOW",
+    "role": "payoff",
     "description": "\u002B25% damage on this hit for every 10 Body (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1728,6 +1861,7 @@
   },
   {
     "action": "WARBRUTE SMASH",
+    "role": "payoff",
     "description": "\u002B25% damage on this hit for every 10 Warbrute tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1740,6 +1874,7 @@
   },
   {
     "action": "PROWESS RUSH",
+    "role": "payoff",
     "description": "\u002B25% speed on this action for every 10 Prowess (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1752,6 +1887,7 @@
   },
   {
     "action": "RAVAGER FLURRY",
+    "role": "payoff",
     "description": "\u002B25% speed on this action for every 10 Ravager tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1764,6 +1900,7 @@
   },
   {
     "action": "WILLFIRE",
+    "role": "payoff",
     "description": "\u002B25% AMP on this hit for every 10 Will (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1776,6 +1913,7 @@
   },
   {
     "action": "RAGECALLER HOWL",
+    "role": "payoff",
     "description": "\u002B25% AMP on this hit for every 10 Ragecaller tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1788,6 +1926,7 @@
   },
   {
     "action": "FINESSE THRUST",
+    "role": "payoff",
     "description": "\u002B25% accuracy (each 25% = \u002B1 to your next roll) for every 10 Finesse (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1800,6 +1939,7 @@
   },
   {
     "action": "DUELIST FEINT",
+    "role": "payoff",
     "description": "\u002B25% accuracy (each 25% = \u002B1 to your next roll) for every 10 Duelist tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1812,6 +1952,7 @@
   },
   {
     "action": "WITS ARC",
+    "role": "payoff",
     "description": "\u002B25% combo (each 25% = 1 easier combo step on your next attack) for every 10 Wits (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1824,6 +1965,7 @@
   },
   {
     "action": "SPELLBLADE WEAVE",
+    "role": "payoff",
     "description": "\u002B25% combo (each 25% = 1 easier combo step on your next attack) for every 10 Spellblade tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1836,6 +1978,7 @@
   },
   {
     "action": "MIND HEX",
+    "role": "payoff",
     "description": "\u002B25% status potency (each 25% = \u002B1 Expose; also Weakens) for every 10 Mind (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1848,6 +1991,7 @@
   },
   {
     "action": "HEXBLADE CURSE",
+    "role": "payoff",
     "description": "\u002B25% status potency (each 25% = \u002B1 Expose; also Weakens) for every 10 Hexblade tags (x skill rank and power).",
     "rarity": "COMMON",
     "tier": 3,
@@ -1860,6 +2004,7 @@
   },
   {
     "action": "CASH IN",
+    "role": "payoff",
     "description": "Cash in your fullest material store at 75% (its convert, for any set).",
     "tier": 3,
     "dps": "100%",
@@ -1872,6 +2017,7 @@
   },
   {
     "action": "DETONATE",
+    "role": "payoff",
     "description": "Spend the target\u0027s largest status (Expose, Poison, Bleed or Burn): \u002B6% damage per stack spent.",
     "tier": 3,
     "dps": "90%",
@@ -1884,6 +2030,7 @@
   },
   {
     "action": "RESTORE",
+    "role": "payoff",
     "description": "Spend your fullest material store: heal 0.75% of max HP per unit, up to 2% per cash.",
     "tier": 3,
     "dps": "70%",
@@ -1896,6 +2043,7 @@
   },
   {
     "action": "SURGE",
+    "role": "payoff",
     "description": "Spend your fullest material store: +2% of that material's class attribute per unit for the rest of the fight.",
     "tier": 3,
     "dps": "70%",
@@ -1908,6 +2056,7 @@
   },
   {
     "action": "BULWARK",
+    "role": "payoff",
     "description": "Spend your fullest material store: temporary HP worth 5% of max HP per unit.",
     "tier": 3,
     "dps": "70%",
@@ -1920,6 +2069,7 @@
   },
   {
     "action": "GRIT TEETH",
+    "role": "payoff",
     "description": "Spend your fullest material store: 1 Harden per 2 units.",
     "tier": 3,
     "dps": "70%",
@@ -1932,6 +2082,7 @@
   },
   {
     "action": "CENTER",
+    "role": "payoff",
     "description": "Spend your fullest material store: 1 Focus per 3 units.",
     "tier": 3,
     "dps": "70%",
@@ -1944,6 +2095,7 @@
   },
   {
     "action": "BLOODLET",
+    "role": "payoff",
     "description": "Spend your fullest material store: 1 Bleed on the target per unit.",
     "tier": 3,
     "dps": "70%",
@@ -1956,6 +2108,7 @@
   },
   {
     "action": "QUICKEN",
+    "role": "payoff",
     "description": "Spend your fullest material store: 1 Haste per 2 units.",
     "tier": 3,
     "dps": "70%",
@@ -1968,6 +2121,7 @@
   },
   {
     "action": "IGNITE",
+    "role": "payoff",
     "description": "Spend your fullest material store: 1 Burn on the target per unit.",
     "tier": 3,
     "dps": "70%",
@@ -1980,6 +2134,7 @@
   },
   {
     "action": "LAY BARE",
+    "role": "payoff",
     "description": "Spend your fullest material store: 1 Expose on the target per 3 units.",
     "tier": 3,
     "dps": "70%",
@@ -1992,6 +2147,7 @@
   },
   {
     "action": "STEEL NERVE",
+    "role": "payoff",
     "description": "Spend your fullest material store: 1 Fortify per 2 units.",
     "tier": 3,
     "dps": "70%",
@@ -2004,6 +2160,7 @@
   },
   {
     "action": "PRELUDE",
+    "role": "setup",
     "description": "Next 3 actions: \u002B15% AMP.",
     "tier": 3,
     "dps": "78%",
@@ -2018,6 +2175,7 @@
   },
   {
     "action": "BLOOD OATH",
+    "role": "setup",
     "description": "Pay 5% max HP. Next action: \u002B60% damage.",
     "tier": 3,
     "dps": "100%",
@@ -2033,6 +2191,7 @@
   },
   {
     "action": "VENOM COAT",
+    "role": "setup",
     "description": "Poison the target (1.5% max HP per tick).",
     "tier": 3,
     "dps": "75%",
@@ -2045,6 +2204,7 @@
   },
   {
     "action": "OPEN VEIN",
+    "role": "setup",
     "description": "2 Bleed on the target (ticks when it acts).",
     "tier": 3,
     "dps": "76%",
@@ -2057,6 +2217,7 @@
   },
   {
     "action": "STOKE",
+    "role": "setup",
     "description": "2 Burn on the target.",
     "tier": 3,
     "dps": "71%",
@@ -2069,6 +2230,7 @@
   },
   {
     "action": "CORRODE",
+    "role": "setup",
     "description": "1 Acid on the target (damage and armor shred).",
     "tier": 3,
     "dps": "71%",
@@ -2081,6 +2243,7 @@
   },
   {
     "action": "DAZE",
+    "role": "setup",
     "description": "Stun the target for a turn.",
     "tier": 3,
     "dps": "42%",
@@ -2093,6 +2256,7 @@
   },
   {
     "action": "BRACE",
+    "role": "setup",
     "description": "2 Fortify (armor) on yourself.",
     "tier": 3,
     "dps": "63%",
@@ -2105,6 +2269,7 @@
   },
   {
     "action": "LUNGE",
+    "role": "setup",
     "description": "Next action: \u002B10% speed.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2120,6 +2285,7 @@
   },
   {
     "action": "HOLD THE LINE",
+    "role": "setup",
     "description": "2 Harden (you take less damage).",
     "rarity": "COMMON",
     "tier": 3,
@@ -2135,6 +2301,7 @@
   },
   {
     "action": "CADENCE STRIKE",
+    "role": "setup",
     "description": "Next 2 turns: \u002B1 COMBO.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2150,6 +2317,7 @@
   },
   {
     "action": "LOW BLOW",
+    "role": "setup",
     "description": "Weaken (enemy deals less damage).",
     "rarity": "COMMON",
     "tier": 3,
@@ -2164,6 +2332,7 @@
   },
   {
     "action": "FAN OF KNIVES",
+    "role": "payoff",
     "description": "4 hits.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2176,6 +2345,7 @@
   },
   {
     "action": "SHOULDER CHECK",
+    "role": "setup",
     "description": "Resets the enemy\u0027s combo.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2190,6 +2360,7 @@
   },
   {
     "action": "IRON GUARD",
+    "role": "setup",
     "description": "Harden. Next action: \u002B25% damage.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2206,6 +2377,7 @@
   },
   {
     "action": "CLEAVE THROUGH",
+    "role": "setup",
     "description": "Ignores armor.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2220,6 +2392,7 @@
   },
   {
     "action": "GUTTING STRIKE",
+    "role": "setup",
     "description": "1 Bleed on the target (ticks when it acts).",
     "rarity": "COMMON",
     "tier": 3,
@@ -2233,6 +2406,7 @@
   },
   {
     "action": "FLAME BRAND",
+    "role": "setup",
     "description": "2 Burn on the target.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2246,6 +2420,7 @@
   },
   {
     "action": "THUNDER CLAP",
+    "role": "setup",
     "description": "Expose. Next action: \u002B25% AMP.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2262,6 +2437,7 @@
   },
   {
     "action": "FEINT AND THRUST",
+    "role": "setup",
     "description": "Next turn: \u002B1 HIT.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2277,6 +2453,7 @@
   },
   {
     "action": "RIPOSTE",
+    "role": "setup",
     "description": "Harden. Next turn: \u002B1 CRIT.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2294,6 +2471,7 @@
   },
   {
     "action": "DISARM",
+    "role": "setup",
     "description": "Weaken and Slow.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2309,6 +2487,7 @@
   },
   {
     "action": "GATHERING STORM",
+    "role": "setup",
     "description": "Next 3 turns: \u002B10%, \u002B20%, then \u002B30% damage.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2324,6 +2503,7 @@
   },
   {
     "action": "LIT FUSE",
+    "role": "setup",
     "description": "Two turns from now: \u002B50% damage.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2339,6 +2519,7 @@
   },
   {
     "action": "HEADSMAN\u0027S PROMISE",
+    "role": "setup",
     "description": "Your finisher (last strip slot): \u002B60% damage.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2354,6 +2535,7 @@
   },
   {
     "action": "BLOOD FRENZY",
+    "role": "setup",
     "description": "Next 4 turns: \u002B10%, \u002B20%, \u002B30%, then \u002B40% damage. A miss ends it.",
     "rarity": "RARE",
     "tier": 3,
@@ -2369,6 +2551,7 @@
   },
   {
     "action": "MARCHING DRUM",
+    "role": "setup",
     "description": "For the next 6 turns, every 2nd turn: \u002B3 COMBO.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2384,6 +2567,7 @@
   },
   {
     "action": "RELAY STRIKE",
+    "role": "setup",
     "description": "The 2 actions after next: \u002B20% speed.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2399,6 +2583,7 @@
   },
   {
     "action": "OPENING GAMBIT",
+    "role": "setup",
     "description": "In strip slot 1: next 3 turns \u002B1 HIT and \u002B1 COMBO.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2415,6 +2600,7 @@
   },
   {
     "action": "FLURRY STEP",
+    "role": "setup",
     "description": "Next 3 actions: \u002B30%, \u002B20%, then \u002B10% speed.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2430,6 +2616,7 @@
   },
   {
     "action": "PATIENT BLADE",
+    "role": "setup",
     "description": "After one turn: next 2 turns \u002B2 CRIT and \u002B20% damage.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2446,6 +2633,7 @@
   },
   {
     "action": "THIRD CUT",
+    "role": "setup",
     "description": "Your strip slot 3 action: \u002B60% damage.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2461,6 +2649,7 @@
   },
   {
     "action": "COUNTED PACES",
+    "role": "setup",
     "description": "Next turn: \u002B15% damage per strip slot of this action (slot 4 = \u002B60%).",
     "rarity": "RARE",
     "tier": 3,
@@ -2476,6 +2665,7 @@
   },
   {
     "action": "EVEN ODDS",
+    "role": "setup",
     "description": "In an even strip slot: next 2 actions \u002B40% damage.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2491,6 +2681,7 @@
   },
   {
     "action": "CRESCENDO",
+    "role": "setup",
     "description": "Next action: \u002B25% AMP per strip slot of this action (slot 3 = \u002B75%).",
     "rarity": "COMMON",
     "tier": 3,
@@ -2506,6 +2697,7 @@
   },
   {
     "action": "RUNE OF THE FIFTH",
+    "role": "setup",
     "description": "Your strip slot 5 action (or your last, on a shorter strip): \u002B50% AMP.",
     "rarity": "RARE",
     "tier": 3,
@@ -2521,6 +2713,7 @@
   },
   {
     "action": "RISING CHORD",
+    "role": "setup",
     "description": "Next 4 actions: \u002B5%, \u002B10%, \u002B15%, then \u002B20% AMP.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2536,6 +2729,7 @@
   },
   {
     "action": "LATE BLOOM",
+    "role": "setup",
     "description": "From strip slot 3 on: next 3 turns \u002B1 COMBO and \u002B15% damage.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2552,6 +2746,7 @@
   },
   {
     "action": "HOURGLASS",
+    "role": "setup",
     "description": "After 3 turns: \u002B1 CRIT and \u002B15% damage for 3 turns.",
     "tier": 3,
     "dps": "94%",
@@ -2567,6 +2762,7 @@
   },
   {
     "action": "NEXT TIME",
+    "role": "setup",
     "description": "Your first 2 strip slots: \u002B35% damage.",
     "tier": 3,
     "dps": "89%",
@@ -2581,6 +2777,7 @@
   },
   {
     "action": "STAGGERING BLOW",
+    "role": "setup",
     "description": "2 Stagger on the target: its next action takes 15% longer per stack.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2594,6 +2791,7 @@
   },
   {
     "action": "BLOOD RUSH",
+    "role": "setup",
     "description": "2 Haste on yourself: your actions are 10% faster per stack; one stack falls off after each action.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2607,6 +2805,7 @@
   },
   {
     "action": "SUNDER",
+    "role": "setup",
     "description": "2 Brittle on the target: the next critical hit it takes deals +25% damage per stack.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2620,6 +2819,7 @@
   },
   {
     "action": "GUT CHECK",
+    "role": "setup",
     "description": "2 Stagger on the target: its next action takes 15% longer per stack.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2633,6 +2833,7 @@
   },
   {
     "action": "HAMSTRING",
+    "role": "setup",
     "description": "Slow the target.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2646,6 +2847,7 @@
   },
   {
     "action": "RATTLING BLOW",
+    "role": "setup",
     "description": "2 Rattle on the target: -1 to its next attack roll per stack.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2659,6 +2861,7 @@
   },
   {
     "action": "QUICKSTEP",
+    "role": "setup",
     "description": "2 Haste on yourself: your actions are 10% faster per stack; one stack falls off after each action.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2672,6 +2875,7 @@
   },
   {
     "action": "BARGE",
+    "role": "setup",
     "description": "1 Stagger on the target: its next action takes 15% longer.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2685,6 +2889,7 @@
   },
   {
     "action": "FIND WEAKNESS",
+    "role": "setup",
     "description": "2 Brittle on the target: the next critical hit it takes deals +25% damage per stack.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2698,6 +2903,7 @@
   },
   {
     "action": "FADE STEP",
+    "role": "setup",
     "description": "1 Haste on yourself: your actions are 10% faster; it falls off after your next action.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2711,6 +2917,7 @@
   },
   {
     "action": "HEX",
+    "role": "setup",
     "description": "Weaken the target for 3 turns: its damage is halved.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2724,6 +2931,7 @@
   },
   {
     "action": "JINX",
+    "role": "setup",
     "description": "3 Rattle on the target: -1 to its next attack roll per stack.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2737,6 +2945,7 @@
   },
   {
     "action": "ENERVATE",
+    "role": "setup",
     "description": "Weaken the target for 2 turns: its damage is halved.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2750,6 +2959,7 @@
   },
   {
     "action": "TIME WARP",
+    "role": "setup",
     "description": "2 Haste on yourself: your actions are 10% faster per stack; one stack falls off after each action.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2763,6 +2973,7 @@
   },
   {
     "action": "CRYSTALLIZE",
+    "role": "setup",
     "description": "2 Brittle on the target: the next critical hit it takes deals +25% damage per stack.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2776,6 +2987,7 @@
   },
   {
     "action": "TOPPLE",
+    "role": "payoff",
     "description": "Spend the target's Stagger: +8% damage per stack spent.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2789,6 +3001,7 @@
   },
   {
     "action": "SHATTERPOINT",
+    "role": "payoff",
     "description": "Spend the target's Brittle: +8% damage per stack spent.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2802,6 +3015,7 @@
   },
   {
     "action": "FLASH CUT",
+    "role": "payoff",
     "description": "Spend your Haste: +8% damage per stack spent.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2815,6 +3029,7 @@
   },
   {
     "action": "MIND BREAK",
+    "role": "payoff",
     "description": "Spend the target's Rattle: +8% damage per stack spent.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2828,6 +3043,7 @@
   },
   {
     "action": "COILED STRIKE",
+    "role": "setup",
     "description": "Your next Bludgeon action: +50% damage (waits until one rolls).",
     "rarity": "COMMON",
     "tier": 3,
@@ -2843,6 +3059,7 @@
   },
   {
     "action": "DRILL",
+    "role": "setup",
     "description": "Your next 2 Swift actions: +25% speed (waits until they roll).",
     "rarity": "COMMON",
     "tier": 3,
@@ -2858,6 +3075,7 @@
   },
   {
     "action": "PRIMER",
+    "role": "setup",
     "description": "Your next Focus action: +40% AMP (waits until one rolls).",
     "rarity": "COMMON",
     "tier": 3,
@@ -2873,6 +3091,7 @@
   },
   {
     "action": "FEINT",
+    "role": "setup",
     "description": "Your next Rogue action: +40% damage (waits until one rolls).",
     "rarity": "COMMON",
     "tier": 3,
@@ -2888,6 +3107,7 @@
   },
   {
     "action": "SET THE TRAP",
+    "role": "setup",
     "description": "Your next Status action: +60% damage (waits until one rolls).",
     "rarity": "COMMON",
     "tier": 3,
@@ -2903,6 +3123,7 @@
   },
   {
     "action": "WAR BAND",
+    "role": "setup",
     "description": "Next action: +8% damage per Warbrute action in your strip.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2918,6 +3139,7 @@
   },
   {
     "action": "CHORUS",
+    "role": "setup",
     "description": "Next action: +10% AMP per Wizard action in your strip.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2933,6 +3155,7 @@
   },
   {
     "action": "PACK TACTICS",
+    "role": "setup",
     "description": "Next action: +8% damage per Status action in your strip.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2948,6 +3171,7 @@
   },
   {
     "action": "UNLEASH",
+    "role": "payoff",
     "description": "Every queued buff (turn grants and later strip-slot grants) lands on this action at +25%.",
     "rarity": "COMMON",
     "tier": 3,
@@ -2961,6 +3185,7 @@
   },
   {
     "action": "CODA",
+    "role": "payoff",
     "description": "Every queued buff (turn grants and later strip-slot grants) lands on this action at +40%.",
     "rarity": "COMMON",
     "tier": 3,

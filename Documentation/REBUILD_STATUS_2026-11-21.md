@@ -14,7 +14,8 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
 
 | Sub-step | Status | Commit | Tests |
 |---|---|---|---|
-| Phase 11 item rolls | done | (this commit) | 15063 passed / 0 failed |
+| Phase 11 item rolls | done | `6cd48a60` | 15063 passed / 0 failed |
+| 3.1 Action roles, class hits | done | (this commit) | 15074 passed / 0 failed |
 
 ## Phase 11 — item rolls (D11.1–D11.12)
 - **Class affinity (D11.7):** every rolled item has one of 10 affinities (`Item.ClassAffinity`, saved as
@@ -47,3 +48,20 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
   hero's Harden through `Stores`); the loot reveal and item card don't show the affinity or "rare circumstance" yet.
 - **Side effect seen:** a full `--run-tests` rewrote the active patch `over-v57.json` (it wrote the new knobs and
   dropped the description). I restored it from git; it is not in any commit. Same pre-existing issue as 11-18.
+
+## Step 3 — Action interactions, roles, Fernis
+
+### 3.1 Action roles and class hits — done
+- New `role` column in `Actions.json` (setup / sequence / payoff, D5.1), carried through the sheet → data → action
+  pipeline (`Action.Role`, `ActionData.Role`). `ActionRoles.Of` reads it and infers one when it's empty (enemy kits,
+  environments, old data). All 221 rows were seeded by a feature rule: payoff verbs and converts → payoff; strip and
+  retrigger cards → sequence; anything that buffs the next action or applies a status → setup; else payoff. Result:
+  142 setup, 62 payoff, 17 sequence. **REVIEW**: the rule is mechanical; many "setup" rows are setup only because
+  they carry a modifier column. The ~100-action content pass (step 11) is where roles get authored by hand.
+- Cards lead with the role: `Payoff · applies 1 Bleed` (`ActionRoles.CardLine`, in the strip card body). A card with
+  no authored text shows its verb.
+- **Class hits apply the class status** (D5.1 / D3.23): SLAM `APPLY stagger 1`, STRIKE `APPLY harden 1` (Guard =
+  Harden for now, so it reads "gains 1 Guard"), STAB `APPLY bleed 1`, MAGIC MISSILE `APPLY burn 1`. These are card
+  rules through the existing verb path (`ActionRules.FromVerb`).
+- **Not done:** the arrows between linked cards in the strip editor (needs a screen I can't check tonight).
+- Tests: new `ActionRolesTests` (13 checks). One card-body test now expects the role word first.

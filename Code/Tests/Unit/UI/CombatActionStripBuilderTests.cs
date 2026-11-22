@@ -334,7 +334,7 @@ namespace RPGGame.Tests.Unit.UI
             flavorOnly.Description = "SHEET_DESC_FOR_CARD_BODY";
             var cardDescLines = CombatActionStripBuilder.BuildActionStripDescriptionLines(flavorOnly, 80, 2);
             TestBase.AssertTrue(
-                cardDescLines.Count == 1 && cardDescLines[0] == "SHEET_DESC_FOR_CARD_BODY",
+                cardDescLines.Count == 1 && cardDescLines[0] == "Payoff · SHEET_DESC_FOR_CARD_BODY", // D5.1: role word first
                 "BuildActionStripDescriptionLines shows author Action.Description on the card body",
                 ref run, ref passed, ref failed);
 

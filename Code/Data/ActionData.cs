@@ -28,6 +28,9 @@ namespace RPGGame
         public string ScaleFormula { get; set; } = "";
         [JsonPropertyName("verb")]
         public string Verb { get; set; } = "";
+        /// <summary>Action role (D5.1): setup / sequence / payoff; empty = inferred.</summary>
+        [JsonPropertyName("role")]
+        public string Role { get; set; } = "";
         [JsonPropertyName("cost")]
         public string Cost { get; set; } = "";
         [JsonPropertyName("length")]

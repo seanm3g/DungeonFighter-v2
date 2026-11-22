@@ -56,6 +56,7 @@ namespace RPGGame.Data
             action.KeywordScale = GetStringValue(root, "keywordScale");
             action.ScaleFormula = GetStringValue(root, "scaleFormula");
             action.Verb = GetStringValue(root, "verb");
+            action.Role = GetStringValue(root, "role");
             action.Cost = GetStringValue(root, "cost");
             action.HeroAccuracy = GetStringValue(root, "heroAccuracy");
             action.HeroHit = GetStringValue(root, "heroHit");
@@ -206,6 +207,7 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "keywordScale", value.KeywordScale);
             WriteIfNotEmpty(writer, "scaleFormula", value.ScaleFormula);
             WriteIfNotEmpty(writer, "verb", value.Verb);
+            WriteIfNotEmpty(writer, "role", value.Role);
             WriteIfNotEmpty(writer, "cost", value.Cost);
             WriteIfNotEmpty(writer, "heroAccuracy", value.HeroAccuracy);
             WriteIfNotEmpty(writer, "heroHit", value.HeroHit);

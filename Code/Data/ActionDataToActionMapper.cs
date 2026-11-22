@@ -84,6 +84,7 @@ namespace RPGGame
             action.KeywordScale = data.KeywordScale ?? "";
             action.ScaleFormula = data.ScaleFormula ?? "";
             action.Verb = data.Verb ?? "";
+            action.Role = data.Role ?? "";
             action.Cost = data.Cost ?? "";
             action.CausesConfusion = data.CausesConfusion;
             action.CausesDisrupt = data.CausesDisrupt;

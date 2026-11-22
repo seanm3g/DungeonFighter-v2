@@ -85,6 +85,8 @@ namespace RPGGame.Data
         public string ScaleFormula { get; set; } = "";
         /// <summary>Verb preset spec (<c>CASH FULLEST 75</c>); JSON only, no sheet column yet.</summary>
         public string Verb { get; set; } = "";
+        /// <summary>Action role (D5.1): setup / sequence / payoff; JSON only.</summary>
+        public string Role { get; set; } = "";
         /// <summary>Action cost (<c>HP 5</c>); JSON only, no sheet column yet.</summary>
         public string Cost { get; set; } = "";
         
