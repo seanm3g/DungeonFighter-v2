@@ -315,3 +315,13 @@ multiplier by boss level, x1 at level 1 to the full value at level 5 (`BossDamag
 Measured on 30 fresh starts: **5 of 30 deaths** (was 9), biggest hit 63 (was 100). All 5 still die to the Demon: its
 summed HP makes the fight long, and the Demon levers (region affix a rank up, dungeon affix, signature attacks) are
 unramped. If 17% is still too many, ramping the merged HP the same way is the next lever.
+
+**Room enemy HP (your call: lower the enemies before the Demon):** `RoomEnemyHealthAtLevel1` (0.6) /
+`RoomEnemyHealthFullAtLevel` (5): every enemy but the final boss starts at 60% HP at level 1, full by level 5.
+Hero HP when the Demon appears rose from 78% to 89%, but deaths stayed at 6 of 30, and 4 of them were to room
+enemies with 115-130 base HP.
+
+**The other cause:** each region dungeon rolls a random level anywhere in the 1-5 band, and the straight-in first
+dungeon took the lowest of three, which was level 2-5 about half the time for a level-1 hero. The first dungeon now
+runs at the hero's level (`DungeonSelectionHandler.StartFirstDungeonAsync`). **Result: 1 of 30 first-dungeon deaths**
+(was 9), hero at 92% HP when the Demon appears. Full tests: 15159 passed, 0 failed.

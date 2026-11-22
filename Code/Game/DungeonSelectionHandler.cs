@@ -102,6 +102,13 @@ namespace RPGGame
                 await ShowDungeonSelection();
                 return;
             }
+            // The band rolls each dungeon anywhere in the region's levels, so the lowest of three was level 2-5 about half
+            // the time for a level-1 hero (playtest 11-21). The first dungeon runs at the hero's level.
+            var first = stateManager.AvailableDungeons[index];
+            int heroLevel = Math.Max(1, stateManager.CurrentPlayer.Level);
+            if (first.MinLevel > heroLevel)
+                stateManager.AvailableDungeons[index] = new Dungeon(first.Name, heroLevel, heroLevel, first.Theme,
+                    first.PossibleEnemies, first.ColorOverride, first.SpawnRegionId);
             await SelectDungeon(index);
         }
 

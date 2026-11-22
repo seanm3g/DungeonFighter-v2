@@ -32,6 +32,25 @@ namespace RPGGame
         /// </summary>
         public int BossDamageFullAtLevel { get; set; } = 5;
 
+        /// <summary>
+        /// Room enemies before the Demon (every enemy but the final boss) start at this share of their HP at level 1,
+        /// ramping to full HP at <see cref="RoomEnemyHealthFullAtLevel"/> (playtest 11-21: shorter early fights so the
+        /// hero reaches the Demon with more HP). 1 = off.
+        /// </summary>
+        public double RoomEnemyHealthAtLevel1 { get; set; } = 0.6;
+
+        public int RoomEnemyHealthFullAtLevel { get; set; } = 5;
+
+        /// <summary>The HP share for a room enemy (not the Demon) of <paramref name="level"/>.</summary>
+        public double RoomEnemyHealthAt(int level)
+        {
+            double start = Math.Clamp(RoomEnemyHealthAtLevel1, 0.05, 1.0);
+            if (RoomEnemyHealthFullAtLevel <= 1 || level >= RoomEnemyHealthFullAtLevel)
+                return 1.0;
+            double t = Math.Clamp((Math.Max(1, level) - 1) / (double)(RoomEnemyHealthFullAtLevel - 1), 0, 1);
+            return start + (1.0 - start) * t;
+        }
+
         /// <summary>The boss damage multiplier for a boss of <paramref name="level"/> (see <see cref="BossDamageFullAtLevel"/>).</summary>
         public double BossDamageMultiplierAt(int level)
         {

@@ -45,6 +45,11 @@ namespace RPGGame.Tests.Unit.Data
             TestBase.AssertTrue(Math.Abs(new DungeonScalingConfig { BossDamageMultiplier = 2.5, BossDamageFullAtLevel = 1 }.BossDamageMultiplierAt(1) - 2.5) < 1e-9,
                 "a ramp of 1 level means no ramp", ref _run, ref _passed, ref _failed);
 
+            var hp = new DungeonScalingConfig { RoomEnemyHealthAtLevel1 = 0.6, RoomEnemyHealthFullAtLevel = 5 };
+            TestBase.AssertTrue(Math.Abs(hp.RoomEnemyHealthAt(1) - 0.6) < 1e-9 && Math.Abs(hp.RoomEnemyHealthAt(3) - 0.8) < 1e-9
+                    && Math.Abs(hp.RoomEnemyHealthAt(5) - 1.0) < 1e-9,
+                "room enemies before the Demon: 60% HP at level 1, full by level 5", ref _run, ref _passed, ref _failed);
+
             TestBase.PrintSummary("WeaponUpgrade Tests", _run, _passed, _failed);
         }
     }

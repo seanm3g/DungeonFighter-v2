@@ -242,6 +242,24 @@ namespace RPGGame
                 }
             }
 
+            // Early dungeons: the enemies before the Demon have less HP (ramps to full by level 5), so the hero reaches
+            // the Demon with more HP left (playtest 11-21).
+            var earlyScaling = GameConfiguration.Instance.DungeonScaling;
+            if (earlyScaling != null)
+            {
+                foreach (var room in Rooms)
+                    foreach (var enemy in room.GetEnemies())
+                    {
+                        if (enemy.IsBoss)
+                            continue;
+                        double share = earlyScaling.RoomEnemyHealthAt(enemy.Level);
+                        if (share >= 1.0)
+                            continue;
+                        enemy.MaxHealth = Math.Max(1, (int)Math.Round(enemy.MaxHealth * share));
+                        enemy.CurrentHealth = enemy.MaxHealth;
+                    }
+            }
+
             if (Rooms.Count > 0)
                 TraversalState = DungeonMapGenerator.Generate(Rooms, random, trainingGround: false);
         }
