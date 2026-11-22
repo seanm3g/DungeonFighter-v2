@@ -310,6 +310,7 @@ namespace RPGGame.MCP
         private void DisableAllDelays()
         {
             SimulationPacing.EnableFastMode();
+            RPGGame.Combat.Narrative.FernisFightSession.McpPlay = true;
         }
 
         /// <summary>

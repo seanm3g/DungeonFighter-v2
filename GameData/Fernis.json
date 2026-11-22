@@ -8,7 +8,7 @@
       "big": false,
       "lines": {
         "any": [
-          "{turns} turns. I've seen faster funerals, but fine.",
+          "{turns}. I've seen faster funerals, but fine.",
           "{enemy} is down. I'd call that a win if I were generous. I'm not.",
           "Done in {turns}. Next time try losing, it's more interesting for me."
         ],

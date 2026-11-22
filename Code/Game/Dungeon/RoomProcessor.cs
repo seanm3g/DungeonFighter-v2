@@ -235,7 +235,7 @@
                     if (stateManager.CurrentPlayer != null)
                     {
                         var encounter = RoomEncounters.TryEncounter(stateManager.CurrentPlayer, stateManager.CurrentDungeon, RandomUtility.Ambient);
-                        if (encounter.Count > 0 && !RPGGame.Combat.CombatUiMuteScope.IsMuted)
+                        if (encounter.Count > 0 && (!RPGGame.Combat.CombatUiMuteScope.IsMuted || RPGGame.Combat.Narrative.FernisFightSession.McpPlay))
                         {
                             foreach (string line in encounter)
                                 displayManager.AddCombatEvent(line, stateManager.CurrentPlayer);

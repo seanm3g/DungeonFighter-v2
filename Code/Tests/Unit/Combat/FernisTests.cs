@@ -33,7 +33,7 @@ namespace RPGGame.Tests.Unit.Combat
             var leaks = bank.Moments.SelectMany(m => m.Value.Lines.Values.SelectMany(v => v))
                 .Select(l => FernisLineBank.Fill(l, tokens)).Where(l => l.Contains('{') || l.Contains('}')).ToList();
             TestBase.AssertTrue(leaks.Count == 0, $"every line fills without braces ({leaks.Count} leak)", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("a b", FernisLineBank.Fill("a {nope} b", null), "unknown tokens drop", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("A b", FernisLineBank.Fill("a {nope} b", null), "unknown tokens drop; the line starts capitalized", ref _run, ref _passed, ref _failed);
 
             // Class lines join the pool: over many picks a Rogue hears a Rogue-only line.
             var rng = new Random(7);

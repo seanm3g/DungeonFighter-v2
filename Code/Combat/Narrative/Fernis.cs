@@ -84,7 +84,8 @@ namespace RPGGame.Combat.Narrative
             if (tokens != null)
                 foreach (var kv in tokens)
                     s = s.Replace("{" + kv.Key + "}", kv.Value);
-            return System.Text.RegularExpressions.Regex.Replace(s, @"\{[a-zA-Z]+\}", "").Replace("  ", " ").Trim();
+            s = System.Text.RegularExpressions.Regex.Replace(s, @"\{[a-zA-Z]+\}", "").Replace("  ", " ").Trim();
+            return s.Length > 0 ? char.ToUpperInvariant(s[0]) + s[1..] : s;
         }
     }
 
@@ -163,8 +164,8 @@ namespace RPGGame.Combat.Narrative
         /// <summary>Close-call line threshold (hero HP %).</summary>
         public const int CloseCallPercent = 20;
 
-        /// <summary>An overkill is a killing blow worth this share of the enemy's max HP.</summary>
-        public const double OverkillShare = 0.5;
+        /// <summary>An overkill is a killing blow worth at least this share of the enemy's max HP (playtest 11-21: 0.5 fired on most kills).</summary>
+        public const double OverkillShare = 1.0;
 
         private static readonly CombatEventType[] Listened =
         {
@@ -184,20 +185,27 @@ namespace RPGGame.Combat.Narrative
                     CombatEventBus.Instance.Subscribe(t, _handler);
         }
 
-        /// <summary>Fernis is on in live, unmuted fights (never in sims) unless <c>DF_FERNIS=0</c>.</summary>
+        /// <summary>Fernis is on in live, unmuted fights and MCP play (never in sims) unless <c>DF_FERNIS=0</c>.</summary>
         public static bool Enabled =>
-            !CombatUiMuteScope.IsMuted && !CombatManager.DisableCombatUIOutput
+            ((!CombatUiMuteScope.IsMuted && !CombatManager.DisableCombatUIOutput) || McpPlay)
             && System.Environment.GetEnvironmentVariable("DF_FERNIS") != "0";
 
+        /// <summary>Set by the MCP game wrapper: MCP play runs its fights muted like a sim, but an agent playing should
+        /// still hear Fernis (his lines reach <c>NewEvents</c> through the swing log).</summary>
+        public static bool McpPlay { get; set; }
+
         public IReadOnlyList<string> Pending { get { lock (_lock) return _pending.ToList(); } }
+
+        /// <summary>Raised for each line written ("Fernis: ..."); the MCP swing log adds it to <c>NewEvents</c>.</summary>
+        public static event System.Action<string>? LineSpoken;
 
         public int HeroSwings => _heroSwings;
 
         private Dictionary<string, string> Tokens(int links = 0, string cause = "") => new()
         {
-            ["hero"] = _hero.Name ?? "you",
-            ["enemy"] = _enemy.Name ?? "it",
-            ["turns"] = Math.Max(1, _heroSwings).ToString(),
+            ["hero"] = (_hero.Name ?? "you").TrimEnd('.'),
+            ["enemy"] = (_enemy.Name ?? "it").TrimEnd('.'),
+            ["turns"] = Math.Max(1, _heroSwings) == 1 ? "one swing" : $"{_heroSwings} swings",
             ["links"] = links.ToString(),
             ["cause"] = cause,
             ["hp"] = _lowestHpPercent.ToString()
@@ -226,7 +234,8 @@ namespace RPGGame.Combat.Narrative
                     _heroSwings++;
                     _narrator.NewSwing();
                     break;
-                case CombatEventType.ActionMiss when fromHero && evt.IsChainBreak:
+                // Only a chain that had built 2+ links counts as broken (a miss on the first link is just a miss).
+                case CombatEventType.ActionMiss when fromHero && evt.IsChainBreak && _hero.ComboStep >= 2:
                     string cause = Stores.Get(_hero, "rattle") > 0 ? "Rattle" : evt.IsCriticalMiss ? "A natural 1" : "A missed roll";
                     Say(FernisMoments.ChainBroken, Tokens(cause: cause));
                     break;
@@ -296,7 +305,11 @@ namespace RPGGame.Combat.Narrative
                 _pending.Clear();
             }
             foreach (string line in lines)
-                TextDisplayIntegration.DisplaySystem($"{_narrator.Speaker}: {line}");
+            {
+                string said = $"{_narrator.Speaker}: {line}";
+                TextDisplayIntegration.DisplaySystem(said);
+                LineSpoken?.Invoke(said);
+            }
         }
 
         public void Dispose()

@@ -81,7 +81,8 @@ namespace RPGGame
             if (action == null)
                 return lines;
 
-            string presented = PresentDescription(CombatActionStripBuilder.ResolveActionCardDescription(action));
+            // D5.1: the card's role line first ("Payoff · applies 1 Bleed").
+            string presented = PresentDescription(ActionRoles.CardLine(action, CombatActionStripBuilder.ResolveActionCardDescription(action)));
             if (!string.IsNullOrEmpty(presented))
                 lines.Add(presented);
 

@@ -251,3 +251,30 @@ git after each run; it is in no commit.
 - A prompt when a skill point arrives, Core-first presentation, and the class-points level-up moment: screens.
 - The Wizard sequence vocabulary (MODIFY / TRIGGER / FLOW): content (step 11). Phase 11's Cascading, Foretelling,
   Recurring and Rekindling lines give Wizard items some of it already.
+
+## Playtest (MCP, after the run)
+
+The `dungeonfighter` MCP server didn't connect in this session, so I drove the scratch build's `DF.exe MCP` over
+stdio with a small client (recommended choice each step, ~500 steps over several runs, all four classes reached
+through the hub; the client never equips gear or edits the strip, so deaths are pessimistic).
+
+**Working:** class hits apply their status ("applied stagger on Demonic Nectar Drone"); action cards lead with the
+role ("Payoff · applies 1 Bleed · Damage: 0.4x, Multi-hit: 3 attacks", "Setup · Next action: +1 hit."); region
+travel refuses a too-high region ("Mirrormere Shallows requires level 5."); empty-room encounters play (a shrine
++51 HP, a wanderer naming the boss's family); Fernis speaks on new statuses, chain breaks, close calls, comebacks,
+deaths and wins. One run reached level 12 in 32 dungeons.
+
+**Fixed after the playtest** (this commit):
+- Fernis was off in MCP play: MCP runs its fights muted like a sim. New `FernisFightSession.McpPlay`, set by the
+  MCP game wrapper; empty-room encounter text uses it too.
+- Action cards dropped the class-hit verb when a card had other text, and showed a stray "|". The verb now leads.
+- Fernis was too chatty: chain-broken lines need a chain of 2+ links, and an overkill needs a killing blow worth the
+  enemy's full max HP (half fired on most kills). Line grammar: "one swing" / "6 swings", capitalized, no "Jr..".
+
+**Found, not changed:**
+- **Level 1 deaths in the straight-in first dungeon** (a Demonic or Rare enemy hit a 100-HP hero for 53 then 28).
+  The pre-tonight build does it too (1 of 6 runs vs 2 of 6 tonight, small samples); D0.4 ("level 1 fights about 2
+  swings") wants a look.
+- The loot reveal doesn't show an item's class affinity or an off-slot line as a "rare circumstance" yet.
+- Dungeon-select matchup lines live on the canvas hub panel only; MCP's dungeon-select screen has no body, so I
+  checked them through tests, not play.

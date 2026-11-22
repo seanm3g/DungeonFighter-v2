@@ -60,9 +60,10 @@ namespace RPGGame
         public static string CardLine(Action? action, string? description)
         {
             string label = Label(Of(action));
-            string body = (description ?? "").Trim();
-            if (body.Length == 0)
-                body = VerbLine(action) ?? "";
+            string body = (description ?? "").Trim().TrimStart('|').Trim();
+            // The verb's status leads when the authored text doesn't already say it.
+            if (VerbLine(action) is { } verb && body.IndexOf(verb, StringComparison.OrdinalIgnoreCase) < 0)
+                body = body.Length == 0 ? verb : $"{verb} · {body}";
             return body.Length == 0 ? label : $"{label} · {body}";
         }
 
