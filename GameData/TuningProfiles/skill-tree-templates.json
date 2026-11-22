@@ -304,12 +304,12 @@
     ],
     "wb-act-attr": [
       0.04,
-      "ACTION: BODY BLOW - +{25}% damage on this hit for every 10 Body, per rank.",
+      "ACTION: SHOULDER CHECK - +{25}% damage on this hit for every 10 Body, per rank.",
       false
     ],
     "wb-act-tag": [
       0.4,
-      "ACTION: WARBRUTE SMASH - +{25}% damage on this hit for every 10 Warbrute tags, per rank.",
+      "ACTION: IRON GUARD - +{25}% damage on this hit for every 10 Warbrute tags, per rank.",
       false
     ],
     "wb-acc-attr": [
@@ -324,12 +324,12 @@
     ],
     "rv-act-attr": [
       0.04,
-      "ACTION: PROWESS RUSH - +{25}% speed on this action for every 10 Prowess, per rank.",
+      "ACTION: GUT CHECK - +{25}% speed on this action for every 10 Prowess, per rank.",
       false
     ],
     "rv-act-tag": [
       0.4,
-      "ACTION: RAVAGER FLURRY - +{25}% speed on this action for every 10 Ravager tags, per rank.",
+      "ACTION: OPEN VEIN - +{25}% speed on this action for every 10 Ravager tags, per rank.",
       false
     ],
     "rv-acc-attr": [
@@ -344,12 +344,12 @@
     ],
     "rc-act-attr": [
       0.04,
-      "ACTION: WILLFIRE - +{25}% AMP on this hit for every 10 Will, per rank.",
+      "ACTION: FLAME BRAND - +{25}% AMP on this hit for every 10 Will, per rank.",
       false
     ],
     "rc-act-tag": [
       0.4,
-      "ACTION: RAGECALLER HOWL - +{25}% AMP on this hit for every 10 Ragecaller tags, per rank.",
+      "ACTION: DETONATE - +{25}% AMP on this hit for every 10 Ragecaller tags, per rank.",
       false
     ],
     "rc-acc-attr": [
@@ -364,12 +364,12 @@
     ],
     "du-act-attr": [
       0.04,
-      "ACTION: FINESSE THRUST - +{25}% accuracy for every 10 Finesse, per rank.",
+      "ACTION: JAB - +{25}% accuracy for every 10 Finesse, per rank.",
       false
     ],
     "du-act-tag": [
       0.4,
-      "ACTION: DUELIST FEINT - +{25}% accuracy for every 10 Duelist tags, per rank.",
+      "ACTION: RIPOSTE - +{25}% accuracy for every 10 Duelist tags, per rank.",
       false
     ],
     "du-acc-attr": [
@@ -384,12 +384,12 @@
     ],
     "sb-act-attr": [
       0.04,
-      "ACTION: WITS ARC - +{25}% combo for every 10 Wits, per rank.",
+      "ACTION: CODA - +{25}% combo for every 10 Wits, per rank.",
       false
     ],
     "sb-act-tag": [
       0.4,
-      "ACTION: SPELLBLADE WEAVE - +{25}% combo for every 10 Spellblade tags, per rank.",
+      "ACTION: STRIP LOOP - +{25}% combo for every 10 Spellblade tags, per rank.",
       false
     ],
     "sb-acc-attr": [
@@ -404,12 +404,12 @@
     ],
     "hx-act-attr": [
       0.04,
-      "ACTION: MIND HEX - +{25}% status potency for every 10 Mind, per rank.",
+      "ACTION: SET THE TRAP - +{25}% status potency for every 10 Mind, per rank.",
       false
     ],
     "hx-act-tag": [
       0.4,
-      "ACTION: HEXBLADE CURSE - +{25}% status potency for every 10 Hexblade tags, per rank.",
+      "ACTION: EXPLODING DICE - +{25}% status potency for every 10 Hexblade tags, per rank.",
       false
     ],
     "hx-acc-attr": [

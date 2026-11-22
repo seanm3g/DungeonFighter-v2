@@ -15,7 +15,7 @@ namespace RPGGame.Combat.Rules
     /// <item>conversion table rows (<c>GameData/Conversions.json</c>; Venom Mace, Envenomed Edge, Hemorrhage, Thermal
     /// Shock): owned by the node whose customEffectId is the row's owner; phase early = gain, late = other</item>
     /// <item>hybrid accumulation (+1 secondary attribute / hybrid tag per connect this fight × power): gain</item>
-    /// <item>hybrid unique actions (BODY BLOW, WARBRUTE SMASH, …: +25% of the bonus per 10 of the scaling source × power)</item>
+    /// <item>hybrid node cards (SHOULDER CHECK, IRON GUARD, …: +25% of the bonus per 10 of the scaling source × power)</item>
     /// <item>per-rank pack mods (<c>damageModPerRank</c> / <c>healOnHitPerRank</c>) of nodes in the primary class tree,
     /// with that class's weapon in hand</item>
     /// </list>
@@ -30,20 +30,22 @@ namespace RPGGame.Combat.Rules
         /// <summary>Percent of the hybrid bonus per 10 units of the scaling source (the design board's +25%).</summary>
         public const double HybridBonusPerTen = 25.0;
 
-        private static readonly (string Action, string Hybrid, bool FromTags, HybridBonus Bonus)[] HybridActions =
+        /// <summary>Each hybrid node's card (a kept hybrid card since the 2026-11-22 content pass) and the retired card it
+        /// granted before (old saves still carry it; the bonus fires on either).</summary>
+        private static readonly (string Action, string Legacy, string Hybrid, bool FromTags, HybridBonus Bonus)[] HybridActions =
         {
-            ("BODY BLOW", "Warbrute", false, HybridBonus.Damage),
-            ("WARBRUTE SMASH", "Warbrute", true, HybridBonus.Damage),
-            ("PROWESS RUSH", "Ravager", false, HybridBonus.Speed),
-            ("RAVAGER FLURRY", "Ravager", true, HybridBonus.Speed),
-            ("WILLFIRE", "Ragecaller", false, HybridBonus.Amp),
-            ("RAGECALLER HOWL", "Ragecaller", true, HybridBonus.Amp),
-            ("FINESSE THRUST", "Duelist", false, HybridBonus.Accuracy),
-            ("DUELIST FEINT", "Duelist", true, HybridBonus.Accuracy),
-            ("WITS ARC", "Spellblade", false, HybridBonus.Combo),
-            ("SPELLBLADE WEAVE", "Spellblade", true, HybridBonus.Combo),
-            ("MIND HEX", "Hexblade", false, HybridBonus.Status),
-            ("HEXBLADE CURSE", "Hexblade", true, HybridBonus.Status)
+            ("SHOULDER CHECK", "BODY BLOW", "Warbrute", false, HybridBonus.Damage),
+            ("IRON GUARD", "WARBRUTE SMASH", "Warbrute", true, HybridBonus.Damage),
+            ("GUT CHECK", "PROWESS RUSH", "Ravager", false, HybridBonus.Speed),
+            ("OPEN VEIN", "RAVAGER FLURRY", "Ravager", true, HybridBonus.Speed),
+            ("FLAME BRAND", "WILLFIRE", "Ragecaller", false, HybridBonus.Amp),
+            ("DETONATE", "RAGECALLER HOWL", "Ragecaller", true, HybridBonus.Amp),
+            ("JAB", "FINESSE THRUST", "Duelist", false, HybridBonus.Accuracy),
+            ("RIPOSTE", "DUELIST FEINT", "Duelist", true, HybridBonus.Accuracy),
+            ("CODA", "WITS ARC", "Spellblade", false, HybridBonus.Combo),
+            ("STRIP LOOP", "SPELLBLADE WEAVE", "Spellblade", true, HybridBonus.Combo),
+            ("SET THE TRAP", "MIND HEX", "Hexblade", false, HybridBonus.Status),
+            ("EXPLODING DICE", "HEXBLADE CURSE", "Hexblade", true, HybridBonus.Status)
         };
 
         public static string HybridActionEffect(HybridInfo h, bool fromTags) =>
@@ -82,7 +84,7 @@ namespace RPGGame.Combat.Rules
                     {
                         var h = HybridTrees.ByKey(entry.Hybrid);
                         if (h != null && string.Equals(id, HybridActionEffect(h, entry.FromTags), StringComparison.OrdinalIgnoreCase))
-                            yield return (node, HybridAction(node, h, entry.Action, entry.FromTags, entry.Bonus));
+                            yield return (node, HybridAction(node, h, entry.Action, entry.Legacy, entry.FromTags, entry.Bonus));
                     }
                 }
                 if (node.DamageModPerRank > 0 || node.HealOnHitPerRank > 0)
@@ -120,11 +122,12 @@ namespace RPGGame.Combat.Rules
                 return true;
             });
 
-        private static CrossWireRule HybridAction(SkillTreeNodeDefinition node, HybridInfo h, string action, bool fromTags, HybridBonus bonus) =>
+        private static CrossWireRule HybridAction(SkillTreeNodeDefinition node, HybridInfo h, string action, string legacy, bool fromTags, HybridBonus bonus) =>
             Make(node, $"{action}: {bonus.ToString().ToUpperInvariant()} +{HybridBonusPerTen:0}% per 10 {(fromTags ? h.Key + " tags" : h.Attribute)}", 1,
                 (hero, evt) =>
                 {
-                    if (!string.Equals(evt?.Action?.Name, action, StringComparison.OrdinalIgnoreCase))
+                    if (!string.Equals(evt?.Action?.Name, action, StringComparison.OrdinalIgnoreCase)
+                        && !string.Equals(evt?.Action?.Name, legacy, StringComparison.OrdinalIgnoreCase))
                         return false;
                     double power = SkillRanks.GetPower(hero, HybridActionEffect(h, fromTags));
                     if (power <= 0)

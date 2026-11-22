@@ -38,14 +38,14 @@
           }
         },
         {
-          "label": "+BODY BLOW (rank 3)",
+          "label": "+SHOULDER CHECK (rank 3)",
           "skills": {
             "wb-act-attr": 3
           },
           "strip": [
             "SLAM",
             "TAUNT",
-            "BODY BLOW",
+            "SHOULDER CHECK",
             "RAPID STRIKE"
           ]
         },
@@ -56,15 +56,15 @@
           }
         },
         {
-          "label": "+WARBRUTE SMASH (rank 3) +tag accumulation",
+          "label": "+IRON GUARD (rank 3) +tag accumulation",
           "skills": {
             "wb-act-tag": 3,
             "wb-acc-tag": 3
           },
           "strip": [
             "SLAM",
-            "BODY BLOW",
-            "WARBRUTE SMASH",
+            "SHOULDER CHECK",
+            "IRON GUARD",
             "RAPID STRIKE"
           ]
         }
@@ -108,14 +108,14 @@
           }
         },
         {
-          "label": "+PROWESS RUSH (rank 3)",
+          "label": "+GUT CHECK (rank 3)",
           "skills": {
             "rv-act-attr": 3
           },
           "strip": [
             "SLAM",
             "BLUDGEON",
-            "PROWESS RUSH",
+            "GUT CHECK",
             "CUT"
           ]
         },
@@ -126,15 +126,15 @@
           }
         },
         {
-          "label": "+RAVAGER FLURRY (rank 3) +tag accumulation",
+          "label": "+OPEN VEIN (rank 3) +tag accumulation",
           "skills": {
             "rv-act-tag": 3,
             "rv-acc-tag": 3
           },
           "strip": [
             "SLAM",
-            "PROWESS RUSH",
-            "RAVAGER FLURRY",
+            "GUT CHECK",
+            "OPEN VEIN",
             "CUT"
           ]
         }
@@ -178,14 +178,14 @@
           }
         },
         {
-          "label": "+WILLFIRE (rank 3)",
+          "label": "+FLAME BRAND (rank 3)",
           "skills": {
             "rc-act-attr": 3
           },
           "strip": [
             "SLAM",
             "HARDEN",
-            "WILLFIRE",
+            "FLAME BRAND",
             "BOLT"
           ]
         },
@@ -196,15 +196,15 @@
           }
         },
         {
-          "label": "+RAGECALLER HOWL (rank 3) +tag accumulation",
+          "label": "+DETONATE (rank 3) +tag accumulation",
           "skills": {
             "rc-act-tag": 3,
             "rc-acc-tag": 3
           },
           "strip": [
             "SLAM",
-            "WILLFIRE",
-            "RAGECALLER HOWL",
+            "FLAME BRAND",
+            "DETONATE",
             "BOLT"
           ]
         }
@@ -248,14 +248,14 @@
           }
         },
         {
-          "label": "+FINESSE THRUST (rank 3)",
+          "label": "+JAB (rank 3)",
           "skills": {
             "du-act-attr": 3
           },
           "strip": [
             "STRIKE",
             "MEASURED CUT",
-            "FINESSE THRUST",
+            "JAB",
             "CUT"
           ]
         },
@@ -266,15 +266,15 @@
           }
         },
         {
-          "label": "+DUELIST FEINT (rank 3) +tag accumulation",
+          "label": "+RIPOSTE (rank 3) +tag accumulation",
           "skills": {
             "du-act-tag": 3,
             "du-acc-tag": 3
           },
           "strip": [
             "STRIKE",
-            "FINESSE THRUST",
-            "DUELIST FEINT",
+            "JAB",
+            "RIPOSTE",
             "CUT"
           ]
         }
@@ -318,14 +318,14 @@
           }
         },
         {
-          "label": "+WITS ARC (rank 3)",
+          "label": "+CODA (rank 3)",
           "skills": {
             "sb-act-attr": 3
           },
           "strip": [
             "STRIKE",
             "RAPID STRIKE",
-            "WITS ARC",
+            "CODA",
             "BOLT"
           ]
         },
@@ -336,15 +336,15 @@
           }
         },
         {
-          "label": "+SPELLBLADE WEAVE (rank 3) +tag accumulation",
+          "label": "+STRIP LOOP (rank 3) +tag accumulation",
           "skills": {
             "sb-act-tag": 3,
             "sb-acc-tag": 3
           },
           "strip": [
             "STRIKE",
-            "WITS ARC",
-            "SPELLBLADE WEAVE",
+            "CODA",
+            "STRIP LOOP",
             "BOLT"
           ]
         }
@@ -388,14 +388,14 @@
           }
         },
         {
-          "label": "+MIND HEX (rank 3)",
+          "label": "+SET THE TRAP (rank 3)",
           "skills": {
             "hx-act-attr": 3
           },
           "strip": [
             "STAB",
             "CUT",
-            "MIND HEX",
+            "SET THE TRAP",
             "BOLT"
           ]
         },
@@ -406,15 +406,15 @@
           }
         },
         {
-          "label": "+HEXBLADE CURSE (rank 3) +tag accumulation",
+          "label": "+EXPLODING DICE (rank 3) +tag accumulation",
           "skills": {
             "hx-act-tag": 3,
             "hx-acc-tag": 3
           },
           "strip": [
             "STAB",
-            "MIND HEX",
-            "HEXBLADE CURSE",
+            "SET THE TRAP",
+            "EXPLODING DICE",
             "BOLT"
           ]
         }

@@ -99,7 +99,12 @@ namespace RPGGame.Tests.Unit
             double power = GameConfiguration.Instance.SkillTrees.GetNode("wb-act-attr")!.Power * 3;
             double expected = RPGGame.Combat.Rules.SkillRules.HybridBonusPerTen * Math.Floor(HybridTrees.SecondaryAttribute(hero, Warbrute) / 10.0) * power;
             TestBase.AssertTrue(expected > 0 && hero.Effects.ConsumedDamageModPercent >= expected - 1e-6,
-                "BODY BLOW adds +25% x power per 10 Body",
+                "Warbrute Attribute node: SHOULDER CHECK adds +25% x power per 10 Body",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            double before = hero.Effects.ConsumedDamageModPercent;
+            Hit(hero, "BODY BLOW");
+            TestBase.AssertTrue(hero.Effects.ConsumedDamageModPercent >= before + expected - 1e-6,
+                "the retired BODY BLOW (old saves) still gets the bonus",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

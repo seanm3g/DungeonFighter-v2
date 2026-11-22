@@ -2993,7 +2993,7 @@
         },
         {
           "id": "wb-act-attr",
-          "name": "Body Blow",
+          "name": "Shoulder Check",
           "branch": "Attribute",
           "tier": 3,
           "type": "Action",
@@ -3003,13 +3003,13 @@
           "power": 0.04,
           "requires": [],
           "sharedWith": [],
-          "unlockActionName": "BODY BLOW",
-          "effect": "ACTION: BODY BLOW - +{25}% damage on this hit for every 10 Body, per rank.",
+          "unlockActionName": "SHOULDER CHECK",
+          "effect": "ACTION: SHOULDER CHECK - +{25}% damage on this hit for every 10 Body, per rank.",
           "payoff": "Body becomes damage."
         },
         {
           "id": "wb-act-tag",
-          "name": "Warbrute Smash",
+          "name": "Iron Guard",
           "branch": "Material",
           "tier": 3,
           "type": "Action",
@@ -3019,8 +3019,8 @@
           "power": 0.4,
           "requires": [],
           "sharedWith": [],
-          "unlockActionName": "WARBRUTE SMASH",
-          "effect": "ACTION: WARBRUTE SMASH - +{25}% damage on this hit for every 10 Warbrute tags, per rank.",
+          "unlockActionName": "IRON GUARD",
+          "effect": "ACTION: IRON GUARD - +{25}% damage on this hit for every 10 Warbrute tags, per rank.",
           "payoff": "Warbrute tags become damage."
         },
         {
@@ -3113,7 +3113,7 @@
         },
         {
           "id": "rv-act-attr",
-          "name": "Prowess Rush",
+          "name": "Gut Check",
           "branch": "Attribute",
           "tier": 3,
           "type": "Action",
@@ -3123,13 +3123,13 @@
           "power": 0.04,
           "requires": [],
           "sharedWith": [],
-          "unlockActionName": "PROWESS RUSH",
-          "effect": "ACTION: PROWESS RUSH - +{25}% speed on this action for every 10 Prowess, per rank.",
+          "unlockActionName": "GUT CHECK",
+          "effect": "ACTION: GUT CHECK - +{25}% speed on this action for every 10 Prowess, per rank.",
           "payoff": "Prowess becomes speed."
         },
         {
           "id": "rv-act-tag",
-          "name": "Ravager Flurry",
+          "name": "Open Vein",
           "branch": "Material",
           "tier": 3,
           "type": "Action",
@@ -3139,8 +3139,8 @@
           "power": 0.4,
           "requires": [],
           "sharedWith": [],
-          "unlockActionName": "RAVAGER FLURRY",
-          "effect": "ACTION: RAVAGER FLURRY - +{25}% speed on this action for every 10 Ravager tags, per rank.",
+          "unlockActionName": "OPEN VEIN",
+          "effect": "ACTION: OPEN VEIN - +{25}% speed on this action for every 10 Ravager tags, per rank.",
           "payoff": "Ravager tags become speed."
         },
         {
@@ -3233,7 +3233,7 @@
         },
         {
           "id": "rc-act-attr",
-          "name": "Willfire",
+          "name": "Flame Brand",
           "branch": "Attribute",
           "tier": 3,
           "type": "Action",
@@ -3243,13 +3243,13 @@
           "power": 0.04,
           "requires": [],
           "sharedWith": [],
-          "unlockActionName": "WILLFIRE",
-          "effect": "ACTION: WILLFIRE - +{25}% AMP on this hit for every 10 Will, per rank.",
+          "unlockActionName": "FLAME BRAND",
+          "effect": "ACTION: FLAME BRAND - +{25}% AMP on this hit for every 10 Will, per rank.",
           "payoff": "Will becomes AMP."
         },
         {
           "id": "rc-act-tag",
-          "name": "Ragecaller Howl",
+          "name": "Detonate",
           "branch": "Material",
           "tier": 3,
           "type": "Action",
@@ -3259,8 +3259,8 @@
           "power": 0.4,
           "requires": [],
           "sharedWith": [],
-          "unlockActionName": "RAGECALLER HOWL",
-          "effect": "ACTION: RAGECALLER HOWL - +{25}% AMP on this hit for every 10 Ragecaller tags, per rank.",
+          "unlockActionName": "DETONATE",
+          "effect": "ACTION: DETONATE - +{25}% AMP on this hit for every 10 Ragecaller tags, per rank.",
           "payoff": "Ragecaller tags become AMP."
         },
         {
@@ -3353,7 +3353,7 @@
         },
         {
           "id": "du-act-attr",
-          "name": "Finesse Thrust",
+          "name": "Jab",
           "branch": "Attribute",
           "tier": 3,
           "type": "Action",
@@ -3363,13 +3363,13 @@
           "power": 0.04,
           "requires": [],
           "sharedWith": [],
-          "unlockActionName": "FINESSE THRUST",
-          "effect": "ACTION: FINESSE THRUST - +{25}% accuracy for every 10 Finesse, per rank.",
+          "unlockActionName": "JAB",
+          "effect": "ACTION: JAB - +{25}% accuracy for every 10 Finesse, per rank.",
           "payoff": "Finesse becomes accuracy."
         },
         {
           "id": "du-act-tag",
-          "name": "Duelist Feint",
+          "name": "Riposte",
           "branch": "Material",
           "tier": 3,
           "type": "Action",
@@ -3379,8 +3379,8 @@
           "power": 0.4,
           "requires": [],
           "sharedWith": [],
-          "unlockActionName": "DUELIST FEINT",
-          "effect": "ACTION: DUELIST FEINT - +{25}% accuracy for every 10 Duelist tags, per rank.",
+          "unlockActionName": "RIPOSTE",
+          "effect": "ACTION: RIPOSTE - +{25}% accuracy for every 10 Duelist tags, per rank.",
           "payoff": "Duelist tags become accuracy."
         },
         {
@@ -3473,7 +3473,7 @@
         },
         {
           "id": "sb-act-attr",
-          "name": "Wits Arc",
+          "name": "Coda",
           "branch": "Attribute",
           "tier": 3,
           "type": "Action",
@@ -3483,13 +3483,13 @@
           "power": 0.04,
           "requires": [],
           "sharedWith": [],
-          "unlockActionName": "WITS ARC",
-          "effect": "ACTION: WITS ARC - +{25}% combo for every 10 Wits, per rank.",
+          "unlockActionName": "CODA",
+          "effect": "ACTION: CODA - +{25}% combo for every 10 Wits, per rank.",
           "payoff": "Wits becomes combo."
         },
         {
           "id": "sb-act-tag",
-          "name": "Spellblade Weave",
+          "name": "Strip Loop",
           "branch": "Material",
           "tier": 3,
           "type": "Action",
@@ -3499,8 +3499,8 @@
           "power": 0.4,
           "requires": [],
           "sharedWith": [],
-          "unlockActionName": "SPELLBLADE WEAVE",
-          "effect": "ACTION: SPELLBLADE WEAVE - +{25}% combo for every 10 Spellblade tags, per rank.",
+          "unlockActionName": "STRIP LOOP",
+          "effect": "ACTION: STRIP LOOP - +{25}% combo for every 10 Spellblade tags, per rank.",
           "payoff": "Spellblade tags become combo."
         },
         {
@@ -3593,7 +3593,7 @@
         },
         {
           "id": "hx-act-attr",
-          "name": "Mind Hex",
+          "name": "Set the Trap",
           "branch": "Attribute",
           "tier": 3,
           "type": "Action",
@@ -3603,13 +3603,13 @@
           "power": 0.04,
           "requires": [],
           "sharedWith": [],
-          "unlockActionName": "MIND HEX",
-          "effect": "ACTION: MIND HEX - +{25}% status potency for every 10 Mind, per rank.",
+          "unlockActionName": "SET THE TRAP",
+          "effect": "ACTION: SET THE TRAP - +{25}% status potency for every 10 Mind, per rank.",
           "payoff": "Mind becomes status potency."
         },
         {
           "id": "hx-act-tag",
-          "name": "Hexblade Curse",
+          "name": "Exploding Dice",
           "branch": "Material",
           "tier": 3,
           "type": "Action",
@@ -3619,8 +3619,8 @@
           "power": 0.4,
           "requires": [],
           "sharedWith": [],
-          "unlockActionName": "HEXBLADE CURSE",
-          "effect": "ACTION: HEXBLADE CURSE - +{25}% status potency for every 10 Hexblade tags, per rank.",
+          "unlockActionName": "EXPLODING DICE",
+          "effect": "ACTION: EXPLODING DICE - +{25}% status potency for every 10 Hexblade tags, per rank.",
           "payoff": "Hexblade tags become status potency."
         },
         {
