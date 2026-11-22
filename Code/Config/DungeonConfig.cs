@@ -24,6 +24,23 @@ namespace RPGGame
         /// <summary>Damage scale on the merged boss's swings (1 = one room enemy's hit; the merged fight keeps the
         /// hero's combo running, so a boss at 1 costs less HP than the room it replaced).</summary>
         public double BossDamageMultiplier { get; set; } = 1.0;
+
+        /// <summary>
+        /// The boss damage multiplier ramps in by boss level: ×1 at level 1, the full <see cref="BossDamageMultiplier"/>
+        /// at this level and above (playtest 11-21: a full ×2.5 merged Demon one-shot level-1 heroes; 30% died in the first
+        /// dungeon). 1 or less = no ramp.
+        /// </summary>
+        public int BossDamageFullAtLevel { get; set; } = 5;
+
+        /// <summary>The boss damage multiplier for a boss of <paramref name="level"/> (see <see cref="BossDamageFullAtLevel"/>).</summary>
+        public double BossDamageMultiplierAt(int level)
+        {
+            double full = BossDamageMultiplier > 0 ? BossDamageMultiplier : 1.0;
+            if (BossDamageFullAtLevel <= 1 || level >= BossDamageFullAtLevel)
+                return full;
+            double t = Math.Clamp((Math.Max(1, level) - 1) / (double)(BossDamageFullAtLevel - 1), 0, 1);
+            return 1.0 + (full - 1.0) * t;
+        }
         public double TrapRoomChance { get; set; } = 0.2;
         public double TreasureRoomChance { get; set; } = 0.15;
         public string Description { get; set; } = "";

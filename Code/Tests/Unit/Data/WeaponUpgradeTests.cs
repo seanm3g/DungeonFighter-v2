@@ -35,6 +35,16 @@ namespace RPGGame.Tests.Unit.Data
             var worseEntry = LootRevealBuilder.Build(hero, worse);
             TestBase.AssertTrue(worseEntry.Verdict != LootVerdict.Upgrade, $"a weaker mace is not ({worseEntry.Verdict})", ref _run, ref _passed, ref _failed);
 
+            // Early bosses (playtest 11-21): the merged boss's damage multiplier ramps from x1 at level 1 to full at 5.
+            var scaling = new DungeonScalingConfig { BossDamageMultiplier = 2.5, BossDamageFullAtLevel = 5 };
+            TestBase.AssertTrue(Math.Abs(scaling.BossDamageMultiplierAt(1) - 1.0) < 1e-9
+                    && Math.Abs(scaling.BossDamageMultiplierAt(3) - 1.75) < 1e-9
+                    && Math.Abs(scaling.BossDamageMultiplierAt(5) - 2.5) < 1e-9
+                    && Math.Abs(scaling.BossDamageMultiplierAt(40) - 2.5) < 1e-9,
+                "boss damage ramps x1 (L1) -> x1.75 (L3) -> x2.5 (L5+)", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(Math.Abs(new DungeonScalingConfig { BossDamageMultiplier = 2.5, BossDamageFullAtLevel = 1 }.BossDamageMultiplierAt(1) - 2.5) < 1e-9,
+                "a ramp of 1 level means no ramp", ref _run, ref _passed, ref _failed);
+
             TestBase.PrintSummary("WeaponUpgrade Tests", _run, _passed, _failed);
         }
     }

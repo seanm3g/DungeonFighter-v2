@@ -302,3 +302,16 @@ second (attack ÷ swing time) rise at least 5% and it keeps at least 90% of max 
 second."). Cross-class weapons still read as sidegrades (they replace the strip). Bot re-runs: 3 and 1 weapon swaps
 (+6% to +99%), strip kept as SLAM > WIND UP, level 10 with 0 and 3 deaths. Full tests: 15154 passed, 0 failed.
 New `WeaponUpgradeTests`.
+
+## Early bosses (follow-up)
+
+**Cause of the level-1 deaths:** the patch chain (`over-v53` on) sets `bossMergesRoom: true` and
+`bossDamageMultiplier: 2.5`, so every dungeon's last room merges into one boss (summed HP, every enemy's attacks,
+x2.5 damage) that then becomes the Demon, from level 1. 9 of 30 fresh heroes died in the first dungeon, the same on
+the pre-tonight build.
+
+**Fix (your call: ramp to level 5):** `DungeonScalingConfig.BossDamageFullAtLevel` (default 5) ramps the boss damage
+multiplier by boss level, x1 at level 1 to the full value at level 5 (`BossDamageMultiplierAt`). No patch edit.
+Measured on 30 fresh starts: **5 of 30 deaths** (was 9), biggest hit 63 (was 100). All 5 still die to the Demon: its
+summed HP makes the fight long, and the Demon levers (region affix a rank up, dungeon affix, signature attacks) are
+unramped. If 17% is still too many, ramping the merged HP the same way is the next lever.

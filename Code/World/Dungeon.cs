@@ -256,7 +256,8 @@ namespace RPGGame
             if (enemies.Count < 2)
                 return;
             var boss = enemies.OrderByDescending(e => e.Level).First();
-            boss.AbsorbAsBoss(enemies, GameConfiguration.Instance.DungeonScaling?.BossDamageMultiplier ?? 1.0);
+            var scaling = GameConfiguration.Instance.DungeonScaling;
+            boss.AbsorbAsBoss(enemies, scaling?.BossDamageMultiplierAt(boss.Level) ?? 1.0);
             enemies.RemoveAll(e => !ReferenceEquals(e, boss));
         }
 
