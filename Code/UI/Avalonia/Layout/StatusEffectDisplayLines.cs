@@ -15,7 +15,8 @@ namespace RPGGame.UI.Avalonia.Layout
         private static readonly (string Prefix, string Icon)[] IconPrefixes =
         {
             ("Weakened (", "weaken"), ("Stunned (", "stun"), ("Poison ", "poison"), ("Bleed ", "bleed"),
-            ("Burn ", "burn"), ("Acid ", "acid"), ("Harden x", "harden"),
+            ("Burn ", "burn"), ("Acid ", "acid"), ("Guard x", "harden"), ("Harden x", "harden"), ("Rattle ", "disadvantage"),
+            ("Stagger x", "slow"),
             ("Fortify x", "fortify"), ("Focus x", "focus"), ("Expose x", "expose"), ("HP Regen x", "hpregen"),
             ("Pierce (", "pierce"), ("Silence (", "silence"), ("Absorb (", "absorb"),
             ("Temp HP (", "temporaryhp"), ("Confused (", "confusion"), ("Marked (", "mark"), ("Slow (", "slow"),
@@ -81,24 +82,22 @@ namespace RPGGame.UI.Avalonia.Layout
         }
 
         /// <summary>
-        /// Builds display strings for an actor. Pass <paramref name="asCharacter"/> when <paramref name="actor"/> is a <see cref="Character"/> to include character-only effects.
+        /// The status panel (D3.7): statuses on the actor only, each with what's left (stacks, swings or turns). Room tags
+        /// that change this fighter stay here too (they sit on everyone in the room like a status). Stores, queued grants,
+        /// rerolls, shields and other charges live with their owner instead: see <see cref="BuildAttachedLines"/> and the
+        /// NOW card.
+        /// Pass <paramref name="asCharacter"/> when <paramref name="actor"/> is a <see cref="Character"/> to include
+        /// character-only statuses (Slow, Skip turn).
         /// </summary>
         public static List<string> Build(Actor actor, Character? asCharacter)
         {
             var lines = new List<string>();
             Character? charHud = asCharacter ?? actor as Character;
-            if (charHud != null)
-            {
-                lines.AddRange(BuildMaterialKeywordStatusLines(charHud));
-                // Leather starter set: standing Lucky (WHILE_EQUIPPED attack-roll advantage).
-                if (LeatherSetBonus.HasLuckyStatus(charHud))
-                    lines.Add(LeatherSetBonus.FormatLuckyStatusLine(charHud));
-            }
             // Room tags that change this fighter (Elegant / Dilapidated die shift, Unstable bands) while the fight's room has them.
             foreach (var roomStatus in RPGGame.Combat.RoomStatusEffects.For(actor, RPGGame.Combat.RoomStatusEffects.ActiveRoom))
                 lines.Add(RPGGame.Combat.RoomStatusEffects.FormatLine(roomStatus));
             if (actor.RollPenalty != 0 && actor.RollPenaltyTurns > 0)
-                lines.Add($"Accuracy -{actor.RollPenalty} {CadenceBonusDisplayFormatter.FormatTurnDurationSuffix(actor.RollPenaltyTurns)}");
+                lines.Add($"Rattle -{actor.RollPenalty} {CadenceBonusDisplayFormatter.FormatTurnDurationSuffix(actor.RollPenaltyTurns)}");
             if (actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0)
                 lines.Add($"Bleed {actor.BleedIntensity + actor.PendingBleedFromHits}");
             if (actor.BurnIntensity > 0 || actor.PendingBurnFromHits > 0)
@@ -106,7 +105,7 @@ namespace RPGGame.UI.Avalonia.Layout
             if (actor.HasCriticalMissPenalty && actor.CriticalMissPenaltyTurns > 0)
                 lines.Add($"Crit miss ({actor.CriticalMissPenaltyTurns} turn{(actor.CriticalMissPenaltyTurns != 1 ? "s" : "")})");
             if (actor.HardenStacks > 0 && actor.HardenTurns > 0)
-                lines.Add($"Harden x{actor.HardenStacks} ({actor.HardenTurns}t)");
+                lines.Add($"Guard x{actor.HardenStacks} ({actor.HardenTurns}t)");
             if (actor.FortifyStacks > 0 && actor.FortifyTurns > 0)
                 lines.Add($"Fortify x{actor.FortifyStacks} ({actor.FortifyTurns}t)");
             if (actor.FocusStacks > 0 && actor.FocusTurns > 0)
@@ -120,30 +119,46 @@ namespace RPGGame.UI.Avalonia.Layout
             if (actor.IsMarked && actor.MarkTurns > 0)
                 lines.Add($"Marked ({actor.MarkTurns} turn{(actor.MarkTurns != 1 ? "s" : "")})");
             if (actor.StaggerStacks > 0)
-                lines.Add($"Stagger x{actor.StaggerStacks}");
+                lines.Add($"Stagger x{actor.StaggerStacks} (next swing)");
             if (actor.HasteStacks > 0)
-                lines.Add($"Haste x{actor.HasteStacks}");
+                lines.Add($"Haste x{actor.HasteStacks} ({actor.HasteStacks} swing{(actor.HasteStacks != 1 ? "s" : "")})");
             if (charHud != null)
             {
-                lines.AddRange(BuildTurnBonusStatusLines(charHud));
-                lines.AddRange(BuildPendingActionBonusStatusLines(charHud));
-                lines.AddRange(BuildScopedCadenceStatusLines(charHud));
-
                 if (charHud.Effects.SlowTurns > 0)
                     lines.Add($"Slow ({charHud.Effects.SlowTurns} turn{(charHud.Effects.SlowTurns != 1 ? "s" : "")})");
-                if (charHud.Effects.HasShield)
-                    lines.Add("Shield");
                 if (charHud.Effects.SkipNextTurn)
                     lines.Add("Skip turn");
-                if (charHud.Effects.GuaranteeNextSuccess)
-                    lines.Add("Guarantee hit");
-                if (charHud.Effects.ExtraAttacks > 0)
-                    lines.Add($"Extra atk x{charHud.Effects.ExtraAttacks}");
-                if (charHud.Effects.ComboModeActive)
-                    lines.Add("Combo mode");
-                if (charHud.Effects.RerollCharges > 0)
-                    lines.Add($"Reroll x{charHud.Effects.RerollCharges}");
             }
+            return lines;
+        }
+
+        /// <summary>
+        /// What the hero carries that is not a status (D3.7): material stores (CRISIS x4), the Leather set's Lucky, queued
+        /// grants (TURN, next action, per-slot ACTION banks, fight / dungeon buffs) and charges (Shield, Guarantee hit,
+        /// Extra atk, Combo mode, Reroll). These moved off the status panel; the NOW card shows the ones attached to the
+        /// swing. Same line format as <see cref="Build"/>, so <see cref="SplitIcon"/> and the hover copy still read them.
+        /// </summary>
+        public static List<string> BuildAttachedLines(Character c)
+        {
+            var lines = new List<string>();
+            if (c == null)
+                return lines;
+            lines.AddRange(BuildMaterialKeywordStatusLines(c));
+            if (LeatherSetBonus.HasLuckyStatus(c))
+                lines.Add(LeatherSetBonus.FormatLuckyStatusLine(c));
+            lines.AddRange(BuildTurnBonusStatusLines(c));
+            lines.AddRange(BuildPendingActionBonusStatusLines(c));
+            lines.AddRange(BuildScopedCadenceStatusLines(c));
+            if (c.Effects.HasShield)
+                lines.Add("Shield");
+            if (c.Effects.GuaranteeNextSuccess)
+                lines.Add("Guarantee hit");
+            if (c.Effects.ExtraAttacks > 0)
+                lines.Add($"Extra atk x{c.Effects.ExtraAttacks}");
+            if (c.Effects.ComboModeActive)
+                lines.Add("Combo mode");
+            if (c.Effects.RerollCharges > 0)
+                lines.Add($"Reroll x{c.Effects.RerollCharges}");
             return lines;
         }
 

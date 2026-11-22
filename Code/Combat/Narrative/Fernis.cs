@@ -211,6 +211,7 @@ namespace RPGGame.Combat.Narrative
             _subscribed = subscribe;
             if (subscribe)
             {
+                NewConceptCards.Dismiss(); // a new fight: last fight's NEW card leaves the board
                 foreach (var t in Listened)
                     CombatEventBus.Instance.Subscribe(t, _handler);
                 RPGGame.Combat.Rules.RuleEngine.Fired += _ruleHandler;
@@ -342,6 +343,8 @@ namespace RPGGame.Combat.Narrative
                     _hero.Unlocks.OnStatusApplied(id);
                     if (first)
                     {
+                        // The board's NEW card beside the enemy, and the next loot reveal's mark (D9.3).
+                        NewConceptCards.Show(id, evt.Target, evt.Source, _hero);
                         var tokens = Tokens();
                         tokens["status"] = CoreStatuses.Label(id);
                         Say(FernisMoments.NewConcept, tokens);
@@ -412,6 +415,7 @@ namespace RPGGame.Combat.Narrative
                 string said = $"{_narrator.Speaker}: {line}";
                 TextDisplayIntegration.DisplaySystem(said);
                 LineSpoken?.Invoke(said);
+                FernisBubble.Show(line); // his shoulder bubble on the board (D9.8); the log keeps the line
             }
         }
 

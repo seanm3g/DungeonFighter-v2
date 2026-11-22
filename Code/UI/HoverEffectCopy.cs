@@ -303,7 +303,7 @@ namespace RPGGame
             if (Starts(line, "Bleed")) return "bleed";
             if (Starts(line, "Burn")) return "burn";
             if (Starts(line, "Crit miss")) return "";
-            if (Starts(line, "Harden")) return "harden";
+            if (Starts(line, "Harden") || Starts(line, "Guard")) return "harden";
             if (Starts(line, "Fortify")) return "fortify";
             if (Starts(line, "Focus")) return "focus";
             if (Starts(line, "Expose")) return "expose";
@@ -327,6 +327,11 @@ namespace RPGGame
             if (line.IndexOf("Accuracy", StringComparison.OrdinalIgnoreCase) >= 0)
             {
                 lines.Add("Added to the attack roll for the turns shown.");
+                return;
+            }
+            if (Starts(line, "Rattle"))
+            {
+                lines.Add("Subtracted from its attack rolls for the turns shown.");
                 return;
             }
             if (Starts(line, "Slow"))

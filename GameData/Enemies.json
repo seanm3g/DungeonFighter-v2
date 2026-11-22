@@ -3306,7 +3306,7 @@
       "Sapping Trick"
     ],
     "kit": [
-      "ENEMY DISRUPT",
+      "ENEMY JAM",
       "ENEMY HEX"
     ],
     "isLiving": true,
@@ -3346,7 +3346,7 @@
     ],
     "kit": [
       "ENEMY CONCUSS",
-      "ENEMY DISRUPT"
+      "ENEMY JAM"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3382,7 +3382,7 @@
       "Dead End Dread"
     ],
     "kit": [
-      "ENEMY DISRUPT",
+      "ENEMY JAM",
       "ENEMY HEX"
     ],
     "isLiving": true,
@@ -3423,7 +3423,7 @@
       "Wearying Trail"
     ],
     "kit": [
-      "ENEMY DISRUPT",
+      "ENEMY JAM",
       "ENEMY HEX"
     ],
     "isLiving": true,
@@ -3462,7 +3462,7 @@
     ],
     "kit": [
       "ENEMY CONCUSS",
-      "ENEMY DISRUPT"
+      "ENEMY SHATTER"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3498,7 +3498,7 @@
       "Primal Fear"
     ],
     "kit": [
-      "ENEMY DISRUPT",
+      "ENEMY JAM",
       "ENEMY HEX"
     ],
     "isLiving": true,
@@ -3535,7 +3535,7 @@
       "Twin Strike"
     ],
     "kit": [
-      "ENEMY DISRUPT",
+      "ENEMY JAM",
       "ENEMY CONCUSS"
     ],
     "isLiving": true,
@@ -3574,7 +3574,7 @@
     ],
     "kit": [
       "ENEMY HEX",
-      "ENEMY DISRUPT"
+      "ENEMY SHATTER"
     ],
     "isLiving": true,
     "resolvedPackSize": 1,
@@ -3610,7 +3610,7 @@
       "Doubt Sown"
     ],
     "kit": [
-      "ENEMY DISRUPT",
+      "ENEMY JAM",
       "ENEMY HEX"
     ],
     "isLiving": true,

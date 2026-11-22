@@ -151,6 +151,10 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 canvas.AddText(cx + (CardWidth - number.Length) / 2, cy + CardHeight, number, AsciiArtAssets.Colors.DarkGray);
             }
 
+            // Links: a card whose grant lands on another slot points at it (Phase 5 proposal 7), in the free row under the cards.
+            if (!dragging)
+                DrawStripLinks(character, combo, left, seqY + 2, perRow, hoverSeq);
+
             // Drop marker: a bar where the dragged card would land (needs this paint's slot rects, so after the cards).
             int dropSlot = -1;
             bool dropOnto = false;
@@ -209,6 +213,46 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
                 DrawDragGhost(x, y, width, height);
 
             return pool.Count + combo.Count;
+        }
+
+        private static readonly global::Avalonia.Media.Color LinkArrow = global::Avalonia.Media.Color.FromRgb(255, 150, 60);
+        private static readonly global::Avalonia.Media.Color LinkArrowDim = global::Avalonia.Media.Color.FromRgb(120, 75, 40);
+
+        /// <summary>
+        /// Arrows between linked sequence cards (<see cref="StripLinks"/>): down from the source card's bottom edge, along
+        /// the free row under the card row (one lane per link), and up into the target card with a head. Links of the
+        /// hovered card are bright, the rest dim; with nothing hovered all are bright.
+        /// </summary>
+        private void DrawStripLinks(Character character, List<RPGGame.Action> combo, int left, int firstRowY, int perRow, int hoverSeq)
+        {
+            var links = StripLinks.Build(combo, character);
+            if (links.Count == 0)
+                return;
+            const double laneStep = 0.28;
+            var lanesByRow = new Dictionary<int, int>();
+            foreach (var link in links)
+            {
+                int fromRow = link.From / perRow, toRow = link.To / perRow;
+                double Center(int slot) => left + (slot % perRow) * (CardWidth + CardGap) + CardWidth / 2.0;
+                double sx = Center(link.From) - 4, tx = Center(link.To) + 4;
+                double fromBottom = firstRowY + fromRow * (CardHeight + 2) + CardHeight;
+                double toBottom = firstRowY + toRow * (CardHeight + 2) + CardHeight;
+                var color = hoverSeq < 0 || hoverSeq == link.From || hoverSeq == link.To ? LinkArrow : LinkArrowDim;
+                if (fromRow == toRow)
+                {
+                    lanesByRow.TryGetValue(fromRow, out int lane);
+                    lanesByRow[fromRow] = lane + 1;
+                    double laneY = fromBottom + 1.25 + Math.Min(lane, 2) * laneStep;
+                    canvas.AddLine(sx, fromBottom, sx, laneY, color, 1.5);
+                    canvas.AddLine(sx, laneY, tx, laneY, color, 1.5);
+                    canvas.AddLine(tx, laneY, tx, toBottom, color, 1.5);
+                }
+                else
+                    canvas.AddLine(sx, fromBottom, tx, toBottom, color, 1.5);
+                // The head points up into the target card.
+                canvas.AddLine(tx - 0.45, toBottom + 0.45, tx, toBottom, color, 1.5);
+                canvas.AddLine(tx + 0.45, toBottom + 0.45, tx, toBottom, color, 1.5);
+            }
         }
 
         private const int MinInfoPanelHeight = 7;

@@ -147,6 +147,8 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "HoverTooltipDetailState", () => RPGGame.Tests.Unit.UI.HoverTooltipDetailStateTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "HoverTooltipDrawing", () => RPGGame.Tests.Unit.UI.HoverTooltipDrawingTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "StatusEffectDisplayLines", () => RPGGame.Tests.Unit.UI.StatusEffectDisplayLinesTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "NowCardContent", () => RPGGame.Tests.Unit.UI.NowCardContentTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "StripLinks", () => RPGGame.Tests.Unit.UI.StripLinksTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "InventoryRightPanelLayout", () => RPGGame.Tests.Unit.UI.InventoryRightPanelLayoutTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatActionStripBuilder", () => RPGGame.Tests.Unit.UI.CombatActionStripBuilderTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatLogProseHover", () => RPGGame.Tests.Unit.UI.CombatLogProseHoverTests.RunAllTests()));
@@ -231,6 +233,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("config", "CharacterRevealRhythmCalculator", () => RPGGame.Tests.Unit.Config.CharacterRevealRhythmCalculatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatUiMuteScope", () => RPGGame.Tests.Unit.Combat.CombatUiMuteScopeTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "Fernis", () => RPGGame.Tests.Unit.Combat.FernisTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "NewConceptCards", () => RPGGame.Tests.Unit.Combat.NewConceptCardsTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CoreStatuses", () => RPGGame.Tests.Unit.Combat.CoreStatusesTests.RunAllTests()));
             list.Add(new TestSuiteEntry("entity", "RebuildStep9", () => RPGGame.Tests.Unit.Entity.RebuildStep9Tests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "HealthBarDeltaDamageHint", () => RPGGame.Tests.Unit.Combat.HealthBarDeltaDamageHintTests.RunAllTests()));

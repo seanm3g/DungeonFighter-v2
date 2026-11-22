@@ -57,6 +57,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 && ReferenceEquals(turn.Queue[0].Actor, enemy) && !turn.Queue[0].IsActing)
                 canvas.AddText(nextCard.X + 1, nextCard.Y, " NEXT ", AsciiArtAssets.Colors.Gold);
 
+            DrawNewConceptCard(colX, colW, enemyStripH, enemyCards);
+
             var heroCard = HeroCardRect(player, LiveSwingFor(player));
             UpdateTurnSpotlight(player, enemy, turn, enemyCard, heroCard, (colX, 0, colW, enemyStripH), enemyCards);
 
@@ -90,6 +92,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             CombatBoardLayout.MiddleRect = (flowX, midTop, flowW, midBottom - midTop);
             CombatBoardLayout.NowRect = null;
             CombatBoardLayout.FlowCardsRect = null;
+            _nowAttachRect = null;
             _boardDieCenter = null;
             if (CombatBoardLayout.ShowLog && log != null)
                 RenderBoardLog(player, log, barX, midTop, barW, midBottom - midTop, enemyNamesForLogAlignment);
@@ -119,6 +122,69 @@ namespace RPGGame.UI.Avalonia.Renderers
                 TutorialCoachTargets.Set(TutorialCoachFocus.TurnOrb, (heroOrbX - 1, heroOrbY - 1, orbW + 2, orbH + 2));
             else if (side == CombatTurnSpotlight.Side.Enemy)
                 TutorialCoachTargets.Set(TutorialCoachFocus.TurnOrb, (enemyOrbX - 1, enemyOrbY - 1, orbW + 2, orbH + 2));
+
+            if (!CombatBoardLayout.ShowLog)
+                DrawFernisShoulder(colX, colW, heroBandY, seqW);
+        }
+
+        /// <summary>Fernis's shoulder sprite (D9.8): two rows, a small devil.</summary>
+        internal static readonly string[] FernisSprite = { "^  ^", "(>:)" };
+        private static readonly Color FernisColor = Color.FromRgb(230, 70, 60);
+        private static readonly Color FernisBubbleColor = Color.FromRgb(240, 200, 190);
+
+        /// <summary>
+        /// Where Fernis sits: bottom-right of the board column, just above the hero strip, with his bubble to his left on
+        /// the same two rows. The bubble keeps clear of the flow cards (<paramref name="flow"/>): it narrows to the space
+        /// right of them, and is dropped (BubbleW 0) when under <paramref name="minBubble"/> columns fit. Pure (tests).
+        /// </summary>
+        internal static (int SpriteX, int SpriteY, int BubbleX, int BubbleW) FernisPlacement(int colX, int colW, int bottomY,
+            int leftLimit, IEnumerable<(int X, int Y, int W, int H)> obstacles, int maxBubble = 44, int minBubble = 14)
+        {
+            int spriteW = FernisSprite[0].Length;
+            int spriteX = colX + colW - 1 - spriteW;
+            int spriteY = bottomY - FernisSprite.Length;
+            int right = spriteX - 2; // exclusive: a gap and the "<" pointer
+            int left = Math.Max(leftLimit, right - maxBubble);
+            var list = obstacles.ToList();
+            // He never sits on a card: with the flow over his corner, he (and his bubble) stay off this paint.
+            if (list.Any(f => f.W > 0 && f.H > 0 && f.Y < bottomY && f.Y + f.H > spriteY && f.X + f.W > right && f.X < spriteX + spriteW))
+                return (-1, spriteY, 0, 0);
+            foreach (var f in list)
+            {
+                if (f.W > 0 && f.H > 0 && f.Y < bottomY && f.Y + f.H > spriteY && f.X + f.W > left && f.X < right)
+                    left = Math.Max(left, f.X + f.W + 1);
+            }
+            int w = right - left;
+            return w < minBubble ? (spriteX, spriteY, 0, 0) : (spriteX, spriteY, left, w);
+        }
+
+        /// <summary>The NOW attachment lines drawn this paint (x, y, w, rows), kept clear by Fernis's bubble.</summary>
+        private static (int X, int Y, int W, int H)? _nowAttachRect;
+
+        private void DrawFernisShoulder(int colX, int colW, int heroBandY, int seqW)
+        {
+            if (System.Environment.GetEnvironmentVariable("DF_FERNIS") == "0" || colW < 30)
+                return;
+            var obstacles = new List<(int X, int Y, int W, int H)>();
+            if (CombatBoardLayout.FlowCardsRect is { } flowRect)
+                obstacles.Add(flowRect);
+            if (_nowAttachRect is { } attachRect)
+                obstacles.Add(attachRect);
+            var place = FernisPlacement(colX, colW, heroBandY, colX + seqW + 1, obstacles);
+            if (place.SpriteX < 0)
+                return;
+            for (int i = 0; i < FernisSprite.Length; i++)
+                canvas.AddText(place.SpriteX, place.SpriteY + i, FernisSprite[i], FernisColor);
+            if (place.BubbleW <= 0 || RPGGame.Combat.Narrative.FernisBubble.Visible(DateTimeOffset.UtcNow) is not { } bubble)
+                return;
+            CombatBoardAnimation.RequestFrame(); // keep repainting while it fades
+            var rows = RPGGame.UI.BoardText.Wrap(bubble.Text, place.BubbleW, FernisSprite.Length);
+            Color c = LerpColor(BoardCardBackground, FernisBubbleColor, bubble.Alpha);
+            // Bottom-aligned next to the sprite; a "<" on the last row points at him.
+            int top = place.SpriteY + FernisSprite.Length - rows.Count;
+            for (int i = 0; i < rows.Count; i++)
+                canvas.AddText(place.BubbleX + place.BubbleW - rows[i].Length, top + i, rows[i], c);
+            canvas.AddText(place.SpriteX - 2, place.SpriteY + FernisSprite.Length - 1, "<", c);
         }
 
         /// <summary>Where the die sits between NOW and the queue in the last combo-flow paint (null in log view).</summary>
@@ -422,7 +488,9 @@ namespace RPGGame.UI.Avalonia.Renderers
             var actions = enemy.GetComboActions();
             var panelData = CombatActionStripBuilder.BuildPanelData(enemy);
             int filled = Math.Min(actions.Count, panelData.Count);
-            int count = Math.Max(filled, EnemyStripMinSlots);
+            // Burned-out cards (step 10) stay on the strip after the live ones, cracked.
+            var burned = RPGGame.Actions.Conditional.FragileCards.BurnedOutCards(enemy);
+            int count = Math.Max(filled + burned.Count, EnemyStripMinSlots);
             int selected = filled > 0 ? LinedUpComboStep(enemy) % filled : -1;
 
             // While the enemy swings, its firing card stays selected (ComboStep has already moved on).
@@ -451,7 +519,8 @@ namespace RPGGame.UI.Avalonia.Renderers
             int cardH = Math.Max(3, h - 1);
             // Enemy sequences are short (most enemies carry one or two actions): cards keep the min-slot width and
             // sit centered, with no empty placeholder slots.
-            int rowW = filled * cardW + Math.Max(0, filled - 1) * gap;
+            int shownCards = filled + burned.Count;
+            int rowW = shownCards * cardW + Math.Max(0, shownCards - 1) * gap;
             int cx = x + Math.Max(inset, (w - rowW) / 2);
             BoardRect? selectedRect = null;
             for (int i = 0; i < filled; i++)
@@ -481,6 +550,11 @@ namespace RPGGame.UI.Avalonia.Renderers
                 if (isSel && (swing == null || cardFires))
                     selectedRect = new BoardRect(cx, y, cw, cardH);
                 cx += cw + gap;
+            }
+            foreach (var card in burned)
+            {
+                DrawBurnedOutCard(card, cx, y, cardW, cardH);
+                cx += cardW + gap;
             }
             // The enemy's chain count, top right (Mock 1: "its chain: 2").
             if (selected > 0 && filled > 1)
@@ -825,6 +899,15 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             else
                 canvas.AddText(nowR.X + 1, nowR.Y - 1, "NOW", AsciiArtAssets.Colors.White);
+            // D3.7: everything attached to this swing, listed under NOW.
+            if (!cardInFlight)
+            {
+                var attachedActor = nowAct?.Actor ?? (nowProjected ? turn.NowActor : null);
+                var attachedAction = nowAct?.Action ?? (nowProjected ? turn.NowProjected : null);
+                if (attachedActor != null)
+                    DrawNowAttachments(attachedActor, attachedActor is Enemy ? player : attachedActor is Character ? enemy : null,
+                        attachedAction, nowR, heroBandY - 1);
+            }
 
             // Once the turn's card settles on NOW the branches wait a beat, then the die another; ROLL holds for the die.
             var now = DateTimeOffset.UtcNow;
@@ -1263,6 +1346,97 @@ namespace RPGGame.UI.Avalonia.Renderers
             int exact = branches.FindIndex(b => b.Outcome != null && b.Critical == critical
                 && (b.Outcome == swing.Outcome || (critical && !miss && b.Outcome != CombatSequenceSwingOutcome.Miss)));
             return exact >= 0 ? exact : branches.FindIndex(b => b.Outcome == swing.Outcome);
+        }
+
+        private static readonly Color FragileBadgeColor = Color.FromRgb(255, 170, 80);
+        private static readonly Color BurnedOutTextColor = Color.FromRgb(150, 80, 60);
+        private static readonly Color BurnedOutBorder = Color.FromRgb(70, 60, 55);
+
+        /// <summary>
+        /// Step 10: a Fragile card that burned out this fight, drawn cracked and grey (a dim box, a jagged crack across it,
+        /// its name and "BURNED OUT"). It's out of the live strip, so it never lights or fires.
+        /// </summary>
+        private void DrawBurnedOutCard(Action card, int x, int y, int w, int h)
+        {
+            if (w < 4 || h < 3)
+                return;
+            AddBoardBox(x, y, w, h, BurnedOutBorder, BoardCardBackground, borderThicknessPixels: 1);
+            // The crack: a zigzag from the top edge to the bottom edge.
+            double cx = x + w * 0.55, top = y + 0.2, bottom = y + h - 0.2;
+            int zig = Math.Max(2, h);
+            double px0 = cx, py0 = top;
+            for (int i = 1; i <= zig; i++)
+            {
+                double t = (double)i / zig;
+                double px1 = cx + (i % 2 == 0 ? -0.8 : 0.8) * Math.Min(2.0, w / 6.0);
+                double py1 = top + (bottom - top) * t;
+                canvas.AddLine(px0, py0, px1, py1, BurnedOutBorder, 1.5);
+                (px0, py0) = (px1, py1);
+            }
+            int tw = Math.Max(1, w - 2);
+            canvas.AddText(x + 1, y + 1, Truncate(card.Name ?? "?", tw), AsciiArtAssets.Colors.Gray);
+            if (h >= 4)
+                canvas.AddText(x + 1, y + 2, Truncate("BURNED OUT", tw), BurnedOutTextColor);
+        }
+
+        private static readonly Color NewCardBorder = Color.FromRgb(255, 220, 90);
+
+        /// <summary>
+        /// D9.3: the NEW card for a status met for the first time, beside the enemy strip (on the wider side of its cards),
+        /// one sentence wrapped into a small box; fades out over its last second.
+        /// </summary>
+        private void DrawNewConceptCard(int colX, int colW, int stripH, List<(int X, int Y, int W, int H)> enemyCards)
+        {
+            if (RPGGame.Combat.Narrative.NewConceptCards.Visible(DateTimeOffset.UtcNow) is not { } shown)
+                return;
+            CombatBoardAnimation.RequestFrame();
+            int left = enemyCards.Count > 0 ? enemyCards[0].X - colX - 2 : colW / 2;
+            int right = enemyCards.Count > 0 ? colX + colW - (enemyCards[^1].X + enemyCards[^1].W) - 2 : colW / 2;
+            int w = Math.Min(30, Math.Max(left, right));
+            if (w < 14)
+                return; // no room beside the strip: Fernis's line in the log still names it
+            int x = left >= right ? colX + 1 : colX + colW - 1 - w;
+            var rows = RPGGame.UI.BoardText.Wrap(shown.Card.Text, w - 2, Math.Max(1, stripH - 2));
+            int h = rows.Count + 2;
+            double a = shown.Alpha;
+            AddBoardBox(x, 0, w, h, LerpColor(BoardCardBackground, NewCardBorder, a), BoardCardBackground, borderThicknessPixels: 2);
+            for (int i = 0; i < rows.Count; i++)
+                canvas.AddText(x + 1, 1 + i, rows[i], LerpColor(BoardCardBackground, i == 0 ? NewCardBorder : AsciiArtAssets.Colors.White, a));
+        }
+
+        private static readonly Color NowStatusLineColor = Color.FromRgb(150, 200, 255);
+        private static readonly Color NowStoreLineColor = Color.FromRgb(200, 150, 255);
+
+        /// <summary>
+        /// The lines of <see cref="RPGGame.UI.NowCardContent"/> under the NOW card (statuses, queued grants, stores, next-link
+        /// odds), as many as fit above <paramref name="maxY"/> (exclusive); the rest collapse into "+n more".
+        /// </summary>
+        private void DrawNowAttachments(Actor actor, Actor? target, Action? action, BoardRect nowR, int maxY)
+        {
+            int slot = actor is Character ch && action != null ? FindSlot(ch.GetComboActions(), action) : -1;
+            int? linkFace = actor is Environment ? null : D20ThresholdBarRenderer.CurrentThresholds(actor).Combo;
+            var lines = RPGGame.UI.NowCardContent.Build(actor, target, action, slot, linkFace);
+            int y = (int)nowR.Bottom;
+            int rows = maxY - y;
+            if (rows <= 0 || lines.Count == 0)
+                return;
+            int shown = lines.Count <= rows ? lines.Count : Math.Max(0, rows - 1);
+            int w = Math.Max(8, nowR.W);
+            _nowAttachRect = (nowR.X, y, w, Math.Min(rows, lines.Count));
+            for (int i = 0; i < shown; i++)
+            {
+                var line = lines[i];
+                Color color = line.Kind switch
+                {
+                    RPGGame.UI.NowCardLineKind.Status => NowStatusLineColor,
+                    RPGGame.UI.NowCardLineKind.Grant => BoardComboBorder,
+                    RPGGame.UI.NowCardLineKind.Store => NowStoreLineColor,
+                    _ => AsciiArtAssets.Colors.Gray
+                };
+                canvas.AddText(nowR.X + 1, y + i, Truncate(line.Text, w - 1), color);
+            }
+            if (shown < lines.Count)
+                canvas.AddText(nowR.X + 1, y + shown, $"+{lines.Count - shown} more", AsciiArtAssets.Colors.Gray);
         }
 
         private void DrawBoardAct(BoardAct? act, BoardRect r, Color border, int thickness, ActionStripDamageLineMode mode)

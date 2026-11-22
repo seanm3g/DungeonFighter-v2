@@ -50,6 +50,30 @@ namespace RPGGame.Actions.Conditional
             return Math.Max(0, card.Fragile - used);
         }
 
+        /// <summary>True while a fight is on (the strip can have burned-out cards and Fragile counts).</summary>
+        public static bool InFight => FightActive;
+
+        /// <summary>The cards <paramref name="owner"/> burned out this fight, in strip order (empty outside a fight).</summary>
+        public static List<Action> BurnedOutCards(Actor owner)
+        {
+            if (!FightActive || owner == null)
+                return new List<Action>();
+            var state = CombatTriggerContext.GetStripState(owner);
+            return state == null || state.BurnedOut.Count == 0
+                ? new List<Action>()
+                : state.BurnedOut.Where(a => a != null).OrderBy(a => a.ComboOrder).ThenBy(a => a.Name, StringComparer.Ordinal).ToList();
+        }
+
+        /// <summary>The card badge for a Fragile card in a fight ("2 left", "last use"); null for other cards or outside a fight
+        /// (the card line already says "Fragile N").</summary>
+        public static string? UsesBadge(Actor owner, Action card)
+        {
+            if (!FightActive || card == null || card.Fragile <= 0)
+                return null;
+            int left = UsesLeft(owner, card);
+            return left <= 1 ? "last use" : $"{left} left";
+        }
+
         /// <summary>
         /// Counts one swing of a strip card and burns a Fragile card out on its last use. Called once per top-level swing,
         /// after the combo step moved, so the close-up re-points the step at the right card.

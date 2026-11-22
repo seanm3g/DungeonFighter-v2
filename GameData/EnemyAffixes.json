@@ -13,7 +13,7 @@
   "dungeons": [
     { "theme": "Den", "region": "Forest", "material": "Bone", "signature": ["ENEMY REND", "ENEMY FRENZY", "ENEMY CRUSH"], "demon": "Demon of the Den",
       "affix": { "name": "Bloodscent", "lever": "onhit", "status": "bleed", "chance": 0.25, "description": "25% chance to Bleed on hit" } },
-    { "theme": "Labyrinth", "region": "Forest", "material": "Shadow", "signature": ["ENEMY DISRUPT", "ENEMY HEX", "ENEMY CONCUSS"], "demon": "Demon of the Labyrinth",
+    { "theme": "Labyrinth", "region": "Forest", "material": "Shadow", "signature": ["ENEMY JAM", "ENEMY HEX", "ENEMY CONCUSS"], "demon": "Demon of the Labyrinth",
       "affix": { "name": "Turnabout", "lever": "onhit", "status": "disrupt", "chance": 0.25, "description": "25% chance to reset your combo on hit" } },
     { "theme": "Dense Brush", "region": "Forest", "material": "Willow", "signature": ["ENEMY VENOM", "ENEMY ENSNARE", "ENEMY MEND"], "demon": "Demon of the Brush",
       "affix": { "name": "Overgrowth", "lever": "hp", "value": 0.08, "description": "+8% max HP" } },

@@ -102,7 +102,7 @@ git after each run; it is in no commit.
 - **Class hits apply the class status** (D5.1 / D3.23): SLAM `APPLY stagger 1`, STRIKE `APPLY harden 1` (Guard =
   Harden for now, so it reads "gains 1 Guard"), STAB `APPLY bleed 1`, MAGIC MISSILE `APPLY burn 1`. These are card
   rules through the existing verb path (`ActionRules.FromVerb`).
-- **Not done:** the arrows between linked cards in the strip editor (needs a screen I can't check tonight).
+- **Not done:** the arrows between linked cards in the strip editor (needs a screen I can't check tonight). Done 11-22, see Board items.
 - Tests: new `ActionRolesTests` (13 checks). One card-body test now expects the role word first.
 
 ### 3.2 + 3.3 Fernis D Man, swing moments and fight result lines — done
@@ -185,8 +185,8 @@ git after each run; it is in no commit.
   Stagger, and so on. Some cards stack the same status twice now (OPEN VEIN queues 8 Bleed where it queued 2 + Poison).
 
 ### Not done (needs the board)
-- The status panel showing statuses only, and the NOW card (D3.7).
-- NEW cards drawn on the enemy and the loot (D9.3); only Fernis's line exists.
+- The status panel showing statuses only, and the NOW card (D3.7). Done 11-22, see Board items.
+- NEW cards drawn on the enemy and the loot (D9.3); only Fernis's line exists. Done 11-22 for statuses, see Board items.
 - Direct code paths that apply a retired status without going through the registry or `Stores` (some older combat
   helpers call `ApplyPoison`-style methods directly) are not migrated.
 - Affinities as immune / weak: `StatusAffinities.json` already does this by tag; not changed.
@@ -278,6 +278,51 @@ git after each run; it is in no commit.
   event, and a level gate for Jam (Jam cards and the ENEMY JAM kit keep the level they had as Disrupt).
 - **Tests:** new `FragileCardsTests` (burnout and close-up, step re-pointing, whole strip outside a fight, last card,
   Jam, Burn out's 3-card minimum, ops hit the foe, data cards, card line, callouts once per run).
+
+## Board items (2026-11-22)
+
+The combat-board and screen items left over from steps 3, 5 and 10. Content lives in pure builders with tests; the
+drawing calls them. No sims, no balance changes.
+
+- **Status panel shows statuses only (D3.7):** `StatusEffectDisplayLines.Build` lists statuses on the actor, each with
+  what's left: Guard (the `harden` store) `Guard x2 (3t)`, Rattle `Rattle -1 (2 turns)`, Stagger `x2 (next swing)`,
+  Haste `x3 (3 swings)`, Mark, Bleed, Burn, Focus, Expose, plus any retired status still set by an old code path. Room
+  tags (Elegant, Unstable, ...) stay on the panel: they sit on everyone in the room. Material stores, Lucky, queued
+  grants (TURN, next action, per-slot ACTION banks, fight / dungeon buffs) and charges (Shield, Guarantee hit, Extra
+  atk, Combo mode, Reroll) moved to `BuildAttachedLines` and the NOW card. **Your call:** stores are now only visible on
+  the NOW card during a fight; between fights they show nowhere until the material / item owner shows them.
+- **NOW card lists what's attached to the turn (D3.7, Phase 9 proposal 3):** `NowCardContent.Build` (pure) gives the
+  swinger's Focus / Rattle / Stagger / Haste, the target's Mark / Expose / Guard, grants queued on this slot (per-slot
+  bank, next-action bank, TURN), charges (Lucky, Guarantee hit, Reroll), the store a CASH / DETONATE card spends and the
+  stores held, and "Next link: 35% (14+)". The board draws them under the NOW card (`DrawNowAttachments`), "+n more"
+  when they don't fit. The roll ruler nudges from Phase 9 proposal 3 are not part of this.
+- **NEW cards (D9.3):** the first time the hero meets a status (`FernisFightSession`'s first-status check),
+  `NewConceptCards` shows one sentence beside the enemy strip ("NEW · Rattle: your next rolls are lower.", worded for
+  who holds it), fading after 9 s. The next loot reveal adds "NEW · applies Bleed: ..." to an item whose rule lines or
+  actions apply a status met since the last reveal. Only statuses for now (not other systems). Because detection lives in
+  the Fernis session, `DF_FERNIS=0` turns NEW cards off too.
+- **Burned-out cards (step 10):** a Fragile card that burned out this fight is drawn cracked and grey (zigzag crack,
+  name, BURNED OUT) after the live cards on the enemy strip, and on the hero strip in the slot the close-up freed (a
+  "burned out: X" label above the strip when no slot is free). Live Fragile cards show "2 left" / "last use" on their
+  top edge (`FragileCards.UsesBadge`, `BurnedOutCards`). The burned card sits at the strip end, not where it was.
+- **Fernis on the board (D9.8):** a two-row ASCII devil at the board's bottom-right above the hero strip; each line he
+  says also goes into `FernisBubble` beside him, held 5 s then faded. He never blocks the board: the bubble narrows to
+  the space clear of the flow cards and NOW's lines, is dropped under 14 columns (the log still has the line), and he
+  skips a paint when a card covers his corner (`FernisPlacement`). **REVIEW:** the sprite is placeholder ASCII.
+- **Strip-editor arrows (Phase 5 proposal 7, step 3.1):** `StripLinks.Build` (pure) finds cards whose ACTION grant lands
+  on another slot, with combat's placement (next N clipped at the strip end, a finisher's ×1 to the opener, slot /
+  delay, charge, slotIf; TURN grants have no slot). The Action Sequence editor draws one arrow per link in the free row
+  under the cards; the hovered card's arrows are bright, the rest dim.
+- **Tests:** new `NowCardContentTests`, `NewConceptCardsTests`, `StripLinksTests`; more checks in
+  `StatusEffectDisplayLinesTests`, `FragileCardsTests`, `FernisTests`; `LeatherSetBonusTests` and one
+  `LeftPanelTooltipBuilderTests` check read stores from the attached lines. Full run: 15360 tests, 6 failed before
+  that tooltip fix, 5 after, none in code this pass touched: the two ACTION ×3 damage comparisons, the enemy-kit alias
+  check (kits still say ENEMY DISRUPT for the 11-22 ENEMY JAM / SHATTER aliases), `TestClasslessMaterialPaysTopAttribute`,
+  and the two known flaky ones (Stable "both fighters are out at once", MCP "Expected DungeonSelection, got Death").
+  The run rewrote `GameData/Patches/Balance/7-30-26.json`; restored from git, not committed.
+- **Not checked on screen:** screen access to the game window was declined, so the drawing (positions, fades, the
+  crack, the arrows) is checked only by build and the pure builders' tests. Worth a look in a fight and in the strip
+  editor.
 
 ## Playtest (MCP, after the run)
 

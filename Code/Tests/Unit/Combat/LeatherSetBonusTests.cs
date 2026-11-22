@@ -125,7 +125,7 @@ namespace RPGGame.Tests.Unit.Combat
             hero.Equipment.Body = new ChestItem("Armor", 1, 1) { Material = "Leather" };
             hero.Equipment.Feet = new FeetItem("Boots", 1, 1) { Material = "Leather" };
 
-            var lines = RPGGame.UI.Avalonia.Layout.StatusEffectDisplayLines.Build(hero, hero);
+            var lines = RPGGame.UI.Avalonia.Layout.StatusEffectDisplayLines.BuildAttachedLines(hero);
             string expected = LeatherSetBonus.FormatLuckyStatusLine(hero);
             TestBase.AssertTrue(lines.Contains(expected),
                 "Lucky appears in STATUS EFFECTS when leather set is active", ref _run, ref _passed, ref _failed);
@@ -135,7 +135,7 @@ namespace RPGGame.Tests.Unit.Combat
                 "FormatLuckyStatusLine is recognized as Lucky", ref _run, ref _passed, ref _failed);
 
             hero.Equipment.Body = new ChestItem("Iron Plate", 2, 5) { Material = "Iron" };
-            var after = RPGGame.UI.Avalonia.Layout.StatusEffectDisplayLines.Build(hero, hero);
+            var after = RPGGame.UI.Avalonia.Layout.StatusEffectDisplayLines.BuildAttachedLines(hero);
             TestBase.AssertFalse(after.Any(LeatherSetBonus.IsLuckyStatusLine),
                 "Lucky leaves STATUS EFFECTS when set breaks", ref _run, ref _passed, ref _failed);
         }

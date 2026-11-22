@@ -194,7 +194,7 @@ namespace RPGGame
         {
             "burn" => "Burn: flames that hurt every tick and slowly die down.",
             "bleed" => "Bleed: an open wound that hurts each time the victim acts.",
-            "harden" => "Hardened: braced to take hits.",
+            "harden" => "Guard: braced to take hits.",
             "fortify" => "Fortified: armor reinforced.",
             "focus" => "Focused: strikes are lined up for extra damage.",
             "expose" or "vulnerability" or "armorbreak" => "Exposed: guard is down; Defense is reduced, and at full stacks armor is stripped.",

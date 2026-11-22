@@ -119,6 +119,10 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             StatusEffectDisplayLinesTests.RunAllTests();
             Console.WriteLine();
+            NowCardContentTests.RunAllTests();
+            Console.WriteLine();
+            StripLinksTests.RunAllTests();
+            Console.WriteLine();
             HoverTooltipDrawingTests.RunAllTests();
             Console.WriteLine();
             CanvasPrimitiveStackingTests.RunAllTests();
