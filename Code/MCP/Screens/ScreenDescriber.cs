@@ -100,14 +100,72 @@ namespace RPGGame.MCP.Screens
 
         // ---------- Hub (game loop) ----------
 
+        /// <summary>
+        /// What a player would do next between dungeons (playtest 11-21: the hub always recommended the next dungeon,
+        /// so an agent following recommendations never spent a skill point, filled a strip slot or equipped an upgrade).
+        /// </summary>
+        private enum HubDecision { Dungeon, Skills, Strip, Gear }
+
+        private static HubDecision NextDecision(Character hero)
+        {
+            if (HasLearnableSkill(hero))
+                return HubDecision.Skills;
+            if (StripSlotPrompt.SpareAction(hero) != null)
+                return HubDecision.Strip;
+            if (BestUpgradeIndex(hero, hero.Inventory ?? new List<Item>()) >= 0)
+                return HubDecision.Gear;
+            return HubDecision.Dungeon;
+        }
+
+        private static bool HasLearnableSkill(Character hero)
+        {
+            try
+            {
+                var progression = hero.Progression;
+                if (progression == null || AvailableSkillPoints(hero) <= 0)
+                    return false;
+                var nodes = SkillTreeService.BuildDisplayModel(progression).AllNodes;
+                return nodes.Any(n => SkillTreeService.GetNodeState(progression, n) == SkillTreeService.NodeViewState.Available);
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>True when the loot reveal's own verdict would pre-mark Equip (an upgrade or a filled empty slot).</summary>
+        private static bool IsUpgrade(Character hero, Item item)
+        {
+            try
+            {
+                return RPGGame.LootReveal.LootRevealBuilder.Build(hero, item).Suggested == RPGGame.LootReveal.LootChoice.Equip;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>Index in <paramref name="items"/> of the best upgrade (rarest first), else -1.</summary>
+        private static int BestUpgradeIndex(Character hero, IReadOnlyList<Item> items)
+        {
+            int best = -1;
+            for (int i = 0; i < items.Count; i++)
+                if (items[i] != null && IsUpgrade(hero, items[i])
+                    && (best < 0 || RPGGame.LootReveal.LootRevealBuilder.RarityRank(items[i].Rarity) > RPGGame.LootReveal.LootRevealBuilder.RarityRank(items[best].Rarity)))
+                    best = i;
+            return best;
+        }
+
         private static ScreenView DescribeHub(GameCoordinator game, Character hero)
         {
             var view = new ScreenView { Title = "Game Hub" };
             view.Body.AddRange(CharacterSheet(hero));
-            view.Choices.Add(new AgentChoice { Input = "1", Label = "Dungeon selection", Recommended = true });
-            view.Choices.Add(new AgentChoice { Input = "2", Label = "Inventory (equip gear, edit action sequence, trade up)" });
+            var next = NextDecision(hero);
+            view.Choices.Add(new AgentChoice { Input = "1", Label = "Dungeon selection", Recommended = next == HubDecision.Dungeon });
+            view.Choices.Add(new AgentChoice { Input = "2", Label = "Inventory (equip gear, edit action sequence, trade up)", Recommended = next is HubDecision.Strip or HubDecision.Gear });
             int points = AvailableSkillPoints(hero);
-            view.Choices.Add(new AgentChoice { Input = "3", Label = points > 0 ? $"Skill tree ({points} point(s) to spend)" : "Skill tree" });
+            view.Choices.Add(new AgentChoice { Input = "3", Label = points > 0 ? $"Skill tree ({points} point(s) to spend)" : "Skill tree", Recommended = next == HubDecision.Skills });
             view.Choices.Add(new AgentChoice { Input = "4", Label = "Region travel (each region is a fixed level band)" });
             view.Choices.Add(new AgentChoice { Input = "0", Label = "Save and return to main menu" });
             return view;
@@ -182,8 +240,10 @@ namespace RPGGame.MCP.Screens
             if (StripSlotPrompt.HintLine(hero) is { } stripHint)
                 view.Body.Add(stripHint);
 
-            view.Choices.Add(new AgentChoice { Input = "1", Label = "Equip an item (opens the bag picker, then a side-by-side comparison)", Recommended = inventory.Count > 0 });
-            view.Choices.Add(new AgentChoice { Input = HubTabBar.ActionsToken, Label = "Edit the action sequence (combo strip)" });
+            bool spare = StripSlotPrompt.SpareAction(hero) != null;
+            bool upgrade = !spare && BestUpgradeIndex(hero, inventory) >= 0;
+            view.Choices.Add(new AgentChoice { Input = "1", Label = "Equip an item (opens the bag picker, then a side-by-side comparison)", Recommended = upgrade });
+            view.Choices.Add(new AgentChoice { Input = HubTabBar.ActionsToken, Label = "Edit the action sequence (combo strip)", Recommended = spare });
             view.Choices.Add(new AgentChoice { Input = "*", Label = "Auto-equip into empty slots" });
             view.Choices.Add(new AgentChoice { Input = "2", Label = "Unequip a slot (asks to confirm)" });
             view.Choices.Add(new AgentChoice { Input = "3", Label = "Discard an item (asks to confirm)" });
@@ -192,7 +252,7 @@ namespace RPGGame.MCP.Screens
             view.Choices.Add(new AgentChoice { Input = "-", Label = "Toggle hiding items with unmet requirements" });
             view.Choices.Add(new AgentChoice { Input = "/", Label = "Cycle bag slot filter" });
             view.Choices.Add(new AgentChoice { Input = "m", Label = "Cycle bag material filter" });
-            view.Choices.Add(new AgentChoice { Input = "0", Label = "Back to the hub (dungeons, skill tree, travel)", Recommended = inventory.Count == 0 });
+            view.Choices.Add(new AgentChoice { Input = "0", Label = "Back to the hub (dungeons, skill tree, travel)", Recommended = !spare && !upgrade });
             view.Hints.Add("Call get_item_details with a bag number or slot name for the full item tooltip.");
             return view;
         }
@@ -214,15 +274,17 @@ namespace RPGGame.MCP.Screens
             var view = new ScreenView { Title = "Inventory", SubScreen = discard ? "DiscardPicker" : "EquipPicker" };
             view.Body.Add(discard ? "Select the item to discard:" : "Select the item to equip (a comparison with your current item opens next):");
             var entries = VisibleEntries(hero, inventory, st).Take(ItemSelectionRenderer.MaxSelectableItems).ToList();
+            int best = discard ? -1 : BestUpgradeIndex(hero, entries.Select(e => e.Item).ToList());
             for (int i = 0; i < entries.Count; i++)
             {
                 var item = entries[i].Item;
                 var current = McpText.EquippedIn(hero, McpText.SlotOf(item));
                 string vs = current == null ? "slot empty" : $"replaces {current.Name}";
-                view.Body.Add($"  {i + 1}. {McpText.ItemShort(hero, item)} — {vs}");
-                view.Choices.Add(new AgentChoice { Input = (i + 1).ToString(), Label = $"{item.Name} ({vs})" });
+                bool up = !discard && IsUpgrade(hero, item);
+                view.Body.Add($"  {i + 1}. {McpText.ItemShort(hero, item)} — {vs}{(up ? " [upgrade]" : "")}");
+                view.Choices.Add(new AgentChoice { Input = (i + 1).ToString(), Label = $"{item.Name} ({vs}){(up ? " — upgrade" : "")}", Recommended = i == best });
             }
-            view.Choices.Add(new AgentChoice { Input = "0", Label = "Cancel" });
+            view.Choices.Add(new AgentChoice { Input = "0", Label = "Cancel", Recommended = best < 0 });
             return view;
         }
 
@@ -241,8 +303,11 @@ namespace RPGGame.MCP.Screens
                 view.Body.AddRange(McpText.ItemLines(hero, current, "Equipped").Select(l => "  " + l));
 
             bool blocked = newItem != null && !newItem.MeetsRequirements(hero);
-            view.Choices.Add(new AgentChoice { Input = "2", Label = blocked ? "Equip new (refused: requirements not met)" : "Equip the new item", Recommended = !blocked });
-            view.Choices.Add(new AgentChoice { Input = "1", Label = "Keep the current item", Recommended = blocked });
+            bool better = newItem != null && !blocked && IsUpgrade(hero, newItem);
+            if (newItem != null && !blocked)
+                view.Body.Add(better ? "Verdict: upgrade." : "Verdict: not an upgrade (sidegrade or worse).");
+            view.Choices.Add(new AgentChoice { Input = "2", Label = blocked ? "Equip new (refused: requirements not met)" : "Equip the new item", Recommended = better });
+            view.Choices.Add(new AgentChoice { Input = "1", Label = "Keep the current item", Recommended = !better });
             view.Choices.Add(new AgentChoice { Input = "3", Label = newItem?.ExcludeFromTradeUp == true ? "Unlock the new item for trade-up" : "Lock the new item out of trade-up" });
             view.Choices.Add(new AgentChoice { Input = "0", Label = "Cancel" });
             return view;
@@ -368,11 +433,16 @@ namespace RPGGame.MCP.Screens
                 return view;
             }
 
+            string? spareAction = StripSlotPrompt.SpareAction(hero);
+            bool recommendedSpare = false;
             for (int i = 0; i < pool.Count; i++)
             {
                 bool inSeq = combo.Any(a => ReferenceEquals(a, pool[i]));
+                bool fill = combo.Count < cap && !inSeq && !recommendedSpare
+                    && string.Equals(pool[i].Name, spareAction, StringComparison.OrdinalIgnoreCase);
+                recommendedSpare |= fill;
                 if (combo.Count < cap)
-                    view.Choices.Add(new AgentChoice { Input = $"{ComboPointerInput.Prefix}pool:{i}", Label = $"Append {pool[i].Name} to the end" });
+                    view.Choices.Add(new AgentChoice { Input = $"{ComboPointerInput.Prefix}pool:{i}", Label = $"Append {pool[i].Name} to the end", Recommended = fill });
                 else if (!inSeq && pool[i].IsComboAction)
                 {
                     // Full strip: offer swapping each unused pool action into each slot whose action may leave.
@@ -391,7 +461,7 @@ namespace RPGGame.MCP.Screens
                 if (WeaponRequiredComboAction.CanRemoveFromCombo(hero, combo[i]))
                     view.Choices.Add(new AgentChoice { Input = $"{ComboPointerInput.Prefix}rm:{i}", Label = $"Remove slot {i + 1} ({combo[i].Name})" });
             view.Choices.Add(new AgentChoice { Input = $"{ComboPointerInput.Prefix}addall", Label = "Fill the sequence with every pool action" });
-            view.Choices.Add(new AgentChoice { Input = "0", Label = "Done — back to inventory", Recommended = true });
+            view.Choices.Add(new AgentChoice { Input = "0", Label = "Done — back to inventory", Recommended = !recommendedSpare });
 
             view.Hints.Add("Tokens use 0-based numbers: slot N above is index N-1, pool N is index N-1.");
             view.Hints.Add($"Move slot: {ComboPointerInput.Prefix}move:FROM:TO   Swap slots: {ComboPointerInput.Prefix}swap:A:B");
@@ -504,9 +574,10 @@ namespace RPGGame.MCP.Screens
             }
             var view = new ScreenView { Title = "Dungeon Complete" };
             view.Body.AddRange(CharacterSheet(hero));
-            view.Choices.Add(new AgentChoice { Input = "1", Label = "Dungeon selection", Recommended = true });
-            view.Choices.Add(new AgentChoice { Input = "2", Label = "Inventory (check new loot)" });
-            view.Choices.Add(new AgentChoice { Input = "3", Label = "Skill tree" });
+            var next = NextDecision(hero);
+            view.Choices.Add(new AgentChoice { Input = "1", Label = "Dungeon selection", Recommended = next == HubDecision.Dungeon });
+            view.Choices.Add(new AgentChoice { Input = "2", Label = "Inventory (check new loot)", Recommended = next is HubDecision.Strip or HubDecision.Gear });
+            view.Choices.Add(new AgentChoice { Input = "3", Label = "Skill tree", Recommended = next == HubDecision.Skills });
             view.Choices.Add(new AgentChoice { Input = "4", Label = "Region travel" });
             view.Choices.Add(new AgentChoice { Input = "0", Label = "Save and return to main menu" });
             return view;

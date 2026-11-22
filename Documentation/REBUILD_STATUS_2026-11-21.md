@@ -278,3 +278,22 @@ deaths and wins. One run reached level 12 in 32 dungeons.
 - The loot reveal doesn't show an item's class affinity or an off-slot line as a "rare circumstance" yet.
 - Dungeon-select matchup lines live on the canvas hub panel only; MCP's dungeon-select screen has no body, so I
   checked them through tests, not play.
+
+## MCP bot check (follow-up)
+
+Asked whether the MCP bot plays the game correctly. **It didn't:** the hub and the dungeon-complete screen always
+recommended "Dungeon selection", the strip editor always recommended "Done", and the comparison screen always
+recommended "Equip". An agent following recommendations never spent a skill point, never filled an empty strip slot
+and never equipped bag upgrades (one run reached level 12 in starter gear with 1 of 2 slots used and 3 points
+unspent). So the earlier read "decisions aren't load-bearing" came from that bot, not from the game.
+
+**Fixed** (`ScreenDescriber`): the hub and dungeon-complete screens recommend the next pending decision (a learnable
+skill, then an empty strip slot with a spare action, then a bag upgrade, then the dungeon); the inventory, item
+picker and strip editor recommend the matching step; the comparison screen recommends Equip only when the loot
+reveal's verdict calls the item an upgrade (and says "Verdict: upgrade." / "not an upgrade"). Re-run: the
+recommended-only client learned 8 skills, filled the strip (SLAM > WIND UP), equipped 2 upgrades, reached level 11
+with 4 deaths (8 before). Full tests: 15147 passed, 1 known-flaky failure.
+
+**Still off:** weapons are never recommended. The loot verdict treats any swap that changes strip actions as a
+sidegrade by design, so the level-11 hero still swung the starter Bone Log. Players see the same "Sidegrade" in the
+reveal. Worth a rule: a weapon that keeps the class starter and only changes the gear action is an upgrade on stats.
