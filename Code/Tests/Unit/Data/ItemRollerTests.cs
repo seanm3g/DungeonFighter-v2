@@ -62,6 +62,13 @@ namespace RPGGame.Tests.Unit.Data
             TestActionsComeFromGearPool();
             TestRarerActionsWeighLess();
             TestOffClassArmorMaterialPool();
+            TestEveryItemHasAffinityAndMaterial();
+            TestSlotDomainsGateLines();
+            TestOffSlotIsRareSingleAndLower();
+            TestFirstMechanicLineServesAffinity();
+            TestClassAffinityTiltsLines();
+            TestEveryHybridHasLines();
+            TestEveryRuleLineParses();
 
             TestBase.PrintSummary("ItemRoller Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -629,7 +636,7 @@ namespace RPGGame.Tests.Unit.Data
             foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = 50, Rarity = "Legendary", AllowRollUps = false }, 400))
             {
                 var lines = item.StatBonuses.Where(s => s.ModLine != null).Select(s => (s.ModLine!, s.StatType ?? "", s.Value))
-                    .Concat(item.Modifications.Where(m => m.ModLine != null).Select(m => (m.ModLine!, m.Effect ?? "", m.RolledValue)));
+                    .Concat(item.Modifications.Where(m => m.ModLine != null).Select(m => (m.ModLine!, (m.Effect ?? "") + "|" + (m.CrossWire ?? ""), m.RolledValue)));
                 foreach (var group in lines.GroupBy(l => l.Item1.Family))
                 {
                     var family = _cache.ItemMods.Find(group.Key);
@@ -734,7 +741,8 @@ namespace RPGGame.Tests.Unit.Data
                 if (rule == null || (rule.Verb == "MINT" && RPGGame.Data.MaterialBuildsLoader.FindByKeyword(rule.Store) == null))
                     bad.Add(family.Family);
             }
-            TestBase.AssertTrue(wires >= 18 && bad.Count == 0,
+            // Phase 11 (D11.9): the 12 class cross-wires left loot; the 6 class-less ones stay.
+            TestBase.AssertTrue(wires >= 6 && bad.Count == 0,
                 $"material-pool cross-wires parse and mint real stores ({wires} wires; bad: {string.Join(", ", bad)})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
@@ -745,12 +753,168 @@ namespace RPGGame.Tests.Unit.Data
             foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = 30, Weapon = true }, 600))
             {
                 total++;
-                if (ItemMaterialRules.TryGetWeaponClassLadder(item.WeaponType, out var c, out var u, out var r)
-                    && new[] { c, u, r }.Contains(item.Material, StringComparer.OrdinalIgnoreCase))
+                // Phase 11 (D11.8): the material follows the class affinity (a hybrid's 6 parent materials).
+                if (ClassAffinity.Materials(item.ClassAffinity).Contains(item.Material, StringComparer.OrdinalIgnoreCase))
                     own++;
             }
             double share = total == 0 ? 0 : own / (double)total;
-            TestBase.AssertTrue(share > 0.85, $"weapons mostly take their class's materials ({share:P0})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(share > 0.85, $"weapons mostly take their affinity's materials ({share:P0})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        // ---------- Phase 11 (Documentation/CORE_DESIGN_PASS_2026-11-17.md, D11.2-D11.12) ----------
+
+        private static readonly string[] Rarities = { "Common", "Uncommon", "Rare", "Epic", "Legendary", "Mythic" };
+
+        private static IEnumerable<(Item Item, ItemRollSpec Spec)> RollMix(int perRarity, int itemLevel = 60, int seed0 = 50000)
+        {
+            int k = 0;
+            foreach (string r in Rarities)
+                foreach (var x in Roll(new ItemRollRequest { ItemLevel = itemLevel, Rarity = r, AllowRollUps = false }, perRarity, seed0 + 10000 * k++))
+                    yield return x;
+        }
+
+        private static IEnumerable<(ItemModLineInfo Info, ItemModFamily Family)> MechanicLines(Item item)
+        {
+            var infos = item.Modifications.Select(m => m.ModLine).Concat(item.StatBonuses.Select(b => b.ModLine))
+                .Where(l => l != null && (l.Pool == ModPools.Mechanic || l.Pool == ModPools.Material)).Cast<ItemModLineInfo>();
+            var seen = new HashSet<string>();
+            foreach (var info in infos)
+                if (seen.Add(info.Family) && _cache.ItemMods.Find(info.Family) is { } f)
+                    yield return (info, f);
+        }
+
+        private static void TestEveryItemHasAffinityAndMaterial()
+        {
+            int total = 0, ok = 0;
+            foreach (var (item, spec) in RollMix(60))
+            {
+                total++;
+                if (ClassAffinity.IsAffinity(item.ClassAffinity) && !string.IsNullOrWhiteSpace(item.Material) && spec.Affinity == item.ClassAffinity)
+                    ok++;
+            }
+            TestBase.AssertTrue(total > 0 && ok == total, $"every item has one of the 10 class affinities and a material ({ok}/{total})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var hybrids = RollMix(60).Count(x => ClassAffinity.Hybrid(x.Item.ClassAffinity) != null);
+            TestBase.AssertTrue(hybrids > 0, $"some items have a hybrid affinity ({hybrids})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestSlotDomainsGateLines()
+        {
+            var bad = new List<string>();
+            int lines = 0;
+            foreach (var (item, spec) in RollMix(80))
+                foreach (var l in item.Modifications.Select(m => m.ModLine).Concat(item.StatBonuses.Select(b => b.ModLine)).Where(l => l != null))
+                {
+                    var f = _cache.ItemMods.Find(l!.Family);
+                    if (f == null)
+                        continue;
+                    lines++;
+                    if (!l.OffSlot && !f.AllowsSlot(spec.Slot))
+                        bad.Add($"{f.Family}@{spec.Slot}");
+                }
+            TestBase.AssertTrue(lines > 0 && bad.Count == 0, $"lines roll only in their slot domain unless marked off-slot ({lines} lines; bad: {string.Join(", ", bad.Distinct().Take(8))})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var extra = _cache.ItemMods.Find("Extra Action Slot");
+            TestBase.AssertTrue(extra != null && extra.AllowsSlot("head") && !extra.AllowsSlot("weapon"),
+                "extra action slots are a Head line", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestOffSlotIsRareSingleAndLower()
+        {
+            int items = 0, withOff = 0, multi = 0, lowRarity = 0;
+            foreach (var (item, spec) in RollMix(400, 70, 90000))
+            {
+                items++;
+                int n = spec.RollUps.Count(r => r.StartsWith("offslot:", StringComparison.Ordinal));
+                if (n > 0)
+                    withOff++;
+                if (n > 1)
+                    multi++;
+                if (n > 0 && RarityOrder.IndexOf(item.Rarity) < 2)
+                    lowRarity++;
+            }
+            double share = items == 0 ? 0 : withOff / (double)items;
+            Console.WriteLine($"  off-slot lines: {withOff}/{items} items ({share:P1})");
+            TestBase.AssertTrue(multi == 0 && lowRarity == 0, $"at most one off-slot line per item, never below Rare (multi {multi}, low {lowRarity})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(withOff > 0 && share < 0.1, $"off-slot lines are rare but happen ({share:P1})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static string Relation(string affinity, ItemModFamily f, string material)
+        {
+            var classes = (f.Classes ?? new List<string>())
+                .Select(c => c == "material" ? ClassAffinity.ClassOfMaterial(material) ?? "" : c).Where(c => c.Length > 0).ToList();
+            if (classes.Count == 0)
+                return "neutral";
+            if (classes.Contains(affinity))
+                return "own";
+            return classes.Any(c => ClassAffinity.Related(affinity, c)) ? "related" : "off";
+        }
+
+        private static void TestFirstMechanicLineServesAffinity()
+        {
+            int items = 0, onClass = 0;
+            foreach (var (item, spec) in RollMix(120, 60, 120000).Where(x => RarityOrder.IndexOf(x.Item.Rarity) >= 2))
+            {
+                var first = spec.Lines.Select(l => _cache.ItemMods.Find(l.Family))
+                    .FirstOrDefault(f => f != null && (f.Pool == ModPools.Mechanic || f.Pool == ModPools.Material));
+                if (first == null)
+                    continue;
+                items++;
+                string rel = Relation(item.ClassAffinity, first, item.Material);
+                if (rel is "own" or "related")
+                    onClass++;
+            }
+            double share = items == 0 ? 0 : onClass / (double)items;
+            TestBase.AssertTrue(items > 0 && share > 0.8, $"the first mechanic line serves the item's class or a related one ({share:P0} of {items})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestClassAffinityTiltsLines()
+        {
+            var counts = new Dictionary<string, int> { ["own"] = 0, ["related"] = 0, ["off"] = 0, ["neutral"] = 0 };
+            foreach (var (item, _) in RollMix(200, 60, 150000).Where(x => RarityOrder.IndexOf(x.Item.Rarity) >= 1))
+                foreach (var (_, f) in MechanicLines(item))
+                    counts[Relation(item.ClassAffinity, f, item.Material)]++;
+            int classed = counts["own"] + counts["related"] + counts["off"];
+            double own = classed == 0 ? 0 : counts["own"] / (double)classed;
+            double rel = classed == 0 ? 0 : counts["related"] / (double)classed;
+            double off = classed == 0 ? 0 : counts["off"] / (double)classed;
+            Console.WriteLine($"  mechanic lines by class: own {own:P0}, related {rel:P0}, off {off:P0} (+{counts["neutral"]} neutral; target ~70/20/10)");
+            TestBase.AssertTrue(own > rel && own > off && off > 0, $"own-class lines lead, off-class lines stay possible (own {own:P0}, related {rel:P0}, off {off:P0})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEveryHybridHasLines()
+        {
+            var thin = HybridTrees.All.Select(h => h.Tag)
+                .Where(tag => _cache.ItemMods.Families.Count(f => f.Classes?.Contains(tag) == true) < 2).ToList();
+            TestBase.AssertTrue(thin.Count == 0, $"every hybrid has at least 2 composite lines (thin: {string.Join(", ", thin)})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        private static void TestEveryRuleLineParses()
+        {
+            var bad = new List<string>();
+            int rules = 0;
+            foreach (var family in _cache.ItemMods.Families.Where(f => f.Kind == "mod"))
+            {
+                var template = (_cache.Modifications ?? new List<Modification>())
+                    .FirstOrDefault(m => string.Equals(m.Name?.Trim(), family.Template, StringComparison.OrdinalIgnoreCase));
+                if (string.IsNullOrWhiteSpace(template?.CrossWire))
+                    continue;
+                foreach (string part in template!.CrossWire.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                {
+                    rules++;
+                    string text = part.Replace("{n}", Math.Max(1, (int)Math.Round(template.MinValue)).ToString(System.Globalization.CultureInfo.InvariantCulture));
+                    if (CrossWireRule.Parse(text, family.Family) == null)
+                        bad.Add($"{family.Family}: {text}");
+                }
+            }
+            TestBase.AssertTrue(rules > 40 && bad.Count == 0, $"every item rule line parses ({rules} rules; bad: {string.Join(" | ", bad)})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestRarerActionsWeighLess()

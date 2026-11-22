@@ -1743,6 +1743,295 @@ affix template runtime went with the one rule engine, 2026-11-19/20.) Re-measure
 
 ---
 
+## Phase 11 — Reimagine: layer jobs, strip shapes, class-paired items, slot domains (2026-11-21)
+
+### Inventory (measured 2026-11-21)
+- `ItemModTable` already supports a hard slot gate per family (`slots`) and per tier (`slots`, `slotLevel`), and
+  `ItemRoller` filters by it **before** the roll. **No family in `ItemMods.json` uses it**: slot and class today only
+  tilt weights (`Tilt`: `1 + influenceAffinity × tag matches`, capped at `influenceCap`; influence = class, slot,
+  weapon type, slot event family, material, its keyword / WHEN / class).
+- Materials feel strong because each is a closed loop (own event → own currency → own set payoff); most item
+  mechanic lines are standalone sentences that produce or consume nothing the build is counting.
+
+### Starting proposal
+**Layer jobs** (one job each, all competing for the strip — its slots, order and time):
+dice = uncertainty; attributes = strip shape; classes = one status + one payoff law; actions = the nouns
+(Setup / Sequence / Payoff); tags = the only way systems address each other; materials = create currency;
+items = bend (never pay out); statuses = the shared board; skills = permanent laws; enemies = each attacks one layer.
+Materials create, actions spend, items bend.
+
+**Attributes as one formula, one term each:**
+`chain = Σ slot i (base_i + STR) × (1 + INT·g·(i−1)) × P(connect | TEC) ÷ time(AGI)`.
+Every attribute helps everyone; the class law multiplies its own term. Enemies decide which shape wins
+(interrupters and armor favor STR, evasion punishes no-TEC, tanky fights reward INT), feeding the matchup select.
+
+### Decisions
+- **D11.1** **Strip shape is the key tension.** Ten classes, ten shapes; hybrids are considered alongside the
+  core four, each the overlap of its parents:
+
+  | Class | Attributes | Shape | Optimizes |
+  |---|---|---|---|
+  | Barbarian | STR | Front-heavy | big early payoff, short strip |
+  | Warrior | AGI | Wide | many cheap cards, more events |
+  | Rogue | TEC | Exact | conditions, specific rolls |
+  | Wizard | INT | Back-heavy | per-slot growth, cards acting on later cards |
+  | Warbrute | STR+AGI | Momentum | each hit grows the next |
+  | Ravager | STR+TEC | Execution | big hits on reliable rolls, crit windows |
+  | Ragecaller | STR+INT | Bookends | opener and finisher, middle sacrificed |
+  | Duelist | AGI+TEC | Rhythm | alternation, odd/even, counters |
+  | Spellblade | AGI+INT | Echo | repeats and copies across slots |
+  | Hexblade | TEC+INT | Composition | deterministic engines, cards rewriting later cards |
+
+  Shape is not the only axis: recovery after a break, banking vs bursting, repetition vs variety and fitting
+  inside the enemy's turn are cross-class axes enemies can pressure. (Open: confirm the list.)
+- **D11.2** **Item mechanics pair by class affinity.** Every item rolls one of the 10 classes; its mechanic lines
+  come from that class's shape vocabulary (hybrid items: own pool + both parents'). Class is a **strong tilt, not
+  a hard gate**: off-class lines stay possible and rare.
+- **D11.3** **Items never deal damage.** Lines are the existing **prefixes and suffixes** on Uncommon+ items
+  (Commons: stats only). Rarity sets the line count and which tier range a family can reach; item level and
+  requirements (slot, class, unlock) decide which families and tiers can roll (the 11-14 loot model, unchanged).
+  An aura (applies to every other item, or to every action) is just one kind of mod, **parked** (revised 11-21).
+- **D11.4** **Slot domains: the slot is a requirement.** A line outside its slot's domain is filtered out of the
+  table before the roll:
+
+  | Slot | Domain | Slot-only lines |
+  |---|---|---|
+  | Weapon | what you swing | the card, crit / dice bands, card adverbs; sets the class |
+  | Head | how many, what order | extra action slots, opener / finisher / slot-position rules |
+  | Chest | what you hold | armor and HP, store scale (spend vs scale), set count |
+  | Legs | how fast | speed, combo threshold and chain growth, tempo statuses |
+  | Feet | what happens when it breaks | miss recovery, rerolls and nudges, keeping streak / stores after a break |
+
+- **D11.5** **Off-slot lines happen in random rare circumstances** (e.g. a high-rarity weapon with an extra action
+  slot): a small chance, rising with rarity, that one line ignores the slot gate.
+
+### The roll table: one filter system for every line (proposal, 2026-11-21)
+
+Every mod line is picked from a table built fresh for that line. Every rule that shapes the table is one of
+**four kinds**, applied in this order:
+
+| Kind | Effect | Example |
+|---|---|---|
+| **Gate** | removes the row before the roll | Head-only extra action slots; a tier above its rarity range |
+| **Escape** | a small chance that one gate is ignored for this line | an off-slot extra action slot on a Legendary weapon |
+| **Tilt** | multiplies the row's weight | Rogue item → Rogue, Duelist, Hexblade lines ×3 |
+| **Coherence** | each rolled line updates the context for the next | a Bleed adverb tilts later lines toward Bleed |
+
+**What the context knows** when a line rolls, in three rings, from most to least trusted:
+
+1. **The item itself:** slot, base type (weapon type or armor archetype), base tier, item level, rarity and drop
+   rarity, material, class affinity (one of 10), base modifier, granted card (its tags and role), lines so far.
+2. **Where it dropped:** enemy archetype and prefix, dungeon identity, region family, room affix, boss / Demon,
+   chest vs kill.
+3. **Who it drops for:** hero class and class points, worn sets, strip tags, learned skill nodes (`DROP`, existing),
+   Magic Find, systems unlocked so far.
+
+**Two stages.** Stage 1 rolls the item's identity (slot → base → class affinity → rarity → material); stage 2 rolls
+lines against that identity. The **class drop-rate bonus** lives in stage 1: it changes the odds of the item's
+class affinity, not the lines directly, so a boosted item is still a coherent item.
+
+**Gates (hard, never tilted):**
+- **Slot domain** (D11.4) and **base sub-domain**: within a slot the base narrows further (daggers can roll
+  rhythm lines, heavy chests can roll armor lines, wands can roll back-heavy growth).
+- **Item level** per tier, with `slotLevel` making a family arrive earlier on its home slot (extra action slot
+  ilvl 5 on Head, much later anywhere else).
+- **Rarity**: min and max per tier (Common-only highs exist via `maxRarity`).
+- **System unlock**: a family that uses stores, sets, statuses or skills can't roll until the hero has met
+  that system ("systems arrive on first event", D3).
+- **Meaning**: a line must have something to act on. "This card counts as Bleed" can't roll on a Bleed card;
+  a store-scale line needs a material with a store; an adverb needs a granted card.
+- **Exclusions**: no duplicate family, and no pairs that cancel out. Opposed shapes on one item are allowed;
+  that tension is interesting.
+
+**Escapes (only the slot gate and the base gate can be escaped):**
+- Chance per line, rising with rarity (e.g. Rare 1%, Epic 2%, Legendary 4%, Mythic 8%; knob), **at most one per
+  item**, never on the first mechanic line.
+- An escaped line rolls **one tier below** what its home slot would roll.
+- The loot reveal calls it out ("Rare circumstance") as its own moment (Phase 9).
+- Level, rarity, unlock and meaning gates are never escaped.
+
+**Tilts (multiply, capped per ring so no ring decides alone):**
+
+| Ring | Tilt | Default | Cap |
+|---|---|---|---|
+| Item | class affinity: own class | ×3 | ×4 |
+| Item | class affinity: a hybrid with this class as a parent, or a parent of this hybrid | ×1.5 | |
+| Item | card tag matches a line's tags | ×2 | |
+| Item | material: its store / WHEN / class | ×1.5 | |
+| Source | enemy archetype mirrors a class (Brute → Barbarian, Knight → Warrior, Assassin → Rogue, Sage → Wizard, Trickster / Beast → hybrids) | ×1.5 | ×2 |
+| Source | dungeon identity / region family themes | ×1.3 | |
+| Source | "see it, suffer it, own it": a status an enemy used on you this dungeon tilts lines that wield or answer it | ×1.5 | |
+| Hero | skill `DROP` nodes, Magic Find (explicit drop modifiers only, no build tailoring, D11.8) | as written | ×1.5 |
+
+Off-class lines keep weight ×1, so they stay possible and rare (D11.2). Target share: about 70% own class, 20%
+related hybrids, 10% everything else; tune the multipliers to that share, not by eye.
+
+**Coherence (line to line):**
+- The **first mechanic line** must be home slot and own class: every item has a clear identity.
+- Each rolled line adds its tags to the context, so later lines lean toward the same story (exists today:
+  each line "tilts the next pick").
+- An adverb that names a tag tilts later lines toward that tag's families.
+
+**Schema per family / tier** (`ItemMods.json`, generated by `build-item-mods.py`):
+```
+"requires": { "slots": [...], "bases": [...], "rarityMin": "Rare", "unlock": "sets", "needs": "card|store|tag:x" },
+"classes":  ["rogue", "duelist", "hexblade"],
+"tags":     [...],
+"escape":   true,
+"excludes": ["family"]
+```
+Global knobs in `lootSystem.itemGeneration`: escape chance per rarity, escape tier drop, tilt values, ring caps,
+the class-share targets.
+
+- **D11.6** **The source tilt reads every enemy in the room** (not only the boss): each enemy's archetype and
+  prefix add to the drop ring, within its cap.
+- **D11.7** **Every item always has a material and a class affinity**, Commons and starters included. Commons use
+  them for stat lines and set count; mechanic lines still start at Uncommon.
+
+- **D11.8** **Loot aligns with itself, not with the hero's build.** No tilt from worn sets or strip tags. Instead
+  an item's parts agree with each other: the class affinity and the material are rolled together (a Barbarian
+  item strongly favors the three Barbarian materials; a hybrid item favors either parent's materials; the
+  non-class materials, Leather, Stone, Strange, Celestial, fit any affinity), and every line then tilts toward
+  what synergizes with that class's builds (its shape, status, store and tags). A Barbarian material therefore
+  comes with lines that are generally good for Barbarian builds, and likewise for every class. Off-class parts
+  stay possible and rare (D11.2). The hero ring keeps only explicit drop modifiers (skill `DROP` nodes, Magic Find).
+
+**Open:** _(none)_
+
+### Line vocabulary: today's families mapped (revised 2026-11-21)
+
+Today: 94 families, all rolled as prefixes or suffixes. Prefixes: 12 stat mods (Heavy, Swift, ..., the 4
+composite ones) and 27 material-pool mechanics (4 material templates, 18 cross-wires, 5 slot-position rules).
+Suffixes: 22 stat families (attributes, life, defense, regen, magic find, 6 composite) and 33 mechanic uniques.
+Only the stat families and 3 others carry a class tag; no family carries a slot.
+
+**Decisions (11-21):**
+- **D11.9** **Cross-wires do not define hybrids.** Converting one material's currency into another's is too
+  complicated for loot. The 12 class cross-wires leave item loot (minimal approach); the 6 non-class ones
+  (Frayed, Gritted, Cryptic, Peculiar, Ominous, Smouldering) stay as their material's own lines.
+- **D11.10** **Hybrid lines are composites of their parents' lines**, one keyword rolling two parent families at
+  the part share, like the composite stat families today (Griffin = Strength + Agility, Savage = Brutality +
+  Menace). No new mechanics. The `hybrid` family kind already does this (`ItemRoller.MaterializeHybrid`); using
+  it with mechanic parts is untested.
+- **D11.11** **Lines using statuses outside the 7 core move onto the core:** Poison → Bleed (Poisonous,
+  Envenomed), Stun → Stagger (Concussive), Slow → Stagger (Leaden, Hourglass), Weaken → Rattle (Sapping),
+  Mark → Expose (Hunter's, Bountied).
+
+**Why hybrids were thin:** no item family was ever written for a hybrid. Their identity lives in the skill
+trees, and loot only had the 4 composite stat suffixes and 4 composite prefixes. Without cross-wires the
+count was Ragecaller 1, Spellblade 0, Hexblade 2. Composites fix it without new rules.
+
+**Proposed mapping** (affinity · slot · prefix/suffix as today):
+
+| Family | Does | Affinity | Slot |
+|---|---|---|---|
+| Brutality (Heavy) | +damage | Barbarian | Weapon |
+| Aim (Swift) | +hit | Rogue | Weapon |
+| Menace (Long) | +crit | Rogue | Weapon |
+| Poise (Balanced) | +combo | Warrior | Legs |
+| Swiftness (Featherweight) | +speed | Warrior | Legs |
+| Flurry (Light) | multihit | Warrior | Weapon |
+| Amplify (Keen) | +AMP | Wizard | Head |
+| Flaming | Burn on connect | Wizard | Weapon |
+| serrated | Bleed on connect | Rogue | Weapon |
+| Poisonous → Bleed | on connect | Rogue | Weapon |
+| Listening / Attuned / Charged-Up / Doubled | material currency and set | material's class | Chest (Listening: any) |
+| Opening | +dmg on opener | Barbarian | Head |
+| Closing | +dmg on finisher | Wizard | Head |
+| Follow-Through | +dmg slot 2 | Barbarian | Head |
+| Third-Strike | +dmg slot 3 | Warrior | Head |
+| Late-Blooming / Linked | +dmg late slots | Wizard | Head |
+| Sighting | +crit slot 2 | Rogue | Head |
+| Steadied | +hit slot 3 | Rogue | Head |
+| Extra Action Slot | +strip slots | any (Wizard tilt) | Head |
+| Bloodbound | HP cost, +dmg | Barbarian | Chest |
+| Thorned | reflect on hit | Barbarian | Chest |
+| Towering | +armor, slower | Warrior | Chest |
+| Mismatched | +dmg with 4+ materials | neutral | Chest |
+| Ledgered | big spend → Focus | Wizard | Chest |
+| Ember-Woven | apply Burn → +INT | Wizard | Chest |
+| Hunter's → Expose | +armor vs Exposed | Rogue | Chest |
+| Ponderous | +dmg, slower | Barbarian | Legs |
+| Hourglass → Stagger | apply → +AGI | Warrior | Legs |
+| Winged | fast actions → Harden | Warrior | Legs |
+| Berserker's | +dmg below 50% HP | Barbarian | Feet |
+| Bloodied | +crit below 50% HP | Barbarian | Feet |
+| Jester's | miss → +TEC | Rogue | Feet |
+| Feasting / Trophy-Strung | on kill | Rogue | Feet |
+| Bountied → Expose | kill Exposed → +crit | Rogue | Feet |
+| Vampiric | heal on connect | Barbarian | Weapon |
+| Butcher's | +dmg per Bleed | Rogue | Weapon |
+| Headsman's | +dmg target < 30% | Barbarian | Weapon |
+| Leaden → Stagger | +dmg vs Staggered | Barbarian | Weapon |
+| Concussive → Stagger | every 2nd crit | Barbarian | Weapon |
+| Prying | every 2nd connect → Expose | Rogue | Weapon |
+| Sapping → Rattle | every 3rd connect | Warrior | Weapon |
+| Envenomed → Bleed | odd roll | Rogue | Weapon |
+| Silvered / Giantslaying | +dmg vs prefix | neutral (room-enemy tilt, D11.6) | Weapon |
+| attribute / life / defense / regen / magic find suffixes | stats | by attribute (STR Barbarian, ...); defensive neutral | any |
+
+**Hybrid composites** (2 per hybrid to start; existing ones reassigned):
+
+| Hybrid | Composite 1 | Composite 2 |
+|---|---|---|
+| Warbrute (Barb+War) | Griffin: Strength + Agility (exists) | Brutality + Swiftness |
+| Ravager (Barb+Rog) | Savage: Brutality + Menace (exists) | Headsman's + Sighting |
+| Ragecaller (Barb+Wiz) | Strength + Intelligence | Opening + Closing (bookends) |
+| Duelist (War+Rog) | Agility + Technique | Swiftness + Aim |
+| Spellblade (War+Wiz) | Agility + Intelligence | Swiftness + Amplify |
+| Hexblade (Rog+Wiz) | Sphinx: Intelligence + Technique (exists) | Steadied + Late-Blooming |
+
+Existing composites without a hybrid home: Flowing (Poise + Swiftness) = Warrior, Precise (Aim + Menace) =
+Rogue, Echoing (Amplify + Flurry) = Spellblade, Minotaur / Basilisk / Phoenix / Kraken = defensive, by the
+attribute part.
+
+**Coverage after mapping** (mechanic prefixes/suffixes per class, composites included): Barbarian 12,
+Warrior 9, Rogue 15, Wizard 8, each hybrid 2-3. By slot: Weapon 17, Head 10, Chest 11, Legs 5, Feet 6.
+**Gaps:** Warrior has no Guard lines; Wizard has no "card acts on a later card" lines (its Phase 3 identity);
+Legs and Feet are thin.
+
+### New lines for the gaps (D11.12, accepted 2026-11-21)
+
+Existing verbs only (no new mechanics). **Guard = today's Harden** (+Defense per stack, the mirror of Expose);
+the rename waits for build step 5. Every line is one family with a tier ladder like the rest: low tiers from
+Uncommon, the strongest only at high item level and rarity (rarity sets the reachable range).
+
+| Line | Affinity | Slot | Rule | Why it fits |
+|---|---|---|---|---|
+| **Bracing** | Warrior | Chest | `ONCONNECT EVERY {n} -> ADD harden 1` (n 4 → 2 by tier) | wide strips stack Guard |
+| **of the Wall** | Warrior | Weapon | `WHILE -> DAMAGE +{n}% PER SELF harden` | Guard pays out |
+| **Hastening** | Warrior | Legs | `ONCOMBO EVERY {n} -> ADD haste 1` | many links, faster links |
+| **Unyielding** | Warrior | Feet | `ONMISS -> ADD harden {n}` | a miss leaves you guarded |
+| **Cascading** | Wizard | Head | `ONCOMBO -> NEXT AMP {n}%` | each link grows the next card |
+| **Foretelling** | Wizard | Weapon | `ONCONNECT IF SLOT=1 -> NEXT AMP {n}% FOR 3 RAMP` | the opener primes later cards |
+| **Recurring** | Wizard | Head | `ONCOMBO IF SLOTSLEFT=0 CHANCE {n}% -> RETRIGGER finisher` (high tiers only) | the last card fires again |
+| **Long-Striding** | Wizard | Legs | `WHILE IF SLOT>=4 -> SPEED +{n}%` | long chains get the time to finish |
+| **Rekindling** | Wizard | Feet | `ONCOMBOEND -> NEXT AMP {n}%` | a broken chain keeps some growth |
+| **Momentous** | Barbarian | Legs | `WHILE IF LENGTH>=1.2 -> DAMAGE +{n}%` | slow heavy cards hit harder |
+| **Defiant** | Barbarian | Feet | `ONCOMBOEND IF STEP<=2 -> NEXT DAMAGE {n}%` | a short chain banks its hit |
+| **Steady-Footed** | Rogue | Legs | `WHILE -> COMBO +{n}` | reliable links |
+| **Sure-Footed** | Rogue | Feet | `ONMISS -> NEXT HIT +{n}` | a miss sets up the next roll |
+
+Each core class now has one Legs and one Feet line, with one rule per shape: Barbarian rewards slow, short
+chains; Warrior many links; Rogue reliable rolls; Wizard long chains that grow. They also give the hybrid
+composites (D11.10) more parts: e.g. Spellblade Hastening + Cascading, Ragecaller Momentous + Rekindling.
+
+**After these:** Barbarian 14, Warrior 13, Rogue 17, Wizard 13; Legs 11, Feet 12.
+
+**To check before data:** `PER SELF harden`, a passive `LENGTH` condition, `NEXT AMP ... FOR 3 RAMP` and
+`CHANCE` on `RETRIGGER` should all parse in today's grammar; verify each with a rule-parse test.
+
+### Implementation notes (done 2026-11-21, branch `phase11-item-rolls`; see REBUILD_STATUS_2026-11-21.md)
+1. Data: tag every family in `ItemMods.json` with its slot domain (`slots`) and base sub-domain, its classes
+   (10) and its unlock, via `Scripts/build-item-mods.py`.
+2. Code: stage-1 class affinity roll (class drop-rate bonus), then in `ItemRoller` line picks: meaning and
+   unlock gates, the escape rule, ringed tilts with caps, first-line coherence. `ItemRollRequest` gains the
+   drop source (enemy archetype / prefix, room, boss).
+3. Config: knobs above, tuned to the class-share targets by a loot-table report (no combat sims needed).
+4. Data: composite hybrid families (D11.10), status remaps (D11.11), drop the 12 class cross-wires from loot (D11.9).
+
+---
+
 ## Running ledgers
 
 **Vocabulary budget** (words the player sees)

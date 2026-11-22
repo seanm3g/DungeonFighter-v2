@@ -149,6 +149,41 @@ namespace RPGGame
         /// <summary>A hybrid line (two stats in one keyword) rolls each part at this share of a single-stat line.</summary>
         public double HybridPartShare { get; set; } = 0.6;
 
+        // ---- Phase 11 (Documentation/CORE_DESIGN_PASS_2026-11-17.md, D11.2-D11.8) ----
+
+        /// <summary>Chance an item's class affinity is one of its base class's 3 hybrids instead of the class itself.</summary>
+        public double HybridAffinityShare { get; set; } = 0.3;
+
+        /// <summary>Weight × this for a family serving the item's own affinity (strong tilt, not a gate).</summary>
+        public double OwnClassTilt { get; set; } = 3.5;
+
+        /// <summary>Weight × this for a family serving a related class (a hybrid and its parent, either way).</summary>
+        public double RelatedClassTilt { get; set; } = 1.2;
+
+        /// <summary>Weight × this for a family serving an unrelated class (rare off-class lines).</summary>
+        public double OffClassTilt { get; set; } = 1.0;
+
+        /// <summary>Weight × this for a neutral family (no classes).</summary>
+        public double NeutralClassTilt { get; set; } = 1.0;
+
+        /// <summary>Per drop rarity: chance the item gets one line outside its slot domain (at most one per item, never the
+        /// first mechanic line, one tier lower). D11.5.</summary>
+        public Dictionary<string, double> OffSlotChance { get; set; } = DefaultOffSlotChance();
+
+        /// <summary>Tiers an off-slot line drops below what it would roll (floor: the lowest tier).</summary>
+        public int OffSlotTierDrop { get; set; } = 1;
+
+        /// <summary>The first mechanic line must serve the item's affinity and come from its own slot (D11.8 coherence).</summary>
+        public bool FirstMechanicLineOnClass { get; set; } = true;
+
+        public static Dictionary<string, double> DefaultOffSlotChance() => new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["Common"] = 0, ["Uncommon"] = 0, ["Rare"] = 0.01, ["Epic"] = 0.02, ["Legendary"] = 0.04, ["Mythic"] = 0.08
+        };
+
+        public double OffSlotChanceFor(string? rarity) =>
+            OffSlotChance != null && rarity != null && OffSlotChance.TryGetValue(rarity.Trim(), out double c) ? Math.Clamp(c, 0, 1) : 0;
+
         public void EnsureSensibleDefaults()
         {
             SlotWeights ??= new Dictionary<string, double>();
@@ -165,6 +200,11 @@ namespace RPGGame
             WeaponSpeedPerTier = Math.Clamp(WeaponSpeedPerTier, 0, 0.2);
             TierRollUp ??= new RollUpRule(0.08, 0.5, 2);
             HeroClassShare = Math.Clamp(HeroClassShare, 0, 1);
+            HybridAffinityShare = Math.Clamp(HybridAffinityShare, 0, 1);
+            OffSlotChance = OffSlotChance == null || OffSlotChance.Count == 0
+                ? DefaultOffSlotChance()
+                : new Dictionary<string, double>(OffSlotChance, StringComparer.OrdinalIgnoreCase);
+            OffSlotTierDrop = Math.Max(0, OffSlotTierDrop);
             if (InfluenceCap < 1)
                 InfluenceCap = 1;
         }

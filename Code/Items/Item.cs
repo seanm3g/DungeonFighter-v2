@@ -251,6 +251,10 @@ namespace RPGGame
         /// <summary>Suffix lines: common (descriptor) / uncommon (animal) / rare (poetic phrase). Null on prefixes and old lines.</summary>
         [JsonPropertyName("suffixKind")]
         public string? SuffixKind { get; set; }
+
+        /// <summary>True when this line rolled outside its family's slot domain (the rare escape, D11.5).</summary>
+        [JsonPropertyName("offSlot")]
+        public bool OffSlot { get; set; }
     }
 
     public class ArmorStatus
@@ -318,6 +322,11 @@ namespace RPGGame
         /// <summary>Class the base item belongs to (barbarian / warrior / rogue / wizard); empty on legacy items.</summary>
         [JsonPropertyName("itemClass")]
         public string ItemClass { get; set; } = "";
+
+        /// <summary>Class affinity (Phase 11, D11.7): one of the 10 classes, 4 core + 6 hybrids (<see cref="Data.ItemGeneration.ClassAffinity"/>).
+        /// It picked the material and tilted the lines. Empty on items rolled before 2026-11-21.</summary>
+        [JsonPropertyName("classAffinity")]
+        public string ClassAffinity { get; set; } = "";
 
         /// <summary>Legacy: the base item's implicit trigger name (pre 2026-11-15 saves); <see cref="ItemSaveMigration"/> turns it into a base modifier on load.</summary>
         [JsonPropertyName("implicit")]

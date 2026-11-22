@@ -101,7 +101,17 @@ namespace RPGGame.Data.ItemGeneration
         /// <summary>Tooltip text for stat lines; <c>{n}</c> is the rolled value.</summary>
         [JsonPropertyName("description")] public string? Description { get; set; }
 
+        /// <summary>Slot domain (D11.4): the slots this family rolls on; empty = any. An off-slot line can still roll
+        /// through the rare escape (D11.5) unless <see cref="Escape"/> is false.</summary>
         [JsonPropertyName("slots")] public List<string>? Slots { get; set; }
+
+        /// <summary>Class affinity (D11.2): the classes (4 core + 6 hybrids, <see cref="ClassAffinity"/>) whose builds
+        /// this family serves; "material" = the item's material's class. Empty = neutral.</summary>
+        [JsonPropertyName("classes")] public List<string>? Classes { get; set; }
+
+        /// <summary>False: the slot domain is absolute (never rolls off-slot).</summary>
+        [JsonPropertyName("escape")] public bool? Escape { get; set; }
+
         [JsonPropertyName("weight")] public double Weight { get; set; } = 1;
 
         /// <summary>Influence tags: what this family leans toward (class, events, stores, stats).</summary>

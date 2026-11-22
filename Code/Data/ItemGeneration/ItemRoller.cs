@@ -81,6 +81,15 @@ namespace RPGGame.Data.ItemGeneration
             /// <summary>Rarity used for line gates and values: the drop rarity, before any rarity roll-up.</summary>
             private int _rarityIndex;
             private string? _modifierTemplate;
+            /// <summary>Class affinity, one of 10 (Phase 11, D11.7): picks the material and tilts the lines.</summary>
+            private string _affinity = "";
+            /// <summary>Mechanic lines (mechanic / material pool) rolled so far; the first one is held to the affinity.</summary>
+            private int _mechanicLines;
+            /// <summary>True once a line has rolled outside its slot domain (at most one per item, D11.5).</summary>
+            private bool _escaped;
+            private bool? _escapePlanned;
+
+            private enum SlotMode { Home, OffSlot, Ignore }
 
             public RollState(ItemRoller roller, ItemRollRequest request, ItemRollSpec spec, int seed)
             {
@@ -125,6 +134,7 @@ namespace RPGGame.Data.ItemGeneration
                 if (!BuildBase(baseRng, cls, tier))
                     return null;
                 _spec.Slot = _slot;
+                RollAffinity(For("affinity"));
 
                 // 5. Rarity. A roll-up gives the higher rarity's line count, suffixes and name; the lines still roll as
                 // the drop rarity (so a rolled-up Common keeps the common-only high tiers).
@@ -190,6 +200,22 @@ namespace RPGGame.Data.ItemGeneration
                     return own[rng.Next(own.Count)];
                 var others = ClassTags.All.Where(c => !own.Contains(c)).ToList();
                 return others[rng.Next(others.Count)];
+            }
+
+            /// <summary>
+            /// Class affinity (D11.7): the base's class, or at <see cref="ItemGenerationConfig.HybridAffinityShare"/> one of
+            /// the 3 hybrids with that class as a parent. The class drop-rate bonus already acted on the base's class.
+            /// </summary>
+            private void RollAffinity(Random rng)
+            {
+                string core = ClassAffinity.IsCore(_spec.Class) ? ClassAffinity.Norm(_spec.Class) : ClassTags.All[rng.Next(ClassTags.All.Length)];
+                string affinity = core;
+                var hybrids = ClassAffinity.HybridsOf(core);
+                if (hybrids.Count > 0 && rng.NextDouble() < Cfg.HybridAffinityShare)
+                    affinity = hybrids[rng.Next(hybrids.Count)];
+                _affinity = affinity;
+                _item.ClassAffinity = affinity;
+                _spec.Affinity = affinity;
             }
 
             // ---------- 4. base item ----------
@@ -399,10 +425,11 @@ namespace RPGGame.Data.ItemGeneration
                 string material;
                 bool weapon = _item is WeaponItem;
                 double share = weapon ? Cfg.WeaponClassMaterialShare : Cfg.ArmorClassMaterialShare;
-                if (rng.NextDouble() < share && ClassTags.WeaponOf(_spec.Class) is WeaponType classWeapon
-                    && ItemMaterialRules.TryPickFamilyMaterial(classWeapon, rng, out string family))
+                // D11.8: the affinity and the material agree (a core class's 3 materials, a hybrid's 6 parent materials).
+                var affinityMaterials = ClassAffinity.Materials(_affinity);
+                if (rng.NextDouble() < share && affinityMaterials.Count > 0)
                 {
-                    material = family;
+                    material = affinityMaterials[rng.Next(affinityMaterials.Count)];
                 }
                 else if (weapon)
                 {
@@ -480,12 +507,93 @@ namespace RPGGame.Data.ItemGeneration
                     _influence.Add(n);
             }
 
+            /// <summary>Tag influence; class names are left out (the class tilt is <see cref="ClassTilt"/>, from <c>classes</c>).</summary>
             private double Tilt(IEnumerable<string>? tags)
             {
                 if (tags == null)
                     return 1.0;
-                int matches = tags.Count(t => _influence.Contains(Norm(t)));
+                int matches = tags.Count(t => !ClassAffinity.IsAffinity(t) && _influence.Contains(Norm(t)));
                 return Math.Min(Cfg.InfluenceCap, 1.0 + Cfg.InfluenceAffinity * matches);
+            }
+
+            /// <summary>The family's classes, with "material" read as the item's material's class.</summary>
+            private List<string> ClassesOf(ItemModFamily f)
+            {
+                var list = new List<string>();
+                foreach (string raw in f.Classes ?? new List<string>())
+                {
+                    string c = ClassAffinity.Norm(raw);
+                    if (c == "material")
+                    {
+                        if (ClassAffinity.ClassOfMaterial(_item.Material) is { } mc)
+                            list.Add(mc);
+                    }
+                    else if (c.Length > 0)
+                        list.Add(c);
+                }
+                return list;
+            }
+
+            private bool ServesAffinity(ItemModFamily f) => ClassesOf(f).Contains(_affinity);
+
+            private bool ServesRelated(ItemModFamily f) => ClassesOf(f).Any(c => ClassAffinity.Related(_affinity, c));
+
+            /// <summary>Strong class tilt, not a gate (D11.2): own x3, related x1.5, off-class and neutral x1 by default.</summary>
+            private double ClassTilt(ItemModFamily f)
+            {
+                var classes = ClassesOf(f);
+                if (classes.Count == 0)
+                    return Cfg.NeutralClassTilt;
+                if (classes.Contains(_affinity))
+                    return Cfg.OwnClassTilt;
+                if (classes.Any(c => ClassAffinity.Related(_affinity, c)))
+                    return Cfg.RelatedClassTilt;
+                return Cfg.OffClassTilt;
+            }
+
+            private double FamilyWeight(ItemModFamily f) => Math.Max(0, f.Weight) * Tilt(f.Tags) * ClassTilt(f);
+
+            private static bool IsMechanic(ItemModFamily f) =>
+                f.Pool == ModPools.Mechanic || f.Pool == ModPools.Material;
+
+            /// <summary>
+            /// The rare escape (D11.5): rolled once per item at its drop rarity's chance; when it hits, the first line after
+            /// the first mechanic line that has an off-slot option takes it (one per item, a tier lower).
+            /// </summary>
+            private bool TryEscape()
+            {
+                if (_escaped || _mechanicLines == 0)
+                    return false;
+                if (_escapePlanned == null)
+                {
+                    double chance = Cfg.OffSlotChanceFor(RarityOrder.Names[Math.Clamp(_rarityIndex, 0, RarityOrder.Names.Length - 1)]);
+                    _escapePlanned = chance > 0 && For("escape").NextDouble() < chance;
+                }
+                return _escapePlanned.Value;
+            }
+
+            /// <summary>
+            /// The line's candidates: off-slot ones when it escapes (falling back to home ones when none exist), then the
+            /// first mechanic line held to the affinity (then related classes), so every item has a clear identity.
+            /// </summary>
+            private List<ItemModFamily> Candidates(Func<SlotMode, List<ItemModFamily>> source, out bool escaped)
+            {
+                escaped = TryEscape();
+                var list = escaped ? source(SlotMode.OffSlot) : new List<ItemModFamily>();
+                if (list.Count == 0)
+                {
+                    escaped = false;
+                    list = source(SlotMode.Home);
+                }
+                if (Cfg.FirstMechanicLineOnClass && _mechanicLines == 0 && list.Count > 0 && list.All(IsMechanic))
+                {
+                    var own = list.Where(ServesAffinity).ToList();
+                    if (own.Count == 0)
+                        own = list.Where(ServesRelated).ToList();
+                    if (own.Count > 0)
+                        list = own;
+                }
+                return list;
             }
 
             // ---------- 7. line count ----------
@@ -574,8 +682,8 @@ namespace RPGGame.Data.ItemGeneration
             }
 
             /// <summary>Families a weighted (prefix) line can roll; suffixes roll by kind in <see cref="RollSuffixes"/>.</summary>
-            private List<ItemModFamily> EligibleFamilies(string pool) =>
-                Cache.ItemMods.InPool(pool).Where(f => string.IsNullOrWhiteSpace(f.SuffixKind) && FamilyAllowed(f) && EligibleTiers(f).Count > 0).ToList();
+            private List<ItemModFamily> EligibleFamilies(string pool, SlotMode mode = SlotMode.Home) =>
+                Cache.ItemMods.InPool(pool).Where(f => string.IsNullOrWhiteSpace(f.SuffixKind) && FamilyAllowed(f, mode) && EligibleTiers(f).Count > 0).ToList();
 
             /// <summary>
             /// Suffixes: at most one of each kind (common descriptor, uncommon animal, rare poetic phrase). The item's rarity
@@ -604,13 +712,14 @@ namespace RPGGame.Data.ItemGeneration
                 {
                     if (!kinds.Contains(kind))
                         continue;
-                    var families = Cache.ItemMods.Families
-                        .Where(f => string.Equals(f.SuffixKind, kind, StringComparison.OrdinalIgnoreCase) && FamilyAllowed(f) && EligibleTiers(f).Count > 0)
-                        .ToList();
+                    string k = kind;
+                    var families = Candidates(mode => Cache.ItemMods.Families
+                        .Where(f => string.Equals(f.SuffixKind, k, StringComparison.OrdinalIgnoreCase) && FamilyAllowed(f, mode) && EligibleTiers(f).Count > 0)
+                        .ToList(), out bool escaped);
                     for (int attempt = 0; attempt < 3 && families.Count > 0; attempt++)
                     {
-                        var family = PickWeighted(lineRng, families, f => Math.Max(0, f.Weight) * Tilt(f.Tags));
-                        if (RollModLine(family.Pool, lineRng, family.Pool, chosenFamily: family))
+                        var family = PickWeighted(lineRng, families, FamilyWeight);
+                        if (RollModLine(family.Pool, lineRng, family.Pool, chosenFamily: family, offSlot: escaped))
                         {
                             rolled++;
                             break;
@@ -621,9 +730,15 @@ namespace RPGGame.Data.ItemGeneration
                 return rolled;
             }
 
-            private bool FamilyAllowed(ItemModFamily f)
+            private bool FamilyAllowed(ItemModFamily f, SlotMode mode = SlotMode.Home)
             {
-                if (_usedFamilies.Contains(f.Family) || !f.AllowsSlot(_slot))
+                if (_usedFamilies.Contains(f.Family))
+                    return false;
+                // D11.4 slot domain, D11.5 the escape: an off-slot pick takes only families outside this slot's domain.
+                bool home = f.AllowsSlot(_slot);
+                if (mode == SlotMode.Home && !home)
+                    return false;
+                if (mode == SlotMode.OffSlot && (home || f.Escape == false))
                     return false;
                 switch (f.Kind?.ToLowerInvariant())
                 {
@@ -647,10 +762,11 @@ namespace RPGGame.Data.ItemGeneration
                         return true;
                     case "hybrid":
                         // Every part must exist and still be free (a hybrid and its own single stat never share an item).
+                        // The composite's own slots decide where it rolls; its parts' slots don't.
                         return f.Parts is { Count: > 0 }
                             && f.Parts.All(p => Cache.ItemMods.Find(p) is { } part
                                 && !string.Equals(part.Kind, "hybrid", StringComparison.OrdinalIgnoreCase)
-                                && FamilyAllowed(part));
+                                && FamilyAllowed(part, SlotMode.Ignore));
                     default:
                         return false;
                 }
@@ -669,7 +785,8 @@ namespace RPGGame.Data.ItemGeneration
                 return list;
             }
 
-            private bool RollModLine(string pool, Random rng, string plannedPool, ItemModFamily? forcedFamily = null, ItemModFamily? chosenFamily = null)
+            private bool RollModLine(string pool, Random rng, string plannedPool, ItemModFamily? forcedFamily = null, ItemModFamily? chosenFamily = null,
+                bool offSlot = false)
             {
                 ItemModFamily family;
                 if (forcedFamily != null)
@@ -682,10 +799,10 @@ namespace RPGGame.Data.ItemGeneration
                 }
                 else
                 {
-                    var families = EligibleFamilies(pool);
+                    var families = Candidates(mode => EligibleFamilies(pool, mode), out offSlot);
                     if (families.Count == 0)
                         return false;
-                    family = PickWeighted(rng, families, f => Math.Max(0, f.Weight) * Tilt(f.Tags));
+                    family = PickWeighted(rng, families, FamilyWeight);
                 }
 
                 var tiers = EligibleTiers(family);
@@ -696,6 +813,15 @@ namespace RPGGame.Data.ItemGeneration
                     tiers.Add(0);
                 }
                 int tierIndex = PickWeighted(rng, tiers, i => Math.Max(0, family.Tiers[i].Weight));
+
+                // An off-slot line rolls a tier (or more) below what its home slot would (D11.5).
+                if (offSlot && Cfg.OffSlotTierDrop > 0 && forcedFamily == null)
+                {
+                    var down = tiers.OrderBy(i => family.Tiers[i].Max).ThenBy(i => family.Tiers[i].LevelFor(_slot)).ToList();
+                    int at = down.IndexOf(tierIndex);
+                    if (at > 0)
+                        tierIndex = down[Math.Max(0, at - Cfg.OffSlotTierDrop)];
+                }
 
                 // Tier roll-up: the next stronger tier this slot and rarity allow, ignoring its item level.
                 bool rolledUp = false;
@@ -731,7 +857,8 @@ namespace RPGGame.Data.ItemGeneration
                     Affix = family.Affix ?? "",
                     Keyword = tier.Keyword,
                     RolledUp = rolledUp,
-                    SuffixKind = string.IsNullOrWhiteSpace(family.SuffixKind) ? null : family.SuffixKind!.Trim().ToLowerInvariant()
+                    SuffixKind = string.IsNullOrWhiteSpace(family.SuffixKind) ? null : family.SuffixKind!.Trim().ToLowerInvariant(),
+                    OffSlot = offSlot && forcedFamily == null
                 };
                 bool materialized = string.Equals(family.Kind, "hybrid", StringComparison.OrdinalIgnoreCase)
                     ? MaterializeHybrid(family, tierIndex, tier, info, rng, out value)
@@ -740,6 +867,13 @@ namespace RPGGame.Data.ItemGeneration
                     return false;
 
                 _usedFamilies.Add(family.Family);
+                if (IsMechanic(family))
+                    _mechanicLines++;
+                if (info.OffSlot)
+                {
+                    _escaped = true;
+                    _spec.RollUps.Add($"offslot:{family.Family}");
+                }
                 AddInfluence(family.Family);
                 foreach (var tag in family.Tags ?? new List<string>())
                     AddInfluence(tag);
@@ -843,7 +977,7 @@ namespace RPGGame.Data.ItemGeneration
                     var partInfo = new ItemModLineInfo
                     {
                         Pool = info.Pool, Family = info.Family, Tier = info.Tier, Affix = info.Affix, Keyword = info.Keyword, RolledUp = info.RolledUp,
-                        SuffixKind = info.SuffixKind
+                        SuffixKind = info.SuffixKind, OffSlot = info.OffSlot
                     };
                     if (!Materialize(part, partTier, v, partInfo, rng))
                         return false;

@@ -122,7 +122,10 @@
           "maxRarity": "Common"
         }
       ],
-      "suffixKind": "uncommon"
+      "suffixKind": "uncommon",
+      "classes": [
+        "barbarian"
+      ]
     },
     {
       "family": "Agility",
@@ -245,7 +248,10 @@
           "maxRarity": "Common"
         }
       ],
-      "suffixKind": "uncommon"
+      "suffixKind": "uncommon",
+      "classes": [
+        "warrior"
+      ]
     },
     {
       "family": "Technique",
@@ -368,7 +374,10 @@
           "maxRarity": "Common"
         }
       ],
-      "suffixKind": "uncommon"
+      "suffixKind": "uncommon",
+      "classes": [
+        "rogue"
+      ]
     },
     {
       "family": "Intelligence",
@@ -491,7 +500,10 @@
           "maxRarity": "Common"
         }
       ],
-      "suffixKind": "uncommon"
+      "suffixKind": "uncommon",
+      "classes": [
+        "wizard"
+      ]
     },
     {
       "family": "Life",
@@ -615,7 +627,10 @@
           "maxRarity": "Common"
         }
       ],
-      "suffixKind": "uncommon"
+      "suffixKind": "uncommon",
+      "classes": [
+        "barbarian"
+      ]
     },
     {
       "family": "Defense",
@@ -1104,6 +1119,13 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "weapon",
+        "chest"
       ]
     },
     {
@@ -1225,6 +1247,13 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "weapon",
+        "feet"
       ]
     },
     {
@@ -1346,6 +1375,13 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "weapon",
+        "head"
       ]
     },
     {
@@ -1467,6 +1503,13 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "legs",
+        "feet"
       ]
     },
     {
@@ -1588,6 +1631,12 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "legs"
       ]
     },
     {
@@ -1709,6 +1758,13 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "weapon",
+        "chest"
       ]
     },
     {
@@ -1830,6 +1886,13 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "wizard"
+      ],
+      "slots": [
+        "head",
+        "chest"
       ]
     },
     {
@@ -2029,7 +2092,10 @@
           "maxRarity": "Common"
         }
       ],
-      "suffixKind": "uncommon"
+      "suffixKind": "uncommon",
+      "classes": [
+        "warbrute"
+      ]
     },
     {
       "family": "Minotaur",
@@ -2158,7 +2224,10 @@
           "maxRarity": "Common"
         }
       ],
-      "suffixKind": "uncommon"
+      "suffixKind": "uncommon",
+      "classes": [
+        "barbarian"
+      ]
     },
     {
       "family": "Sphinx",
@@ -2287,7 +2356,10 @@
           "maxRarity": "Common"
         }
       ],
-      "suffixKind": "uncommon"
+      "suffixKind": "uncommon",
+      "classes": [
+        "hexblade"
+      ]
     },
     {
       "family": "Basilisk",
@@ -2416,7 +2488,10 @@
           "maxRarity": "Common"
         }
       ],
-      "suffixKind": "uncommon"
+      "suffixKind": "uncommon",
+      "classes": [
+        "rogue"
+      ]
     },
     {
       "family": "Phoenix",
@@ -2545,7 +2620,10 @@
           "maxRarity": "Common"
         }
       ],
-      "suffixKind": "uncommon"
+      "suffixKind": "uncommon",
+      "classes": [
+        "wizard"
+      ]
     },
     {
       "family": "Kraken",
@@ -2676,6 +2754,402 @@
       "suffixKind": "uncommon"
     },
     {
+      "family": "Chimera",
+      "pool": "stat",
+      "affix": "suffix",
+      "kind": "hybrid",
+      "parts": [
+        "Strength",
+        "Intelligence"
+      ],
+      "description": "+{n}% strength + +{n}% intelligence",
+      "weight": 5,
+      "tags": [
+        "barbarian",
+        "int",
+        "intelligence",
+        "str",
+        "strength",
+        "wizard"
+      ],
+      "integer": false,
+      "tiers": [
+        {
+          "keyword": "of the Young Chimera",
+          "min": 8.06,
+          "max": 12.9,
+          "level": 1,
+          "weight": 100
+        },
+        {
+          "keyword": "of the Uncanny Young Chimera",
+          "min": 13.54,
+          "max": 19.35,
+          "level": 1,
+          "weight": 25,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Chimera",
+          "min": 12.9,
+          "max": 17.74,
+          "level": 6,
+          "weight": 140
+        },
+        {
+          "keyword": "of the Uncanny Chimera",
+          "min": 18.63,
+          "max": 26.62,
+          "level": 6,
+          "weight": 35,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Great Chimera",
+          "min": 17.74,
+          "max": 24.19,
+          "level": 14,
+          "weight": 180
+        },
+        {
+          "keyword": "of the Uncanny Great Chimera",
+          "min": 25.4,
+          "max": 36.29,
+          "level": 14,
+          "weight": 45,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Dire Chimera",
+          "min": 24.19,
+          "max": 30.64,
+          "level": 25,
+          "weight": 220
+        },
+        {
+          "keyword": "of the Uncanny Dire Chimera",
+          "min": 32.17,
+          "max": 45.97,
+          "level": 25,
+          "weight": 55,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Elder Chimera",
+          "min": 30.64,
+          "max": 38.71,
+          "level": 40,
+          "weight": 260
+        },
+        {
+          "keyword": "of the Uncanny Elder Chimera",
+          "min": 40.64,
+          "max": 58.06,
+          "level": 40,
+          "weight": 65,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Ancient Chimera",
+          "min": 38.71,
+          "max": 46.77,
+          "level": 60,
+          "weight": 300
+        },
+        {
+          "keyword": "of the Uncanny Ancient Chimera",
+          "min": 49.11,
+          "max": 70.16,
+          "level": 60,
+          "weight": 75,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Primal Chimera",
+          "min": 46.77,
+          "max": 54.83,
+          "level": 80,
+          "weight": 340
+        },
+        {
+          "keyword": "of the Uncanny Primal Chimera",
+          "min": 57.58,
+          "max": 82.25,
+          "level": 80,
+          "weight": 85,
+          "maxRarity": "Common"
+        }
+      ],
+      "suffixKind": "uncommon",
+      "classes": [
+        "ragecaller"
+      ]
+    },
+    {
+      "family": "Lynx",
+      "pool": "stat",
+      "affix": "suffix",
+      "kind": "hybrid",
+      "parts": [
+        "Agility",
+        "Technique"
+      ],
+      "description": "+{n}% agility + +{n}% technique",
+      "weight": 5,
+      "tags": [
+        "agi",
+        "agility",
+        "rogue",
+        "tec",
+        "technique",
+        "warrior"
+      ],
+      "integer": false,
+      "tiers": [
+        {
+          "keyword": "of the Young Lynx",
+          "min": 12.05,
+          "max": 19.28,
+          "level": 1,
+          "weight": 100
+        },
+        {
+          "keyword": "of the Uncanny Young Lynx",
+          "min": 20.24,
+          "max": 28.92,
+          "level": 1,
+          "weight": 25,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Lynx",
+          "min": 19.28,
+          "max": 26.51,
+          "level": 6,
+          "weight": 140
+        },
+        {
+          "keyword": "of the Uncanny Lynx",
+          "min": 27.83,
+          "max": 39.76,
+          "level": 6,
+          "weight": 35,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Great Lynx",
+          "min": 26.51,
+          "max": 36.14,
+          "level": 14,
+          "weight": 180
+        },
+        {
+          "keyword": "of the Uncanny Great Lynx",
+          "min": 37.95,
+          "max": 54.22,
+          "level": 14,
+          "weight": 45,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Dire Lynx",
+          "min": 36.14,
+          "max": 45.79,
+          "level": 25,
+          "weight": 220
+        },
+        {
+          "keyword": "of the Uncanny Dire Lynx",
+          "min": 48.08,
+          "max": 68.68,
+          "level": 25,
+          "weight": 55,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Elder Lynx",
+          "min": 45.79,
+          "max": 57.83,
+          "level": 40,
+          "weight": 260
+        },
+        {
+          "keyword": "of the Uncanny Elder Lynx",
+          "min": 60.73,
+          "max": 86.75,
+          "level": 40,
+          "weight": 65,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Ancient Lynx",
+          "min": 57.83,
+          "max": 69.88,
+          "level": 60,
+          "weight": 300
+        },
+        {
+          "keyword": "of the Uncanny Ancient Lynx",
+          "min": 73.37,
+          "max": 104.82,
+          "level": 60,
+          "weight": 75,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Primal Lynx",
+          "min": 69.88,
+          "max": 81.93,
+          "level": 80,
+          "weight": 340
+        },
+        {
+          "keyword": "of the Uncanny Primal Lynx",
+          "min": 86.03,
+          "max": 122.9,
+          "level": 80,
+          "weight": 85,
+          "maxRarity": "Common"
+        }
+      ],
+      "suffixKind": "uncommon",
+      "classes": [
+        "duelist"
+      ]
+    },
+    {
+      "family": "Djinn",
+      "pool": "stat",
+      "affix": "suffix",
+      "kind": "hybrid",
+      "parts": [
+        "Agility",
+        "Intelligence"
+      ],
+      "description": "+{n}% agility + +{n}% intelligence",
+      "weight": 5,
+      "tags": [
+        "agi",
+        "agility",
+        "int",
+        "intelligence",
+        "warrior",
+        "wizard"
+      ],
+      "integer": false,
+      "tiers": [
+        {
+          "keyword": "of the Young Djinn",
+          "min": 12.05,
+          "max": 19.28,
+          "level": 1,
+          "weight": 100
+        },
+        {
+          "keyword": "of the Uncanny Young Djinn",
+          "min": 20.24,
+          "max": 28.92,
+          "level": 1,
+          "weight": 25,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Djinn",
+          "min": 19.28,
+          "max": 26.51,
+          "level": 6,
+          "weight": 140
+        },
+        {
+          "keyword": "of the Uncanny Djinn",
+          "min": 27.83,
+          "max": 39.76,
+          "level": 6,
+          "weight": 35,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Great Djinn",
+          "min": 26.51,
+          "max": 36.14,
+          "level": 14,
+          "weight": 180
+        },
+        {
+          "keyword": "of the Uncanny Great Djinn",
+          "min": 37.95,
+          "max": 54.22,
+          "level": 14,
+          "weight": 45,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Dire Djinn",
+          "min": 36.14,
+          "max": 45.79,
+          "level": 25,
+          "weight": 220
+        },
+        {
+          "keyword": "of the Uncanny Dire Djinn",
+          "min": 48.08,
+          "max": 68.68,
+          "level": 25,
+          "weight": 55,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Elder Djinn",
+          "min": 45.79,
+          "max": 57.83,
+          "level": 40,
+          "weight": 260
+        },
+        {
+          "keyword": "of the Uncanny Elder Djinn",
+          "min": 60.73,
+          "max": 86.75,
+          "level": 40,
+          "weight": 65,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Ancient Djinn",
+          "min": 57.83,
+          "max": 69.88,
+          "level": 60,
+          "weight": 300
+        },
+        {
+          "keyword": "of the Uncanny Ancient Djinn",
+          "min": 73.37,
+          "max": 104.82,
+          "level": 60,
+          "weight": 75,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "of the Primal Djinn",
+          "min": 69.88,
+          "max": 81.93,
+          "level": 80,
+          "weight": 340
+        },
+        {
+          "keyword": "of the Uncanny Primal Djinn",
+          "min": 86.03,
+          "max": 122.9,
+          "level": 80,
+          "weight": 85,
+          "maxRarity": "Common"
+        }
+      ],
+      "suffixKind": "uncommon",
+      "classes": [
+        "spellblade"
+      ]
+    },
+    {
       "family": "Savage",
       "pool": "stat",
       "affix": "prefix",
@@ -2801,6 +3275,12 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "ravager"
+      ],
+      "slots": [
+        "weapon"
       ]
     },
     {
@@ -2928,6 +3408,13 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "legs",
+        "feet"
       ]
     },
     {
@@ -3056,6 +3543,12 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "weapon"
       ]
     },
     {
@@ -3184,6 +3677,418 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "spellblade"
+      ],
+      "slots": [
+        "head",
+        "weapon"
+      ]
+    },
+    {
+      "family": "Rampant",
+      "pool": "stat",
+      "affix": "prefix",
+      "kind": "hybrid",
+      "parts": [
+        "Brutality",
+        "Swiftness"
+      ],
+      "description": "Brutality + Swiftness",
+      "weight": 5,
+      "tags": [
+        "barbarian",
+        "damage",
+        "offense",
+        "onturn",
+        "speed",
+        "warrior"
+      ],
+      "integer": false,
+      "tiers": [
+        {
+          "keyword": "Brisk",
+          "min": 0.4,
+          "max": 0.63,
+          "level": 1,
+          "weight": 100
+        },
+        {
+          "keyword": "Uncanny Brisk",
+          "min": 0.66,
+          "max": 0.95,
+          "level": 1,
+          "weight": 25,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Rampant",
+          "min": 0.63,
+          "max": 0.87,
+          "level": 6,
+          "weight": 140
+        },
+        {
+          "keyword": "Uncanny Rampant",
+          "min": 0.91,
+          "max": 1.3,
+          "level": 6,
+          "weight": 35,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Charging",
+          "min": 0.87,
+          "max": 1.19,
+          "level": 14,
+          "weight": 180
+        },
+        {
+          "keyword": "Uncanny Charging",
+          "min": 1.25,
+          "max": 1.78,
+          "level": 14,
+          "weight": 45,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Stampeding",
+          "min": 1.19,
+          "max": 1.51,
+          "level": 25,
+          "weight": 220
+        },
+        {
+          "keyword": "Uncanny Stampeding",
+          "min": 1.58,
+          "max": 2.26,
+          "level": 25,
+          "weight": 55,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Trampling",
+          "min": 1.51,
+          "max": 1.9,
+          "level": 40,
+          "weight": 260
+        },
+        {
+          "keyword": "Uncanny Trampling",
+          "min": 1.99,
+          "max": 2.84,
+          "level": 40,
+          "weight": 65,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Juggernaut",
+          "min": 1.9,
+          "max": 2.29,
+          "level": 60,
+          "weight": 300
+        },
+        {
+          "keyword": "Uncanny Juggernaut",
+          "min": 2.41,
+          "max": 3.44,
+          "level": 60,
+          "weight": 75,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Unstoppable",
+          "min": 2.29,
+          "max": 2.69,
+          "level": 80,
+          "weight": 340
+        },
+        {
+          "keyword": "Uncanny Unstoppable",
+          "min": 2.82,
+          "max": 4.03,
+          "level": 80,
+          "weight": 85,
+          "maxRarity": "Common"
+        }
+      ],
+      "classes": [
+        "warbrute"
+      ],
+      "slots": [
+        "weapon",
+        "legs"
+      ]
+    },
+    {
+      "family": "Fencing",
+      "pool": "stat",
+      "affix": "prefix",
+      "kind": "hybrid",
+      "parts": [
+        "Swiftness",
+        "Aim"
+      ],
+      "description": "Swiftness + Aim",
+      "weight": 5,
+      "tags": [
+        "accuracy",
+        "hit",
+        "onconnect",
+        "onturn",
+        "speed",
+        "warrior"
+      ],
+      "integer": false,
+      "tiers": [
+        {
+          "keyword": "Lunging",
+          "min": 0.01,
+          "max": 0.02,
+          "level": 1,
+          "weight": 100
+        },
+        {
+          "keyword": "Uncanny Lunging",
+          "min": 0.02,
+          "max": 0.02,
+          "level": 1,
+          "weight": 25,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Fencing",
+          "min": 0.02,
+          "max": 0.03,
+          "level": 6,
+          "weight": 140
+        },
+        {
+          "keyword": "Uncanny Fencing",
+          "min": 0.03,
+          "max": 0.05,
+          "level": 6,
+          "weight": 35,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Feinting",
+          "min": 0.03,
+          "max": 0.04,
+          "level": 14,
+          "weight": 180
+        },
+        {
+          "keyword": "Uncanny Feinting",
+          "min": 0.04,
+          "max": 0.05,
+          "level": 14,
+          "weight": 45,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Dueling",
+          "min": 0.04,
+          "max": 0.05,
+          "level": 25,
+          "weight": 220
+        },
+        {
+          "keyword": "Uncanny Dueling",
+          "min": 0.05,
+          "max": 0.07,
+          "level": 25,
+          "weight": 55,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Bladedancing",
+          "min": 0.05,
+          "max": 0.06,
+          "level": 40,
+          "weight": 260
+        },
+        {
+          "keyword": "Uncanny Bladedancing",
+          "min": 0.07,
+          "max": 0.09,
+          "level": 40,
+          "weight": 65,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Swordsaint's",
+          "min": 0.06,
+          "max": 0.07,
+          "level": 60,
+          "weight": 300
+        },
+        {
+          "keyword": "Uncanny Swordsaint's",
+          "min": 0.08,
+          "max": 0.11,
+          "level": 60,
+          "weight": 75,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Peerless",
+          "min": 0.07,
+          "max": 0.08,
+          "level": 80,
+          "weight": 340
+        },
+        {
+          "keyword": "Uncanny Peerless",
+          "min": 0.09,
+          "max": 0.13,
+          "level": 80,
+          "weight": 85,
+          "maxRarity": "Common"
+        }
+      ],
+      "classes": [
+        "duelist"
+      ],
+      "slots": [
+        "legs",
+        "weapon"
+      ]
+    },
+    {
+      "family": "Arcing",
+      "pool": "stat",
+      "affix": "prefix",
+      "kind": "hybrid",
+      "parts": [
+        "Swiftness",
+        "Amplify"
+      ],
+      "description": "Swiftness + Amplify",
+      "weight": 5,
+      "tags": [
+        "amp",
+        "oncombo",
+        "onturn",
+        "speed",
+        "warrior",
+        "wizard"
+      ],
+      "integer": false,
+      "tiers": [
+        {
+          "keyword": "Sparking",
+          "min": 0.01,
+          "max": 0.02,
+          "level": 1,
+          "weight": 100
+        },
+        {
+          "keyword": "Uncanny Sparking",
+          "min": 0.02,
+          "max": 0.02,
+          "level": 1,
+          "weight": 25,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Arcing",
+          "min": 0.02,
+          "max": 0.03,
+          "level": 6,
+          "weight": 140
+        },
+        {
+          "keyword": "Uncanny Arcing",
+          "min": 0.03,
+          "max": 0.05,
+          "level": 6,
+          "weight": 35,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Crackling",
+          "min": 0.03,
+          "max": 0.04,
+          "level": 14,
+          "weight": 180
+        },
+        {
+          "keyword": "Uncanny Crackling",
+          "min": 0.04,
+          "max": 0.05,
+          "level": 14,
+          "weight": 45,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Galvanic",
+          "min": 0.04,
+          "max": 0.05,
+          "level": 25,
+          "weight": 220
+        },
+        {
+          "keyword": "Uncanny Galvanic",
+          "min": 0.05,
+          "max": 0.07,
+          "level": 25,
+          "weight": 55,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Thunderstruck",
+          "min": 0.05,
+          "max": 0.06,
+          "level": 40,
+          "weight": 260
+        },
+        {
+          "keyword": "Uncanny Thunderstruck",
+          "min": 0.07,
+          "max": 0.09,
+          "level": 40,
+          "weight": 65,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Stormcalled",
+          "min": 0.06,
+          "max": 0.07,
+          "level": 60,
+          "weight": 300
+        },
+        {
+          "keyword": "Uncanny Stormcalled",
+          "min": 0.08,
+          "max": 0.11,
+          "level": 60,
+          "weight": 75,
+          "maxRarity": "Common"
+        },
+        {
+          "keyword": "Skyrending",
+          "min": 0.07,
+          "max": 0.08,
+          "level": 80,
+          "weight": 340
+        },
+        {
+          "keyword": "Uncanny Skyrending",
+          "min": 0.09,
+          "max": 0.13,
+          "level": 80,
+          "weight": 85,
+          "maxRarity": "Common"
+        }
+      ],
+      "classes": [
+        "spellblade"
+      ],
+      "slots": [
+        "legs",
+        "head"
       ]
     },
     {
@@ -3237,59 +4142,13 @@
           "weight": 260
         }
       ],
-      "suffixKind": "rare"
-    },
-    {
-      "family": "Venom",
-      "pool": "mechanic",
-      "affix": "suffix",
-      "kind": "mod",
-      "template": "Poisonous",
-      "weight": 10,
-      "tags": [
-        "poison",
-        "onconnect",
-        "rogue"
+      "suffixKind": "rare",
+      "classes": [
+        "wizard"
       ],
-      "integer": false,
-      "tiers": [
-        {
-          "keyword": "Grazed by the Serpent",
-          "min": 1.2,
-          "max": 2.0,
-          "level": 3,
-          "weight": 100
-        },
-        {
-          "keyword": "Kissed by the Serpent",
-          "min": 2.0,
-          "max": 2.8,
-          "level": 12,
-          "weight": 140
-        },
-        {
-          "keyword": "Bitten by the Serpent",
-          "min": 2.8,
-          "max": 3.8,
-          "level": 25,
-          "weight": 180
-        },
-        {
-          "keyword": "Fed by the Serpent",
-          "min": 3.8,
-          "max": 5.0,
-          "level": 45,
-          "weight": 220
-        },
-        {
-          "keyword": "Crowned by the Serpent",
-          "min": 5.0,
-          "max": 6.4,
-          "level": 70,
-          "weight": 260
-        }
-      ],
-      "suffixKind": "rare"
+      "slots": [
+        "weapon"
+      ]
     },
     {
       "family": "Bleeding",
@@ -3301,7 +4160,7 @@
       "tags": [
         "bleed",
         "onconnect",
-        "barbarian"
+        "rogue"
       ],
       "integer": false,
       "tiers": [
@@ -3341,7 +4200,13 @@
           "weight": 260
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "weapon"
+      ]
     },
     {
       "family": "Listening",
@@ -3377,6 +4242,9 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "classes": [
+        "material"
       ]
     },
     {
@@ -3413,6 +4281,12 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "classes": [
+        "material"
+      ],
+      "slots": [
+        "chest"
       ]
     },
     {
@@ -3449,6 +4323,12 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "classes": [
+        "material"
+      ],
+      "slots": [
+        "chest"
       ]
     },
     {
@@ -3485,6 +4365,12 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "classes": [
+        "material"
+      ],
+      "slots": [
+        "chest"
       ]
     },
     {
@@ -3522,7 +4408,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "head"
+      ]
     },
     {
       "family": "Closing",
@@ -3559,7 +4451,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "wizard"
+      ],
+      "slots": [
+        "head"
+      ]
     },
     {
       "family": "Bloodbound",
@@ -3596,186 +4494,12 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
-    },
-    {
-      "family": "Spiteful",
-      "pool": "material",
-      "affix": "prefix",
-      "kind": "mod",
-      "template": "Spiteful",
-      "weight": 1.0,
-      "tags": [
-        "crosswire",
-        "material"
+      "suffixKind": "rare",
+      "classes": [
+        "barbarian"
       ],
-      "integer": true,
-      "tiers": [
-        {
-          "keyword": "Petty",
-          "min": 1,
-          "max": 1,
-          "level": 1,
-          "weight": 100
-        },
-        {
-          "keyword": "Spiteful",
-          "min": 1,
-          "max": 1,
-          "level": 25,
-          "weight": 140
-        },
-        {
-          "keyword": "Vengeful",
-          "min": 2,
-          "max": 2,
-          "level": 55,
-          "weight": 180
-        }
-      ]
-    },
-    {
-      "family": "Resonant",
-      "pool": "material",
-      "affix": "prefix",
-      "kind": "mod",
-      "template": "Resonant",
-      "weight": 1.0,
-      "tags": [
-        "crosswire",
-        "material"
-      ],
-      "integer": true,
-      "tiers": [
-        {
-          "keyword": "Humming",
-          "min": 1,
-          "max": 1,
-          "level": 1,
-          "weight": 100
-        },
-        {
-          "keyword": "Resonant",
-          "min": 1,
-          "max": 1,
-          "level": 25,
-          "weight": 140
-        },
-        {
-          "keyword": "Thrumming",
-          "min": 2,
-          "max": 2,
-          "level": 55,
-          "weight": 180
-        }
-      ]
-    },
-    {
-      "family": "Measured",
-      "pool": "material",
-      "affix": "prefix",
-      "kind": "mod",
-      "template": "Measured",
-      "weight": 1.0,
-      "tags": [
-        "crosswire",
-        "material"
-      ],
-      "integer": true,
-      "tiers": [
-        {
-          "keyword": "Careful-Handed",
-          "min": 1,
-          "max": 1,
-          "level": 1,
-          "weight": 100
-        },
-        {
-          "keyword": "Measured",
-          "min": 1,
-          "max": 1,
-          "level": 25,
-          "weight": 140
-        },
-        {
-          "keyword": "Metered",
-          "min": 2,
-          "max": 2,
-          "level": 55,
-          "weight": 180
-        }
-      ]
-    },
-    {
-      "family": "Syncopated",
-      "pool": "material",
-      "affix": "prefix",
-      "kind": "mod",
-      "template": "Syncopated",
-      "weight": 1.0,
-      "tags": [
-        "crosswire",
-        "material"
-      ],
-      "integer": true,
-      "tiers": [
-        {
-          "keyword": "Offbeat",
-          "min": 1,
-          "max": 1,
-          "level": 1,
-          "weight": 100
-        },
-        {
-          "keyword": "Syncopated",
-          "min": 1,
-          "max": 1,
-          "level": 25,
-          "weight": 140
-        },
-        {
-          "keyword": "Polyrhythmic",
-          "min": 2,
-          "max": 2,
-          "level": 55,
-          "weight": 180
-        }
-      ]
-    },
-    {
-      "family": "Headhunter's",
-      "pool": "material",
-      "affix": "prefix",
-      "kind": "mod",
-      "template": "Headhunter's",
-      "weight": 1.0,
-      "tags": [
-        "crosswire",
-        "material"
-      ],
-      "integer": true,
-      "tiers": [
-        {
-          "keyword": "Tracker's",
-          "min": 1,
-          "max": 1,
-          "level": 1,
-          "weight": 100
-        },
-        {
-          "keyword": "Headhunter's",
-          "min": 1,
-          "max": 1,
-          "level": 25,
-          "weight": 140
-        },
-        {
-          "keyword": "Skullreaver's",
-          "min": 2,
-          "max": 2,
-          "level": 55,
-          "weight": 180
-        }
+      "slots": [
+        "chest"
       ]
     },
     {
@@ -3812,6 +4536,9 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "slots": [
+        "chest"
       ]
     },
     {
@@ -3850,6 +4577,9 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "slots": [
+        "chest"
       ]
     },
     {
@@ -3886,258 +4616,9 @@
           "level": 55,
           "weight": 180
         }
-      ]
-    },
-    {
-      "family": "Grim",
-      "pool": "material",
-      "affix": "prefix",
-      "kind": "mod",
-      "template": "Grim",
-      "weight": 1.0,
-      "tags": [
-        "crosswire",
-        "material"
       ],
-      "integer": true,
-      "tiers": [
-        {
-          "keyword": "Dour",
-          "min": 1,
-          "max": 1,
-          "level": 1,
-          "weight": 100
-        },
-        {
-          "keyword": "Grim",
-          "min": 1,
-          "max": 1,
-          "level": 25,
-          "weight": 140
-        },
-        {
-          "keyword": "Funereal",
-          "min": 2,
-          "max": 2,
-          "level": 55,
-          "weight": 180
-        }
-      ]
-    },
-    {
-      "family": "Weighted",
-      "pool": "material",
-      "affix": "prefix",
-      "kind": "mod",
-      "template": "Weighted",
-      "weight": 1.0,
-      "tags": [
-        "crosswire",
-        "material"
-      ],
-      "integer": true,
-      "tiers": [
-        {
-          "keyword": "Heavy-Set",
-          "min": 1,
-          "max": 1,
-          "level": 1,
-          "weight": 100
-        },
-        {
-          "keyword": "Weighted",
-          "min": 1,
-          "max": 1,
-          "level": 25,
-          "weight": 140
-        },
-        {
-          "keyword": "Anchored",
-          "min": 2,
-          "max": 2,
-          "level": 55,
-          "weight": 180
-        }
-      ]
-    },
-    {
-      "family": "Exultant",
-      "pool": "material",
-      "affix": "prefix",
-      "kind": "mod",
-      "template": "Exultant",
-      "weight": 1.0,
-      "tags": [
-        "crosswire",
-        "material"
-      ],
-      "integer": true,
-      "tiers": [
-        {
-          "keyword": "Glad",
-          "min": 1,
-          "max": 1,
-          "level": 1,
-          "weight": 100
-        },
-        {
-          "keyword": "Exultant",
-          "min": 1,
-          "max": 1,
-          "level": 25,
-          "weight": 140
-        },
-        {
-          "keyword": "Triumphant",
-          "min": 2,
-          "max": 2,
-          "level": 55,
-          "weight": 180
-        }
-      ]
-    },
-    {
-      "family": "Restless",
-      "pool": "material",
-      "affix": "prefix",
-      "kind": "mod",
-      "template": "Restless",
-      "weight": 1.0,
-      "tags": [
-        "crosswire",
-        "material"
-      ],
-      "integer": true,
-      "tiers": [
-        {
-          "keyword": "Fidgeting",
-          "min": 1,
-          "max": 1,
-          "level": 1,
-          "weight": 100
-        },
-        {
-          "keyword": "Restless",
-          "min": 1,
-          "max": 1,
-          "level": 25,
-          "weight": 140
-        },
-        {
-          "keyword": "Unsleeping",
-          "min": 2,
-          "max": 2,
-          "level": 55,
-          "weight": 180
-        }
-      ]
-    },
-    {
-      "family": "Scrying",
-      "pool": "material",
-      "affix": "prefix",
-      "kind": "mod",
-      "template": "Scrying",
-      "weight": 1.0,
-      "tags": [
-        "crosswire",
-        "material"
-      ],
-      "integer": true,
-      "tiers": [
-        {
-          "keyword": "Peering",
-          "min": 1,
-          "max": 1,
-          "level": 1,
-          "weight": 100
-        },
-        {
-          "keyword": "Scrying",
-          "min": 1,
-          "max": 1,
-          "level": 25,
-          "weight": 140
-        },
-        {
-          "keyword": "Farseeing",
-          "min": 2,
-          "max": 2,
-          "level": 55,
-          "weight": 180
-        }
-      ]
-    },
-    {
-      "family": "Rhythmic",
-      "pool": "material",
-      "affix": "prefix",
-      "kind": "mod",
-      "template": "Rhythmic",
-      "weight": 1.0,
-      "tags": [
-        "crosswire",
-        "material"
-      ],
-      "integer": true,
-      "tiers": [
-        {
-          "keyword": "Tapping",
-          "min": 1,
-          "max": 1,
-          "level": 1,
-          "weight": 100
-        },
-        {
-          "keyword": "Rhythmic",
-          "min": 1,
-          "max": 1,
-          "level": 25,
-          "weight": 140
-        },
-        {
-          "keyword": "Drumming",
-          "min": 2,
-          "max": 2,
-          "level": 55,
-          "weight": 180
-        }
-      ]
-    },
-    {
-      "family": "Prismatic",
-      "pool": "material",
-      "affix": "prefix",
-      "kind": "mod",
-      "template": "Prismatic",
-      "weight": 1.0,
-      "tags": [
-        "crosswire",
-        "material"
-      ],
-      "integer": true,
-      "tiers": [
-        {
-          "keyword": "Glinting",
-          "min": 1,
-          "max": 1,
-          "level": 1,
-          "weight": 100
-        },
-        {
-          "keyword": "Prismatic",
-          "min": 1,
-          "max": 1,
-          "level": 25,
-          "weight": 140
-        },
-        {
-          "keyword": "Iridescent",
-          "min": 2,
-          "max": 2,
-          "level": 55,
-          "weight": 180
-        }
+      "slots": [
+        "chest"
       ]
     },
     {
@@ -4174,6 +4655,9 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "slots": [
+        "chest"
       ]
     },
     {
@@ -4211,6 +4695,9 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "slots": [
+        "chest"
       ]
     },
     {
@@ -4247,6 +4734,9 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "slots": [
+        "chest"
       ]
     },
     {
@@ -4285,7 +4775,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "weapon"
+      ]
     },
     {
       "family": "Thorned",
@@ -4323,7 +4819,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "chest"
+      ]
     },
     {
       "family": "Butcher's",
@@ -4360,7 +4862,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "weapon"
+      ]
     },
     {
       "family": "Leaden",
@@ -4396,7 +4904,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "weapon"
+      ]
     },
     {
       "family": "Bloodied",
@@ -4432,7 +4946,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "feet"
+      ]
     },
     {
       "family": "Towering",
@@ -4468,7 +4988,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "chest"
+      ]
     },
     {
       "family": "Ponderous",
@@ -4504,7 +5030,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "legs"
+      ]
     },
     {
       "family": "Headsman's",
@@ -4540,7 +5072,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "weapon"
+      ]
     },
     {
       "family": "Berserker's",
@@ -4576,7 +5114,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "feet"
+      ]
     },
     {
       "family": "Concussive",
@@ -4615,7 +5159,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "weapon"
+      ]
     },
     {
       "family": "Prying",
@@ -4654,7 +5204,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "weapon"
+      ]
     },
     {
       "family": "Sapping",
@@ -4693,7 +5249,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "weapon"
+      ]
     },
     {
       "family": "Envenomed",
@@ -4704,7 +5266,7 @@
       "weight": 2.0,
       "tags": [
         "apply",
-        "poison",
+        "bleed",
         "rule"
       ],
       "integer": true,
@@ -4731,7 +5293,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "weapon"
+      ]
     },
     {
       "family": "Jester's",
@@ -4769,7 +5337,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "feet"
+      ]
     },
     {
       "family": "Silvered",
@@ -4805,7 +5379,10 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "slots": [
+        "weapon"
+      ]
     },
     {
       "family": "Giantslaying",
@@ -4841,7 +5418,10 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "slots": [
+        "weapon"
+      ]
     },
     {
       "family": "Hourglass",
@@ -4879,7 +5459,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "legs"
+      ]
     },
     {
       "family": "Ember-Woven",
@@ -4918,7 +5504,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "wizard"
+      ],
+      "slots": [
+        "chest"
+      ]
     },
     {
       "family": "Ledgered",
@@ -4954,7 +5546,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "wizard"
+      ],
+      "slots": [
+        "chest"
+      ]
     },
     {
       "family": "Mismatched",
@@ -4990,7 +5588,10 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "slots": [
+        "chest"
+      ]
     },
     {
       "family": "Linked",
@@ -5026,7 +5627,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "wizard"
+      ],
+      "slots": [
+        "head"
+      ]
     },
     {
       "family": "Winged",
@@ -5062,7 +5669,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "legs"
+      ]
     },
     {
       "family": "Feasting",
@@ -5100,7 +5713,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "feet"
+      ]
     },
     {
       "family": "Hunter's",
@@ -5136,7 +5755,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "chest"
+      ]
     },
     {
       "family": "Trophy-Strung",
@@ -5175,7 +5800,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "feet"
+      ]
     },
     {
       "family": "Bountied",
@@ -5213,7 +5844,13 @@
           "weight": 180
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "feet"
+      ]
     },
     {
       "family": "Follow-Through",
@@ -5249,6 +5886,12 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "head"
       ]
     },
     {
@@ -5285,6 +5928,12 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "head"
       ]
     },
     {
@@ -5321,6 +5970,12 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "classes": [
+        "wizard"
+      ],
+      "slots": [
+        "head"
       ]
     },
     {
@@ -5357,6 +6012,12 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "head"
       ]
     },
     {
@@ -5393,6 +6054,571 @@
           "level": 55,
           "weight": 180
         }
+      ],
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "head"
+      ]
+    },
+    {
+      "family": "Bracing",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Bracing",
+      "weight": 2.0,
+      "tags": [
+        "every",
+        "onconnect",
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Braced by Comrades",
+          "min": 1,
+          "max": 1,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Braced by a Shieldwall",
+          "min": 1,
+          "max": 1,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Braced by an Army",
+          "min": 2,
+          "max": 2,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "chest"
+      ]
+    },
+    {
+      "family": "Walled",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Walled",
+      "weight": 2.0,
+      "tags": [
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Raised Behind a Fence",
+          "min": 4,
+          "max": 6,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Raised Behind a Wall",
+          "min": 6,
+          "max": 8,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Raised Behind a Rampart",
+          "min": 7,
+          "max": 11,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "weapon"
+      ]
+    },
+    {
+      "family": "Hastening",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Hastening",
+      "weight": 2.0,
+      "tags": [
+        "every",
+        "oncombo",
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Hurried by a Drum",
+          "min": 1,
+          "max": 1,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Hurried by War Drums",
+          "min": 1,
+          "max": 1,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Hurried by Thunder",
+          "min": 2,
+          "max": 2,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "legs"
+      ]
+    },
+    {
+      "family": "Unyielding",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Unyielding",
+      "weight": 2.0,
+      "tags": [
+        "onmiss",
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Stood Through Rain",
+          "min": 1,
+          "max": 1,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Stood Through Storm",
+          "min": 1,
+          "max": 1,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Stood Through the End",
+          "min": 2,
+          "max": 2,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "warrior"
+      ],
+      "slots": [
+        "feet"
+      ]
+    },
+    {
+      "family": "Cascading",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Cascading",
+      "weight": 2.0,
+      "tags": [
+        "oncombo",
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Spilled from a Cup",
+          "min": 4,
+          "max": 6,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Spilled from a Fountain",
+          "min": 6,
+          "max": 8,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Spilled from the Heavens",
+          "min": 7,
+          "max": 11,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "wizard"
+      ],
+      "slots": [
+        "head"
+      ]
+    },
+    {
+      "family": "Foretelling",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Foretelling",
+      "weight": 2.0,
+      "tags": [
+        "onconnect",
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Read in Tea Leaves",
+          "min": 5,
+          "max": 8,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Read in the Stars",
+          "min": 7,
+          "max": 11,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Read in the Book of Ends",
+          "min": 9,
+          "max": 14,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "wizard"
+      ],
+      "slots": [
+        "weapon"
+      ]
+    },
+    {
+      "family": "Recurring",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Recurring",
+      "weight": 2.0,
+      "tags": [
+        "oncombo",
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Heard Twice",
+          "min": 10,
+          "max": 15,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Heard Again and Again",
+          "min": 14,
+          "max": 21,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Heard Forever After",
+          "min": 18,
+          "max": 27,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "wizard"
+      ],
+      "slots": [
+        "head"
+      ]
+    },
+    {
+      "family": "Long-Striding",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Long-Striding",
+      "weight": 2.0,
+      "tags": [
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Walked a Mile",
+          "min": 5,
+          "max": 8,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Walked a League",
+          "min": 7,
+          "max": 11,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Walked the World",
+          "min": 9,
+          "max": 14,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "wizard"
+      ],
+      "slots": [
+        "legs"
+      ]
+    },
+    {
+      "family": "Rekindling",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Rekindling",
+      "weight": 2.0,
+      "tags": [
+        "oncombo",
+        "oncomboend",
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Kept as Embers",
+          "min": 6,
+          "max": 10,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Kept as Coals",
+          "min": 8,
+          "max": 14,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Kept as a Hearthfire",
+          "min": 11,
+          "max": 18,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "wizard"
+      ],
+      "slots": [
+        "feet"
+      ]
+    },
+    {
+      "family": "Momentous",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Momentous",
+      "weight": 2.0,
+      "tags": [
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Swung by a Smith",
+          "min": 6,
+          "max": 10,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Swung by a Giant",
+          "min": 8,
+          "max": 14,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Swung by a Mountain",
+          "min": 11,
+          "max": 18,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "legs"
+      ]
+    },
+    {
+      "family": "Defiant",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Defiant",
+      "weight": 2.0,
+      "tags": [
+        "oncombo",
+        "oncomboend",
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Spat at Fate",
+          "min": 8,
+          "max": 12,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Spat at Kings",
+          "min": 11,
+          "max": 17,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Spat at the Gods",
+          "min": 14,
+          "max": 22,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "barbarian"
+      ],
+      "slots": [
+        "feet"
+      ]
+    },
+    {
+      "family": "Steady-Footed",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Steady-Footed",
+      "weight": 2.0,
+      "tags": [
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Trained on Ice",
+          "min": 1,
+          "max": 1,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Trained on Rope",
+          "min": 1,
+          "max": 1,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Trained on a Blade's Edge",
+          "min": 2,
+          "max": 2,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "legs"
+      ]
+    },
+    {
+      "family": "Sure-Footed",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "mod",
+      "template": "Sure-Footed",
+      "weight": 2.0,
+      "tags": [
+        "onmiss",
+        "rule"
+      ],
+      "integer": true,
+      "tiers": [
+        {
+          "keyword": "Learned from a Fall",
+          "min": 2,
+          "max": 3,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Learned from a Hundred Falls",
+          "min": 3,
+          "max": 4,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Learned from Every Fall",
+          "min": 4,
+          "max": 5,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "rogue"
+      ],
+      "slots": [
+        "feet"
       ]
     },
     {
@@ -5415,7 +6641,205 @@
           "weight": 100
         }
       ],
-      "suffixKind": "rare"
+      "suffixKind": "rare",
+      "classes": [
+        "wizard"
+      ],
+      "slots": [
+        "head"
+      ]
+    },
+    {
+      "family": "Executioner's Eye",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "hybrid",
+      "parts": [
+        "Headsman's",
+        "Sighting"
+      ],
+      "description": "Headsman's + Sighting",
+      "weight": 2.0,
+      "tags": [
+        "rule",
+        "slot"
+      ],
+      "integer": false,
+      "tiers": [
+        {
+          "keyword": "Watched the Block",
+          "min": 0,
+          "max": 0,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Watched the Gallows",
+          "min": 0,
+          "max": 0,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Watched the Last Day",
+          "min": 0,
+          "max": 0,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "ravager"
+      ],
+      "slots": [
+        "weapon",
+        "head"
+      ]
+    },
+    {
+      "family": "Bookended",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "hybrid",
+      "parts": [
+        "Opening",
+        "Closing"
+      ],
+      "description": "Opening + Closing",
+      "weight": 2.0,
+      "tags": [
+        "finisher",
+        "opener",
+        "rule"
+      ],
+      "integer": false,
+      "tiers": [
+        {
+          "keyword": "Opened and Closed by Rage",
+          "min": 0,
+          "max": 0,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Opened and Closed by Storms",
+          "min": 0,
+          "max": 0,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Opened and Closed by Ruin",
+          "min": 0,
+          "max": 0,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "ragecaller"
+      ],
+      "slots": [
+        "head"
+      ]
+    },
+    {
+      "family": "Hexed",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "hybrid",
+      "parts": [
+        "Steadied",
+        "Late-Blooming"
+      ],
+      "description": "Steadied + Late-Blooming",
+      "weight": 2.0,
+      "tags": [
+        "rule",
+        "slot"
+      ],
+      "integer": false,
+      "tiers": [
+        {
+          "keyword": "Cursed by a Neighbor",
+          "min": 0,
+          "max": 0,
+          "level": 1,
+          "weight": 100
+        },
+        {
+          "keyword": "Cursed by a Witch",
+          "min": 0,
+          "max": 0,
+          "level": 25,
+          "weight": 140
+        },
+        {
+          "keyword": "Cursed by a Coven",
+          "min": 0,
+          "max": 0,
+          "level": 55,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "hexblade"
+      ],
+      "slots": [
+        "head"
+      ]
+    },
+    {
+      "family": "Quickening",
+      "pool": "mechanic",
+      "affix": "suffix",
+      "kind": "hybrid",
+      "parts": [
+        "Hastening",
+        "Cascading"
+      ],
+      "description": "Hastening + Cascading",
+      "weight": 2.0,
+      "tags": [
+        "every",
+        "oncombo",
+        "rule"
+      ],
+      "integer": false,
+      "tiers": [
+        {
+          "keyword": "Caught in a Breeze",
+          "min": 0,
+          "max": 0,
+          "level": 8,
+          "weight": 100
+        },
+        {
+          "keyword": "Caught in a Gale",
+          "min": 0,
+          "max": 0,
+          "level": 30,
+          "weight": 140
+        },
+        {
+          "keyword": "Caught in a Maelstrom",
+          "min": 0,
+          "max": 0,
+          "level": 60,
+          "weight": 180
+        }
+      ],
+      "suffixKind": "rare",
+      "classes": [
+        "spellblade"
+      ],
+      "slots": [
+        "legs",
+        "head"
+      ]
     },
     {
       "family": "Might",
@@ -5538,6 +6962,9 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "barbarian"
       ]
     },
     {
@@ -5661,6 +7088,9 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "warrior"
       ]
     },
     {
@@ -5784,6 +7214,9 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "rogue"
       ]
     },
     {
@@ -5907,6 +7340,9 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "wizard"
       ]
     },
     {
@@ -6031,6 +7467,9 @@
           "weight": 85,
           "maxRarity": "Common"
         }
+      ],
+      "classes": [
+        "barbarian"
       ]
     },
     {

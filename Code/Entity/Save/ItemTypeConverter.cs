@@ -212,6 +212,7 @@ namespace RPGGame
             destination.Material = source.Material ?? "";
             destination.BaseName = source.BaseName ?? "";
             destination.ItemClass = source.ItemClass ?? "";
+            destination.ClassAffinity = source.ClassAffinity ?? "";
             destination.Implicit = source.Implicit ?? "";
             destination.ImplicitRule = source.ImplicitRule ?? "";
             destination.DropRarity = source.DropRarity ?? "";

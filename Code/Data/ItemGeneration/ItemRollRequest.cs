@@ -77,6 +77,8 @@ namespace RPGGame.Data.ItemGeneration
         public int ItemLevel { get; set; }
         public string Slot { get; set; } = "";
         public string Class { get; set; } = "";
+        /// <summary>Class affinity (one of 10, D11.7).</summary>
+        public string Affinity { get; set; } = "";
         public int Tier { get; set; }
         public string BaseName { get; set; } = "";
         public string Rarity { get; set; } = "";

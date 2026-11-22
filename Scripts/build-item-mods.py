@@ -63,6 +63,10 @@ SUFFIX_HYBRIDS = [
     ("Basilisk", ["Technique", "Defense"]),
     ("Phoenix", ["Regeneration", "Intelligence"]),
     ("Kraken", ["Life", "Defense"]),
+    # Phase 11 (D11.10): one stat composite per hybrid.
+    ("Chimera", ["Strength", "Intelligence"]),
+    ("Lynx", ["Agility", "Technique"]),
+    ("Djinn", ["Agility", "Intelligence"]),
 ]
 HYBRID_WEIGHT = 5
 HYBRID_SHARE = 0.6  # only for the indicative min/max written on hybrid tiers; the roller uses the config value
@@ -96,7 +100,90 @@ PREFIX_HYBRIDS = [
     ("Flowing", ["Poise", "Swiftness"], ["Nimble", "Flowing", "Streaming", "Rushing", "Cascading", "Torrential", "Tidal"]),
     ("Precise", ["Aim", "Menace"], ["Careful", "Precise", "Exacting", "Surgical", "Pinpoint", "Flawless", "Immaculate"]),
     ("Echoing", ["Amplify", "Flurry"], ["Ringing", "Echoing", "Reverberating", "Thundering", "Booming", "Clamorous", "Deafening"]),
+    # Phase 11 (D11.10): hybrid composites.
+    ("Rampant", ["Brutality", "Swiftness"], ["Brisk", "Rampant", "Charging", "Stampeding", "Trampling", "Juggernaut", "Unstoppable"]),
+    ("Fencing", ["Swiftness", "Aim"], ["Lunging", "Fencing", "Feinting", "Dueling", "Bladedancing", "Swordsaint's", "Peerless"]),
+    ("Arcing", ["Swiftness", "Amplify"], ["Sparking", "Arcing", "Crackling", "Galvanic", "Thunderstruck", "Stormcalled", "Skyrending"]),
 ]
+
+# Phase 11 (D11.10): mechanic composites, one keyword rolling two parent lines (rare suffix, one phrase per tier).
+MECH_COMPOSITES = [
+    ("Executioner's Eye", ["Headsman's", "Sighting"]),
+    ("Bookended", ["Opening", "Closing"]),
+    ("Hexed", ["Steadied", "Late-Blooming"]),
+    ("Quickening", ["Hastening", "Cascading"]),
+]
+
+# Phase 11 (D11.9): class cross-wires (one class material's spend into another's mint) leave item loot. The rows stay in
+# Modifications.json for old saves.
+CLASS_CROSSWIRES = {"Spiteful", "Resonant", "Measured", "Syncopated", "Headhunter's", "Grim", "Weighted", "Exultant",
+                    "Restless", "Scrying", "Rhythmic", "Prismatic"}
+
+# Phase 11 (Documentation/CORE_DESIGN_PASS_2026-11-17.md, D11.2 / D11.4): family -> (classes, slots). Classes: the 4 core
+# classes and 6 hybrids (strong tilt, not a gate), "material" = the item's material's class, [] = neutral. Slots: the
+# slot domain (a gate; the rare off-slot escape aside), [] = any slot.
+W, H, C, L, F = "weapon", "head", "chest", "legs", "feet"
+AFFINITY = {
+    # stat prefixes
+    # Stat prefixes span two slots each so every slot keeps at least three (chest and feet would otherwise have only Quality).
+    "Brutality": (["barbarian"], [W, C]), "Aim": (["rogue"], [W, F]), "Menace": (["rogue"], [W, H]),
+    "Poise": (["warrior"], [L, F]), "Swiftness": (["warrior"], [L]), "Flurry": (["warrior"], [W, C]),
+    "Amplify": (["wizard"], [H, C]), "Quality": ([], []),
+    "Savage": (["ravager"], [W]), "Flowing": (["warrior"], [L, F]), "Precise": (["rogue"], [W]),
+    "Echoing": (["spellblade"], [H, W]), "Rampant": (["warbrute"], [W, L]), "Fencing": (["duelist"], [L, W]),
+    "Arcing": (["spellblade"], [L, H]),
+    # stat suffixes (any slot)
+    "Strength": (["barbarian"], []), "Might": (["barbarian"], []), "Agility": (["warrior"], []), "Grace": (["warrior"], []),
+    "Technique": (["rogue"], []), "Finesse": (["rogue"], []), "Intelligence": (["wizard"], []), "Wit": (["wizard"], []),
+    "Life": (["barbarian"], []), "Vigor": (["barbarian"], []), "Defense": ([], []), "Warding": ([], []),
+    "Regeneration": ([], []), "Mending": ([], []), "Magic Find": ([], []), "Fortune": ([], []),
+    "Griffin": (["warbrute"], []), "Minotaur": (["barbarian"], []), "Sphinx": (["hexblade"], []),
+    "Basilisk": (["rogue"], []), "Phoenix": (["wizard"], []), "Kraken": ([], []),
+    "Chimera": (["ragecaller"], []), "Lynx": (["duelist"], []), "Djinn": (["spellblade"], []),
+    # on-hit statuses
+    "Burning": (["wizard"], [W]), "Bleeding": (["rogue"], [W]),
+    # material templates and the class-less cross-wires
+    "Listening": (["material"], []), "Attuned": (["material"], [C]), "Charged-Up": (["material"], [C]),
+    "Doubled": (["material"], [C]),
+    "Frayed": ([], [C]), "Smouldering": ([], [C]), "Gritted": ([], [C]), "Cryptic": ([], [C]), "Peculiar": ([], [C]),
+    "Ominous": ([], [C]),
+    # slot-position prefixes
+    "Follow-Through": (["barbarian"], [H]), "Third-Strike": (["warrior"], [H]), "Late-Blooming": (["wizard"], [H]),
+    "Sighting": (["rogue"], [H]), "Steadied": (["rogue"], [H]),
+    # rule suffixes
+    "Opening": (["barbarian"], [H]), "Closing": (["wizard"], [H]), "Bloodbound": (["barbarian"], [C]),
+    "Vampiric": (["barbarian"], [W]), "Thorned": (["barbarian"], [C]), "Butcher's": (["rogue"], [W]),
+    "Leaden": (["barbarian"], [W]), "Bloodied": (["barbarian"], [F]), "Towering": (["warrior"], [C]),
+    "Ponderous": (["barbarian"], [L]), "Headsman's": (["barbarian"], [W]), "Berserker's": (["barbarian"], [F]),
+    "Concussive": (["barbarian"], [W]), "Prying": (["rogue"], [W]), "Sapping": (["warrior"], [W]),
+    "Envenomed": (["rogue"], [W]), "Jester's": (["rogue"], [F]), "Silvered": ([], [W]), "Giantslaying": ([], [W]),
+    "Hourglass": (["warrior"], [L]), "Ember-Woven": (["wizard"], [C]), "Ledgered": (["wizard"], [C]),
+    "Mismatched": ([], [C]), "Linked": (["wizard"], [H]), "Winged": (["warrior"], [L]), "Feasting": (["rogue"], [F]),
+    "Hunter's": (["rogue"], [C]), "Trophy-Strung": (["rogue"], [F]), "Bountied": (["rogue"], [F]),
+    "Extra Action Slot": (["wizard"], [H]),
+    # D11.12 gap lines
+    "Bracing": (["warrior"], [C]), "Walled": (["warrior"], [W]), "Hastening": (["warrior"], [L]),
+    "Unyielding": (["warrior"], [F]), "Cascading": (["wizard"], [H]), "Foretelling": (["wizard"], [W]),
+    "Recurring": (["wizard"], [H]), "Long-Striding": (["wizard"], [L]), "Rekindling": (["wizard"], [F]),
+    "Momentous": (["barbarian"], [L]), "Defiant": (["barbarian"], [F]), "Steady-Footed": (["rogue"], [L]),
+    "Sure-Footed": (["rogue"], [F]),
+    # mechanic composites
+    "Executioner's Eye": (["ravager"], [W, H]), "Bookended": (["ragecaller"], [H]), "Hexed": (["hexblade"], [H]),
+    "Quickening": (["spellblade"], [L, H]),
+}
+
+
+def apply_affinity(families):
+    """Writes classes and slots on every family (Phase 11); a family missing from AFFINITY stops the build."""
+    missing = [f["family"] for f in families if f["family"] not in AFFINITY]
+    if missing:
+        raise SystemExit(f"Phase 11: add these families to AFFINITY: {missing}")
+    for f in families:
+        classes, slots = AFFINITY[f["family"]]
+        if classes:
+            f["classes"] = list(classes)
+        if slots:
+            f["slots"] = list(slots)
 
 # Material-pool families (3 tiers): the family's own word is the middle tier.
 MATERIAL_WORDS = {
@@ -127,8 +214,7 @@ MATERIAL_WORDS = {
 
 STATUS_EFFECTS = {
     "BURN": ("Burning", ["Smoldering", "Flaming", "Blazing", "Searing", "Infernal"], ["burn", "fire", "onconnect", "wizard"]),
-    "POISON": ("Venom", ["Tainted", "Poisonous", "Venomous", "Toxic", "Virulent"], ["poison", "onconnect", "rogue"]),
-    "BLEED": ("Bleeding", ["Notched", "Serrated", "Barbed", "Rending", "Exsanguinating"], ["bleed", "onconnect", "barbarian"]),
+    "BLEED": ("Bleeding", ["Notched", "Serrated", "Barbed", "Rending", "Exsanguinating"], ["bleed", "onconnect", "rogue"]),
 }
 
 # Slot prefixes (2026-11-21, user item 14): RULE rows in Modifications.json whose rule is gated on one strip slot
@@ -262,6 +348,25 @@ POETIC = {
     "Bountied": ["Forgotten", "Forgotten and Remembered", "Remembered Forever"],
     "Berserker's": ["Roused by Rage", "Lost to Rage", "Consumed by Rage"],
     "Extra Action Slot": ["Remembered by the Careless"],
+    # Phase 11 (D11.12) gap lines
+    "Bracing": ["Braced by Comrades", "Braced by a Shieldwall", "Braced by an Army"],
+    "Walled": ["Raised Behind a Fence", "Raised Behind a Wall", "Raised Behind a Rampart"],
+    "Hastening": ["Hurried by a Drum", "Hurried by War Drums", "Hurried by Thunder"],
+    "Unyielding": ["Stood Through Rain", "Stood Through Storm", "Stood Through the End"],
+    "Cascading": ["Spilled from a Cup", "Spilled from a Fountain", "Spilled from the Heavens"],
+    "Foretelling": ["Read in Tea Leaves", "Read in the Stars", "Read in the Book of Ends"],
+    "Recurring": ["Heard Twice", "Heard Again and Again", "Heard Forever After"],
+    "Long-Striding": ["Walked a Mile", "Walked a League", "Walked the World"],
+    "Rekindling": ["Kept as Embers", "Kept as Coals", "Kept as a Hearthfire"],
+    "Momentous": ["Swung by a Smith", "Swung by a Giant", "Swung by a Mountain"],
+    "Defiant": ["Spat at Fate", "Spat at Kings", "Spat at the Gods"],
+    "Steady-Footed": ["Trained on Ice", "Trained on Rope", "Trained on a Blade's Edge"],
+    "Sure-Footed": ["Learned from a Fall", "Learned from a Hundred Falls", "Learned from Every Fall"],
+    # Phase 11 (D11.10) mechanic composites
+    "Executioner's Eye": ["Watched the Block", "Watched the Gallows", "Watched the Last Day"],
+    "Bookended": ["Opened and Closed by Rage", "Opened and Closed by Storms", "Opened and Closed by Ruin"],
+    "Hexed": ["Cursed by a Neighbor", "Cursed by a Witch", "Cursed by a Coven"],
+    "Quickening": ["Caught in a Breeze", "Caught in a Gale", "Caught in a Maelstrom"],
 }
 
 
@@ -395,6 +500,8 @@ def build_families(gd):
     # Affix templates, rule and cross-wire prefixes: one family each, 3 tiers.
     for m in adj:
         effect = (m.get("Effect") or "").upper()
+        if m["Name"] in CLASS_CROSSWIRES:
+            continue
         slot = m["Name"] in SLOT_WORDS
         pool = ("material" if effect in MATERIAL_TEMPLATES or slot
                 else "mechanic" if effect in MECHANIC_TEMPLATES else None)
@@ -430,7 +537,22 @@ def build_families(gd):
         "tiers": [{"keyword": "of Repertoire", "min": 1, "max": 1, "level": 20, "weight": 100}],
     })
 
+    # Mechanic composites (D11.10): tiers at the stricter part's gates, values from each part at roll time.
+    by_name = {f["family"]: f for f in families}
+    for name, parts in MECH_COMPOSITES:
+        ps = [by_name[p] for p in parts]
+        n = min(len(p["tiers"]) for p in ps)
+        tiers = [{"keyword": f"{name} {i + 1}", "min": 0, "max": 0,
+                  "level": max(p["tiers"][i]["level"] for p in ps), "weight": ps[0]["tiers"][i]["weight"]}
+                 for i in range(n)]
+        families.append({
+            "family": name, "pool": "mechanic", "affix": "suffix", "kind": "hybrid", "parts": parts,
+            "description": " + ".join(parts), "weight": HYBRID_WEIGHT * 0.4,
+            "tags": sorted(set(t for p in ps for t in p.get("tags") or [])), "integer": False, "tiers": tiers,
+        })
+
     apply_suffix_kinds(families)
+    apply_affinity(families)
     check_tier_names(families)
     return families
 
