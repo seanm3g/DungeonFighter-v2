@@ -110,7 +110,9 @@ namespace RPGGame
             WrongTree,
             PrerequisitesMissing,
             InsufficientPoints,
-            NotPrimaryPath
+            NotPrimaryPath,
+            /// <summary>Material branch nodes open once 2 pieces of that material are worn (Phase 7 proposal 5).</summary>
+            MaterialSetMissing
         }
 
         /// <summary>

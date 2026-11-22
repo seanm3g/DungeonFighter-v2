@@ -21,7 +21,8 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
 | 5 Core statuses, NEW moment | partial | `4204f65f` | 15128 passed / 0 failed |
 | 6 Event labels (11), modifiers scoped by rarity | partial | `b582683f` | 15124 + label fixes; affected suites 0 failed |
 | 7 Mythic class-bending rules | done | `3c6fc5c9` | 15141 passed / 0 failed |
-| 8 Cosmetic Wood / Cloth / Unknown | partial | (this commit) | 15140 passed / 1 failed (then fixed; ItemRoller 0 failed) |
+| 8 Cosmetic Wood / Cloth / Unknown | partial | `c542f44e` | 15140 passed / 1 failed (then fixed; ItemRoller 0 failed) |
+| 9 Core slot nodes, material branch gate | partial | (this commit) | 15138 passed / 5 failed (4 tree-shape expectations fixed, 1 known flaky) |
 
 ## Phase 11 — item rolls (D11.1–D11.12)
 - **Class affinity (D11.7):** every rolled item has one of 10 affinities (`Item.ClassAffinity`, saved as
@@ -200,3 +201,21 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
 - Moving the material earn rules onto chain moments (proposal 3: Willow on action, Crystal on chain complete, ...)
   and turning roll-detail events into conditions: a design-and-balance pass, not a rename.
 - Spend vs scale on every consumer (D6.9): no consumer data was changed.
+
+## Step 9 — Skills and classes (partial)
+
+### Done
+- **Buyable Core slot nodes (D5.3, D7.8):** two per core class tree, "Core: Extra Slot I" (tier 4, 2 points) and
+  "II" (tier 8, 3 points), `customEffectId: core_slot`. Each adds one strip slot (`ComboSequenceMaxHelper`), outside
+  the level cap like gear slots. They sit in existing tiers so no current node gains a new requirement; two
+  tree-shape tests now count the bigger trunk.
+- **Material branches open on 2 pieces** (Phase 7 proposal 5): `SkillTreeService.TryLearn` refuses a Bone / Iron /
+  ... branch node until 2 pieces of that material are worn (`MaterialSetMissing`). The sim bots learn through the
+  progression directly, so sims are not gated — the play path and the sims differ here (**REVIEW**).
+
+### Not done
+- Cutting filler nodes and making most nodes one-time picks (133 of 212 already are): a content pass on
+  `SkillTrees.json` with balance impact.
+- A prompt when a skill point arrives, Core-first presentation, and the class-points level-up moment: screens.
+- The Wizard sequence vocabulary (MODIFY / TRIGGER / FLOW): content (step 11). Phase 11's Cascading, Foretelling,
+  Recurring and Rekindling lines give Wizard items some of it already.

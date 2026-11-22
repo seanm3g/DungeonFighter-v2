@@ -232,6 +232,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "CombatUiMuteScope", () => RPGGame.Tests.Unit.Combat.CombatUiMuteScopeTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "Fernis", () => RPGGame.Tests.Unit.Combat.FernisTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CoreStatuses", () => RPGGame.Tests.Unit.Combat.CoreStatusesTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("entity", "RebuildStep9", () => RPGGame.Tests.Unit.Entity.RebuildStep9Tests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "HealthBarDeltaDamageHint", () => RPGGame.Tests.Unit.Combat.HealthBarDeltaDamageHintTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatEffectsSimplified", () => RPGGame.Tests.Unit.Combat.CombatEffectsSimplifiedTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTriggerGate", () => RPGGame.Tests.Unit.ActionTriggerGateTests.RunAllTests()));

@@ -40,6 +40,10 @@ namespace RPGGame
             if (character?.Progression == null)
                 return CharacterProgression.LearnSkillResult.UnknownNode;
 
+            // Material branches open on 2 worn pieces of that material (Phase 7 proposal 5, Phase 10 step 9).
+            if (!MaterialBranchOpen(character, Trees?.GetNode(nodeId)))
+                return CharacterProgression.LearnSkillResult.MaterialSetMissing;
+
             var result = character.Progression.TryLearnSkillNode(nodeId, requirePrimaryPath: true);
             if (result != CharacterProgression.LearnSkillResult.Success)
                 return result;
@@ -53,6 +57,20 @@ namespace RPGGame
             }
 
             return result;
+        }
+
+        /// <summary>Pieces of a material a branch needs before its nodes can be learned.</summary>
+        public const int MaterialBranchPieces = 2;
+
+        /// <summary>True unless <paramref name="node"/> sits in a class material's branch and fewer than 2 pieces of that
+        /// material are worn (a node already learned stays learned).</summary>
+        public static bool MaterialBranchOpen(Character? character, SkillTreeNodeDefinition? node)
+        {
+            if (character == null || node == null || string.IsNullOrWhiteSpace(node.Branch))
+                return true;
+            bool isMaterialBranch = ClassTags.All.Any(c => ClassTags.MaterialsOf(c)
+                .Any(m => string.Equals(m, node.Branch, StringComparison.OrdinalIgnoreCase)));
+            return !isMaterialBranch || MaterialSetController.CountEquipped(character, node.Branch) >= MaterialBranchPieces;
         }
 
         public static void ApplyLearnedSkillActions(Actor entity, CharacterProgression progression)

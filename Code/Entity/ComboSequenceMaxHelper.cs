@@ -26,12 +26,29 @@ namespace RPGGame
             gearSlots -= Math.Max(0, Math.Min(gearSlots, weaponTypeSlots));
             int classSlots = character?.Progression?.GetClassUpgradeActionSlotBonus() ?? 0;
             int labSlots = character?.ActionLabActionSlotBonus ?? 0;
+            // D5.3 / D7.8: buyable Core slot nodes (customEffectId core_slot); like gear they bypass the level cap.
+            int skillSlots = character is { Progression: not null } and not Enemy ? CoreSlotNodes(character) : 0;
             int earned = baseMax + Math.Max(0, classSlots) + Math.Max(0, weaponTypeSlots);
             // lootSystem.comboSlotCapByLevel: base / class / weapon-type slots only count up to what the hero's level allows; item slots bypass it.
             int levelCap = character != null && character is not Enemy ? loot?.GetComboSlotCapForLevel(character.Level) ?? 0 : 0;
             if (levelCap > 0)
                 earned = Math.Min(earned, Math.Max(1, levelCap));
-            return Math.Min(absMax, earned + Math.Max(0, gearSlots) + Math.Max(0, labSlots));
+            return Math.Min(absMax, earned + Math.Max(0, gearSlots) + Math.Max(0, labSlots) + skillSlots);
+        }
+
+        /// <summary>Learned Core slot nodes (one strip slot each).</summary>
+        public static int CoreSlotNodes(Character character)
+        {
+            var trees = GameConfiguration.Instance?.SkillTrees;
+            if (trees == null)
+                return 0;
+            int n = 0;
+            foreach (var tree in trees.Trees)
+                foreach (var node in tree.Nodes)
+                    if (string.Equals(node.CustomEffectId, "core_slot", StringComparison.OrdinalIgnoreCase)
+                        && character.Progression.GetSkillRank(node.Id) > 0)
+                        n++;
+            return n;
         }
 
         /// <summary>

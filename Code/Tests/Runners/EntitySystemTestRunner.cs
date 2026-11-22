@@ -24,6 +24,7 @@ namespace RPGGame.Tests.Runners
             ComboSequenceManagerTests.RunAllTests();
             Console.WriteLine();
             ComboSequenceMaxHelperTests.RunAllTests();
+            RPGGame.Tests.Unit.Entity.RebuildStep9Tests.RunAllTests();
             Console.WriteLine();
             WeaponRequiredComboActionTests.RunAllTests();
             Console.WriteLine();

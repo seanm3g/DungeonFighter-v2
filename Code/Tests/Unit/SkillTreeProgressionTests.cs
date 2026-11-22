@@ -134,7 +134,7 @@ namespace RPGGame.Tests.Unit
             var tree = GameConfiguration.Instance.SkillTrees?.GetTreeForWeapon(WeaponType.Mace);
             var trunk = tree?.Nodes.Where(n => n.Tier > 0 && n.Branch == "Core").OrderBy(n => n.Tier).ToList()
                 ?? new List<SkillTreeNodeDefinition>();
-            TestBase.AssertEqual(10, trunk.Count, "mace tree opens with a 10-node trunk",
+            TestBase.AssertEqual(12, trunk.Count, "mace tree opens with a 12-node trunk (2 Core slot nodes, step 9)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual("b-tribe", trunk.FirstOrDefault()?.Id ?? "", "Level 1 follows the stat action root",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -336,8 +336,8 @@ namespace RPGGame.Tests.Unit
             var p = new CharacterProgression { BarbarianPoints = 10 };
             p.EnsureSkillTreeRootsGranted();
             var tree = SkillTreePrerequisites.FindOwnerTree(SkillTreeService.Trees.GetNode("b-might")!)!;
-            TestBase.AssertEqual(2, SkillTreePrerequisites.GetCorePredecessorOptions(tree, SkillTreeService.Trees.GetNode("b-bludgeon")!).Count,
-                "Bludgeon joins the Level 2 / Puberty fork", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertEqual(3, SkillTreePrerequisites.GetCorePredecessorOptions(tree, SkillTreeService.Trees.GetNode("b-bludgeon")!).Count,
+                "Bludgeon joins the Level 2 / Puberty / Extra Slot fork", ref _testsRun, ref _testsPassed, ref _testsFailed);
             var afterCadence = SkillTreePrerequisites.GetCorePredecessorOptions(tree, SkillTreeService.Trees.GetNode("b-stun")!);
             TestBase.AssertTrue(afterCadence.Count == 1 && afterCadence[0].Id == "b-combo",
                 "Cadence is a required step, not a fork option", ref _testsRun, ref _testsPassed, ref _testsFailed);

@@ -103,6 +103,21 @@
           "crossWire": "WHILE -> STR 10"
         },
         {
+          "id": "b-slot1",
+          "name": "Core: Extra Slot I",
+          "branch": "Core",
+          "tier": 4,
+          "type": "Passive",
+          "cost": 2,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "+1 strip slot.",
+          "payoff": "A longer strip (D5.3, D7.8).",
+          "customEffectId": "core_slot",
+          "power": 1.0,
+          "sharedWith": []
+        },
+        {
           "id": "b-bludgeon",
           "name": "Bludgeon",
           "branch": "Core",
@@ -165,6 +180,21 @@
           "power": 1.0,
           "sharedWith": [],
           "crossWire": "ONCOMBOEND IF STEP>=3 -> MINT RAGE 1 PER EXTRASLOTS"
+        },
+        {
+          "id": "b-slot2",
+          "name": "Core: Extra Slot II",
+          "branch": "Core",
+          "tier": 8,
+          "type": "Passive",
+          "cost": 3,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "+1 strip slot.",
+          "payoff": "A longer strip (D5.3, D7.8).",
+          "customEffectId": "core_slot",
+          "power": 1.0,
+          "sharedWith": []
         },
         {
           "id": "b-scar",
@@ -785,6 +815,21 @@
           "crossWire": "WHILE -> AGI 10"
         },
         {
+          "id": "w-slot1",
+          "name": "Core: Extra Slot I",
+          "branch": "Core",
+          "tier": 4,
+          "type": "Passive",
+          "cost": 2,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "+1 strip slot.",
+          "payoff": "A longer strip (D5.3, D7.8).",
+          "customEffectId": "core_slot",
+          "power": 1.0,
+          "sharedWith": []
+        },
+        {
           "id": "w-avenge",
           "name": "Avenge",
           "branch": "Core",
@@ -847,6 +892,21 @@
           "power": 1.0,
           "sharedWith": [],
           "crossWire": "ONCONSECUTIVEATTACK EVERY 4 -> ADD haste 1"
+        },
+        {
+          "id": "w-slot2",
+          "name": "Core: Extra Slot II",
+          "branch": "Core",
+          "tier": 8,
+          "type": "Passive",
+          "cost": 3,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "+1 strip slot.",
+          "payoff": "A longer strip (D5.3, D7.8).",
+          "customEffectId": "core_slot",
+          "power": 1.0,
+          "sharedWith": []
         },
         {
           "id": "w-polish",
@@ -1468,6 +1528,21 @@
           "crossWire": "WHILE -> TEC 10"
         },
         {
+          "id": "r-slot1",
+          "name": "Core: Extra Slot I",
+          "branch": "Core",
+          "tier": 4,
+          "type": "Passive",
+          "cost": 2,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "+1 strip slot.",
+          "payoff": "A longer strip (D5.3, D7.8).",
+          "customEffectId": "core_slot",
+          "power": 1.0,
+          "sharedWith": []
+        },
+        {
           "id": "r-precision",
           "name": "Precision",
           "branch": "Core",
@@ -1530,6 +1605,21 @@
           "power": 1.0,
           "sharedWith": [],
           "crossWire": "ONCONSECUTIVEATTACK EVERY 5 -> APPLY mark 1"
+        },
+        {
+          "id": "r-slot2",
+          "name": "Core: Extra Slot II",
+          "branch": "Core",
+          "tier": 8,
+          "type": "Passive",
+          "cost": 3,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "+1 strip slot.",
+          "payoff": "A longer strip (D5.3, D7.8).",
+          "customEffectId": "core_slot",
+          "power": 1.0,
+          "sharedWith": []
         },
         {
           "id": "r-glass",
@@ -2192,6 +2282,21 @@
           "crossWire": "WHILE -> INT 10"
         },
         {
+          "id": "z-slot1",
+          "name": "Core: Extra Slot I",
+          "branch": "Core",
+          "tier": 4,
+          "type": "Passive",
+          "cost": 2,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "+1 strip slot.",
+          "payoff": "A longer strip (D5.3, D7.8).",
+          "customEffectId": "core_slot",
+          "power": 1.0,
+          "sharedWith": []
+        },
+        {
           "id": "z-chaos",
           "name": "Concentrated Chaos",
           "branch": "Core",
@@ -2255,6 +2360,21 @@
           "power": 1.0,
           "sharedWith": [],
           "crossWire": "ONCOMBO IF SLOT>=4 -> APPLY burn 1"
+        },
+        {
+          "id": "z-slot2",
+          "name": "Core: Extra Slot II",
+          "branch": "Core",
+          "tier": 8,
+          "type": "Passive",
+          "cost": 3,
+          "maxRank": 1,
+          "requires": [],
+          "effect": "+1 strip slot.",
+          "payoff": "A longer strip (D5.3, D7.8).",
+          "customEffectId": "core_slot",
+          "power": 1.0,
+          "sharedWith": []
         },
         {
           "id": "z-pure",
