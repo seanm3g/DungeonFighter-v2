@@ -490,3 +490,40 @@ kit and hazard mapping, flavor sources and rename proposals: [`ACTION_CUT_2026-1
 - **Open questions:** re-point or rewrite the 12 hybrid skill nodes that still grant the retired "+25% per 10
   attribute" cards; SWORN RETORT as a new card; STOKE moving to Wizard; whether ~8 environments means 8 kinds (done)
   or 8 rows; the one-time rename pass (VENOM COAT, Venom Mace, Envenomed Edge, region / dungeon names).
+
+## Content pass (2026-11-22)
+
+Worktree branch off `phase11-item-rolls` at `d7929d50`; not pushed. Your calls of 11-22: re-point the hybrid nodes
+("whatever you think is best"), SWORN RETORT and STOKE → Wizard approved, 3 environments per region, the lore
+rename pass now. No sims, no patch edits. Details (all **REVIEW**): [`ENVIRONMENTS_2026-11-22.md`](ENVIRONMENTS_2026-11-22.md)
+(environments, retired rows, renames) and [`ACTION_CUT_2026-11-22.md`](ACTION_CUT_2026-11-22.md) (card renames).
+
+| Sub-step | Status | Commit |
+|---|---|---|
+| Content 1: hybrid nodes grant kept hybrid cards | done | `67750997` |
+| Content 2: 12 environments, 3 enemies + hazard + boon each | done | `de936943` |
+| Content 3: lore rename pass (D9.12) | done | `2b2e8690` |
+
+- **1:** each of the 12 hybrid "act" nodes grants one of its hybrid's two kept cards and keeps its "+25% per 10
+  attribute / tags" bonus, now on that card (Warbrute SHOULDER CHECK / IRON GUARD, Ravager GUT CHECK / OPEN VEIN,
+  Ragecaller FLAME BRAND / DETONATE, Duelist JAB / RIPOSTE, Spellblade CODA / STRIP LOOP, Hexblade SET THE TRAP /
+  EXPLODING DICE). The retired card still gets the bonus in old saves' strips. Node names follow the card.
+- **2:** 12 environments = region theme × dungeon theme; each dungeon and its 3 rooms list the same 3 enemies (rooms
+  lead with a different one), kits cover the dungeon's signature, mostly 3 families and one Rare. Each room has one
+  existing hazard and one new **boon**: `type: Buff` + `grants` (Guard / Focus / Haste, 4 each), 1–2 stacks to the
+  hero only through `Stores`; room affixes and terrain skip boons. Retired (flag, still loadable): 92 enemies incl.
+  the 20 General rows, 80 Legacy rooms, 3 Legacy dungeons, 18 hazards; spawners, wanderers and dungeon offers skip
+  them. Fix: Corroding Brine (Acid) now lands Expose (it applied nothing).
+- **3:** 20 region display names, 12 dungeon names, 33 enemies, 21 enemy flavor actions, RED CORD (was VENOM COAT),
+  Hammerdown (Venom Mace), Hedge-Blade (Envenomed Edge); "Demon Fighter" in window titles and two lines. Old names
+  load: `ActionLoader` alias, `formerNames` on enemies (incl. the name-keyed patch calibration) and dungeons.
+- **Gameplay effects (no sims):** a dungeon's enemy pool is 3 instead of 9 (wanderers now come only from other
+  environments, never the General rows); half of all room actions are now boons, so rooms hurt less and help the
+  hero; Water Temple's hazard works; hybrid node bonuses land on rollable cards the hero may also find on gear.
+- **Tests:** new `Environments` suite; FeatureScenario (Thicket's actions), EnemyRoomAffix (scorched reads hazards
+  only), HybridTrees (SHOULDER CHECK + legacy BODY BLOW), VerbPresets (RED CORD), Action Lab default enemy updated.
+  Full run: 15383 run, 15380 passed, 3 failed: the two cadence checks ("Mid with +25%", "Finisher gets its own
+  +25%"; they fail the same on d7929d50's GameData) and the flaky Stable "both fighters are out at once" (passes on
+  rerun). The active patch the run rewrote was restored.
+- **Open:** Turnabout (Labyrinth affix) applies the dropped `disrupt`; Slow hazards slow only the hero; Dense Brush's
+  two Ensnare / Drain kits; boon amounts are guesses; the in-game "DUNGEON FIGHTERS" header is unchanged.
