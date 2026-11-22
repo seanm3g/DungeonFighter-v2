@@ -183,20 +183,6 @@ namespace RPGGame
             return sum;
         }
 
-        /// <summary>Total poison % of max HP added per successful weapon hit (weapon slot only).</summary>
-        public double GetWeaponPoisonPercentPerHit()
-        {
-            double sum = 0;
-            var weapon = slots.Weapon;
-            if (weapon == null) return 0;
-            foreach (var modification in weapon.Modifications)
-            {
-                if (modification.Effect == "weaponPoison")
-                    sum += modification.RolledValue;
-            }
-            return sum;
-        }
-
         /// <summary>Total burn intensity added per successful weapon hit (weapon slot only).</summary>
         public int GetWeaponBurnPerHit()
         {

@@ -20,7 +20,6 @@ namespace RPGGame.Tests.Unit.Combat
         public static void RunAllTests()
         {
             // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
-            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== SynergyPass Tests ===\n");
             _run = _passed = _failed = 0;
             var trees = SkillTreesConfig.TryLoadFromGameDataFile();
@@ -37,7 +36,6 @@ namespace RPGGame.Tests.Unit.Combat
             TestReleasePullsQueuedBuffs();
             TestNewStatusStores();
             TestMarkForcesCritAndIsSpent();
-            TestBrittlePaysOnCrit();
             TestStaggerAndHasteChangeTime();
             TestEitherOrSkillChoices();
             TestNewActionsLoad();
@@ -288,7 +286,7 @@ namespace RPGGame.Tests.Unit.Combat
             Console.WriteLine("--- new status stores ---");
             var foe = TestDataBuilders.Enemy().WithName("Dummy").Build();
             var hero = MakeHero("Stores");
-            foreach (var id in new[] { "brittle", "stagger", "rattle" })
+            foreach (var id in new[] { "stagger", "rattle" })
             {
                 Stores.Add(foe, id, 2);
                 Check(Stores.Get(foe, id) == 2, $"{id}: add 2, read 2");
@@ -299,9 +297,11 @@ namespace RPGGame.Tests.Unit.Combat
             Check(Stores.Get(hero, "haste") == TempoStatuses.MaxStacks, "haste caps at the extra-status max");
             Check(VerbPresets.Holder(hero, foe, "haste") == hero && VerbPresets.Holder(hero, foe, "brittle") == foe,
                 "APPLY haste lands on you; APPLY brittle on the target");
+            // Brittle was retired in step 12: it loads as Mark.
+            Check(Stores.TryGet("brittle", out var brittle) && brittle.Id == "mark", "brittle reads as mark");
             var snap = RPGGame.Combat.StatusApplySnapshot.Take(foe);
             Stores.Add(foe, "brittle", 1);
-            Check(snap.Gained(foe).Contains("brittle"), "Brittle counts as a status application (ONSTATUSAPPLY:brittle)");
+            Check(snap.Gained(foe).Contains("mark"), "Brittle lands as Mark (ONSTATUSAPPLY:mark)");
         }
 
         private static void TestMarkForcesCritAndIsSpent()
@@ -319,22 +319,6 @@ namespace RPGGame.Tests.Unit.Combat
             TempoStatuses.AfterRoll(hero, foe, hit: true, critical: true);
             Check(!foe.IsMarked, "the landed hit spends it");
             tm.ResetThresholds(hero);
-        }
-
-        private static void TestBrittlePaysOnCrit()
-        {
-            Console.WriteLine("--- Brittle ---");
-            var hero = MakeHero("Brittle");
-            var foe = TestDataBuilders.Enemy().WithName("Dummy").Build();
-            Stores.Add(foe, "brittle", 2);
-            hero.Effects.ConsumedDamageModPercent = 0;
-            TempoStatuses.AfterRoll(hero, foe, hit: true, critical: false);
-            Check(TempoStatuses.Brittle(foe) == 2 && hero.Effects.ConsumedDamageModPercent == 0, "a normal hit leaves Brittle");
-            TempoStatuses.AfterRoll(hero, foe, hit: true, critical: true);
-            double per = GameConfiguration.Instance.Combat.StatusBrittleCritDamagePerStack * 100;
-            Check(Math.Abs(hero.Effects.ConsumedDamageModPercent - 2 * per) < 1e-6 && TempoStatuses.Brittle(foe) == 0,
-                "a crit spends Brittle for +damage per stack on that swing");
-            hero.Effects.ConsumedDamageModPercent = 0;
         }
 
         private static void TestStaggerAndHasteChangeTime()

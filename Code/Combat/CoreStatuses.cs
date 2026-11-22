@@ -9,8 +9,8 @@ namespace RPGGame
     /// Bleed, Burn, Focus, Rattle, Expose. Guard is today's Harden store (id <c>harden</c>, shown as Guard). Retired ids
     /// resolve to their replacement (the save migration table) wherever a status is applied or read through
     /// <see cref="Stores"/> or <see cref="EffectHandlerRegistry"/>; dropped ones apply nothing. Hero resources that are
-    /// not statuses (Haste, material stores, salvage) are untouched. <c>DF_LEGACY_STATUSES=1</c> switches the old
-    /// set back on (deleted in step 12).
+    /// not statuses (Haste, Fortify, Temp HP, material stores, salvage) are untouched. The legacy status set and its
+    /// switch were deleted in step 12; the alias table stays so old saves and data load.
     /// </summary>
     public static class CoreStatuses
     {
@@ -39,29 +39,9 @@ namespace RPGGame
             "silence", "statdrain", "stat_drain", "reflect", "regen", "hpregen", "disrupt", "confusion"
         };
 
-        private static bool? _override;
-
-        /// <summary>On unless <c>DF_LEGACY_STATUSES=1</c>; tests can pin it with <see cref="Pin"/>.</summary>
-        public static bool Enabled => _override ?? System.Environment.GetEnvironmentVariable("DF_LEGACY_STATUSES") != "1";
-
-        /// <summary>Pins <see cref="Enabled"/> until the returned scope is disposed (tests of the legacy statuses).</summary>
-        public static IDisposable Pin(bool enabled)
-        {
-            var previous = _override;
-            _override = enabled;
-            return new Scope(() => _override = previous);
-        }
-
-        private sealed class Scope : IDisposable
-        {
-            private readonly System.Action _undo;
-            public Scope(System.Action undo) => _undo = undo;
-            public void Dispose() => _undo();
-        }
-
         public static bool IsCore(string? id) => Core.Contains((id ?? "").Trim().ToLowerInvariant());
 
-        public static bool IsDropped(string? id) => Enabled && Dropped.Contains((id ?? "").Trim());
+        public static bool IsDropped(string? id) => Dropped.Contains((id ?? "").Trim());
 
         /// <summary>The id to use: its replacement for a retired status, null for a dropped one, else itself.</summary>
         public static string? Resolve(string? id)
@@ -69,8 +49,6 @@ namespace RPGGame
             if (string.IsNullOrWhiteSpace(id))
                 return id;
             string key = id.Trim();
-            if (!Enabled)
-                return key;
             if (Aliases.TryGetValue(key, out var to))
                 return to;
             return Dropped.Contains(key) ? null : key;

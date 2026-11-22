@@ -450,17 +450,12 @@ namespace RPGGame
             Effects.UpdateTempEffects(actionLength);
         }
         public void ApplySlow(double speedReduction, int duration) => Facade.ApplySlow(speedReduction, duration);
-        public override void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false) => base.ApplyPoison(damage, stacks, isBleeding);
         public override void ApplyBurn(int damage, int stacks = 1) => base.ApplyBurn(damage, stacks);
-        public override void ApplyAcid(int damage, int stacks = 1) => base.ApplyAcid(damage, stacks);
         public void ApplyShield() => Facade.ApplyShield();
         public bool ConsumeShield() => Facade.ConsumeShield();
-        public override void ApplyWeaken(int turns) => base.ApplyWeaken(turns);
-        public override int GetMaxHealthForPoisonDot() => GetEffectiveMaxHealth();
 
-        public override int ProcessPoison(double currentTime) => base.ProcessPoison(currentTime);
+        public override int GetMaxHealthForDot() => GetEffectiveMaxHealth();
         public override int ProcessBurn(double currentTime) => base.ProcessBurn(currentTime);
-        public override int ProcessAcid(double currentTime) => base.ProcessAcid(currentTime);
         /// <summary>Clears encounter-scoped temp state (TURN/ACTION queues, fight cadence, combat status) but preserves dungeon-scoped cadence.</summary>
         public void ClearEncounterTempEffects()
         {
@@ -518,7 +513,6 @@ namespace RPGGame
         public double GetModificationLifesteal() => Facade.GetModificationLifesteal();
         public int GetModificationGodlikeBonus() => Facade.GetModificationGodlikeBonus();
         public int GetWeaponBleedPerHit() => Facade.GetWeaponBleedPerHit();
-        public double GetWeaponPoisonPercentPerHit() => Facade.GetWeaponPoisonPercentPerHit();
         public int GetWeaponBurnPerHit() => Facade.GetWeaponBurnPerHit();
         public int GetWeaponAcidPerHit() => Facade.GetWeaponAcidPerHit();
         public double GetModificationFreezeChance() => Facade.GetModificationFreezeChance();

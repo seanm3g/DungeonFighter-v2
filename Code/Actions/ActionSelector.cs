@@ -85,10 +85,6 @@ namespace RPGGame
             if (source.ActionPool.Count == 0)
                 return null;
 
-            // Check if Actor is stunned
-            if (source.IsStunned)
-                return null;
-
             // Roll first to determine what type of action to use (or use replace_next_roll face).
             int baseRoll = forcedBaseRoll.HasValue
                 ? Math.Clamp(forcedBaseRoll.Value, 1, 20)
@@ -124,7 +120,7 @@ namespace RPGGame
         /// </summary>
         public static bool WouldNaturalRollSelectComboAction(Actor source, int baseRoll)
         {
-            if (source.ActionPool.Count == 0 || source.IsStunned)
+            if (source.ActionPool.Count == 0)
                 return false;
 
             var comboActions = ActionUtilities.GetComboActions(source);
@@ -310,7 +306,7 @@ namespace RPGGame
         /// </summary>
         public static Action? ResolveActionForResolvedDie(Actor source, int resolvedDie)
         {
-            if (source.ActionPool.Count == 0 || source.IsStunned)
+            if (source.ActionPool.Count == 0)
                 return null;
 
             var comboActions = ActionUtilities.GetComboActions(source);
@@ -375,10 +371,6 @@ namespace RPGGame
         public static Action? SelectEnemyActionBasedOnRoll(Actor source, int? forcedBaseRoll = null)
         {
             if (source.ActionPool.Count == 0)
-                return null;
-
-            // Enemies can be stunned too
-            if (source.IsStunned)
                 return null;
 
             int baseRoll = forcedBaseRoll.HasValue

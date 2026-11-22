@@ -201,13 +201,9 @@ namespace RPGGame
             CombatTurnQueue.Bind(actionSpeedSystem, environment);
             
             // New encounter clock: DoT tick stamps must not carry wall-clock values from prior sessions or
-            // pre-Reset() ticker state, or poison/burn intervals never elapse (currentTime - lastTick stays negative).
-            player.LastPoisonTickTime = 0;
+            // pre-Reset() ticker state, or burn intervals never elapse (currentTime - lastTick stays negative).
             player.LastBurnTickTime = 0;
-            player.LastAcidTickTime = 0;
-            enemy.LastPoisonTickTime = 0;
             enemy.LastBurnTickTime = 0;
-            enemy.LastAcidTickTime = 0;
 
             // Initialize health tracker for battle participants
             var participants = new List<Actor> { player, enemy };

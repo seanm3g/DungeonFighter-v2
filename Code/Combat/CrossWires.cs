@@ -1546,10 +1546,6 @@ namespace RPGGame
                 case "burn":
                     target.BurnIntensity += n;
                     break;
-                case "stun":
-                    target.IsStunned = true;
-                    target.StunTurnsRemaining = Math.Max(target.StunTurnsRemaining, n);
-                    break;
                 case "slow":
                     if (target is Character c)
                     {

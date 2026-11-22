@@ -109,22 +109,25 @@ namespace RPGGame
             return done;
         }
 
-        /// <summary>Live status check (queued DoTs don't count, as in the original skills).</summary>
+        /// <summary>
+        /// Live status check (queued DoTs don't count, as in the original skills). A retired status (Poison, Acid, ...)
+        /// is never up: nothing applies it since the 7-status core, so a row that requires one never fires.
+        /// </summary>
         public static bool IsUp(Actor target, string store) => store.ToLowerInvariant() switch
         {
-            "poison" => target.PoisonPercentOfMaxHealth > 0,
             "bleed" => target.BleedIntensity > 0,
             "burn" => target.BurnIntensity > 0,
-            "acid" => target.AcidIntensity > 0,
             "slow" => target is Character c && c.Effects.SlowTurns > 0,
+            var s when IsRetired(s) => false,
             _ => Stores.Get(target, store) > 0
         };
+
+        private static bool IsRetired(string id) => !string.Equals(CoreStatuses.Resolve(id), id, StringComparison.OrdinalIgnoreCase);
 
         private static int Live(Actor target, string store) => store.ToLowerInvariant() switch
         {
             "bleed" => target.BleedIntensity,
             "burn" => target.BurnIntensity,
-            "acid" => target.AcidIntensity,
             _ => Stores.Get(target, store)
         };
 
@@ -142,10 +145,6 @@ namespace RPGGame
             int n = all ? int.MaxValue : Resolve(target, units);
             switch (store.ToLowerInvariant())
             {
-                case "poison":
-                    if (all) target.PoisonPercentOfMaxHealth = 0;
-                    else Stores.Spend(target, "poison", n);
-                    break;
                 case "burn":
                     target.BurnIntensity = all ? 0 : Math.Max(0, target.BurnIntensity - n);
                     break;
@@ -171,15 +170,11 @@ namespace RPGGame
                 return;
             switch (store.ToLowerInvariant())
             {
-                case "acid": target.QueueAcidFromHit(units); break;
                 case "bleed": target.QueueBleedFromHit(units); break;
                 case "burn": target.QueueBurnFromHit(units); break;
-                case "poison": target.ApplyPoisonPercent(units * Stores.PoisonPercentPerUnit); break;
-                case "stun":
-                    target.IsStunned = true;
-                    target.StunTurnsRemaining = Math.Max(target.StunTurnsRemaining, units);
-                    break;
-                case "expose": ExposeStatus.Apply(target, units, 2); break;
+                // Retired ids produce their core status (Acid = Expose, Stun = Stagger, Poison = Bleed).
+                case "expose" or "acid": ExposeStatus.Apply(target, units, 2); break;
+                case "poison": target.QueueBleedFromHit(units); break;
                 default: Stores.Add(target, store, units); break;
             }
         }

@@ -19,15 +19,13 @@ namespace RPGGame.Combat.Calculators
             return cap > 0 ? Math.Min(stacks!.Value, cap) : stacks!.Value;
         }
 
-        /// <summary>Multiplier on damage this actor deals (Weaken lowers it, Focus raises it).</summary>
+        /// <summary>Multiplier on damage this actor deals (Focus raises it).</summary>
         public static double OutgoingDamageMultiplier(Actor? attacker)
         {
             if (attacker == null)
                 return 1.0;
             var combat = GameConfiguration.Instance.Combat;
             double multiplier = 1.0;
-            if (attacker.IsWeakened && attacker.WeakenTurns > 0)
-                multiplier *= Math.Clamp(combat.StatusWeakenDamageMultiplier, 0.0, 1.0);
             multiplier *= 1.0 + ActiveStacks(attacker.FocusStacks, attacker.FocusTurns) * combat.StatusFocusDamagePerStack;
             return multiplier;
         }

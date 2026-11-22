@@ -37,7 +37,7 @@ namespace RPGGame.Tests.Unit.Combat
             Console.WriteLine("--- Aggressive sword slash scene matches export schema ---");
             var hero = CreateHero();
             var enemy = new Enemy("skeleton knight", 5, 80, 10, 10, 10, 10);
-            enemy.PoisonPercentOfMaxHealth = 5;
+            enemy.BleedIntensity = 5;
             var slash = new Action("SLASH") { BlockPercent = 0 };
             var evt = new BattleEvent
             {

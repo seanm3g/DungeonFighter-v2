@@ -95,8 +95,6 @@ namespace RPGGame
                     max = Math.Max(0, (int)Math.Round(max * (1.0 + rulePct / 100.0)));
             }
             max = ExposeStatus.ApplyArmorStrip(character, max);
-            if (character.AcidArmorReduction > 0)
-                max = Math.Max(0, max - character.AcidArmorReduction);
             return max;
         }
 

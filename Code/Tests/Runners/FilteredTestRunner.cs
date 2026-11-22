@@ -254,7 +254,6 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "CrossWires", () => RPGGame.Tests.Unit.CrossWiresTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "BotDecision", () => RPGGame.Tests.Unit.BotDecisionTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ItemRules", () => RPGGame.Tests.Unit.ItemRulesTests.RunAllTests()));
-            list.Add(new TestSuiteEntry("combat", "StunProcessor", () => RPGGame.Tests.Unit.Combat.StunProcessorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("actions", "ActionSpeedSystem", () => RPGGame.Tests.Unit.Actions.ActionSpeedSystemTests.RunAllTests()));
             list.Add(new TestSuiteEntry("actions", "ActionSelectorRollBased", () => RPGGame.Tests.Unit.Actions.ActionSelectorRollBasedTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "MultiHit", () => RPGGame.Tests.Unit.MultiHitTests.RunAllTests()));

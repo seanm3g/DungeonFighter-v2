@@ -32,20 +32,11 @@ namespace RPGGame
             Action? forcedAction = null,
             TrainingGroundTutorialScript? tutorialScript = null)
         {
-            // Check if player is stunned
-            if (player.StunTurnsRemaining > 0)
-            {
-                await StunProcessor.ProcessStunnedEntityAsync(player, stateManager);
-            }
-            else
-            {
-                // Use the new ActionSelector system for action selection and execution
-                int comboStepBefore = player.ComboStep;
-                ArmFreeComboActions(player, tutorialScript);
-                await ProcessPlayerActionAsync(player, currentEnemy, room, forcedAction, tutorialScript);
-                await RunFreeComboActionsAsync(player, player, currentEnemy, comboStepBefore, tutorialScript,
-                    () => ProcessPlayerActionAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: null, freeAction: true));
-            }
+            int comboStepBefore = player.ComboStep;
+            ArmFreeComboActions(player, tutorialScript);
+            await ProcessPlayerActionAsync(player, currentEnemy, room, forcedAction, tutorialScript);
+            await RunFreeComboActionsAsync(player, player, currentEnemy, comboStepBefore, tutorialScript,
+                () => ProcessPlayerActionAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: null, freeAction: true));
 
             StatusEffectProcessor.ProcessBleedAfterActorResolvedTurn(player);
             
@@ -69,19 +60,11 @@ namespace RPGGame
             Action? forcedAction = null,
             TrainingGroundTutorialScript? tutorialScript = null)
         {
-            // Check if enemy is stunned
-            if (currentEnemy.StunTurnsRemaining > 0)
-            {
-                await StunProcessor.ProcessStunnedEntityAsync(currentEnemy, stateManager);
-            }
-            else
-            {
-                int comboStepBefore = currentEnemy.ComboStep;
-                ArmFreeComboActions(currentEnemy, tutorialScript);
-                await ProcessEnemyActionAsync(player, currentEnemy, room, forcedAction, tutorialScript);
-                await RunFreeComboActionsAsync(currentEnemy, player, currentEnemy, comboStepBefore, tutorialScript,
-                    () => ProcessEnemyActionAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: null, freeAction: true));
-            }
+            int comboStepBefore = currentEnemy.ComboStep;
+            ArmFreeComboActions(currentEnemy, tutorialScript);
+            await ProcessEnemyActionAsync(player, currentEnemy, room, forcedAction, tutorialScript);
+            await RunFreeComboActionsAsync(currentEnemy, player, currentEnemy, comboStepBefore, tutorialScript,
+                () => ProcessEnemyActionAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: null, freeAction: true));
 
             StatusEffectProcessor.ProcessBleedAfterActorResolvedTurn(currentEnemy);
 
@@ -103,7 +86,7 @@ namespace RPGGame
         /// <summary>
         /// A swing that succeeds on its combo roll advances the strip and earns a free action: the next slot rolls right away.
         /// The whole chain costs avg swing × (1 + ComboChainGrowth × (actions − 1)). The chain keeps going while each roll succeeds and stops on a failed roll, at the end of
-        /// the strip (the step wraps to slot 0), on a stun, or when either side falls. Training Ground scripts keep one swing per turn.
+        /// the strip (the step wraps to slot 0), or when either side falls. Training Ground scripts keep one swing per turn.
         /// </summary>
         private static async System.Threading.Tasks.Task RunFreeComboActionsAsync(
             Character actor,
@@ -120,7 +103,7 @@ namespace RPGGame
             {
                 if (!EarnedFreeComboAction(actor, comboStepBefore, stripLength))
                     return;
-                if (!player.IsAlive || !currentEnemy.IsAlive || actor.StunTurnsRemaining > 0)
+                if (!player.IsAlive || !currentEnemy.IsAlive)
                     return;
                 if (!CombatManager.DisableCombatUIOutput)
                     BlockDisplayManager.DisplaySystemBlock(CombatFlowColoredText.FormatFreeComboActionColored(actor.Name));

@@ -13,7 +13,6 @@ namespace RPGGame.Tests.Unit.Combat
         {
             Console.WriteLine("=== CoreStatuses Tests ===\n");
             _run = _passed = _failed = 0;
-            using var core = CoreStatuses.Pin(true);
 
             foreach (var (from, to) in new[] { ("poison", "bleed"), ("stun", "stagger"), ("slow", "stagger"), ("acid", "expose"),
                          ("vulnerability", "expose"), ("pierce", "expose"), ("rollpenalty", "rattle"), ("fortify", "harden"),
@@ -39,8 +38,8 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertTrue(Stores.TryGet("temphp", out var t) && t.Id == "temphp", "Temp HP stays a resource", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(Stores.TryGet("RAGE", out var r) && string.Equals(r.Id, "RAGE", StringComparison.OrdinalIgnoreCase), "material stores are untouched", ref _run, ref _passed, ref _failed);
 
-            using (CoreStatuses.Pin(false))
-                TestBase.AssertEqual("poison", CoreStatuses.Resolve("poison"), "the legacy switch keeps old ids", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(Stores.TryGet("acid", out var a) && a.Id == "expose", "Stores reads acid as expose (its store was deleted)", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(!Stores.TryGet("silence", out _), "a dropped status has no store", ref _run, ref _passed, ref _failed);
 
             TestBase.PrintSummary("CoreStatuses Tests", _run, _passed, _failed);
         }

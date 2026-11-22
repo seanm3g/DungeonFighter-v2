@@ -34,7 +34,6 @@ namespace RPGGame.Tests.Unit.Combat
                 TestTryConsume_OrdersPoisonBurnAcidBleed();
                 TestTryConsume_MismatchClearsPendingAndReturnsFalse();
                 TestHealthTracker_ConsumesHintOnDamageAndStoresParts();
-                TestProcessStatusEffectsWithBreakdown_MatchesProcessStatusEffectsTotal();
                 TestRecordAfterMitigation_ScalesPoisonBurnToActualHpLost();
                 TestRecordAfterMitigation_IncludesAcidChannel();
             }
@@ -172,38 +171,5 @@ namespace RPGGame.Tests.Unit.Combat
             }
         }
 
-        private static void TestProcessStatusEffectsWithBreakdown_MatchesProcessStatusEffectsTotal()
-        {
-            Console.WriteLine("--- ProcessStatusEffectsWithBreakdown.TotalDamage matches ProcessStatusEffects ---");
-            using (GameTicker.BeginIsolatedEncounterGameTime())
-            {
-                static Enemy MakeDotDummy(string name)
-                {
-                    var e = TestDataBuilders.Enemy().WithName(name).Build();
-                    e.PoisonPercentOfMaxHealth = 2;
-                    e.LastPoisonTickTime = 0;
-                    e.BurnIntensity = 4;
-                    e.PendingBurnFromHits = 0;
-                    e.LastBurnTickTime = 0;
-                    return e;
-                }
-
-                var enemyA = MakeDotDummy("DotA");
-                var enemyB = MakeDotDummy("DotB");
-                GameTicker.Instance.AdvanceGameTime(5.1);
-
-                var listA = new List<string>();
-                var listB = new List<string>();
-                int totalLegacy = CombatEffectsSimplified.ProcessStatusEffects(enemyA, listA);
-                CombatEffectsSimplified.StatusEffectDamageBreakdown bd =
-                    CombatEffectsSimplified.ProcessStatusEffectsWithBreakdown(enemyB, listB);
-                TestBase.AssertEqual(totalLegacy, bd.TotalDamage,
-                    "breakdown total should match ProcessStatusEffects for equivalent pre-tick actor state",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(bd.PoisonDamage + bd.BurnDamage + bd.AcidDamage, bd.TotalDamage,
-                    "components sum to total",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
-        }
     }
 }

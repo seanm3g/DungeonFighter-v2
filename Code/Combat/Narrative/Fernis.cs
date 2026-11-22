@@ -269,7 +269,7 @@ namespace RPGGame.Combat.Narrative
                         Say(FernisMoments.ChainComplete, Tokens(links: evt.ComboStepReached));
                     break;
                 case CombatEventType.EnemyDied when fromHero && ReferenceEquals(evt.Target, _enemy):
-                    int max = Math.Max(1, _enemy.GetMaxHealthForPoisonDot());
+                    int max = Math.Max(1, _enemy.GetMaxHealthForDot());
                     if (evt.Damage >= max * OverkillShare)
                         Say(FernisMoments.Overkill, Tokens());
                     break;

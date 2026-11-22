@@ -176,20 +176,22 @@ namespace RPGGame
 
         private static void AppendGrant(List<string> lines, Action action, string effectId)
         {
-            string id = (effectId ?? "").Trim().ToLowerInvariant();
+            string raw = (effectId ?? "").Trim().ToLowerInvariant();
+            // Retired ids describe the core status they apply as (Weaken = Rattle, Stun = Stagger, ...); dropped ones nothing.
+            string id = CoreStatuses.Resolve(raw) ?? "";
             if (id.Length == 0)
                 return;
-            bool self = IsSelfTarget(action, id);
+            bool self = IsSelfTarget(action, raw);
             string who = self ? "you" : "the target";
             bool triggered = action.Triggers?.TriggerConditions != null
                 && action.Triggers.TriggerConditions.Any(c => !string.IsNullOrWhiteSpace(c));
-            bool dot = id is "bleed" or "poison" or "burn" or "acid";
+            bool dot = raw is "bleed" or "poison" or "burn" or "acid";
             string when = dot && !triggered
                 ? "On a critical hit, applies"
                 : triggered
                     ? "When a trigger matches, applies"
                     : "Applies";
-            string duration = DurationPhrase(action, id);
+            string duration = DurationPhrase(id);
             string grant = string.IsNullOrEmpty(duration)
                 ? $"{when} {DisplayName(id)} to {who}."
                 : $"{when} {DisplayName(id)} to {who} for {duration}.";
@@ -243,67 +245,34 @@ namespace RPGGame
                 + (exposeCap > 0 && strip > 0
                     ? $" At {exposeCap} stacks, more Expose strips {Pct(strip)} of armor each (up to {Pct(stripMax)})."
                     : "");
-            double weaken = combat?.StatusWeakenDamageMultiplier ?? 0.5;
             double fortify = combat?.StatusFortifyDefensePerStack ?? 0;
-            string weakenText = Math.Abs(weaken - 0.5) < 0.001
-                ? "Damage dealt is halved while it lasts."
-                : $"Damage dealt is multiplied by {weaken.ToString("0.##", CultureInfo.InvariantCulture)} while it lasts.";
 
             return (effectId ?? "").Trim().ToLowerInvariant() switch
             {
                 "harden" => $"Each stack adds {Pct(harden)} Defense, which reduces incoming damage.",
                 "focus" => $"Each stack increases damage dealt by {Pct(focus)}.",
                 "expose" or "vulnerability" or "armorbreak" => exposeText,
-                "weaken" => weakenText,
                 "fortify" => fortify > 0
                     ? $"Each stack adds armor and {Pct(fortify)} Defense."
                     : "Each stack adds armor.",
-                "poison" => "Deals that percent of max HP over time.",
                 "bleed" => "Deals damage when the target acts, then fades.",
                 "burn" => "Deals damage over time.",
-                "acid" => "Deals damage over time and reduces armor.",
-                "stun" => "The target skips their turn.",
-                "slow" => "Actions take longer.",
-                "pierce" => "Attacks ignore armor.",
-                "silence" => "Spells cannot be cast.",
-                "absorb" => "Stores incoming damage and releases it after 50 is stored.",
                 "temporaryhp" => "Grants 10 temporary HP per stack.",
-                "confusion" => "Attacks may strike a random target.",
                 "mark" => "The next hit is a critical hit.",
-                "disrupt" => "Resets the target's combo.",
-                "statdrain" => "Lowers attributes while it lasts.",
-                "hpregen" => "Restores health each turn.",
-                "reflect" => "Returns a share of incoming damage.",
                 _ => ""
             };
         }
 
-        private static string DurationPhrase(Action action, string id)
+        private static string DurationPhrase(string id)
         {
             switch (id)
             {
-                case "weaken":
-                    return "1 turn";
                 case "mark":
                     return "1 turn";
-                case "absorb":
-                    return "5 turns";
-                case "confusion":
-                    int confusion = action.ComboBonusDuration > 0 ? action.ComboBonusDuration : 2;
-                    return TurnPhrase(confusion);
-                case "stun":
-                    var stun = GameConfiguration.Instance?.StatusEffects?.Stun;
-                    int skip = stun != null && stun.SkipTurns > 0 ? stun.SkipTurns : 1;
-                    return TurnPhrase(skip);
-                case "slow":
-                    var freeze = GameConfiguration.Instance?.StatusEffects?.Freeze;
-                    int slowTurns = freeze != null && freeze.Duration > 0 ? (int)freeze.Duration : 3;
-                    return TurnPhrase(slowTurns);
-                case "poison":
                 case "bleed":
                 case "burn":
-                case "acid":
-                case "disrupt":
+                case "stagger":
+                case "rattle":
                     return "";
                 default:
                     return TurnPhrase(StackTurns);
@@ -323,33 +292,22 @@ namespace RPGGame
 
         private static string DisplayName(string id) => id switch
         {
-            "hpregen" => "HP Regen",
             "armorbreak" or "vulnerability" => "Expose",
             "temporaryhp" => "Temporary HP",
-            "statdrain" => "Stat Drain",
+            CoreStatuses.Guard => "Guard",
             _ => CultureInfo.InvariantCulture.TextInfo.ToTitleCase(id)
         };
 
         private static string EffectIdFromHudLine(string line)
         {
-            if (Starts(line, "Weakened")) return "weaken";
-            if (Starts(line, "Stunned")) return "stun";
-            if (Starts(line, "Poison")) return "poison";
             if (Starts(line, "Bleed")) return "bleed";
             if (Starts(line, "Burn")) return "burn";
-            if (Starts(line, "Acid")) return "acid";
             if (Starts(line, "Crit miss")) return "";
             if (Starts(line, "Harden")) return "harden";
             if (Starts(line, "Fortify")) return "fortify";
             if (Starts(line, "Focus")) return "focus";
             if (Starts(line, "Expose")) return "expose";
-            if (Starts(line, "HP Regen")) return "hpregen";
-            if (Starts(line, "Pierce")) return "pierce";
-            if (Starts(line, "Reflect")) return "reflect";
-            if (Starts(line, "Silence")) return "silence";
-            if (Starts(line, "Absorb")) return "absorb";
             if (Starts(line, "Temp HP")) return "temporaryhp";
-            if (Starts(line, "Confused")) return "confusion";
             if (Starts(line, "Marked")) return "mark";
             return "";
         }
@@ -381,11 +339,6 @@ namespace RPGGame
             if (Starts(line, "Stagger"))
             {
                 lines.Add($"Its next action takes {Pct(combatCfg.StatusStaggerLengthPerStack)} longer per stack (it acts later), then Stagger is spent.");
-                return;
-            }
-            if (Starts(line, "Brittle"))
-            {
-                lines.Add($"The next critical hit against it deals +{Pct(combatCfg.StatusBrittleCritDamagePerStack)} damage per stack, then Brittle is spent.");
                 return;
             }
             if (Starts(line, "Haste"))

@@ -149,10 +149,6 @@ namespace RPGGame
                     AppendSimpleStat(character, "ACID", $"+{character.GetWeaponAcidPerHit()} on critical hit from weapon mods.", result, AddWrapped, maxLines);
                     AppendWeaponDotSource(AddWrapped, "weaponAcid", "acid stacks");
                     break;
-                case "stat:poison":
-                    AppendSimpleStat(character, "POISON", $"+{character.GetWeaponPoisonPercentPerHit():0.#}% max HP on critical hit from weapon mods.", result, AddWrapped, maxLines);
-                    AppendWeaponDotSource(AddWrapped, "weaponPoison", "% of the target's max HP per poison tick");
-                    break;
                 case string hybridKey when RPGGame.UI.Avalonia.Layout.LeftPanelAttributeOrder.HybridForHoverKey(hybridKey) is HybridInfo hybrid:
                     AppendRequirementAttribute(character, hybrid.Attribute.ToLowerInvariant(), result, AddWrapped, maxLines);
                     AddWrapped($"{hybrid.Attribute} is your primary attribute, shown in place of {hybrid.StatA} and {hybrid.StatB}.");

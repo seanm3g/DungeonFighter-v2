@@ -17,11 +17,11 @@ namespace RPGGame
     {
         private static readonly EffectHandlerRegistry _effectRegistry = new EffectHandlerRegistry();
 
-        /// <summary>A damage-over-time tick landed (actor, "bleed" / "poison" / "burn", damage). The MCP swing log
+        /// <summary>A damage-over-time tick landed (actor, "bleed" / "burn", damage). The MCP swing log
         /// names it, since its HP bars otherwise drop with no cause shown.</summary>
         public static event Action<Actor, string, int>? DoTTicked;
 
-        /// <summary>Poison, burn, acid, and bleed from weapon mods use WHEN tokens (default ONCRITICAL).</summary>
+        /// <summary>Burn, acid (now Expose) and bleed from weapon mods use WHEN tokens (default ONCRITICAL).</summary>
         private static bool ShouldApplyEquipmentDoTFromHit(CombatEvent? combatEvent, string? triggerWhen)
         {
             if (combatEvent == null)
@@ -31,11 +31,6 @@ namespace RPGGame
             var carrier = new Action { Triggers = new ConditionalTriggerProperties() };
             return ActionTriggerGate.MatchesConditionToken(when, carrier, combatEvent);
         }
-
-        /// <summary>
-        /// Default WHEN for a weapon mod Effect when <see cref="Modification.TriggerWhen"/> is blank.
-        /// </summary>
-        private const double DefaultPoisonModPercent = 0.5;
 
         /// <summary>
         /// Modifications.json names the DoT mods' effects BURN / POISON / BLEED / ACID (Flaming, Poisonous, serrated);
@@ -93,6 +88,7 @@ namespace RPGGame
             return !string.IsNullOrWhiteSpace(action.Triggers.RequiredTag);
         }
 
+        // Poison and Acid stay listed: their old data ids still gate like DoTs before resolving (Bleed / Expose).
         private static bool IsDoTStatusEffectType(string effectType) =>
             string.Equals(effectType, "poison", StringComparison.OrdinalIgnoreCase)
             || string.Equals(effectType, "burn", StringComparison.OrdinalIgnoreCase)
@@ -225,16 +221,13 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Applies one status by name (poison, burn, slow, harden, fortify, ...) through the effect registry.
-        /// <paramref name="amount"/> &gt; 0 sets poison's % of max HP per tick (default 1).
+        /// Applies one status by name (bleed, burn, stagger, harden, ...; retired ids resolve) through the effect registry.
         /// </summary>
-        public static bool ApplyNamedStatus(Actor target, string status, List<string> results, double amount = 0)
+        public static bool ApplyNamedStatus(Actor target, string status, List<string> results)
         {
             if (target == null || string.IsNullOrWhiteSpace(status))
                 return false;
             var carrier = StatusEffectActionResolver.CreateActionWithStatusEffect(status);
-            if (carrier != null && amount > 0 && string.Equals(status.Trim(), "poison", StringComparison.OrdinalIgnoreCase))
-                carrier.PoisonPercentToAdd = amount;
             return carrier != null && _effectRegistry.ApplyEffect(status.Trim().ToLowerInvariant(), target, carrier, results);
         }
 
@@ -288,7 +281,7 @@ namespace RPGGame
             bool effectsApplied = false;
 
             // Per-mod WHEN (default ONCRITICAL for weapon* DoTs) — sum magnitudes whose WHEN matches.
-            double poisonPct = 0;
+            // weaponPoison (Poisonous) applies nothing since the 7-status core (step 5): Poison has no Bleed amount.
             int burnAmt = 0, acidAmt = 0, bleedAmt = 0;
             var weapon = attacker.Weapon;
             // Prototype 2026-11-09: DoT prefixes on any equipped piece count, not only the weapon's.
@@ -306,12 +299,7 @@ namespace RPGGame
                         continue;
                     string effect = NormalizeWeaponDotEffect(mod.Effect);
                     double v = mod.RolledValue;
-                    // Poisonous rolls 0 in the mod table. Poison stacks % of max HP per tick and never decays in a fight, so keep it small.
-                    if (v <= 0 && effect.Equals("weaponPoison", StringComparison.OrdinalIgnoreCase))
-                        v = DefaultPoisonModPercent;
-                    if (effect.Equals("weaponPoison", StringComparison.OrdinalIgnoreCase))
-                        poisonPct += v;
-                    else if (effect.Equals("weaponBurn", StringComparison.OrdinalIgnoreCase))
+                    if (effect.Equals("weaponBurn", StringComparison.OrdinalIgnoreCase))
                         burnAmt += (int)Math.Round(v);
                     else if (effect.Equals("weaponAcid", StringComparison.OrdinalIgnoreCase))
                         acidAmt += (int)Math.Round(v);
@@ -334,17 +322,9 @@ namespace RPGGame
             if (!hasWeaponDotMods
                 && ShouldApplyEquipmentDoTFromHit(combatEvent, "ONCRITICAL"))
             {
-                poisonPct = attacker.GetWeaponPoisonPercentPerHit();
                 burnAmt = attacker.GetWeaponBurnPerHit();
                 acidAmt = attacker.GetWeaponAcidPerHit();
                 bleedAmt = attacker.GetWeaponBleedPerHit();
-            }
-
-            if (poisonPct > 0)
-            {
-                var tempPoison = new Action { CausesPoison = true, PoisonPercentToAdd = poisonPct };
-                if (_effectRegistry.ApplyEffect("poison", target, tempPoison, results))
-                    effectsApplied = true;
             }
 
             if (burnAmt > 0)
@@ -354,10 +334,10 @@ namespace RPGGame
                     effectsApplied = true;
             }
 
+            // Acid loads as Expose (one stack per proc, whatever the rolled amount).
             if (acidAmt > 0)
             {
-                var tempAcid = new Action { CausesAcid = true, AcidAmountToAdd = acidAmt };
-                if (_effectRegistry.ApplyEffect("acid", target, tempAcid, results))
+                if (_effectRegistry.ApplyEffect("expose", target, new Action { CausesExpose = true }, results))
                     effectsApplied = true;
             }
 
@@ -400,11 +380,8 @@ namespace RPGGame
                 double roll = Dice.Roll(1, 100) / 100.0;
                 if (roll < stunChance)
                 {
-                    var tempAction = new Action
-                    {
-                        CausesStun = true
-                    };
-                    if (_effectRegistry.ApplyEffect("stun", target, tempAction, results))
+                    // Stun loads as Stagger.
+                    if (_effectRegistry.ApplyEffect("stagger", target, new Action(), results))
                     {
                         effectsApplied = true;
                     }
@@ -414,31 +391,9 @@ namespace RPGGame
             return effectsApplied;
         }
 
-        /// <summary>
-        /// Poison + burn + acid damage from a single status tick (same <see cref="Actor"/> <c>TakeDamage</c> call).
-        /// </summary>
-        public readonly record struct StatusEffectDamageBreakdown(int PoisonDamage, int BurnDamage, int AcidDamage)
-        {
-            public int TotalDamage => PoisonDamage + BurnDamage + AcidDamage;
-        }
-
-        /// <summary>
-        /// Processes poison then burn then acid for an actor (global tick). Use <see cref="ProcessStatusEffectsWithBreakdown"/> when the UI needs per-type HP delta coloring.
-        /// </summary>
+        /// <summary>Burn damage from one global status tick (bleed ticks on the afflicted actor's own turn).</summary>
         public static int ProcessStatusEffects(Actor actor, List<string> results) =>
-            ProcessStatusEffectsWithBreakdown(actor, results).TotalDamage;
-
-        /// <summary>
-        /// Processes all active status effects for an Actor at the start of their turn, reporting poison vs burn vs acid amounts separately.
-        /// </summary>
-        public static StatusEffectDamageBreakdown ProcessStatusEffectsWithBreakdown(Actor actor, List<string> results)
-        {
-            double currentTime = GameTicker.Instance.GetCurrentGameTime();
-            int poison = ProcessPoisonPercentDamage(actor, currentTime, results);
-            int burn = ProcessBurnDamage(actor, currentTime, results);
-            int acid = ProcessAcidDamage(actor, currentTime, results);
-            return new StatusEffectDamageBreakdown(poison, burn, acid);
-        }
+            ProcessBurnDamage(actor, GameTicker.Instance.GetCurrentGameTime(), results);
 
         /// <summary>Bleed pulse when the afflicted actor has completed a turn (including stunned skip).</summary>
         public static int ProcessBleedAfterActorTurn(Actor actor, List<string> results)
@@ -483,42 +438,6 @@ namespace RPGGame
             return damage > 0 ? damage : 0;
         }
 
-        private static int ProcessPoisonPercentDamage(Actor actor, double currentTime, List<string> results)
-        {
-            if (actor.PoisonPercentOfMaxHealth <= 0)
-                return 0;
-            int damage = actor.ProcessPoison(currentTime);
-            if (damage <= 0)
-                return 0;
-            DoTTicked?.Invoke(actor, "poison", damage);
-
-            bool stillActive = actor.PoisonPercentOfMaxHealth > 0;
-            if (DeveloperModeState.IsNarrativeCombatLog)
-            {
-                results.Add(ColoredTextRenderer.RenderAsMarkup(
-                    DamageFormatter.FormatNarrativeDoTTick(actor, "poison", damage, stillActive)));
-                return damage;
-            }
-
-            var damageBuilder = new ColoredTextBuilder();
-            DamageFormatter.AddActorTakesDamage(damageBuilder, actor, damage, "poison");
-            results.Add(ColoredTextRenderer.RenderAsMarkup(damageBuilder.Build()));
-
-            if (stillActive)
-            {
-                var builder = new ColoredTextBuilder();
-                DamageFormatter.AddPoisonPercentRemain(builder, ColorPalette.Green, actor.PoisonPercentOfMaxHealth);
-                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
-            }
-            else
-            {
-                var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorNoLongerAffected(builder, actor, "poisoned", ColorPalette.Green);
-                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
-            }
-            return damage;
-        }
-
         private static int ProcessBurnDamage(Actor actor, double currentTime, List<string> results)
         {
             if (actor.BurnIntensity <= 0 && actor.PendingBurnFromHits <= 0)
@@ -554,97 +473,6 @@ namespace RPGGame
                 results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
             }
             return damage;
-        }
-
-        private static int ProcessAcidDamage(Actor actor, double currentTime, List<string> results)
-        {
-            if (actor.AcidIntensity <= 0 && actor.PendingAcidFromHits <= 0)
-                return 0;
-            int damage = actor.ProcessAcid(currentTime);
-            if (damage <= 0)
-                return 0;
-
-            int displayIntensity = actor.AcidIntensity + actor.PendingAcidFromHits;
-            bool stillActive = displayIntensity > 0;
-            if (DeveloperModeState.IsNarrativeCombatLog)
-            {
-                results.Add(ColoredTextRenderer.RenderAsMarkup(
-                    DamageFormatter.FormatNarrativeDoTTick(actor, "acid", damage, stillActive)));
-                return damage;
-            }
-
-            var damageBuilder = new ColoredTextBuilder();
-            DamageFormatter.AddActorTakesDamage(damageBuilder, actor, damage, "acid");
-            results.Add(ColoredTextRenderer.RenderAsMarkup(damageBuilder.Build()));
-
-            if (stillActive)
-            {
-                var builder = new ColoredTextBuilder();
-                DamageFormatter.AddEffectStacksRemain(builder, "acid", ColorPalette.Lime, displayIntensity);
-                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
-            }
-            else
-            {
-                var builder = new ColoredTextBuilder();
-                DamageFormatter.AddActorNoLongerAffected(builder, actor, "corroding", ColorPalette.Lime);
-                results.Add(ColoredTextRenderer.RenderAsMarkup(builder.Build()));
-            }
-            return damage;
-        }
-
-        /// <summary>
-        /// Checks if an Actor can act based on status effects
-        /// </summary>
-        /// <param name="Actor">The Actor to check</param>
-        /// <param name="results">List to add effect messages to</param>
-        /// <returns>True if the Actor can act, false if stunned or otherwise incapacitated</returns>
-        public static bool CanEntityAct(Actor Actor, List<string> results)
-        {
-            // Check for stun effect
-            if (Actor.IsStunned)
-            {
-                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, Actor, "stunned", " and cannot act!");
-                return false;
-            }
-            
-            return true;
-        }
-
-        /// <summary>
-        /// Applies environmental debuffs to entities using the effect registry
-        /// </summary>
-        /// <param name="source">The source of the debuff (usually environment)</param>
-        /// <param name="target">The target Actor</param>
-        /// <param name="action">The action causing the debuff</param>
-        /// <param name="debuffType">Type of debuff to apply</param>
-        /// <param name="results">List to add effect messages to</param>
-        /// <returns>True if debuff was applied</returns>
-        public static bool ApplyEnvironmentalDebuff(Actor source, Actor target, Action action, string debuffType, List<string> results)
-        {
-            // Use the effect registry to apply environmental effects
-            bool applied = _effectRegistry.ApplyEffect(debuffType, target, action, results);
-            
-            if (applied)
-            {
-                // Modify the result message to indicate environmental source
-                if (results.Count > 0)
-                {
-                    string lastResult = results[results.Count - 1];
-                    results[results.Count - 1] = lastResult.Replace($"[{target.Name}]", $"[{target.Name}]").Replace("!", " by the environment!");
-                }
-            }
-            
-            return applied;
-        }
-
-        /// <summary>
-        /// Gets the effect type description for an action using the registry
-        /// </summary>
-        /// <param name="action">The action to describe</param>
-        /// <returns>Description of the effect type</returns>
-        public static string GetEffectType(Action action)
-        {
-            return _effectRegistry.GetEffectType(action);
         }
 
     }

@@ -320,10 +320,8 @@ namespace RPGGame.Actions.Conditional
 
         public static bool HasAnyDot(Actor? actor) =>
             actor != null
-            && (actor.PoisonPercentOfMaxHealth > 0
-                || actor.BurnIntensity > 0 || actor.PendingBurnFromHits > 0
-                || actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0
-                || actor.AcidIntensity > 0 || actor.PendingAcidFromHits > 0);
+            && (actor.BurnIntensity > 0 || actor.PendingBurnFromHits > 0
+                || actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0);
 
         public static bool HasStatus(Actor? actor, string? statusName)
         {
@@ -333,14 +331,12 @@ namespace RPGGame.Actions.Conditional
             string s = statusName.Trim().ToUpperInvariant().Replace(" ", "").Replace("_", "");
             return s switch
             {
-                "POISON" or "POISONED" => actor.PoisonPercentOfMaxHealth > 0,
                 "BURN" or "BURNING" or "FIRE" => actor.BurnIntensity > 0 || actor.PendingBurnFromHits > 0,
-                "BLEED" or "BLEEDING" => actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0 || actor.IsBleeding,
-                "ACID" or "ACIDIC" => actor.AcidIntensity > 0 || actor.PendingAcidFromHits > 0,
+                // Retired names read their core status (Poison = Bleed, Acid = Expose, Stun = Stagger).
+                "BLEED" or "BLEEDING" or "POISON" or "POISONED" => actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0 || actor.IsBleeding,
                 "DOT" or "ANY" or "UNDERDOT" => HasAnyDot(actor),
-                "STUN" or "STUNNED" => actor.IsStunned,
-                "SILENCE" or "SILENCED" => actor.IsSilenced,
-                "EXPOSE" or "EXPOSED" => (actor.ExposeStacks ?? 0) > 0,
+                "STUN" or "STUNNED" or "STAGGER" or "STAGGERED" => actor.StaggerStacks > 0,
+                "EXPOSE" or "EXPOSED" or "ACID" or "ACIDIC" => (actor.ExposeStacks ?? 0) > 0,
                 "MARK" or "MARKED" => actor.IsMarked,
                 "SLOW" or "SLOWED" => actor is Character c && c.Effects.SlowTurns > 0,
                 _ => false

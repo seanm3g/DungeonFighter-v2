@@ -16,7 +16,6 @@ namespace RPGGame.Tests.Unit
         public static void RunAllTests()
         {
             // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
-            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== Verb Presets Tests ===\n");
             _run = _passed = _failed = 0;
             MaterialBuildsLoader.Reload();
@@ -183,21 +182,22 @@ namespace RPGGame.Tests.Unit
             TestBase.SetCurrentTestName(nameof(TestStatusActions));
             var hero = Hero("StatusHero", "Bone");
             var foe = new Character("StatusFoe", 5);
-            Connect(hero, foe, Verb("VENOM COAT", "APPLY poison 6"));
-            TestBase.AssertTrue(Math.Abs(foe.PoisonPercentOfMaxHealth - 1.5) < 1e-9, "VENOM COAT: 1.5% poison", ref _run, ref _passed, ref _failed);
+            var venomFoe = new Character("VenomFoe", 5);
+            Connect(hero, venomFoe, Verb("VENOM COAT", "APPLY poison 6"));
+            TestBase.AssertEqual(6, venomFoe.PendingBleedFromHits, "VENOM COAT: poison lands as 6 bleed", ref _run, ref _passed, ref _failed);
             Connect(hero, foe, Verb("OPEN VEIN", "APPLY bleed 2"));
             TestBase.AssertEqual(2, foe.PendingBleedFromHits, "OPEN VEIN: 2 bleed queued", ref _run, ref _passed, ref _failed);
             Connect(hero, foe, Verb("STOKE", "APPLY burn 2"));
             TestBase.AssertEqual(2, foe.PendingBurnFromHits, "STOKE: 2 burn queued", ref _run, ref _passed, ref _failed);
             Connect(hero, foe, Verb("CORRODE", "APPLY acid 1"));
-            TestBase.AssertEqual(1, foe.PendingAcidFromHits, "CORRODE: 1 acid queued", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue((foe.ExposeStacks ?? 0) >= 1, "CORRODE: acid lands as Expose", ref _run, ref _passed, ref _failed);
             Connect(hero, foe, Verb("DAZE", "APPLY stun 1"));
-            TestBase.AssertTrue(foe.IsStunned && foe.StunTurnsRemaining >= 1, "DAZE: stunned", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(foe.StaggerStacks >= 1, "DAZE: stun lands as Stagger", ref _run, ref _passed, ref _failed);
             Connect(hero, foe, Verb("BRACE", "APPLY fortify 2"));
             TestBase.AssertEqual(2, Stores.Get(hero, "fortify"), "BRACE: 2 Fortify on the hero", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, Stores.Get(foe, "fortify"), "BRACE: not on the target", ref _run, ref _passed, ref _failed);
             Stores.Add(foe, "weaken", 1);
-            TestBase.AssertTrue(foe.IsWeakened && foe.WeakenTurns >= Stores.DefaultStatusTurns, "weaken store adds the status", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(Stores.Get(foe, "rattle") >= 1, "weaken store adds Rattle", ref _run, ref _passed, ref _failed);
 
             foreach (string name in new[] { "VENOM COAT", "OPEN VEIN", "STOKE", "CORRODE", "DAZE", "BRACE" })
             {

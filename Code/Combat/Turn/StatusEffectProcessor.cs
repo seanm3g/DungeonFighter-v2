@@ -49,8 +49,8 @@ namespace RPGGame.Combat.Turn
         }
 
         /// <summary>
-        /// combat.enemyDotFollowsDamageCurve: flat DoT ticks (burn / acid / bleed) on the hero scale by enemySystem.damageCurve
-        /// at the hero's level, like enemy hits. Poison (% of max HP) does not. Without it, enemy poison / burn / bleed ignore the curve (37% of hero HP lost at L10, where the
+        /// combat.enemyDotFollowsDamageCurve: DoT ticks (burn / bleed) on the hero scale by enemySystem.damageCurve
+        /// at the hero's level, like enemy hits. Without it, enemy burn / bleed ignore the curve (37% of hero HP lost at L10, where the
         /// curve cuts hits to ~0.27x). The tick message still shows the unscaled amount.
         /// </summary>
         private static int ScaleHeroDot(Actor entity, int damage)
@@ -114,14 +114,8 @@ namespace RPGGame.Combat.Turn
         private static void ProcessEntityEffects(Actor entity, ref bool blankLineAdded)
         {
             var results = new List<string>();
-            var breakdown = CombatEffectsSimplified.ProcessStatusEffectsWithBreakdown(entity, results);
-            // Poison is already a % of max HP, so it scales with level by itself; only flat burn / acid follow the curve
-            // (scaling poison too made a 0.25% tick ~12% of max HP at L58, the Pyramids / Venom deaths of 2026-11-13).
-            breakdown = new CombatEffectsSimplified.StatusEffectDamageBreakdown(
-                ScaleFoeDot(entity, "poison", breakdown.PoisonDamage),
-                ScaleFoeDot(entity, "burn", breakdown.BurnDamage),
-                ScaleFoeDot(entity, "acid", breakdown.AcidDamage));
-            int damage = breakdown.PoisonDamage + ScaleHeroDot(entity, breakdown.BurnDamage + breakdown.AcidDamage);
+            int burn = ScaleFoeDot(entity, "burn", CombatEffectsSimplified.ProcessStatusEffects(entity, results));
+            int damage = ScaleHeroDot(entity, burn);
 
             if (damage > 0)
             {
@@ -146,9 +140,9 @@ namespace RPGGame.Combat.Turn
                 if (barId != null)
                     HealthBarDeltaDamageHint.RecordAfterMitigation(
                         barId,
-                        breakdown.PoisonDamage,
-                        breakdown.BurnDamage,
-                        breakdown.AcidDamage,
+                        0,
+                        burn,
+                        0,
                         bleedRequested: 0,
                         requestedTotal: damage,
                         actualHpLost: actual);

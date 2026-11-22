@@ -26,7 +26,6 @@ namespace RPGGame.Tests.Unit
             TestMaterialCountsAfterRoot();
             TestStripActionTagsCount();
             TestMarketChanceInLootContext();
-            TestConcussiveCritStuns();
 
             TestBase.PrintSummary("ClassTags Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -116,20 +115,5 @@ namespace RPGGame.Tests.Unit
             });
         }
 
-        private static void TestConcussiveCritStuns()
-        {
-            var hero = MakeHero("Concuss", WeaponType.Mace, 50);
-            hero.Progression.LearnedSkillRanks["b-stun"] = 1;
-            var foe = TestDataBuilders.Enemy().WithName("Dummy").Build();
-            // Rule node: ONCRITICAL CHANCE 35% IF WEAPON mace -> APPLY stun 1 (combat events reach rules via the mint path).
-            var swing = new Action { Name = "TEST_SWING", Type = ActionType.Attack };
-            for (int i = 0; i < 60 && !foe.IsStunned; i++)
-                MaterialSetController.TryMintFromEvent(hero, new CombatEvent(CombatEventType.ActionHit, hero)
-                {
-                    Target = foe, Action = swing, NaturalRollValue = 20, IsCritical = true, Damage = 10
-                }, swing);
-            TestBase.AssertTrue(foe.IsStunned && foe.StunTurnsRemaining >= 1, "Mace crits with Concussive Crit stun (35% chance each)",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
     }
 }

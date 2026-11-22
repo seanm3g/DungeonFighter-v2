@@ -543,18 +543,13 @@ namespace RPGGame.Combat.Calculators
         }
 
         /// <summary>
-        /// True when this swing ignores Defense DR (action pierce, or the target is pierced).
+        /// True when this swing ignores Defense DR (the action has pierce; the Pierce status was retired).
         /// </summary>
-        public static bool IgnoresArmor(Actor? target, Action? action = null)
-        {
-            if (action?.CausesPierce == true)
-                return true;
-            return target != null && target.HasPierce && target.PierceTurns > 0;
-        }
+        public static bool IgnoresArmor(Actor? target, Action? action = null) => action?.CausesPierce == true;
 
         /// <summary>
         /// Base Defense rating for the target (hero gear+/effects, enemy Armor minus combat shred).
-        /// Returns 0 when <paramref name="action"/> has pierce or the target is under pierce.
+        /// Returns 0 when <paramref name="action"/> has pierce.
         /// </summary>
         public static int ResolveTargetArmor(Actor target, Action? action = null)
         {

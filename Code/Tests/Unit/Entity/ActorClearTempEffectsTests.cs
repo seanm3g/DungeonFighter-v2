@@ -29,13 +29,7 @@ namespace RPGGame.Tests.Unit.Entity
         private static void TestCharacterClearAllTempEffects_ClearsAdvancedActorFields()
         {
             var c = new Character("ClearTest", 1);
-            c.PoisonPercentOfMaxHealth = 3;
             c.BurnIntensity = 2;
-            c.AcidIntensity = 4;
-            c.PendingAcidFromHits = 1;
-            c.AcidArmorReduction = 8;
-            c.IsStunned = true;
-            c.StunTurnsRemaining = 2;
             c.HasCriticalMissPenalty = true;
             c.CriticalMissPenaltyTurns = 1;
             c.ExposeStacks = 2;
@@ -43,26 +37,16 @@ namespace RPGGame.Tests.Unit.Entity
             c.ExposeArmorStrip = 0.2;
             c.TemporaryHP = 10;
             c.TemporaryHPTurns = 2;
-            c.IsConfused = true;
-            c.ConfusionTurns = 2;
-            c.ConfusionChance = 0.25;
             c.Effects.ApplySlow(0.5, 2);
 
             c.ClearAllTempEffects();
 
-            TestBase.AssertTrue(c.PoisonPercentOfMaxHealth == 0, "Poison cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0, c.BurnIntensity, "Burn cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, c.AcidIntensity, "Acid intensity cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, c.PendingAcidFromHits, "Acid pending cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertEqual(0, c.AcidArmorReduction, "Acid armor shred cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertFalse(c.IsStunned, "Stun cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertFalse(c.HasCriticalMissPenalty, "Crit miss penalty cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertNull(c.ExposeStacks, "Expose stacks cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0, c.ExposeTurns, "Expose turns cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0.0, c.ExposeArmorStrip, "Expose armor strip cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertNull(c.TemporaryHP, "Temp HP cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertFalse(c.IsConfused, "Confusion cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(c.ConfusionChance == 0, "Confusion chance cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(1.0, c.Effects.SlowMultiplier, "Slow cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0, c.Effects.SlowTurns, "Slow turns cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }

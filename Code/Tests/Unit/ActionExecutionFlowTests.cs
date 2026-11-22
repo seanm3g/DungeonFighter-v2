@@ -91,13 +91,6 @@ namespace RPGGame.Tests.Unit
                 "Enemy action selection should return a pool action or unnamed synthetic normal",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test selection when stunned
-            character.IsStunned = true;
-            var stunnedAction = ActionSelector.SelectActionByEntityType(character);
-            TestBase.AssertNull(stunnedAction, 
-                "Stunned character should not select action", 
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            character.IsStunned = false;
         }
 
         private static void TestActionExecutionFlow()

@@ -34,7 +34,7 @@ namespace RPGGame.Tests.Unit.Game
             var player = new Character("RecoveryHero", 3);
             int max = player.GetEffectiveMaxHealth();
             player.CurrentHealth = Math.Max(1, max / 4);
-            player.IsStunned = true;
+            player.StaggerStacks = 2;
 
             int restored = DungeonRunRecovery.RestoreAfterLeavingDungeon(player);
 
@@ -44,7 +44,7 @@ namespace RPGGame.Tests.Unit.Game
             TestBase.AssertEqual(max, player.CurrentHealth,
                 "Player should be at full effective max HP",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(!player.IsStunned,
+            TestBase.AssertTrue(player.StaggerStacks == 0,
                 "Temp combat effects should be cleared",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }

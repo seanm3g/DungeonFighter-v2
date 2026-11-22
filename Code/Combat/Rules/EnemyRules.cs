@@ -84,7 +84,7 @@ namespace RPGGame.Combat.Rules
                 var rule = entry.Rule;
                 if (rule.Chance > 0 && !(random.NextDouble() < rule.Chance))
                     continue;
-                if (!CombatEffectsSimplified.ApplyNamedStatus(target, rule.Store, messages, rule.Amount))
+                if (!CombatEffectsSimplified.ApplyNamedStatus(target, rule.Store, messages))
                     continue;
                 any = true;
                 RuleEngine.Record(enemy, entry, "ActionHit");

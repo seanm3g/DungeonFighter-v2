@@ -56,10 +56,9 @@ namespace RPGGame.Tests.Unit
             var snap = StatusApplySnapshot.Take(enemy);
             TestBase.AssertEqual(0, snap.Gained(enemy).Count, "nothing applied → nothing gained", ref _run, ref _passed, ref _failed);
             enemy.BleedIntensity = 2;
-            enemy.IsStunned = true;
-            enemy.StunTurnsRemaining = 1;
+            enemy.StaggerStacks = 1;
             var gained = snap.Gained(enemy);
-            TestBase.AssertTrue(gained.Contains("bleed") && gained.Contains("stun") && gained.Count == 2,
+            TestBase.AssertTrue(gained.Contains("bleed") && gained.Contains("stagger") && gained.Count == 2,
                 "new Bleed and Stun are seen", ref _run, ref _passed, ref _failed);
             var stacked = StatusApplySnapshot.Take(enemy);
             enemy.BleedIntensity = 3;
@@ -86,10 +85,10 @@ namespace RPGGame.Tests.Unit
             try
             {
                 var snap = StatusApplySnapshot.Take(enemy);
-                enemy.PoisonPercentOfMaxHealth = 2;
+                enemy.BurnIntensity = 2;
                 enemy.ExposeStacks = 1;
                 snap.PublishGained(hero, enemy, null);
-                TestBase.AssertTrue(seen.Count == 2 && seen.Contains("poison") && seen.Contains("expose"),
+                TestBase.AssertTrue(seen.Count == 2 && seen.Contains("burn") && seen.Contains("expose"),
                     "one StatusEffectApplied per gained status", ref _run, ref _passed, ref _failed);
                 seen.Clear();
                 var self = StatusApplySnapshot.Take(hero);

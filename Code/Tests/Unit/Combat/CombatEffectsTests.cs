@@ -60,14 +60,14 @@ namespace RPGGame.Tests.Unit.Combat
                 "Character should be able to have bleeding status",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            character.IsStunned = true;
-            TestBase.AssertTrue(character.IsStunned,
-                "Character should be able to have stun status",
+            character.StaggerStacks = 1;
+            TestBase.AssertTrue(character.StaggerStacks == 1,
+                "Character should be able to have stagger status",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            character.IsWeakened = true;
-            TestBase.AssertTrue(character.IsWeakened,
-                "Character should be able to have weaken status",
+            character.ApplyRollPenalty(1, 1);
+            TestBase.AssertTrue(Stores.Get(character, "rattle") == 1,
+                "Character should be able to have rattle status",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

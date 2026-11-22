@@ -191,11 +191,11 @@ namespace RPGGame
             // Apply effects based on action type and properties
             if (action.CausesBleed)
             {
-                target.ApplyPoison(2, duration, true); // 2 damage per turn, bleeding type
+                target.ApplyBleed(2, duration); // 2 damage per turn
             }
             else if (action.CausesWeaken)
             {
-                target.ApplyWeaken(duration);
+                Stores.Add(target, "rattle", 1); // Weaken loads as Rattle
             }
             else if (action.CausesSlow)
             {
@@ -208,12 +208,11 @@ namespace RPGGame
             }
             else if (action.CausesPoison)
             {
-                target.ApplyPoison(2, duration); // 2 damage per turn for the duration
+                target.ApplyBleed(2, duration); // Poison loads as Bleed
             }
             else if (action.CausesStun)
             {
-                target.IsStunned = true;
-                target.StunTurnsRemaining = duration;
+                Stores.Add(target, "stagger", 1); // Stun loads as Stagger
             }
             else if (action.CausesBurn)
             {

@@ -798,7 +798,7 @@ namespace RPGGame.Combat.Sequence
         {
             if (actor is Character character)
                 return Math.Max(1, character.GetEffectiveMaxHealth());
-            return Math.Max(1, actor?.GetMaxHealthForPoisonDot() ?? 100);
+            return Math.Max(1, actor?.GetMaxHealthForDot() ?? 100);
         }
 
         /// <summary>

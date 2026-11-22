@@ -15,7 +15,6 @@ namespace RPGGame.Tests.Unit
         public static void RunAllTests()
         {
             // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
-            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== Cross Wires Tests ===\n");
             _run = _passed = _failed = 0;
             MaterialBuildsLoader.Reload();
@@ -158,18 +157,16 @@ namespace RPGGame.Tests.Unit
             var edge = ConversionTable.Rows.First(r => r.Id == "envenomed_edge");
             var hero = Hero("EdgeHero");
             var foe = new Character("EdgeFoe", 5);
-            foe.PoisonPercentOfMaxHealth = 3.0;
-            int passes = ConversionTable.ApplyRow(hero, foe, edge, isCritical: true);
-            TestBase.AssertEqual(2, passes, "a crit converts twice", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(4, foe.PendingBleedFromHits, "4 bleed queued (1:2)", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(Math.Abs(foe.PoisonPercentOfMaxHealth - 1.0) < 1e-9, "2% poison spent (4 units per pass)", ref _run, ref _passed, ref _failed);
-            var thin = new Character("ThinFoe", 5);
-            thin.PoisonPercentOfMaxHealth = 0.5;
-            ConversionTable.ApplyRow(hero, thin, edge, isCritical: true);
-            TestBase.AssertEqual(0.0, thin.PoisonPercentOfMaxHealth, "short poison is spent to 0, second pass stops", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(2, thin.PendingBleedFromHits, "one pass only once poison is gone", ref _run, ref _passed, ref _failed);
+            foe.BleedIntensity = 4;
+            TestBase.AssertEqual(0, ConversionTable.ApplyRow(hero, foe, edge, isCritical: true),
+                "a row that requires a retired status (Poison) never fires", ref _run, ref _passed, ref _failed);
+            var hemorrhage = ConversionTable.Rows.First(r => r.Id == "hemorrhage");
+            int passes = ConversionTable.ApplyRow(hero, foe, hemorrhage, isCritical: true);
+            TestBase.AssertEqual(1, passes, "Hemorrhage converts once", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(2, foe.PendingBleedFromHits, "half the live bleed is queued", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue((foe.ExposeStacks ?? 0) > 0, "a crit adds Expose", ref _run, ref _passed, ref _failed);
             var none = new Character("CleanFoe", 5);
-            TestBase.AssertEqual(0, ConversionTable.ApplyRow(hero, none, edge, isCritical: false), "no poison, no conversion", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, ConversionTable.ApplyRow(hero, none, hemorrhage, isCritical: false), "no bleed, no conversion", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestBotScoresAffixesAndNodes()
