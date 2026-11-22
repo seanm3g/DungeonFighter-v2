@@ -19,6 +19,8 @@ namespace RPGGame.Tests.Unit.Combat
 
         public static void RunAllTests()
         {
+            // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
+            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== SynergyPass Tests ===\n");
             _run = _passed = _failed = 0;
             var trees = SkillTreesConfig.TryLoadFromGameDataFile();

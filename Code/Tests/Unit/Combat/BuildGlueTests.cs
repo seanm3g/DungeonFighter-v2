@@ -18,6 +18,8 @@ namespace RPGGame.Tests.Unit.Combat
 
         public static void RunAllTests()
         {
+            // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
+            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== BuildGlue Tests ===\n");
             _testsRun = _testsPassed = _testsFailed = 0;
 

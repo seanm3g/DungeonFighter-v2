@@ -93,7 +93,15 @@ namespace RPGGame
             def = null!;
             if (string.IsNullOrWhiteSpace(id))
                 return false;
-            return _byId!.TryGetValue(id.Trim(), out def!);
+            // Step 5 (D3.13-D3.16): retired statuses read and apply as their core replacement; dropped ones do nothing.
+            string key = id.Trim();
+            // Only statuses migrate: hero resources (Guard / Harden, Fortify, Focus, Haste, Temp HP) and stores stay themselves.
+            if (_byId!.TryGetValue(key, out def!) && def.Kind != StoreKind.Status)
+                return true;
+            string? resolved = CoreStatuses.Resolve(key);
+            if (resolved == null)
+                return false;
+            return _byId!.TryGetValue(resolved, out def!);
         }
 
         /// <summary>Current amount in the store (0 for unknown stores or a null actor).</summary>
@@ -304,7 +312,7 @@ namespace RPGGame
 
         private static IEnumerable<StoreDef> BuildResources()
         {
-            yield return StackResource("harden", "Harden", a => a.HardenStacks, (a, v) => a.HardenStacks = v,
+            yield return StackResource("harden", "Guard", a => a.HardenStacks, (a, v) => a.HardenStacks = v,
                 a => a.HardenTurns, (a, v) => a.HardenTurns = v);
             yield return StackResource("fortify", "Fortify", a => a.FortifyStacks, (a, v) => a.FortifyStacks = v,
                 a => a.FortifyTurns, (a, v) => a.FortifyTurns = v);

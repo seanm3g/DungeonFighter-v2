@@ -23,6 +23,8 @@ namespace RPGGame.Tests.Unit.Combat
         /// </summary>
         public static void RunAllTests()
         {
+            // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
+            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== CombatEffectsSimplified Tests ===\n");
             
             _testsRun = 0;

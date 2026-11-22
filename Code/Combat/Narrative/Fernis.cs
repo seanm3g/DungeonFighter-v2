@@ -169,7 +169,7 @@ namespace RPGGame.Combat.Narrative
         private static readonly CombatEventType[] Listened =
         {
             CombatEventType.ActionExecuted, CombatEventType.ActionMiss, CombatEventType.ActionHit, CombatEventType.ComboEnded,
-            CombatEventType.EnemyDied, CombatEventType.HeroLowHealth
+            CombatEventType.EnemyDied, CombatEventType.HeroLowHealth, CombatEventType.StatusEffectApplied
         };
 
         public FernisFightSession(Character hero, Character enemy, FernisNarrator? narrator = null, bool subscribe = true)
@@ -239,6 +239,18 @@ namespace RPGGame.Combat.Narrative
                     int max = Math.Max(1, _enemy.GetMaxHealthForPoisonDot());
                     if (evt.Damage >= max * OverkillShare)
                         Say(FernisMoments.Overkill, Tokens());
+                    break;
+                case CombatEventType.StatusEffectApplied when !string.IsNullOrWhiteSpace(evt.StatusEffectType):
+                    // D9.3 NEW: the first time a status appears, it opens the Statuses rung and Fernis names it.
+                    string id = CoreStatuses.Resolve(evt.StatusEffectType) ?? evt.StatusEffectType!;
+                    bool first = !_hero.Unlocks.HasSeen("status", id);
+                    _hero.Unlocks.OnStatusApplied(id);
+                    if (first)
+                    {
+                        var tokens = Tokens();
+                        tokens["status"] = CoreStatuses.Label(id);
+                        Say(FernisMoments.NewConcept, tokens);
+                    }
                     break;
                 case CombatEventType.HeroLowHealth:
                 case CombatEventType.ActionHit when fromEnemy:

@@ -58,6 +58,11 @@ namespace RPGGame
         {
             if (action == null || string.IsNullOrWhiteSpace(effectType))
                 return false;
+            // Step 5 (D3.13-D3.16): a retired status applies as its core replacement; a dropped one applies nothing.
+            string? core = CoreStatuses.Resolve(effectType);
+            if (core == null)
+                return false;
+            effectType = core;
             // Immune targets never receive the status, so nothing is logged ("is poisoned" on a skeleton).
             if (StatusAffinity.IsImmune(target, effectType))
                 return false;
@@ -67,6 +72,14 @@ namespace RPGGame
                 if (applied)
                     target?.NoteStatusSource(effectType, action.Name);
                 return applied;
+            }
+            // Core statuses without a handler (Stagger, Rattle) apply one stack through their store.
+            if (target != null && CoreStatuses.Enabled && Stores.TryGet(effectType, out var def) && def.AddFn != null
+                && Stores.Add(target, def.Id, 1) > 0)
+            {
+                results?.Add($"{target.Name} gains 1 {CoreStatuses.Label(def.Id)}");
+                target.NoteStatusSource(def.Id, action.Name);
+                return true;
             }
             return false;
         }

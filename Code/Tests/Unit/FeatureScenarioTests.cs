@@ -29,6 +29,8 @@ namespace RPGGame.Tests.Unit
 
         public static void RunAllTests()
         {
+            // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
+            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== Feature Scenario Tests ===\n");
             _run = _passed = _failed = 0;
             bool prevUi = TurnManager.DisableCombatUIOutput;

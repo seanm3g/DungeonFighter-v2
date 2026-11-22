@@ -17,7 +17,8 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
 | Phase 11 item rolls | done | `6cd48a60` | 15063 passed / 0 failed |
 | 3.1 Action roles, class hits | done | `9c9d9d9d` | 15074 passed / 0 failed |
 | 3.2 + 3.3 Fernis, swing moments, fight results | done | `8123dd8b` | 15086 passed / 2 failed (both flaky, see below) |
-| 4 Families, matchups, one modifier, prefixes, regions, encounters | partial | (this commit) | 15106 passed / 0 failed |
+| 4 Families, matchups, one modifier, prefixes, regions, encounters | partial | `234f1287` | 15106 passed / 0 failed |
+| 5 Core statuses, NEW moment | partial | (this commit) | 15128 passed / 0 failed |
 
 ## Phase 11 — item rolls (D11.1–D11.12)
 - **Class affinity (D11.7):** every rolled item has one of 10 affinities (`Item.ClassAffinity`, saved as
@@ -126,3 +127,30 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
   already true; not changed.
 - Enemy strips short, Demons longest (D8.4): 124 of 128 enemies run 2 cards and the Demon gets up to 5; already in
   line, not changed.
+
+## Step 5 — Statuses (partial)
+
+### Done
+- **The 7-status core** (`CoreStatuses`, D3.13–D3.16): Stagger, Guard, Bleed, Burn, Focus, Rattle, Expose. Guard is
+  today's Harden store (shown as "Guard"). Retired ids resolve to their replacement wherever a status is applied
+  (`EffectHandlerRegistry.ApplyEffect`) or read / added through `Stores`: Poison → Bleed, Stun / Slow → Stagger,
+  Acid / Pierce / Vulnerability / Armor Break → Expose, Roll Penalty → Rattle, Fortify / Temp HP / Absorb → Guard
+  (status applications only), Weaken → Rattle (**REVIEW**: not in the migration table), Brittle → Mark. Dropped:
+  Silence, Stat Drain, Reflect, HP Regen, Disrupt, Confusion. Handler-less core statuses (Stagger, Rattle) apply one
+  stack through their store.
+- **Kept beyond the core:** Mark (the Glass material spends into it, so a rung needs it, D3.6) and Haste (tempo
+  grants). Hero resources stay themselves in `Stores` (Temp HP cash-ins would otherwise become 143 Guard stacks).
+- **Switch:** `DF_LEGACY_STATUSES=1` brings the old set back. 11 test suites that cover the retired statuses' code
+  run with the legacy set pinned (`CoreStatuses.Pin(false)`), since that code stays until step 12; the new
+  `CoreStatusesTests` (24 checks) pin the core on.
+- **NEW moment (D9.3):** the first time a status lands in a live fight, `SystemUnlocks.OnStatusApplied` records it
+  (opening the Statuses rung) and Fernis names it ("Rattle. New toy. I'd be furious.").
+- **Gameplay effect:** Poison content now Bleeds (so Undead, immune to Bleed, shrug it off), Stun / Slow cards
+  Stagger, and so on. Some cards stack the same status twice now (OPEN VEIN queues 8 Bleed where it queued 2 + Poison).
+
+### Not done (needs the board)
+- The status panel showing statuses only, and the NOW card (D3.7).
+- NEW cards drawn on the enemy and the loot (D9.3); only Fernis's line exists.
+- Direct code paths that apply a retired status without going through the registry or `Stores` (some older combat
+  helpers call `ApplyPoison`-style methods directly) are not migrated.
+- Affinities as immune / weak: `StatusAffinities.json` already does this by tag; not changed.

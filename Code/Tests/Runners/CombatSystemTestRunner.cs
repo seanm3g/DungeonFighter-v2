@@ -39,6 +39,7 @@ namespace RPGGame.Tests.Runners
             Console.WriteLine();
             CombatUiMuteScopeTests.RunAllTests();
             FernisTests.RunAllTests();
+            CoreStatusesTests.RunAllTests();
             Console.WriteLine();
             CombatStateManagerTests.RunAllTests();
             Console.WriteLine();

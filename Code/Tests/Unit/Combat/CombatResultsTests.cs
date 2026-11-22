@@ -27,6 +27,8 @@ namespace RPGGame.Tests.Unit.Combat
         /// <summary>These cover the detailed combat log's roll footer (Rebuild 1.7: the simple log is the default).</summary>
         public static void RunAllTests()
         {
+            // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
+            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             bool oldDetailed = GameSettings.Instance.DetailedCombatLog;
             GameSettings.Instance.DetailedCombatLog = true;
             try { RunAllTestsDetailed(); }
