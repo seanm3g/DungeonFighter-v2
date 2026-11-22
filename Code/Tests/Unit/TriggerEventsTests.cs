@@ -87,7 +87,7 @@ namespace RPGGame.Tests.Unit
         {
             TestBase.SetCurrentTestName(nameof(TestEveryMaterialSynthesisWhenIsAnEvent));
             var builds = MaterialBuildsLoader.GetAll();
-            TestBase.AssertTrue(builds.Count >= 18, "material builds loaded", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(builds.Count >= 15, "material builds loaded (18 less the 3 cosmetic since step 12)", ref _run, ref _passed, ref _failed);
             foreach (var build in builds)
             {
                 bool ok = TriggerEvents.TryGet(build.WhenToken, out var def)

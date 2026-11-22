@@ -53,7 +53,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (includeMaterial)
             {
                 string material = item.Material?.Trim() ?? "";
-                if (material.Length > 0 && !material.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
+                if (material.Length > 0 && !ItemMaterialRules.IsCosmetic(material))
                     keys.Add(MaterialKey + material);
             }
             return keys;
@@ -95,7 +95,7 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
         {
             var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             string material = item?.Material?.Trim() ?? "";
-            if (material.Length > 0 && !material.Equals("Unknown", StringComparison.OrdinalIgnoreCase))
+            if (material.Length > 0 && !ItemMaterialRules.IsCosmetic(material))
                 keys.Add(MaterialKey + material);
             return keys;
         }

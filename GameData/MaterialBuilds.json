@@ -131,16 +131,6 @@
   },
   {
     "class": "",
-    "material": "Unknown",
-    "synthesis": "ON_TURN = ENIGMA",
-    "convertAction": "REVEAL",
-    "feed": "+/x per UNKNOWN",
-    "stack2": "SYNTHESIS + CONVERT UNLOCK",
-    "stack3": "+ feed",
-    "stack5": "x feed"
-  },
-  {
-    "class": "",
     "material": "Strange",
     "synthesis": "ON_FIRST_HIT = ODDITY",
     "convertAction": "QUIRK",
@@ -155,26 +145,6 @@
     "synthesis": "ON_AFTER_MISS = OMEN",
     "convertAction": "STARFALL",
     "feed": "+/x per CELESTIAL",
-    "stack2": "SYNTHESIS + CONVERT UNLOCK",
-    "stack3": "+ feed",
-    "stack5": "x feed"
-  },
-  {
-    "class": "",
-    "material": "Wood",
-    "synthesis": "ON_ODD = KINDLING",
-    "convertAction": "KINDLE",
-    "feed": "+/x per WOOD",
-    "stack2": "SYNTHESIS + CONVERT UNLOCK",
-    "stack3": "+ feed",
-    "stack5": "x feed"
-  },
-  {
-    "class": "",
-    "material": "Cloth",
-    "synthesis": "ON_TAKE_HIT = FRAY",
-    "convertAction": "UNRAVEL",
-    "feed": "+/x per CLOTH",
     "stack2": "SYNTHESIS + CONVERT UNLOCK",
     "stack3": "+ feed",
     "stack5": "x feed"

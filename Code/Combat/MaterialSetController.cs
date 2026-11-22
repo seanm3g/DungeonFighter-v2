@@ -27,25 +27,19 @@ namespace RPGGame
             yield return hero.Equipment.Weapon;
         }
 
-        /// <summary>Wildcard material: each equipped piece counts toward every other material the hero is wearing.</summary>
-        public const string WildcardMaterial = "Unknown";
-
         /// <summary>
-        /// Equipped pieces of <paramref name="material"/>. <see cref="WildcardMaterial"/> pieces join the count once
-        /// at least one real piece of that material is worn (wildcards alone never form a set). Hybrid material nodes
-        /// (e.g. Ragecaller Material) let the partner class's material pieces join a class material's count the same way.
+        /// Equipped pieces of <paramref name="material"/>. Hybrid material nodes (e.g. Ragecaller Material) let the partner
+        /// class's material pieces join a class material's count once at least one real piece of it is worn. Cosmetic
+        /// materials (Wood, Cloth, Unknown; Unknown was a wildcard before step 8) form no set.
         /// </summary>
         public static int CountEquipped(Character? hero, string? material)
         {
             string key = MaterialBuildData.CanonicalMaterialName(material);
             if (key.Length == 0 || hero == null)
                 return 0;
-            bool keyIsWildcard = string.Equals(key, WildcardMaterial, StringComparison.OrdinalIgnoreCase);
-            // Step 8: cosmetic materials form no set and Unknown no longer joins others.
             if (ItemMaterialRules.IsCosmetic(key))
                 return 0;
-            bool wildcardJoins = !ItemMaterialRules.IsCosmetic(WildcardMaterial);
-            var partnerMaterials = keyIsWildcard ? new List<string>() : HybridPartnerMaterials(hero, key);
+            var partnerMaterials = HybridPartnerMaterials(hero, key);
             int count = 0;
             int joiners = 0;
             foreach (var item in EnumerateEquipped(hero))
@@ -55,8 +49,6 @@ namespace RPGGame
                 string itemMat = ItemMaterialRules.RemapLegacyMaterial(item.Material);
                 if (string.Equals(itemMat, key, StringComparison.OrdinalIgnoreCase))
                     count++;
-                else if (!keyIsWildcard && wildcardJoins && string.Equals(itemMat, WildcardMaterial, StringComparison.OrdinalIgnoreCase))
-                    joiners++;
                 else if (partnerMaterials.Any(m => string.Equals(m, itemMat, StringComparison.OrdinalIgnoreCase)))
                     joiners++;
             }
@@ -64,20 +56,16 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// True when <paramref name="item"/> would count toward <paramref name="material"/>'s set if worn: its own material,
-        /// a <see cref="WildcardMaterial"/> piece, or a learned hybrid partner's material (same rules as <see cref="CountEquipped"/>).
+        /// True when <paramref name="item"/> would count toward <paramref name="material"/>'s set if worn: its own material
+        /// or a learned hybrid partner's material (same rules as <see cref="CountEquipped"/>).
         /// </summary>
         public static bool JoinsSet(Character? hero, Item? item, string? material)
         {
             string key = MaterialBuildData.CanonicalMaterialName(material);
-            if (item == null || key.Length == 0)
+            if (item == null || key.Length == 0 || ItemMaterialRules.IsCosmetic(key))
                 return false;
             string itemMat = ItemMaterialRules.RemapLegacyMaterial(item.Material);
             if (string.Equals(itemMat, key, StringComparison.OrdinalIgnoreCase))
-                return true;
-            if (string.Equals(key, WildcardMaterial, StringComparison.OrdinalIgnoreCase))
-                return false;
-            if (string.Equals(itemMat, WildcardMaterial, StringComparison.OrdinalIgnoreCase))
                 return true;
             return hero != null && HybridPartnerMaterials(hero, key).Any(m => string.Equals(m, itemMat, StringComparison.OrdinalIgnoreCase));
         }

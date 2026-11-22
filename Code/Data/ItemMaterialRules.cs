@@ -23,32 +23,13 @@ namespace RPGGame
         };
 
         /// <summary>
-        /// Step 8 (D4.3, D4.8): Wood, Cloth and Unknown are cosmetic. They no longer drop and form no set; an item made
-        /// of one keeps its name. <c>DF_LEGACY_MATERIALS=1</c> brings them back (deleted in step 12).
+        /// Step 8 (D4.3, D4.8): Wood, Cloth and Unknown are cosmetic. They no longer drop and form no set (their set rows
+        /// were deleted in step 12); an item made of one keeps its name.
         /// </summary>
         public static readonly string[] CosmeticMaterials = { "Wood", "Cloth", "Unknown" };
 
-        public static bool CosmeticEnabled => _cosmeticOverride ?? System.Environment.GetEnvironmentVariable("DF_LEGACY_MATERIALS") != "1";
-
-        private static bool? _cosmeticOverride;
-
-        /// <summary>Pins <see cref="CosmeticEnabled"/> until disposed (tests of the old Wood / Cloth / Unknown sets).</summary>
-        public static IDisposable PinCosmetic(bool enabled)
-        {
-            var previous = _cosmeticOverride;
-            _cosmeticOverride = enabled;
-            return new PinScope(() => _cosmeticOverride = previous);
-        }
-
-        private sealed class PinScope : IDisposable
-        {
-            private readonly System.Action _undo;
-            public PinScope(System.Action undo) => _undo = undo;
-            public void Dispose() => _undo();
-        }
-
         public static bool IsCosmetic(string? material) =>
-            CosmeticEnabled && CosmeticMaterials.Any(c => string.Equals(c, RemapLegacyMaterial(material), StringComparison.OrdinalIgnoreCase));
+            CosmeticMaterials.Any(c => string.Equals(c, RemapLegacyMaterial(material), StringComparison.OrdinalIgnoreCase));
 
         public static readonly string[] AllMaterials =
             ClassMaterials.Concat(ClassLessMaterials).ToArray();
