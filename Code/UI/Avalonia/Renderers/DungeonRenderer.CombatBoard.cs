@@ -843,6 +843,15 @@ namespace RPGGame.UI.Avalonia.Renderers
             }
             else
                 canvas.AddText(nowR.X + 1, nowR.Y - 1, "NOW", AsciiArtAssets.Colors.White);
+            // D3.7: everything attached to this swing, listed under NOW.
+            if (!cardInFlight)
+            {
+                var attachedActor = nowAct?.Actor ?? (nowProjected ? turn.NowActor : null);
+                var attachedAction = nowAct?.Action ?? (nowProjected ? turn.NowProjected : null);
+                if (attachedActor != null)
+                    DrawNowAttachments(attachedActor, attachedActor is Enemy ? player : attachedActor is Character ? enemy : null,
+                        attachedAction, nowR, heroBandY - 1);
+            }
 
             // Once the turn's card settles on NOW the branches wait a beat, then the die another; ROLL holds for the die.
             var now = DateTimeOffset.UtcNow;
@@ -1296,6 +1305,40 @@ namespace RPGGame.UI.Avalonia.Renderers
             int exact = branches.FindIndex(b => b.Outcome != null && b.Critical == critical
                 && (b.Outcome == swing.Outcome || (critical && !miss && b.Outcome != CombatSequenceSwingOutcome.Miss)));
             return exact >= 0 ? exact : branches.FindIndex(b => b.Outcome == swing.Outcome);
+        }
+
+        private static readonly Color NowStatusLineColor = Color.FromRgb(150, 200, 255);
+        private static readonly Color NowStoreLineColor = Color.FromRgb(200, 150, 255);
+
+        /// <summary>
+        /// The lines of <see cref="RPGGame.UI.NowCardContent"/> under the NOW card (statuses, queued grants, stores, next-link
+        /// odds), as many as fit above <paramref name="maxY"/> (exclusive); the rest collapse into "+n more".
+        /// </summary>
+        private void DrawNowAttachments(Actor actor, Actor? target, Action? action, BoardRect nowR, int maxY)
+        {
+            int slot = actor is Character ch && action != null ? FindSlot(ch.GetComboActions(), action) : -1;
+            int? linkFace = actor is Environment ? null : D20ThresholdBarRenderer.CurrentThresholds(actor).Combo;
+            var lines = RPGGame.UI.NowCardContent.Build(actor, target, action, slot, linkFace);
+            int y = (int)nowR.Bottom;
+            int rows = maxY - y;
+            if (rows <= 0 || lines.Count == 0)
+                return;
+            int shown = lines.Count <= rows ? lines.Count : Math.Max(0, rows - 1);
+            int w = Math.Max(8, nowR.W);
+            for (int i = 0; i < shown; i++)
+            {
+                var line = lines[i];
+                Color color = line.Kind switch
+                {
+                    RPGGame.UI.NowCardLineKind.Status => NowStatusLineColor,
+                    RPGGame.UI.NowCardLineKind.Grant => BoardComboBorder,
+                    RPGGame.UI.NowCardLineKind.Store => NowStoreLineColor,
+                    _ => AsciiArtAssets.Colors.Gray
+                };
+                canvas.AddText(nowR.X + 1, y + i, Truncate(line.Text, w - 1), color);
+            }
+            if (shown < lines.Count)
+                canvas.AddText(nowR.X + 1, y + shown, $"+{lines.Count - shown} more", AsciiArtAssets.Colors.Gray);
         }
 
         private void DrawBoardAct(BoardAct? act, BoardRect r, Color border, int thickness, ActionStripDamageLineMode mode)

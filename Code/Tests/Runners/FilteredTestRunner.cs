@@ -147,6 +147,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("ui", "HoverTooltipDetailState", () => RPGGame.Tests.Unit.UI.HoverTooltipDetailStateTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "HoverTooltipDrawing", () => RPGGame.Tests.Unit.UI.HoverTooltipDrawingTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "StatusEffectDisplayLines", () => RPGGame.Tests.Unit.UI.StatusEffectDisplayLinesTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("ui", "NowCardContent", () => RPGGame.Tests.Unit.UI.NowCardContentTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "InventoryRightPanelLayout", () => RPGGame.Tests.Unit.UI.InventoryRightPanelLayoutTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatActionStripBuilder", () => RPGGame.Tests.Unit.UI.CombatActionStripBuilderTests.RunAllTests()));
             list.Add(new TestSuiteEntry("ui", "CombatLogProseHover", () => RPGGame.Tests.Unit.UI.CombatLogProseHoverTests.RunAllTests()));
