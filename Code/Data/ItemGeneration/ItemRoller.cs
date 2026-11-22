@@ -155,6 +155,7 @@ namespace RPGGame.Data.ItemGeneration
 
                 // 7–8. Line count, then each line's pool by weight, then the lines (actions last).
                 RollLines(PlanLineCount(rarity), rarity);
+                ApplyMythicRule();
 
                 string? forcedAffix = _req.ForcedAffix ?? ToolForcedAffix;
                 if (!string.IsNullOrWhiteSpace(forcedAffix))
@@ -615,6 +616,30 @@ namespace RPGGame.Data.ItemGeneration
                         list = own;
                 }
                 return list;
+            }
+
+            /// <summary>Mythic rule per core class (Rebuild step 7, D4.9): a rule that bends the class. REVIEW: placeholders.</summary>
+            public static readonly IReadOnlyDictionary<string, string> MythicRules = new Dictionary<string, string>
+            {
+                ["barbarian"] = "Worldsplitter's", ["warrior"] = "Bulwark-Born", ["rogue"] = "Fatebreaker's", ["wizard"] = "Spiral-Bound"
+            };
+
+            /// <summary>A Mythic item carries its class's bending rule (a hybrid: one of its parents', by roll).</summary>
+            private void ApplyMythicRule()
+            {
+                if (!string.Equals(_item.Rarity, "Mythic", StringComparison.OrdinalIgnoreCase))
+                    return;
+                var classes = ClassAffinity.CoreClasses(_affinity);
+                if (classes.Count == 0)
+                    return;
+                string cls = classes[For("mythic").Next(classes.Count)];
+                if (!MythicRules.TryGetValue(cls, out string? name) || FindModTemplate(name) is not { } template)
+                    return;
+                var mod = CloneModification(template);
+                mod.RolledValue = 1;
+                mod.ModLine = new ItemModLineInfo { Pool = ModPools.Mechanic, Family = "Mythic", Tier = 1, Affix = "prefix", Keyword = name };
+                _item.Modifications.Add(mod); // outside the line count, like the material
+                _spec.RollUps.Add($"mythic:{name}");
             }
 
             // ---------- 7. line count ----------

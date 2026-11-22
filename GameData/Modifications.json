@@ -1187,5 +1187,57 @@
     "MinValue": 2,
     "MaxValue": 3,
     "RolledValue": 0
+  },
+  {
+    "ItemRank": "Mythic",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Worldsplitter's",
+    "Description": "Mythic (Barbarian): when a short chain (2 links or fewer) ends, your opener fires again.",
+    "Effect": "RULE",
+    "crossWire": "ONCOMBOEND IF STEP<=2 -> RETRIGGER opener",
+    "Weight": 0,
+    "DiceResult": 0,
+    "MinValue": 1,
+    "MaxValue": 1,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Mythic",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Bulwark-Born",
+    "Description": "Mythic (Warrior): taking a hit counts as an action link.",
+    "Effect": "RULE",
+    "crossWire": "ONTAKEHIT -> COUNTAS ONCOMBO",
+    "Weight": 0,
+    "DiceResult": 0,
+    "MinValue": 1,
+    "MaxValue": 1,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Mythic",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Fatebreaker's",
+    "Description": "Mythic (Rogue): you crit on natural 18-20 this fight.",
+    "Effect": "RULE",
+    "crossWire": "ONFIGHTSTART -> CRITFACE 18",
+    "Weight": 0,
+    "DiceResult": 0,
+    "MinValue": 1,
+    "MaxValue": 1,
+    "RolledValue": 0
+  },
+  {
+    "ItemRank": "Mythic",
+    "prefixCategory": "ADJECTIVE",
+    "Name": "Spiral-Bound",
+    "Description": "Mythic (Wizard): a missed link doesn't end your chain.",
+    "Effect": "RULE",
+    "crossWire": "WHILE -> EXEMPT COMBO",
+    "Weight": 0,
+    "DiceResult": 0,
+    "MinValue": 1,
+    "MaxValue": 1,
+    "RolledValue": 0
   }
 ]

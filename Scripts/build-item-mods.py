@@ -116,6 +116,9 @@ MECH_COMPOSITES = [
 
 # Phase 11 (D11.9): class cross-wires (one class material's spend into another's mint) leave item loot. The rows stay in
 # Modifications.json for old saves.
+# Rebuild step 7 (D4.9): one class-bending rule per class, added by the roller to every Mythic item (never rolled as a line).
+MYTHIC_RULES = {"Worldsplitter's", "Bulwark-Born", "Fatebreaker's", "Spiral-Bound"}
+
 CLASS_CROSSWIRES = {"Spiteful", "Resonant", "Measured", "Syncopated", "Headhunter's", "Grim", "Weighted", "Exultant",
                     "Restless", "Scrying", "Rhythmic", "Prismatic"}
 
@@ -500,7 +503,7 @@ def build_families(gd):
     # Affix templates, rule and cross-wire prefixes: one family each, 3 tiers.
     for m in adj:
         effect = (m.get("Effect") or "").upper()
-        if m["Name"] in CLASS_CROSSWIRES:
+        if m["Name"] in CLASS_CROSSWIRES or m["Name"] in MYTHIC_RULES:
             continue
         slot = m["Name"] in SLOT_WORDS
         pool = ("material" if effect in MATERIAL_TEMPLATES or slot

@@ -19,7 +19,8 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
 | 3.2 + 3.3 Fernis, swing moments, fight results | done | `8123dd8b` | 15086 passed / 2 failed (both flaky, see below) |
 | 4 Families, matchups, one modifier, prefixes, regions, encounters | partial | `234f1287` | 15106 passed / 0 failed |
 | 5 Core statuses, NEW moment | partial | `4204f65f` | 15128 passed / 0 failed |
-| 6 Event labels (11), modifiers scoped by rarity | partial | (this commit) | 15124 + label fixes; affected suites 0 failed |
+| 6 Event labels (11), modifiers scoped by rarity | partial | `b582683f` | 15124 + label fixes; affected suites 0 failed |
+| 7 Mythic class-bending rules | done | (this commit) | 15141 passed / 0 failed |
 
 ## Phase 11 — item rolls (D11.1–D11.12)
 - **Class affinity (D11.7):** every rolled item has one of 10 affinities (`Item.ClassAffinity`, saved as
@@ -171,3 +172,14 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
 - **On chain complete** as its own event: Fernis already reacts to it (step 3), but no rule token raises it yet.
 - Cutting the internal token set (the 30 tokens stay; the material earn rules that use ONODD, ONFIRSTHIT,
   ONHEALTHTHRESHOLD... move onto chain moments in step 8, which is a design-and-balance pass).
+
+## Step 7 — Loot depth
+
+- **Mythic = one class-bending rule per class (D4.1, D4.9):** every Mythic item carries its class's rule (a hybrid
+  item: one of its parents' by roll), outside the line count: Barbarian **Worldsplitter's** (when a short chain of
+  2 links or fewer ends, your opener fires again), Warrior **Bulwark-Born** (taking a hit counts as an action link),
+  Rogue **Fatebreaker's** (crit on natural 18–20 this fight), Wizard **Spiral-Bound** (a missed link doesn't end
+  your chain). Rows in `Modifications.json` (never rolled as lines; `build-item-mods.py` skips them). **REVIEW**:
+  placeholders, as the 11-18 defaults allow.
+- Six rarities kept; trade-up stays as the salvage sink (no change needed).
+- Tests: new roller test (every Mythic has exactly one, the rules parse, nothing below Mythic carries one).

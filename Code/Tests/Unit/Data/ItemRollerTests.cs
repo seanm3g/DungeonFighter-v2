@@ -70,6 +70,7 @@ namespace RPGGame.Tests.Unit.Data
             TestEveryHybridHasLines();
             TestEveryRuleLineParses();
             TestModifiersReachOutOnlyFromEpic();
+            TestMythicsBendTheirClass();
 
             TestBase.PrintSummary("ItemRoller Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -912,6 +913,25 @@ namespace RPGGame.Tests.Unit.Data
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(high > 0 && highReach > 0, $"from Epic, base modifiers can reach other systems ({highReach} of {high})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Step 7 (D4.9): every Mythic carries one class-bending rule, and the rules parse.</summary>
+        private static void TestMythicsBendTheirClass()
+        {
+            var names = new[] { "Worldsplitter's", "Bulwark-Born", "Fatebreaker's", "Spiral-Bound" };
+            int items = 0, withRule = 0;
+            foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = 80, Rarity = "Mythic", AllowRollUps = false }, 80, 88000))
+            {
+                items++;
+                if (item.Modifications.Count(m => names.Contains(m.Name)) == 1)
+                    withRule++;
+            }
+            TestBase.AssertTrue(items > 0 && withRule == items, $"every Mythic has one class-bending rule ({withRule}/{items})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var bad = names.Where(n => _cache.Modifications.FirstOrDefault(m => m.Name == n) is not { } t || CrossWireRule.Parse(t.CrossWire, n) == null).ToList();
+            TestBase.AssertTrue(bad.Count == 0, $"Mythic rules parse (bad: {string.Join(", ", bad)})", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            var rare = Roll(new ItemRollRequest { ItemLevel = 80, Rarity = "Legendary", AllowRollUps = false }, 40, 89000)
+                .Count(x => x.Item.Modifications.Any(m => names.Contains(m.Name)));
+            TestBase.AssertEqual(0, rare, "only Mythics carry them", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestEveryRuleLineParses()
