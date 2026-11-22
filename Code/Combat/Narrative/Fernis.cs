@@ -415,6 +415,7 @@ namespace RPGGame.Combat.Narrative
                 string said = $"{_narrator.Speaker}: {line}";
                 TextDisplayIntegration.DisplaySystem(said);
                 LineSpoken?.Invoke(said);
+                FernisBubble.Show(line); // his shoulder bubble on the board (D9.8); the log keeps the line
             }
         }
 

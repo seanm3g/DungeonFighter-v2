@@ -84,6 +84,29 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertTrue(!FernisFightSession.Enabled || !RPGGame.Combat.CombatUiMuteScope.IsMuted, "Fernis is off in muted fights", ref _run, ref _passed, ref _failed);
 
+            // D9.8: his bubble holds the last line, then fades; his corner stays off the cards.
+            var t0 = new DateTimeOffset(2026, 11, 22, 12, 0, 0, TimeSpan.Zero);
+            FernisBubble.Show("Six turns. Fine.", t0);
+            TestBase.AssertTrue(FernisBubble.Visible(t0.AddSeconds(1)) is { Text: "Six turns. Fine.", Alpha: 1.0 }, "the bubble shows his last line", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(FernisBubble.Visible(t0.AddSeconds(FernisBubble.HoldSeconds + FernisBubble.FadeSeconds / 2)) is { Alpha: > 0 and < 1 }, "then fades", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(FernisBubble.Visible(t0.AddSeconds(FernisBubble.HoldSeconds + FernisBubble.FadeSeconds + 0.1)) == null, "then it's gone", ref _run, ref _passed, ref _failed);
+            FernisBubble.Show("Newer line.", t0.AddSeconds(2));
+            TestBase.AssertTrue(FernisBubble.Visible(t0.AddSeconds(3)) is { Text: "Newer line." }, "a new line replaces the old one", ref _run, ref _passed, ref _failed);
+            FernisBubble.Clear();
+
+            var none = Array.Empty<(int, int, int, int)>();
+            var open = RPGGame.UI.Avalonia.Renderers.DungeonRenderer.FernisPlacement(0, 100, 40, 0, none);
+            TestBase.AssertTrue(open.SpriteX == 100 - 1 - 4 && open.SpriteY == 38 && open.BubbleW == 44 && open.BubbleX + open.BubbleW == open.SpriteX - 2,
+                $"bottom-right, just above the strip, bubble to his left, got {open}", ref _run, ref _passed, ref _failed);
+            var beside = RPGGame.UI.Avalonia.Renderers.DungeonRenderer.FernisPlacement(0, 100, 40, 0, new[] { (40, 30, 30, 9) });
+            TestBase.AssertTrue(beside.SpriteX > 0 && beside.BubbleX >= 71, $"the bubble keeps right of a card in its rows, got {beside}", ref _run, ref _passed, ref _failed);
+            var tight = RPGGame.UI.Avalonia.Renderers.DungeonRenderer.FernisPlacement(0, 100, 40, 0, new[] { (20, 30, 65, 9) });
+            TestBase.AssertTrue(tight.SpriteX > 0 && tight.BubbleW == 0, $"no room: no bubble (the log still has the line), got {tight}", ref _run, ref _passed, ref _failed);
+            var covered = RPGGame.UI.Avalonia.Renderers.DungeonRenderer.FernisPlacement(0, 100, 40, 0, new[] { (60, 30, 39, 10) });
+            TestBase.AssertTrue(covered.SpriteX < 0, $"a card over his corner: he stays off, got {covered}", ref _run, ref _passed, ref _failed);
+            var above = RPGGame.UI.Avalonia.Renderers.DungeonRenderer.FernisPlacement(0, 100, 40, 0, new[] { (60, 10, 39, 20) });
+            TestBase.AssertTrue(above.SpriteX > 0 && above.BubbleW == 44, $"cards above his rows don't move him, got {above}", ref _run, ref _passed, ref _failed);
+
             // Statuses these sessions met would otherwise mark items in later loot-reveal tests (D9.3).
             NewConceptCards.Dismiss();
             NewConceptCards.ClearMet();

@@ -92,6 +92,7 @@ namespace RPGGame.UI.Avalonia.Renderers
             CombatBoardLayout.MiddleRect = (flowX, midTop, flowW, midBottom - midTop);
             CombatBoardLayout.NowRect = null;
             CombatBoardLayout.FlowCardsRect = null;
+            _nowAttachRect = null;
             _boardDieCenter = null;
             if (CombatBoardLayout.ShowLog && log != null)
                 RenderBoardLog(player, log, barX, midTop, barW, midBottom - midTop, enemyNamesForLogAlignment);
@@ -121,6 +122,69 @@ namespace RPGGame.UI.Avalonia.Renderers
                 TutorialCoachTargets.Set(TutorialCoachFocus.TurnOrb, (heroOrbX - 1, heroOrbY - 1, orbW + 2, orbH + 2));
             else if (side == CombatTurnSpotlight.Side.Enemy)
                 TutorialCoachTargets.Set(TutorialCoachFocus.TurnOrb, (enemyOrbX - 1, enemyOrbY - 1, orbW + 2, orbH + 2));
+
+            if (!CombatBoardLayout.ShowLog)
+                DrawFernisShoulder(colX, colW, heroBandY, seqW);
+        }
+
+        /// <summary>Fernis's shoulder sprite (D9.8): two rows, a small devil.</summary>
+        internal static readonly string[] FernisSprite = { "^  ^", "(>:)" };
+        private static readonly Color FernisColor = Color.FromRgb(230, 70, 60);
+        private static readonly Color FernisBubbleColor = Color.FromRgb(240, 200, 190);
+
+        /// <summary>
+        /// Where Fernis sits: bottom-right of the board column, just above the hero strip, with his bubble to his left on
+        /// the same two rows. The bubble keeps clear of the flow cards (<paramref name="flow"/>): it narrows to the space
+        /// right of them, and is dropped (BubbleW 0) when under <paramref name="minBubble"/> columns fit. Pure (tests).
+        /// </summary>
+        internal static (int SpriteX, int SpriteY, int BubbleX, int BubbleW) FernisPlacement(int colX, int colW, int bottomY,
+            int leftLimit, IEnumerable<(int X, int Y, int W, int H)> obstacles, int maxBubble = 44, int minBubble = 14)
+        {
+            int spriteW = FernisSprite[0].Length;
+            int spriteX = colX + colW - 1 - spriteW;
+            int spriteY = bottomY - FernisSprite.Length;
+            int right = spriteX - 2; // exclusive: a gap and the "<" pointer
+            int left = Math.Max(leftLimit, right - maxBubble);
+            var list = obstacles.ToList();
+            // He never sits on a card: with the flow over his corner, he (and his bubble) stay off this paint.
+            if (list.Any(f => f.W > 0 && f.H > 0 && f.Y < bottomY && f.Y + f.H > spriteY && f.X + f.W > right && f.X < spriteX + spriteW))
+                return (-1, spriteY, 0, 0);
+            foreach (var f in list)
+            {
+                if (f.W > 0 && f.H > 0 && f.Y < bottomY && f.Y + f.H > spriteY && f.X + f.W > left && f.X < right)
+                    left = Math.Max(left, f.X + f.W + 1);
+            }
+            int w = right - left;
+            return w < minBubble ? (spriteX, spriteY, 0, 0) : (spriteX, spriteY, left, w);
+        }
+
+        /// <summary>The NOW attachment lines drawn this paint (x, y, w, rows), kept clear by Fernis's bubble.</summary>
+        private static (int X, int Y, int W, int H)? _nowAttachRect;
+
+        private void DrawFernisShoulder(int colX, int colW, int heroBandY, int seqW)
+        {
+            if (System.Environment.GetEnvironmentVariable("DF_FERNIS") == "0" || colW < 30)
+                return;
+            var obstacles = new List<(int X, int Y, int W, int H)>();
+            if (CombatBoardLayout.FlowCardsRect is { } flowRect)
+                obstacles.Add(flowRect);
+            if (_nowAttachRect is { } attachRect)
+                obstacles.Add(attachRect);
+            var place = FernisPlacement(colX, colW, heroBandY, colX + seqW + 1, obstacles);
+            if (place.SpriteX < 0)
+                return;
+            for (int i = 0; i < FernisSprite.Length; i++)
+                canvas.AddText(place.SpriteX, place.SpriteY + i, FernisSprite[i], FernisColor);
+            if (place.BubbleW <= 0 || RPGGame.Combat.Narrative.FernisBubble.Visible(DateTimeOffset.UtcNow) is not { } bubble)
+                return;
+            CombatBoardAnimation.RequestFrame(); // keep repainting while it fades
+            var rows = RPGGame.UI.BoardText.Wrap(bubble.Text, place.BubbleW, FernisSprite.Length);
+            Color c = LerpColor(BoardCardBackground, FernisBubbleColor, bubble.Alpha);
+            // Bottom-aligned next to the sprite; a "<" on the last row points at him.
+            int top = place.SpriteY + FernisSprite.Length - rows.Count;
+            for (int i = 0; i < rows.Count; i++)
+                canvas.AddText(place.BubbleX + place.BubbleW - rows[i].Length, top + i, rows[i], c);
+            canvas.AddText(place.SpriteX - 2, place.SpriteY + FernisSprite.Length - 1, "<", c);
         }
 
         /// <summary>Where the die sits between NOW and the queue in the last combo-flow paint (null in log view).</summary>
@@ -1391,6 +1455,7 @@ namespace RPGGame.UI.Avalonia.Renderers
                 return;
             int shown = lines.Count <= rows ? lines.Count : Math.Max(0, rows - 1);
             int w = Math.Max(8, nowR.W);
+            _nowAttachRect = (nowR.X, y, w, Math.Min(rows, lines.Count));
             for (int i = 0; i < shown; i++)
             {
                 var line = lines[i];
