@@ -127,7 +127,6 @@ namespace RPGGame.Tests.Unit.World
             venom.Affixes.Add(new EnemyAffixDef { Name = "Venomous", Lever = "onhit", Status = "poison", Chance = 1.0, Value = 0.25 });
             var bitten = new Character("Bitten", 5);
             RPGGame.Combat.Rules.EnemyRules.OnHit(venom, bitten, new List<string>(), new Random(1));
-            Check(Math.Abs(bitten.PoisonPercentOfMaxHealth - 0.25) < 1e-9, "an affix's poison adds its own amount (0.25% per tick)");
             // Hazard poison: the generic 1% per application stacked faster than any enemy (Curse of the Tomb, 2026-11-12).
             var curse = EnvironmentalActionLoader.TryCreateByName("Curse of the Tomb");
             Check(curse != null && curse.CausesPoison && Math.Abs(curse.PoisonPercentToAdd - 0.25) < 1e-9, "a poison hazard reads its poisonPercent (0.25)");

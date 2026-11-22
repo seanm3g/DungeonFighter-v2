@@ -191,8 +191,6 @@ namespace RPGGame.UI.Avalonia.Renderers.Inventory
             if (bleed > 0) combat.Add((Line("BLEED", $"+{bleed}"), cyan, "stat:bleed"));
             int burn = character.GetWeaponBurnPerHit();
             if (burn > 0) combat.Add((Line("BURN", $"+{burn}"), cyan, "stat:burn"));
-            double poison = character.GetWeaponPoisonPercentPerHit();
-            if (poison > 0) combat.Add((Line("POISON", $"+{poison:0.#}%"), cyan, "stat:poison"));
 
             int y = firstRow;
             foreach (var (text, color, id) in combat)

@@ -690,19 +690,11 @@ namespace RPGGame
 
         public new List<string> TakeDamageWithNotifications(int amount) => base.TakeDamageWithNotifications(amount);
 
-        public override int GetMaxHealthForPoisonDot() => MaxHealth;
-
-        /// <summary>Poison ticks scale by tag affinity (undead/elemental immune, plant/earth resist, tiny weak).</summary>
-        public override int ProcessPoison(double currentTime) =>
-            RPGGame.Combat.StatusAffinity.ScaleTick(this, "poison", base.ProcessPoison(currentTime));
+        public override int GetMaxHealthForDot() => MaxHealth;
 
         /// <summary>Burn ticks scale by tag affinity (plant ×2, fire immune, water resists).</summary>
         public override int ProcessBurn(double currentTime) =>
             RPGGame.Combat.StatusAffinity.ScaleTick(this, "burn", base.ProcessBurn(currentTime));
-
-        /// <summary>Acid ticks scale by tag affinity (earth ×2, water resists).</summary>
-        public override int ProcessAcid(double currentTime) =>
-            RPGGame.Combat.StatusAffinity.ScaleTick(this, "acid", base.ProcessAcid(currentTime));
 
         /// <summary>Bleed ticks scale by tag affinity (undead/elemental immune, frail weak).</summary>
         public override int ProcessBleedOnAction() =>

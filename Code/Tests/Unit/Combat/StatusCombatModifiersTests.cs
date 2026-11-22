@@ -23,7 +23,6 @@ namespace RPGGame.Tests.Unit.Combat
             _testsPassed = 0;
             _testsFailed = 0;
 
-            TestWeakenLowersOutgoingUntilHolderActs();
             TestExposeTierTwoStripsArmorAndDecays();
             TestFoldedStatusesApplyExpose();
             TestHardenAndExposeShiftDefense();
@@ -32,18 +31,6 @@ namespace RPGGame.Tests.Unit.Combat
             TestGearActionTagRules();
 
             Console.WriteLine($"\nStatusCombatModifiers: {_testsPassed}/{_testsRun} passed, {_testsFailed} failed.\n");
-        }
-
-        private static void TestWeakenLowersOutgoingUntilHolderActs()
-        {
-            var c = new Character("WeakenTest", 1);
-            c.ApplyWeaken(1);
-            c.UpdateTempEffects(Character.DEFAULT_ACTION_LENGTH);
-            TestBase.AssertTrue(StatusCombatModifiers.OutgoingDamageMultiplier(c) < 1.0,
-                "Weaken survives the start-of-action decay and lowers that action's damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            c.ConsumeOwnActionStatuses();
-            TestBase.AssertEqual(1.0, StatusCombatModifiers.OutgoingDamageMultiplier(c),
-                "Weaken ends after the holder's action", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestExposeTierTwoStripsArmorAndDecays()

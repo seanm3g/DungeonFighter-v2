@@ -187,9 +187,6 @@ namespace RPGGame.UI.Avalonia.Renderers
                     : isSpent && CombatBoardLayout.IsActive
                         ? RPGGame.UI.ComboBoardModel.LitBorderThickness(i, filled, enemy: false) // grows 1 → 4 along the chain
                         : 1;
-                // A stun skips the hero's next turn: the card it is lined up on wears the stun color until the stun wears off.
-                if (CombatBoardLayout.IsActive && isSelected && !flashActive && player.StunTurnsRemaining > 0)
-                    (borderColor, borderThick) = (BoardStunColor, 2);
                 // On the board the room backdrop runs behind the strip: fill the card so it stays solid when the
                 // turn scrim lifts (hover, or the hero's own turn), matching the enemy strip cards.
                 if (CombatBoardLayout.IsActive)

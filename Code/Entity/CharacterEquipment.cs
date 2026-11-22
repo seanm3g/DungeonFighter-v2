@@ -135,7 +135,6 @@ namespace RPGGame
         public double GetModificationLifesteal() => modificationCalculator.GetLifesteal();
         public int GetModificationGodlikeBonus() => modificationCalculator.GetGodlikeBonus();
         public int GetWeaponBleedPerHit() => modificationCalculator.GetWeaponBleedPerHit();
-        public double GetWeaponPoisonPercentPerHit() => modificationCalculator.GetWeaponPoisonPercentPerHit();
         public int GetWeaponBurnPerHit() => modificationCalculator.GetWeaponBurnPerHit();
         public int GetWeaponAcidPerHit() => modificationCalculator.GetWeaponAcidPerHit();
         public double GetModificationFreezeChance() => modificationCalculator.GetFreezeChance();

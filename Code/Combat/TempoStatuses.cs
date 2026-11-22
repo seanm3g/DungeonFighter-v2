@@ -6,10 +6,9 @@ namespace RPGGame
 {
     /// <summary>
     /// Statuses added 2026-11-16 (Documentation/SYNERGY_PASS_2026-11-16.md): each one hooks a place combat already reads,
-    /// so every store-reading verb (APPLY, CASH, SCALE, DETONATE) and rule (TARGET brittle, PER TARGET stagger) works on them.
+    /// so every store-reading verb (APPLY, CASH, SCALE, DETONATE) and rule (PER TARGET stagger) works on them. Brittle was
+    /// retired in step 12 (it loads as Mark).
     /// <list type="bullet">
-    /// <item><b>Brittle</b> (on a foe): the next critical hit against it deals +<see cref="CombatConfig.StatusBrittleCritDamagePerStack"/>
-    /// per stack, then Brittle is spent. Lasts <see cref="Stores.DefaultStatusTurns"/> of its turns.</item>
     /// <item><b>Stagger</b> (on a foe): its next action takes +<see cref="CombatConfig.StatusStaggerLengthPerStack"/> longer per stack
     /// (it acts later), then Stagger is spent.</item>
     /// <item><b>Haste</b> (on yourself): your actions take less time, <see cref="CombatConfig.StatusHasteSpeedPerStack"/> faster per
@@ -24,18 +23,9 @@ namespace RPGGame
 
         public static int MaxStacks => Math.Max(1, Cfg.StatusExtraMaxStacks);
 
-        public static int Brittle(Actor? a) => a != null && a.BrittleTurns > 0 ? a.BrittleStacks : 0;
         public static int Haste(Actor? a) => a != null && a.HasteStacks > 0 ? a.HasteStacks : 0;
         public static int Stagger(Actor? a) => a?.StaggerStacks ?? 0;
         public static int Rattle(Actor? a) => a != null && a.RollPenaltyTurns > 0 ? Math.Max(0, a.RollPenalty) : 0;
-
-        public static int AddBrittle(Actor a, int n)
-        {
-            int before = a.BrittleStacks;
-            a.BrittleStacks = Math.Min(MaxStacks, (a.BrittleTurns > 0 ? a.BrittleStacks : 0) + n);
-            a.BrittleTurns = Math.Max(a.BrittleTurns, Stores.DefaultStatusTurns);
-            return Math.Max(0, a.BrittleStacks - (a.BrittleTurns > 0 ? before : 0));
-        }
 
         public static int AddStagger(Actor a, int n)
         {
@@ -64,13 +54,6 @@ namespace RPGGame
         {
             switch (id)
             {
-                case "brittle":
-                {
-                    int n = Math.Min(max, Brittle(a));
-                    a.BrittleStacks -= n;
-                    if (a.BrittleStacks <= 0) { a.BrittleStacks = 0; a.BrittleTurns = 0; }
-                    return n;
-                }
                 case "stagger":
                 {
                     int n = Math.Min(max, a.StaggerStacks);
@@ -109,8 +92,7 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// After hit / crit are known: Mark is spent by a landed hit; Brittle is spent by a critical, paying its damage bonus on
-        /// this swing (a consumed DAMAGE_MOD, read by the damage calculation that follows).
+        /// After hit / crit are known: Mark is spent by a landed hit.
         /// </summary>
         public static void AfterRoll(Actor source, Actor? target, bool hit, bool critical)
         {
@@ -120,16 +102,6 @@ namespace RPGGame
             {
                 target.IsMarked = false;
                 target.MarkTurns = 0;
-            }
-            int brittle = Brittle(target);
-            if (critical && brittle > 0 && source is Character attacker)
-            {
-                attacker.Effects.AccumulateConsumedModifierBonuses(new List<ActionAttackBonusItem>
-                {
-                    new() { Type = "DAMAGE_MOD", Value = brittle * Cfg.StatusBrittleCritDamagePerStack * 100.0 }
-                });
-                target.BrittleStacks = 0;
-                target.BrittleTurns = 0;
             }
         }
 

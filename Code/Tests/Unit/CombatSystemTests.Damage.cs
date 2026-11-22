@@ -23,7 +23,6 @@ namespace RPGGame.Tests.Unit
             TestRawDamageCalculation();
             TestDamageWithMultiplier();
             TestDamageWithArmor();
-            TestDamageWithWeakenedTarget();
             TestMinimumDamage();
             TestDamageWithActionMultiplier();
             
@@ -83,23 +82,6 @@ namespace RPGGame.Tests.Unit
             AssertTrue(damage > 0, $"Damage after armor should be positive, got: {damage}. This indicates a critical bug!");
             var rawDamage = CombatCalculator.CalculateRawDamage(attacker);
             AssertTrue(damage <= rawDamage, $"Armored damage ({damage}) should be <= raw damage ({rawDamage})");
-        }
-        
-        private static void TestDamageWithWeakenedTarget()
-        {
-            Console.WriteLine("\n--- Testing Damage with Weakened Target ---");
-            
-            var attacker = new Character("TestHero", 1);
-            attacker.Stats.Strength = 10;
-            
-            var defender = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
-            defender.IsWeakened = true;
-            
-            var normalDamage = CombatCalculator.CalculateDamage(attacker, defender, showWeakenedMessage: false);
-            defender.IsWeakened = false;
-            var weakenedDamage = CombatCalculator.CalculateDamage(attacker, defender, showWeakenedMessage: false);
-            
-            AssertTrue(weakenedDamage >= 0, $"Weakened damage should be non-negative, got: {weakenedDamage}");
         }
         
         private static void TestMinimumDamage()

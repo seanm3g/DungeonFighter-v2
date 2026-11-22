@@ -25,7 +25,6 @@ namespace RPGGame
         private static bool _actingBonus;
         private static bool _actingFree;
         private static int _freeBaseStep = -1, _freeActionsTaken;
-        private static int _actingStunAtBegin;
         private static long _turnSerial;
         private static Environment? _room;
 
@@ -49,26 +48,6 @@ namespace RPGGame
         /// turn (or free action) from the next.</summary>
         public static long TurnSerial { get { lock (Gate) return _turnSerial; } }
 
-        /// <summary>The acting turn began stunned: the turn handler skips it (no swing), so the board shows it as STUNNED.</summary>
-        public static bool ActingStunned { get { lock (Gate) return _actingStunAtBegin > 0; } }
-
-        /// <summary>
-        /// How many of <paramref name="actor"/>'s turns after the one playing now a stun will skip. A stunned turn that is
-        /// playing now doesn't count once it has begun, even before its tick lowers <see cref="Actor.StunTurnsRemaining"/>.
-        /// </summary>
-        public static int StunnedTurnsAhead(Actor actor)
-        {
-            if (actor is not Character ch || ch.StunTurnsRemaining <= 0)
-                return 0;
-            int left = ch.StunTurnsRemaining;
-            lock (Gate)
-            {
-                if (_actingStunAtBegin > 0 && ReferenceEquals(_acting, actor) && left >= _actingStunAtBegin)
-                    left--; // the turn playing now is the stunned one; it ticks once its STUNNED block has shown
-            }
-            return Math.Max(0, left);
-        }
-
         public static bool IsBound { get { lock (Gate) return _speed != null; } }
 
         /// <summary>Room of the on-screen fight (hostile or not), for HUD reads such as its trigger face.</summary>
@@ -87,7 +66,6 @@ namespace RPGGame
                 _actingAction = null;
                 _actingQuiet = false;
                 _actingBonus = false;
-                _actingStunAtBegin = 0;
                 ResetFreeActions();
             }
         }
@@ -102,7 +80,6 @@ namespace RPGGame
                 _actingAction = null;
                 _actingQuiet = false;
                 _actingBonus = false;
-                _actingStunAtBegin = 0;
                 ResetFreeActions();
             }
         }
@@ -117,7 +94,6 @@ namespace RPGGame
                 _actingAction = null;
                 _actingQuiet = false;
                 _actingBonus = false;
-                _actingStunAtBegin = actor is Character ch && ch.IsAlive ? Math.Max(0, ch.StunTurnsRemaining) : 0;
                 ResetFreeActions();
                 _turnSerial++;
             }
@@ -164,7 +140,7 @@ namespace RPGGame
         /// </summary>
         private static bool FreeActionEarned(Actor? acting, int baseStep, int taken)
         {
-            if (acting is not Character ch || baseStep < 0 || !ch.IsAlive || ch.StunTurnsRemaining > 0)
+            if (acting is not Character ch || baseStep < 0 || !ch.IsAlive)
                 return false;
             int length = ch.GetComboActions().Count;
             return length > 1 && taken < length - 1 && ch.ComboStep > baseStep && ch.ComboStep % length != 0;
@@ -210,7 +186,6 @@ namespace RPGGame
                 _actingAction = null;
                 _actingQuiet = false;
                 _actingBonus = false;
-                _actingStunAtBegin = 0;
                 ResetFreeActions();
             }
         }

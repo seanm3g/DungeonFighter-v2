@@ -16,8 +16,6 @@ namespace RPGGame.Tests.Unit.Combat
 
         public static void RunAllTests()
         {
-            // Step 8: these tests cover the Wood / Cloth / Unknown sets, now cosmetic; the code stays until step 12.
-            using var legacyMaterials = RPGGame.ItemMaterialRules.PinCosmetic(false);
             Console.WriteLine("=== Material Set Controller Tests ===\n");
             _run = _passed = _failed = 0;
 
@@ -43,7 +41,6 @@ namespace RPGGame.Tests.Unit.Combat
             TestFiveStackMultipliesFeed();
             TestGoldFeedsOwnPieces();
             TestClasslessMaterialBuilds();
-            TestUnknownIsWildcardForWornMaterials();
             TestHybridMaterialNodeMergesPartnerMaterials();
             TestConvertDamageScaleFromBankAndStacks();
             TestDsDtDuOverrides();
@@ -170,33 +167,6 @@ namespace RPGGame.Tests.Unit.Combat
             TestBase.AssertEqual(3, hero.Effects.GetMaterialKeyword("DRAG"), "Gold 3+ feeds off its own 3 pieces, not Mithril", ref _run, ref _passed, ref _failed);
         }
 
-        private static void TestUnknownIsWildcardForWornMaterials()
-        {
-            TestBase.SetCurrentTestName(nameof(TestUnknownIsWildcardForWornMaterials));
-            var mixed = EquipPieces(
-                (new HeadItem("Helm", 1, 1), "Iron"),
-                (new ChestItem("Mail", 1, 1), "Unknown"),
-                (new LegsItem("Greaves", 1, 1), "Unknown"),
-                (new FeetItem("Boots", 1, 1), "Leather"));
-            TestBase.AssertEqual(3, MaterialSetController.CountEquipped(mixed, "Iron"),
-                "1 iron + 2 unknown counts 3 iron", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(3, MaterialSetController.CountEquipped(mixed, "Leather"),
-                "1 leather + 2 unknown counts 3 leather", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(LeatherSetBonus.HasLuckyStatus(mixed),
-                "unknown completes the Leather Lucky set", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(0, MaterialSetController.CountEquipped(mixed, "Gold"),
-                "unknown does not count toward unworn Gold", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(2, MaterialSetController.CountEquipped(mixed, "Unknown"),
-                "unknown counts itself once", ref _run, ref _passed, ref _failed);
-
-            var onlyUnknown = EquipPieces(
-                (new HeadItem("Helm", 1, 1), "Unknown"),
-                (new ChestItem("Mail", 1, 1), "Unknown"));
-            var onlyUnknownGrants = MaterialSetController.GetGrantedConvertActionNames(onlyUnknown);
-            TestBase.AssertTrue(onlyUnknownGrants.Count == 1 && onlyUnknownGrants[0] == "REVEAL",
-                "unknown alone forms only its own set (REVEAL)", ref _run, ref _passed, ref _failed);
-        }
-
         private static void TestHybridMaterialNodeMergesPartnerMaterials()
         {
             TestBase.SetCurrentTestName(nameof(TestHybridMaterialNodeMergesPartnerMaterials));
@@ -219,15 +189,20 @@ namespace RPGGame.Tests.Unit.Combat
         private static void TestClasslessMaterialBuilds()
         {
             TestBase.SetCurrentTestName(nameof(TestClasslessMaterialBuilds));
+            var stone = EquipPieces(
+                (new HeadItem("Hood", 1, 1), "Stone"),
+                (new ChestItem("Robe", 1, 1), "Stone"));
+            var stoneGrants = MaterialSetController.GetGrantedConvertActionNames(stone);
+            TestBase.AssertTrue(stoneGrants.Count == 1 && stoneGrants[0] == "LANDSLIDE",
+                "Stone set grants LANDSLIDE", ref _run, ref _passed, ref _failed);
+            var stoneLines = MaterialSetController.FormatSetStatusLines(stone, stone.Equipment.Head).ToList();
+            TestBase.AssertTrue(stoneLines.Count > 0 && stoneLines[0] == "Stone 2/5",
+                "class-less Stone tooltip shows its set", ref _run, ref _passed, ref _failed);
             var cloth = EquipPieces(
                 (new HeadItem("Hood", 1, 1), "Cloth"),
                 (new ChestItem("Robe", 1, 1), "Cloth"));
-            var clothGrants = MaterialSetController.GetGrantedConvertActionNames(cloth);
-            TestBase.AssertTrue(clothGrants.Count == 1 && clothGrants[0] == "UNRAVEL",
-                "Cloth set grants UNRAVEL", ref _run, ref _passed, ref _failed);
-            var clothLines = MaterialSetController.FormatSetStatusLines(cloth, cloth.Equipment.Head).ToList();
-            TestBase.AssertTrue(clothLines.Count > 0 && clothLines[0] == "Cloth 2/5",
-                "class-less Cloth tooltip shows its set", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, MaterialSetController.CountEquipped(cloth, "Cloth"), "cosmetic Cloth forms no set", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, MaterialSetController.GetGrantedConvertActionNames(cloth).Count, "and grants no convert", ref _run, ref _passed, ref _failed);
 
             var leather = EquipPieces(
                 (new HeadItem("Cap", 1, 1), "Leather"),

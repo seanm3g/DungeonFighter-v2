@@ -30,7 +30,6 @@ namespace RPGGame.Tests.Unit
         public static void RunAllTests()
         {
             // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
-            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== Feature Scenario Tests ===\n");
             _run = _passed = _failed = 0;
             bool prevUi = TurnManager.DisableCombatUIOutput;
@@ -393,16 +392,16 @@ namespace RPGGame.Tests.Unit
             var registry = new EffectHandlerRegistry();
             var skeleton = MakeEnemy("Skeleton", 100, false, "undead");
             var goblin = MakeEnemy("Goblin", 100, true, "living");
-            var poisonAction = new Action { Name = "Venom", Type = ActionType.Attack, CausesPoison = true, DamageMultiplier = 1.0, Length = 1.0 };
+            var bleedAction = new Action { Name = "Gash", Type = ActionType.Attack, CausesBleed = true, DamageMultiplier = 1.0, Length = 1.0 };
 
             var skeletonMessages = new List<string>();
-            bool appliedToSkeleton = registry.ApplyEffect("poison", skeleton, poisonAction, skeletonMessages);
-            Check(!appliedToSkeleton && skeletonMessages.Count == 0, "undead is never poisoned and nothing is logged");
-            Check(skeleton.PoisonPercentOfMaxHealth == 0, "no poison stacks on the skeleton");
+            bool appliedToSkeleton = registry.ApplyEffect("bleed", skeleton, bleedAction, skeletonMessages);
+            Check(!appliedToSkeleton && skeletonMessages.Count == 0, "undead never bleeds and nothing is logged");
+            Check(skeleton.BleedIntensity + skeleton.PendingBleedFromHits == 0, "no bleed stacks on the skeleton");
 
             var goblinMessages = new List<string>();
-            bool appliedToGoblin = registry.ApplyEffect("poison", goblin, poisonAction, goblinMessages);
-            Check(appliedToGoblin, "living goblin is poisoned normally");
+            bool appliedToGoblin = registry.ApplyEffect("bleed", goblin, bleedAction, goblinMessages);
+            Check(appliedToGoblin, "living goblin bleeds normally");
         }
 
         private static void ImmuneHoverReasons()

@@ -223,13 +223,13 @@ namespace RPGGame.Tests.Unit
             
             // Test combo can work with status effects
             character.ComboStep = 1;
-            character.IsWeakened = true;
+            character.StaggerStacks = 1;
             
             TestBase.AssertTrue(character.ComboStep >= 0, 
                 "Combo step should be valid with status effects", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            character.IsWeakened = false; // Reset
+            character.StaggerStacks = 0; // Reset
         }
     }
 }

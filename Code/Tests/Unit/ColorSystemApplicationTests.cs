@@ -444,20 +444,20 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
             
             // Test that status effects can be applied
-            character.IsWeakened = true;
-            TestBase.AssertTrue(character.IsWeakened, 
+            character.StaggerStacks = 1;
+            TestBase.AssertTrue(character.StaggerStacks == 1, 
                 "Status effect should be applicable", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            character.IsWeakened = false; // Reset
+            character.StaggerStacks = 0; // Reset
 
             // Test multiple effect colors
-            character.IsStunned = true;
-            TestBase.AssertTrue(character.IsStunned, 
+            character.IsMarked = true;
+            TestBase.AssertTrue(character.IsMarked, 
                 "Multiple status effects should be applicable", 
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            character.IsStunned = false; // Reset
+            character.IsMarked = false; // Reset
         }
 
         #endregion

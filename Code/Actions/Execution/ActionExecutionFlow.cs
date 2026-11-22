@@ -185,11 +185,7 @@ namespace RPGGame.Actions.Execution
 
             Actor combatTarget = target;
             if (target != null)
-            {
-                combatTarget = ActionEffectTargetResolver.ResolveConfusedCombatTarget(
-                    result.SelectedAction, source, target);
                 result.EffectiveTarget = combatTarget;
-            }
 
             { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); TriggerThresholdBarFeedback(source, result); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.ThresholdFeedback", pf); }
 
@@ -283,7 +279,6 @@ namespace RPGGame.Actions.Execution
             }
 
             source.ConsumeRollPenaltyAfterCombatRoll(result.SelectedAction);
-            source.ConsumeConfusionAfterCombatAction(result.SelectedAction);
             if (RetriggerDepth == 0)
                 source.ConsumeOwnActionStatuses();
 

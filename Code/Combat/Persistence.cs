@@ -103,9 +103,6 @@ namespace RPGGame
         {
             switch (store)
             {
-                case "poison":
-                    enemy.PoisonPercentOfMaxHealth += units * Stores.PoisonPercentPerUnit;
-                    return units;
                 case "bleed":
                     enemy.BleedIntensity += units;
                     return units;

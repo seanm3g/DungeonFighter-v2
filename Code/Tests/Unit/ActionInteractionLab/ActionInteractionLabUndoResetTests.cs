@@ -302,7 +302,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
 
             lab.LabPlayer.CurrentHealth = 3;
             lab.LabEnemy.CurrentHealth = 7;
-            lab.LabPlayer.PoisonPercentOfMaxHealth = 4;
+            lab.LabPlayer.BleedIntensity = 4;
             lab.LabPlayer.ComboStep = 3;
 
             lab.StepAsync(18, "JAB").GetAwaiter().GetResult();
@@ -314,7 +314,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             TestBase.AssertEqual(0, lab.LabTotalActionTicks, "ResetLabEncounter zeros LabTotalActionTicks", ref run, ref passed, ref failed);
             TestBase.AssertEqual(lab.LabPlayer.GetEffectiveMaxHealth(), lab.LabPlayer.CurrentHealth, "ResetLabEncounter refills hero HP", ref run, ref passed, ref failed);
             TestBase.AssertEqual(lab.LabEnemy.GetEffectiveMaxHealth(), lab.LabEnemy.CurrentHealth, "ResetLabEncounter refills enemy HP", ref run, ref passed, ref failed);
-            TestBase.AssertEqual(0.0, lab.LabPlayer.PoisonPercentOfMaxHealth, "ResetLabEncounter clears poison %", ref run, ref passed, ref failed);
+            TestBase.AssertEqual(0, lab.LabPlayer.BleedIntensity, "ResetLabEncounter clears bleed", ref run, ref passed, ref failed);
             TestBase.AssertEqual(stripCount, lab.LabPlayer.GetComboActions().Count, "ResetLabEncounter keeps combo strip size", ref run, ref passed, ref failed);
             TestBase.AssertEqual(0, lab.LabPlayer.ComboStep, "ResetLabEncounter zeros hero combo step", ref run, ref passed, ref failed);
             TestBase.AssertTrue(string.Equals(enemyName, lab.LabEnemy.Name, StringComparison.Ordinal),

@@ -7,7 +7,7 @@ namespace RPGGame.Combat.Effects
 {
     /// <summary>
     /// Data-driven handler for status effects that only set stacks/turns and a message.
-    /// Replaces 13 nearly identical AdvancedStatusEffects handler classes.
+    /// Harden (Guard), Focus, Expose and Mark; retired ids resolve to these first (CoreStatuses).
     /// </summary>
     public sealed class StackTurnEffectHandler : IEffectHandler
     {
@@ -42,17 +42,9 @@ namespace RPGGame.Combat.Effects
             const int defaultTurns = 3;
             return new Dictionary<string, IEffectHandler>(StringComparer.OrdinalIgnoreCase)
             {
-                // Vulnerability and Armor Break fold into Expose (old data keeps loading).
-                { "vulnerability", new StackTurnEffectHandler("expose", defaultTurns, "is exposed!", t => ExposeStatus.Apply(t, 1, defaultTurns)) },
                 { "harden", new StackTurnEffectHandler("harden", defaultTurns, "hardens, reducing incoming damage!", t => { t.HardenStacks = (t.HardenStacks ?? 0) + 1; t.HardenTurns = defaultTurns; }) },
                 { "focus", new StackTurnEffectHandler("focus", defaultTurns, "focuses, increasing damage dealt!", t => { t.FocusStacks = (t.FocusStacks ?? 0) + 1; t.FocusTurns = defaultTurns; }) },
                 { "expose", new StackTurnEffectHandler("expose", defaultTurns, "is exposed!", t => ExposeStatus.Apply(t, 1, defaultTurns)) },
-                { "hpregen", new StackTurnEffectHandler("hpregen", defaultTurns, "begins regenerating health!", t => { t.HPRegenStacks = (t.HPRegenStacks ?? 0) + 1; t.HPRegenTurns = defaultTurns; t.HPRegenAmount = (t.HPRegenAmount ?? 0) + 5; }) },
-                { "armorbreak", new StackTurnEffectHandler("expose", defaultTurns, "is exposed!", t => ExposeStatus.Apply(t, 1, defaultTurns)) },
-                { "pierce", new StackTurnEffectHandler("pierce", defaultTurns, "armor is pierced!", t => { t.HasPierce = true; t.PierceTurns = defaultTurns; }) },
-                { "silence", new StackTurnEffectHandler("silence", defaultTurns, "is silenced!", t => { t.IsSilenced = true; t.SilenceTurns = defaultTurns; }) },
-                { "statdrain", new StackTurnEffectHandler("statdrain", defaultTurns, "stats are drained!", t => { t.StatDrainStacks = (t.StatDrainStacks ?? 0) + 1; t.StatDrainTurns = defaultTurns; }) },
-                { "temporaryhp", new StackTurnEffectHandler("temporaryhp", defaultTurns, "gains 10 temporary HP!", t => { t.TemporaryHP = (t.TemporaryHP ?? 0) + 10; t.TemporaryHPTurns = defaultTurns; }) },
                 { "mark", new StackTurnEffectHandler("mark", 1, "is marked, next hit will crit!", t => { t.IsMarked = true; t.MarkTurns = 1; }) }
             };
         }

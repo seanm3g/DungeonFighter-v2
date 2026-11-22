@@ -352,3 +352,59 @@ enemies with 115-130 base HP.
 dungeon took the lowest of three, which was level 2-5 about half the time for a level-1 hero. The first dungeon now
 runs at the hero's level (`DungeonSelectionHandler.StartFirstDungeonAsync`). **Result: 1 of 30 first-dungeon deaths**
 (was 9), hero at 92% HP when the Demon appears. Full tests: 15159 passed, 0 failed.
+
+## Step 12 — Cleanup (partial, 2026-11-22)
+
+Branch `rebuild-12-cleanup` (from `phase11-item-rolls` at `327e6bdf`), worktree; not pushed. You played with the new
+rules and approved making them permanent, so the switched-off paths are deleted. No sims, no patch edits.
+
+### Done
+- **12.1 Retired statuses** (`3fe6021d`): `DF_LEGACY_STATUSES`, `CoreStatuses.Pin` and the override are gone; the
+  alias table (`Resolve` / `Aliases` / `Dropped`) stays, so retired ids in saves and data still load as their core
+  status. Deleted the `Actor` state for Weaken, Stun, Poison, Acid, HP Regen, Pierce (the status), Reflect, Silence,
+  Stat Drain, Absorb, Confusion and Brittle; their handlers (`AdvancedStatusEffects/`, the Weaken / Slow / Poison /
+  Stun / Acid / Fortify handlers, the unused `EnvironmentalEffectRegistry`); their `Stores` entries; poison and acid
+  ticks; `StunProcessor` and the stun turn-skip, board and timeline paths; confusion targeting; their HUD, hover and
+  narrative lines; the weapon poison per-hit stat. Code that still wrote retired fields directly now goes through the
+  aliases: environment hazards (Weaken → Rattle, Poison → Bleed, Stun → Stagger), the hybrid Status bonus
+  (Weaken → Rattle), conversion rows (Acid → Expose, Stun → Stagger), CrossWires `APPLY stun`, gear stun / acid procs.
+  **Kept:** Fortify and Temp HP (hero resources, CASH INTO payouts), character Slow on `CharacterEffects` (the ON_SLOW
+  material WHEN and freeze mods read it), action-level pierce (`Action.CausesPierce` ignores armor), and the
+  `Action.Causes*` flags for retired ids (still data columns: weaken 5, slow 3, pierce 3, disrupt 3, confuse 1 rows in
+  Actions.json; they resolve on apply). Tests: suites that only covered retired code were deleted
+  (`StunProcessorTests`, confusion, poison / acid tick, weaken, pierce-status, brittle tests); the ones that tested
+  general behaviour now use core statuses; the `Pin(false)` lines are gone.
+- **12.2 Cosmetic materials** (`57780894`): `DF_LEGACY_MATERIALS` and `PinCosmetic` are gone; Wood / Cloth / Unknown
+  are always cosmetic. Deleted their three `MaterialBuilds.json` rows, their convert actions (REVEAL, KINDLE,
+  UNRAVEL) and the Unknown wildcard. Old items of these materials load and keep the name.
+  `MaterialSetControllerTests` now cover Stone for the class-less set path.
+- **12.3 One visible modifier** (`10ab0371`): the `onemodifier` feature key and its off path are deleted.
+- **12.4 Extra AMP paths** (`78130c59`): `singleAmpFormula`, `comboAmplifierLinearSlots`,
+  `comboSlotDamagePercentPerStep` and `intelligenceAmpPerPoint` are deleted with INT potency, the Mythic set's AMP
+  bonus and the legacy slot math (patch files that still set those keys are ignored).
+
+**Tests:** last full run 14958 run, 3 failed: the 2 cadence checks that already failed at `327e6bdf` ("Mid with +25%
+deals more than unbuffed mid", "Finisher gets its own +25%") and the known flaky MCP "Expected DungeonSelection, got
+Death". Note: `--run-tests` output sometimes stops early with no summary (2 of 3 baseline runs at `327e6bdf` did too),
+so a run counts only when the summary prints. The test runner rewrites the active patch
+(`GameData/Patches/Balance/7-30-26.json`); restored after each run, in no commit.
+
+**C# lines** (Code, without bin / obj): 365,630 at `327e6bdf` → 362,585 (−3,045).
+
+### Left, and why
+- **Poison applies nothing through the effect registry** (since step 5, not new): `ApplyEffect` resolves `poison` to
+  `bleed`, but `BleedEffectHandler` reads `CausesBleed`, which a poison carrier doesn't set. So the Venom enemy kit
+  (POISON BITE), poison affixes applied by name (`EnemyRules` on-hit) and the Poisonous weapon mod do nothing, while
+  `Stores` / `APPLY poison n` paths do land Bleed. The fix is one line (build the carrier for the resolved id), but it
+  changes how enemies hit — **your call**.
+- **Skill content on retired statuses:** the Venom Mace, Envenomed Edge and Kindle conversion rows require Poison,
+  so they never fire; Thermal Shock now produces Stagger. The Frayed prefix (`ONCASH:FRAY`) can't fire without the
+  Cloth set. The Mythic animal set (Legend) now does nothing (its only bonus was AMP). Needs a content / design pass.
+- **Hybrid tag counters:** still used (hybrid accumulation, `ClassTags`, the tag tooltip), so not deleted; they go
+  with the hybrid trees when step 9's bridge nodes are designed.
+- **Dead skill nodes:** none found structurally (all 212 nodes sit in trees, no dangling `requires` / `excludes`,
+  no code literals for missing node ids).
+- **Data columns for retired statuses** (Actions.json `weaken`, `slow`, `disrupt`, `confuse`): kept; converting them
+  to core verbs is a content change.
+- Dead config keys `statusWeakenDamageMultiplier` / `statusBrittleCritDamagePerStack` stay in `CombatConfig` because
+  22+ patch files set them; nothing reads them.

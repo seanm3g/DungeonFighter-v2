@@ -28,19 +28,10 @@ namespace RPGGame
             _handlers = new Dictionary<string, IEffectHandler>(StringComparer.OrdinalIgnoreCase)
             {
                 { "bleed", new BleedEffectHandler() },
-                { "weaken", new WeakenEffectHandler() },
-                { "slow", new SlowEffectHandler() },
-                { "poison", new PoisonEffectHandler() },
-                { "stun", new StunEffectHandler() },
-                { "burn", new BurnEffectHandler() },
-                { "acid", new AcidEffectHandler() }
+                { "burn", new BurnEffectHandler() }
             };
             foreach (var kv in StackTurnEffectHandler.CreateRegistryEntries())
                 _handlers[kv.Key] = kv.Value;
-            _handlers["absorb"] = new Combat.Effects.AdvancedStatusEffects.AbsorbEffectHandler();
-            _handlers["confusion"] = new Combat.Effects.AdvancedStatusEffects.ConfusionEffectHandler();
-            _handlers["disrupt"] = new Combat.Effects.AdvancedStatusEffects.DisruptEffectHandler();
-            _handlers["fortify"] = new FortifyEffectHandler();
         }
 
         /// <summary>
@@ -74,7 +65,7 @@ namespace RPGGame
                 return applied;
             }
             // Core statuses without a handler (Stagger, Rattle) apply one stack through their store.
-            if (target != null && CoreStatuses.Enabled && Stores.TryGet(effectType, out var def) && def.AddFn != null
+            if (target != null && Stores.TryGet(effectType, out var def) && def.AddFn != null
                 && Stores.Add(target, def.Id, 1) > 0)
             {
                 results?.Add($"{target.Name} gains 1 {CoreStatuses.Label(def.Id)}");
@@ -84,54 +75,6 @@ namespace RPGGame
             return false;
         }
 
-        /// <summary>
-        /// Gets the effect type description for an action
-        /// </summary>
-        public string GetEffectType(Action action)
-        {
-            foreach (var handler in _handlers.Values)
-            {
-                if (IsActionCausingEffect(action, handler.GetEffectType()))
-                {
-                    return handler.GetEffectType();
-                }
-            }
-            return "Damage";
-        }
-
-        /// <summary>
-        /// Checks if an action causes a specific effect
-        /// </summary>
-        private bool IsActionCausingEffect(Action action, string effectType)
-        {
-            return effectType.ToLower() switch
-            {
-                "bleeding" => action.CausesBleed,
-                "weakening" => action.CausesWeaken,
-                "slowing" => action.CausesSlow,
-                "poisoning" => action.CausesPoison,
-                "stunning" => action.CausesStun,
-                "burning" => action.CausesBurn,
-                "acid" => action.CausesAcid,
-                "corroding" => action.CausesAcid,
-                "vulnerability" => action.CausesVulnerability,
-                "harden" => action.CausesHarden,
-                "focus" => action.CausesFocus,
-                "expose" => action.CausesExpose,
-                "hpregen" => action.CausesHPRegen,
-                "armorbreak" => action.CausesArmorBreak,
-                "pierce" => action.CausesPierce,
-                "silence" => action.CausesSilence,
-                "statdrain" => action.CausesStatDrain,
-                "absorb" => action.CausesAbsorb,
-                "temporaryhp" => action.CausesTemporaryHP,
-                "confusion" => action.CausesConfusion,
-                "mark" => action.CausesMark,
-                "disrupt" => action.CausesDisrupt,
-                "fortify" => action.CausesFortify,
-                _ => false
-            };
-        }
     }
 
     /// <summary>
@@ -155,100 +98,6 @@ namespace RPGGame
     }
 
     /// <summary>
-    /// Handler for weaken effects
-    /// </summary>
-    public class WeakenEffectHandler : IEffectHandler
-    {
-        public bool Apply(Actor target, Action action, List<string> results)
-        {
-            // Apply weaken if action causes it (guaranteed application when flag is set)
-            if (action.CausesWeaken)
-            {
-                target.ApplyWeaken(1); // the target's next action deals less damage
-                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "weakened");
-                return true;
-            }
-            return false;
-        }
-
-        public string GetEffectType() => "Weakening";
-    }
-
-    /// <summary>
-    /// Handler for slow effects
-    /// </summary>
-    public class SlowEffectHandler : IEffectHandler
-    {
-        public bool Apply(Actor target, Action action, List<string> results)
-        {
-            // Apply slow if action causes it (guaranteed application when flag is set)
-            if (action.CausesSlow)
-            {
-                // Apply slow effect to the target (Enemy inherits from Character, so this works for both)
-                if (target is Character character)
-                {
-                    // Use Freeze config for Slow since they're functionally similar (both reduce speed)
-                    var freezeConfig = GameConfiguration.Instance.StatusEffects.Freeze;
-                    // Use fallback defaults if config values are 0 (e.g., in tests or if config not loaded)
-                    double speedReduction = freezeConfig.SpeedReduction > 0 ? freezeConfig.SpeedReduction : 0.5;
-                    int duration = freezeConfig.Duration > 0 ? (int)freezeConfig.Duration : 3;
-                    character.ApplySlow(speedReduction, duration);
-                }
-                
-                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "slowed");
-                return true;
-            }
-            return false;
-        }
-
-        public string GetEffectType() => "Slowing";
-    }
-
-    /// <summary>
-    /// Handler for poison effects
-    /// </summary>
-    public class PoisonEffectHandler : IEffectHandler
-    {
-        public bool Apply(Actor target, Action action, List<string> results)
-        {
-            if (action.CausesPoison)
-            {
-                double delta = action.PoisonPercentToAdd > 0 ? action.PoisonPercentToAdd : 1.0;
-                target.ApplyPoisonPercent(delta);
-                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "poisoned");
-                return true;
-            }
-            return false;
-        }
-
-        public string GetEffectType() => "Poisoning";
-    }
-
-    /// <summary>
-    /// Handler for stun effects
-    /// </summary>
-    public class StunEffectHandler : IEffectHandler
-    {
-        public bool Apply(Actor target, Action action, List<string> results)
-        {
-            // Apply stun if action causes it (guaranteed application when flag is set)
-            if (action.CausesStun)
-            {
-                var stunConfig = GameConfiguration.Instance.StatusEffects.Stun;
-                target.IsStunned = true;
-                // Use fallback defaults if config values are 0 (e.g., in tests or if config not loaded)
-                int skipTurns = stunConfig.SkipTurns > 0 ? stunConfig.SkipTurns : 1;
-                target.StunTurnsRemaining = skipTurns;
-                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "stunned");
-                return true;
-            }
-            return false;
-        }
-
-        public string GetEffectType() => "Stunning";
-    }
-
-    /// <summary>
     /// Handler for burn effects
     /// </summary>
     public class BurnEffectHandler : IEffectHandler
@@ -267,48 +116,4 @@ namespace RPGGame
 
         public string GetEffectType() => "Burning";
     }
-
-    /// <summary>
-    /// Handler for acid DoT (intensity + armor shred on tick).
-    /// </summary>
-    public class AcidEffectHandler : IEffectHandler
-    {
-        public bool Apply(Actor target, Action action, List<string> results)
-        {
-            if (action.CausesAcid)
-            {
-                int amount = action.AcidAmountToAdd > 0 ? action.AcidAmountToAdd : 1;
-                target.QueueAcidFromHit(amount);
-                StatusEffectCombatLogMessageBuilder.AppendIsStatusLine(results, target, "corroding");
-                return true;
-            }
-            return false;
-        }
-
-        public string GetEffectType() => "Acid";
-    }
-
-    /// <summary>Fortify: stacking flat armor bonus (sheet FORTIFY / SELF TARGET).</summary>
-    public class FortifyEffectHandler : IEffectHandler
-    {
-        private const int DefaultTurns = 3;
-
-        public bool Apply(Actor target, Action action, List<string> results)
-        {
-            if (!action.CausesFortify)
-                return false;
-
-            int armorPerStack = action.FortifyArmorPerStack > 0 ? action.FortifyArmorPerStack : 1;
-            target.FortifyStacks = (target.FortifyStacks ?? 0) + 1;
-            target.FortifyTurns = DefaultTurns;
-            target.FortifyArmorBonus = (target.FortifyArmorBonus ?? 0) + armorPerStack;
-
-            StatusEffectCombatLogMessageBuilder.AppendNameWithPlainSuffix(results, target, "fortifies, gaining armor!");
-            return true;
-        }
-
-        public string GetEffectType() => "fortify";
-    }
 }
-
-

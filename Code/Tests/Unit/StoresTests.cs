@@ -14,7 +14,6 @@ namespace RPGGame.Tests.Unit
         public static void RunAllTests()
         {
             // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
-            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== Stores Tests ===\n");
             _run = _passed = _failed = 0;
 
@@ -85,10 +84,7 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual(2, Stores.Add(foe, "bleed", 2), "DoT adds queue like an on-hit (APPLY bleed)", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(3, foe.PendingBleedFromHits, "queued onto pending", ref _run, ref _passed, ref _failed);
 
-            foe.PoisonPercentOfMaxHealth = 1.0;
-            TestBase.AssertEqual(4, Stores.Get(foe, "poison"), "poison unit is 0.25% max HP", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual(4, Stores.SpendAll(foe, "poison"), "poison spends", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(foe.PoisonPercentOfMaxHealth == 0, "poison cleared", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(foe.BleedIntensity + foe.PendingBleedFromHits, Stores.Get(foe, "poison"), "poison reads as bleed", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestStackResource()
@@ -110,7 +106,7 @@ namespace RPGGame.Tests.Unit
             var hero = new Character("UnknownStoreHero", 1);
             TestBase.AssertEqual(0, Stores.Get(hero, "NOT_A_STORE"), "unknown store reads 0", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0, Stores.Add(hero, "NOT_A_STORE", 1), "unknown store add is 0", ref _run, ref _passed, ref _failed);
-            TestBase.AssertFalse(Stores.TryGet("vulnerability", out _), "Vulnerability is not a separate store (folded into Expose)", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(Stores.TryGet("vulnerability", out var v) && v.Id == "expose", "Vulnerability is not a separate store (it reads Expose)", ref _run, ref _passed, ref _failed);
         }
     }
 }

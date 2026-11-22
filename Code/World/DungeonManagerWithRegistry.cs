@@ -11,12 +11,10 @@ namespace RPGGame
     public class DungeonManagerWithRegistry
     {
         private readonly Random random = RandomUtility.Ambient;
-        private readonly EnvironmentalEffectRegistry environmentalRegistry;
         private List<DungeonData>? allDungeons = null;
 
         public DungeonManagerWithRegistry()
         {
-            this.environmentalRegistry = new EnvironmentalEffectRegistry();
         }
 
         /// <summary>
@@ -315,20 +313,6 @@ namespace RPGGame
         // NOTE: RunDungeon method removed - use DungeonRunnerManager.RunDungeon() instead
         // This method was legacy code that used the old DungeonRunner class with chunked text methods
 
-        /// <summary>
-        /// Applies environmental debuffs to entities using the effect registry
-        /// </summary>
-        /// <param name="source">The source of the debuff (usually environment)</param>
-        /// <param name="target">The target Actor</param>
-        /// <param name="action">The action causing the debuff</param>
-        /// <param name="debuffType">Type of debuff to apply</param>
-        /// <param name="results">List to add effect messages to</param>
-        /// <returns>True if debuff was applied</returns>
-        public bool ApplyEnvironmentalDebuff(Actor source, Actor target, Action action, string debuffType, List<string> results)
-        {
-            // Use the environmental effect registry to apply effects
-            return environmentalRegistry.ApplyEnvironmentalEffect(debuffType, target, action, results);
-        }
     }
 }
 

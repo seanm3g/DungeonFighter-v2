@@ -286,14 +286,10 @@ namespace RPGGame.Combat.Narrative
 
             if (target != null)
             {
-                if (target.PoisonPercentOfMaxHealth > 0)
-                    Add("faint green necrotic glow");
                 if (target.BurnIntensity > 0 || target.PendingBurnFromHits > 0)
                     Add("embers");
                 if (target.IsBleeding)
                     Add("blood mist");
-                if (target.AcidIntensity > 0 || target.PendingAcidFromHits > 0)
-                    Add("acid haze");
             }
 
             if (evt.CausesBleed)

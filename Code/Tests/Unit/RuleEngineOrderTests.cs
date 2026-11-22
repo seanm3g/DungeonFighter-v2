@@ -193,22 +193,22 @@ namespace RPGGame.Tests.Unit
         private static void TestSkillCodedRules()
         {
             var hero = Hero("Coded");
-            hero.Progression.LearnedSkillRanks["r-edge"] = 1;
+            hero.Progression.LearnedSkillRanks["r-hemo"] = 1;
             var coded = RuleBook.For(hero).Where(e => e.Rule.Coded != null).ToList();
-            TestBase.AssertTrue(coded.Count == 1 && coded[0].Owner.Kind == RuleOwnerKind.Skill && coded[0].Owner.Node?.Id == "r-edge"
+            TestBase.AssertTrue(coded.Count == 1 && coded[0].Owner.Kind == RuleOwnerKind.Skill && coded[0].Owner.Node?.Id == "r-hemo"
                     && coded[0].Rule.When == "ONCONNECT" && coded[0].Phase == 0,
-                "Envenomed Edge's conversion row is a skill-owned ONCONNECT rule in the gain phase", ref _run, ref _passed, ref _failed);
+                "Hemorrhage's conversion row is a skill-owned ONCONNECT rule in the gain phase", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(!CrossWires.Active(hero).Any(r => r.Coded != null), "coded rules stay out of the written-rule readers",
                 ref _run, ref _passed, ref _failed);
 
             var foe = new Character("CodedFoe", 5);
-            foe.PoisonPercentOfMaxHealth = 3.0;
+            foe.BleedIntensity = 3;
             RuleEngine.ClearTrace();
             MaterialSetController.TryMintFromEvent(hero, new CombatEvent(CombatEventType.ActionHit, hero)
             {
                 Target = foe, Action = new Action { Name = "TEST_SWING", Type = ActionType.Attack }, Damage = 10
             });
-            TestBase.AssertEqual(2, foe.PendingBleedFromHits, "a connect runs the conversion through the engine (poison -> bleed 1:2)",
+            TestBase.AssertEqual(1, foe.PendingBleedFromHits, "a connect runs the conversion through the engine (half the live bleed)",
                 ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(RuleEngine.Trace.Any(t => t.Owner == coded[0].Owner.Name && t.Kind == RuleOwnerKind.Skill),
                 "the conversion is traced with its node as owner", ref _run, ref _passed, ref _failed);

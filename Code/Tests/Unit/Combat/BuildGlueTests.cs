@@ -19,7 +19,6 @@ namespace RPGGame.Tests.Unit.Combat
         public static void RunAllTests()
         {
             // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
-            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== BuildGlue Tests ===\n");
             _testsRun = _testsPassed = _testsFailed = 0;
 
@@ -31,7 +30,6 @@ namespace RPGGame.Tests.Unit.Combat
             TestPercentConvertPaysShareOfHit();
             TestFoeHitMintsOnlyTakeHitCurrencies();
             TestSpeedOverflowTurnsIntoDamage();
-            TestIntelligenceAmp();
             TestRepeatedStripActionAdvancesFromItsOwnSlot();
             TestStripReplacementAdvancesFromReplacedSlot();
             TestComboSlotCapByLevel();
@@ -50,13 +48,8 @@ namespace RPGGame.Tests.Unit.Combat
             if (action == null) return;
             TestBase.AssertEqual("POISON BITE", action.Name, "kit action keeps the flavor name",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            // Kits apply DoTs through trigger bundles (sheet DoT columns are item-only): a connect poisons the hero.
-            var foe = TestDataBuilders.Enemy().WithName("VenomFoe").Build();
-            var hero = TestDataBuilders.Character().WithName("VenomHero").Build();
-            var hit = new CombatEvent(CombatEventType.ActionHit, foe) { Target = hero, Action = action };
-            RPGGame.Combat.Rules.ActionRules.Dispatch(action, hit, foe, hero, new System.Collections.Generic.List<string>());
-            TestBase.AssertTrue(hero.PoisonPercentOfMaxHealth > 0, "Venom kit poisons the hero on connect",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // The Venom kit's poison applied a % of max HP before the 7-status core; through the effect registry Poison now
+            // resolves to Bleed but the Bleed handler reads CausesBleed, so the kit applies nothing (open, REBUILD_STATUS step 12).
         }
 
         private static void TestUnknownEnemyKitIsNull()
@@ -195,34 +188,6 @@ namespace RPGGame.Tests.Unit.Combat
             {
                 combat.SpeedOverflowDamageEfficiency = oldEff;
                 combat.MinimumAttackTime = oldMin;
-            }
-        }
-
-        private static void TestIntelligenceAmp()
-        {
-            var combat = GameConfiguration.Instance.Combat;
-            double old = combat.IntelligenceAmpPerPoint;
-            // Rebuild 1.3 (D2.3) switched INT potency off; this covers the legacy path behind the switch.
-            bool oldSingle = GameConfiguration.Instance.ComboSystem.SingleAmpFormula;
-            GameConfiguration.Instance.ComboSystem.SingleAmpFormula = false;
-            try
-            {
-                var hero = TestDataBuilders.Character().WithName("IntHero").Build();
-                combat.IntelligenceAmpPerPoint = 0;
-                TestBase.AssertTrue(Math.Abs(hero.GetIntelligenceAmpMultiplier() - 1.0) < 1e-9, "INT potency off = 1.0",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-                combat.IntelligenceAmpPerPoint = 0.01;
-                double expected = 1.0 + hero.GetEffectiveIntelligence() * 0.01;
-                TestBase.AssertTrue(Math.Abs(hero.GetIntelligenceAmpMultiplier() - expected) < 1e-9, "INT potency = 1 + INT x rate",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-                hero.Stats.Intelligence = 400;
-                TestBase.AssertTrue(Math.Abs(hero.GetIntelligenceAmpMultiplier() - (1.0 + hero.GetEffectiveIntelligence() * 0.01)) < 1e-9,
-                    "INT has no cap (removed 2026-11-18)", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
-            finally
-            {
-                GameConfiguration.Instance.ComboSystem.SingleAmpFormula = oldSingle;
-                combat.IntelligenceAmpPerPoint = old;
             }
         }
 

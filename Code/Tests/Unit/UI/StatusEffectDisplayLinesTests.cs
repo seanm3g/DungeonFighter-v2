@@ -92,10 +92,6 @@ namespace RPGGame.Tests.Unit.UI
             var bleedLines = StatusEffectDisplayLines.Build(bleed, bleed);
             TestBase.AssertTrue(bleedLines.Any(l => l.Contains("Bleed 3")), "bleed intensity line", ref run, ref passed, ref failed);
 
-            var poison = TestDataBuilders.Character().WithName("PoisonHero").Build();
-            poison.PoisonPercentOfMaxHealth = 2;
-            var poisonLines = StatusEffectDisplayLines.Build(poison, poison);
-            TestBase.AssertTrue(poisonLines.Any(l => l.Contains("Poison") && l.Contains("2") && l.Contains("max HP")), "poison % line", ref run, ref passed, ref failed);
 
             var enemy = new Enemy(name: "Goblin", level: 1, maxHealth: 20, strength: 8, agility: 6, technique: 4, intelligence: 4, armor: 0);
             enemy.BleedIntensity = 4;
@@ -104,12 +100,10 @@ namespace RPGGame.Tests.Unit.UI
 
             var iconHero = TestDataBuilders.Character().WithName("IconHero").WithStats(10, 10, 10, 0).Build();
             iconHero.BleedIntensity = 2;
-            iconHero.PoisonPercentOfMaxHealth = 1;
             iconHero.BurnIntensity = 1;
             iconHero.Effects.SetTempRollBonus(2, 3);
             var iconLines = StatusEffectDisplayLines.Build(iconHero, iconHero);
             TestBase.AssertEqual("bleed", StatusEffectDisplayLines.IconKeyFor(iconLines.First(l => l.StartsWith("Bleed"))), "bleed line maps to bleed icon", ref run, ref passed, ref failed);
-            TestBase.AssertEqual("poison", StatusEffectDisplayLines.IconKeyFor(iconLines.First(l => l.StartsWith("Poison"))), "poison line maps to poison icon", ref run, ref passed, ref failed);
             TestBase.AssertEqual("burn", StatusEffectDisplayLines.IconKeyFor(iconLines.First(l => l.StartsWith("Burn"))), "burn line maps to burn icon", ref run, ref passed, ref failed);
             TestBase.AssertEqual("accuracy", StatusEffectDisplayLines.IconKeyFor(iconLines.First(l => l.StartsWith("Accuracy"))), "accuracy line maps to accuracy icon", ref run, ref passed, ref failed);
             TestBase.AssertEqual("2", StatusEffectDisplayLines.SplitIcon("Bleed 2").Text, "icon replaces bleed's name", ref run, ref passed, ref failed);

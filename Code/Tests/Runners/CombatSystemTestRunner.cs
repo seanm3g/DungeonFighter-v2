@@ -108,7 +108,6 @@ namespace RPGGame.Tests.Runners
             CrossWiresTests.RunAllTests();
             ItemRulesTests.RunAllTests();
             Console.WriteLine();
-            StunProcessorTests.RunAllTests();
             Console.WriteLine();
             ActionEffectTargetTests.RunAllTests();
             Console.WriteLine();

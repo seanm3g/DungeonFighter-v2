@@ -19,7 +19,6 @@ namespace RPGGame.Tests.Unit
         public static void RunAllTests()
         {
             // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
-            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== Action Trigger Gate Tests ===\n");
             _testsRun = _testsPassed = _testsFailed = 0;
 
@@ -39,7 +38,6 @@ namespace RPGGame.Tests.Unit
             TestOnWield_OrTypesAndAndWithOutcome();
             TestSignatureHooks_FirstBloodAfterMissMirrorSwitchClutch();
             TestSignatureHooks_UnderDotLastEnemyTags();
-            TestGateBlocksWeaponStyleDoTUnlessTriggered();
 
             TestBase.PrintSummary("Action Trigger Gate Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -214,7 +212,7 @@ namespace RPGGame.Tests.Unit
             var messages = RPGGame.Actions.Execution.RoomClearedTriggerApplicator.ApplyForHero(source);
             TestBase.AssertTrue(source.SessionStats.RoomsCleared == 1,
                 "Applicator records rooms cleared", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(source.IsStunned,
+            TestBase.AssertTrue(source.StaggerStacks > 0,
                 "Applicator applies ONROOMSCLEARED status from pool", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -341,10 +339,10 @@ namespace RPGGame.Tests.Unit
 
             CombatTriggerContext.ResetForBattle();
             var sourceDot = MakeStunAction("IFSOURCEUNDERDOT");
-            hero.PoisonPercentOfMaxHealth = 2;
+            hero.BleedIntensity = 2;
             TestBase.AssertTrue(ActionTriggerGate.ShouldApplyStatusEffects(sourceDot, hit),
-                "IFSOURCEUNDERDOT matches poisoned hero", ref _testsRun, ref _testsPassed, ref _testsFailed);
-            hero.PoisonPercentOfMaxHealth = 0;
+                "IFSOURCEUNDERDOT matches bleeding hero", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            hero.BleedIntensity = 0;
             TestBase.AssertTrue(!ActionTriggerGate.ShouldApplyStatusEffects(sourceDot, hit),
                 "IFSOURCEUNDERDOT rejects clean hero", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
@@ -433,23 +431,5 @@ namespace RPGGame.Tests.Unit
                 "ONMISS + ONWIELD:Dagger rejects sword miss", ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
-        private static void TestGateBlocksWeaponStyleDoTUnlessTriggered()
-        {
-            var action = MakeStunAction("ONMISS");
-            action.CausesPoison = true;
-            action.PoisonPercentToAdd = 2;
-            var source = new Character("Hero", 1);
-            var target = new Enemy("Foe", 1, 100, 10, 5, 5, 5);
-            var hit = new CombatEvent(CombatEventType.ActionHit, source) { IsCritical = true };
-            var results = new List<string>();
-            bool applied = CombatEffectsSimplified.ApplyStatusEffects(action, source, target, results, hit);
-            TestBase.AssertTrue(!applied && target.PoisonPercentOfMaxHealth <= 0,
-                "ONMISS-only action does not apply poison on crit hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            var miss = new CombatEvent(CombatEventType.ActionMiss, source) { IsMiss = true };
-            applied = CombatEffectsSimplified.ApplyStatusEffects(action, source, target, results, miss);
-            TestBase.AssertTrue(applied || target.IsStunned || target.PoisonPercentOfMaxHealth > 0,
-                "ONMISS-only action applies on miss", ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
     }
 }

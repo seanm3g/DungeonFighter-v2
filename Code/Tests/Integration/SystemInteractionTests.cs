@@ -52,15 +52,13 @@ namespace RPGGame.Tests.Integration
             Console.WriteLine("\n--- Testing Status Effects + Damage Interaction ---");
 
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
-            var enemy = TestDataBuilders.Enemy().WithName("TestEnemy").Build();
-
-            // Test that status effects affect damage
-            enemy.IsWeakened = true;
-            TestBase.AssertTrue(enemy.IsWeakened, 
-                "Status effects should be applicable", 
+            var enemy = TestDataBuilders.Enemy().WithName("TestEnemy").Build();            // Test that status effects affect damage
+            enemy.StaggerStacks = 1;
+            TestBase.AssertTrue(Stores.Get(enemy, "stagger") == 1,
+                "Status effects should be applicable",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            enemy.IsWeakened = false;
+            enemy.StaggerStacks = 0;
         }
 
         private static void TestEquipmentStatsActionsInteraction()

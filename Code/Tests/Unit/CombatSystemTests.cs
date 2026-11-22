@@ -85,25 +85,6 @@ namespace RPGGame.Tests.Unit
             AssertTrue(damage <= rawDamage, $"Armored damage ({damage}) should be <= raw damage ({rawDamage})");
         }
         
-        private static void TestDamageWithWeakenedTarget()
-        {
-            Console.WriteLine("\n--- Testing Damage with Weakened Target ---");
-            
-            var attacker = new Character("TestHero", 1);
-            attacker.Stats.Strength = 10;
-            
-            var defender = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
-            defender.IsWeakened = true;
-            
-            var normalDamage = CombatCalculator.CalculateDamage(attacker, defender, showWeakenedMessage: false);
-            defender.IsWeakened = false;
-            var weakenedDamage = CombatCalculator.CalculateDamage(attacker, defender, showWeakenedMessage: false);
-            
-            // Weakened targets take 50% more damage, so weakened damage should be higher
-            // Note: This might not always be true due to rounding, so we check it's at least close
-            AssertTrue(weakenedDamage >= 0, $"Weakened damage should be non-negative, got: {weakenedDamage}");
-        }
-        
         private static void TestMinimumDamage()
         {
             Console.WriteLine("\n--- Testing Minimum Damage ---");
@@ -226,46 +207,10 @@ namespace RPGGame.Tests.Unit
             var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
             var initialHealth = enemy.CurrentHealth;
             
-            enemy.ApplyPoison(3, 2, isBleeding: true);
+            enemy.ApplyBleed(3, 2);
             
             AssertTrue(enemy.IsBleeding, "Enemy should be bleeding");
             AssertTrue(enemy.PendingBleedFromHits > 0, "Bleed pending should be set");
-        }
-        
-        private static void TestPoisonEffect()
-        {
-            Console.WriteLine("\n--- Testing Poison Effect ---");
-            
-            var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
-            
-            enemy.ApplyPoison(5, 3);
-            
-            AssertTrue(enemy.PoisonPercentOfMaxHealth > 0, "Enemy should have poison %");
-        }
-        
-        private static void TestStunEffect()
-        {
-            Console.WriteLine("\n--- Testing Stun Effect ---");
-            
-            var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
-            
-            enemy.IsStunned = true;
-            enemy.StunTurnsRemaining = 2; // Stun for 2 turns
-            
-            AssertTrue(enemy.IsStunned, "Enemy should be stunned");
-            AssertTrue(enemy.StunTurnsRemaining > 0, "Stun duration should be set");
-        }
-        
-        private static void TestWeakenEffect()
-        {
-            Console.WriteLine("\n--- Testing Weaken Effect ---");
-            
-            var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
-            
-            enemy.ApplyWeaken(3); // Weaken for 3 turns
-            
-            AssertTrue(enemy.IsWeakened, "Enemy should be weakened");
-            AssertTrue(enemy.WeakenTurns > 0, "Weaken duration should be set");
         }
         
         private static void TestStatusEffectDuration()
@@ -274,7 +219,7 @@ namespace RPGGame.Tests.Unit
             
             var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
             
-            enemy.ApplyPoison(5, 3, isBleeding: true);
+            enemy.ApplyBleed(5, 3);
             AssertTrue(enemy.PendingBleedFromHits > 0, "Bleed pending should be set");
         }
         

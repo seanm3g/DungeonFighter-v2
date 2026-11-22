@@ -149,8 +149,7 @@ namespace RPGGame.Combat.Rules
                             if (Foe(hero, evt) is not { } target)
                                 return false;
                             ExposeStatus.Apply(target, steps, 2);
-                            if (target is Character weakened)
-                                weakened.ApplyWeaken(2);
+                            Stores.Add(target, "rattle", 1); // was Weaken, which loads as Rattle
                             break;
                     }
                     return true;

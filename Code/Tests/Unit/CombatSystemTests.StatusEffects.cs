@@ -21,9 +21,6 @@ namespace RPGGame.Tests.Unit
             
             TestStatusEffectApplication();
             TestBleedEffect();
-            TestPoisonEffect();
-            TestStunEffect();
-            TestWeakenEffect();
             TestStatusEffectDuration();
             
             PrintSummary();
@@ -51,46 +48,10 @@ namespace RPGGame.Tests.Unit
             var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
             var initialHealth = enemy.CurrentHealth;
             
-            enemy.ApplyPoison(3, 2, isBleeding: true);
+            enemy.ApplyBleed(3, 2);
             
             AssertTrue(enemy.IsBleeding, "Enemy should be bleeding");
             AssertTrue(enemy.PendingBleedFromHits > 0, "Bleed pending should be set");
-        }
-        
-        private static void TestPoisonEffect()
-        {
-            Console.WriteLine("\n--- Testing Poison Effect ---");
-            
-            var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
-            
-            enemy.ApplyPoison(5, 3);
-            
-            AssertTrue(enemy.PoisonPercentOfMaxHealth > 0, "Enemy should have poison %");
-        }
-        
-        private static void TestStunEffect()
-        {
-            Console.WriteLine("\n--- Testing Stun Effect ---");
-            
-            var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
-            
-            enemy.IsStunned = true;
-            enemy.StunTurnsRemaining = 2;
-            
-            AssertTrue(enemy.IsStunned, "Enemy should be stunned");
-            AssertTrue(enemy.StunTurnsRemaining > 0, "Stun duration should be set");
-        }
-        
-        private static void TestWeakenEffect()
-        {
-            Console.WriteLine("\n--- Testing Weaken Effect ---");
-            
-            var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
-            
-            enemy.ApplyWeaken(3);
-            
-            AssertTrue(enemy.IsWeakened, "Enemy should be weakened");
-            AssertTrue(enemy.WeakenTurns > 0, "Weaken duration should be set");
         }
         
         private static void TestStatusEffectDuration()
@@ -99,7 +60,7 @@ namespace RPGGame.Tests.Unit
             
             var enemy = new Enemy("TestEnemy", 1, 100, 10, 10, 10, 10);
             
-            enemy.ApplyPoison(5, 3, isBleeding: true);
+            enemy.ApplyBleed(5, 3);
             AssertTrue(enemy.PendingBleedFromHits > 0, "Bleed pending should be set");
         }
         

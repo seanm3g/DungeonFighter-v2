@@ -17,7 +17,6 @@ namespace RPGGame.Tests.Unit
         public static void RunAllTests()
         {
             // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
-            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== Status Effects Tests ===\n");
             
             _testsRun = 0;
@@ -51,40 +50,13 @@ namespace RPGGame.Tests.Unit
                 $"Bleed should queue pending: pending={enemy.PendingBleedFromHits}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test Weaken
-            var weakenAction = TestDataBuilders.CreateMockAction("WeakenAction");
-            weakenAction.CausesWeaken = true;
-            var weakenResults = new List<string>();
-            registry.ApplyEffect("weaken", enemy, weakenAction, weakenResults);
-            TestBase.AssertTrue(enemy.IsWeakened && enemy.WeakenTurns > 0,
-                $"Weaken should apply: isWeakened={enemy.IsWeakened}, turns={enemy.WeakenTurns}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Test Slow
-            var slowAction = TestDataBuilders.CreateMockAction("SlowAction");
-            slowAction.CausesSlow = true;
-            var slowResults = new List<string>();
-            registry.ApplyEffect("slow", enemy, slowAction, slowResults);
-            TestBase.AssertTrue(enemy.Effects.SlowMultiplier < 1.0,
-                $"Slow effect should be applicable: multiplier={enemy.Effects.SlowMultiplier}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Test Poison
-            var poisonAction = TestDataBuilders.CreateMockAction("PoisonAction");
-            poisonAction.CausesPoison = true;
-            var poisonResults = new List<string>();
-            registry.ApplyEffect("poison", enemy, poisonAction, poisonResults);
-            TestBase.AssertTrue(enemy.PoisonPercentOfMaxHealth > 0,
-                $"Poison should apply: poison%={enemy.PoisonPercentOfMaxHealth}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Test Stun
-            var stunAction = TestDataBuilders.CreateMockAction("StunAction");
-            stunAction.CausesStun = true;
-            var stunResults = new List<string>();
-            registry.ApplyEffect("stun", enemy, stunAction, stunResults);
-            TestBase.AssertTrue(enemy.IsStunned && enemy.StunTurnsRemaining > 0,
-                $"Stun should apply: isStunned={enemy.IsStunned}, turns={enemy.StunTurnsRemaining}",
+            // Retired ids land their core status (Stun / Slow = Stagger, Weaken = Rattle, Acid = Expose).
+            var retired = TestDataBuilders.CreateMockAction("RetiredAction");
+            registry.ApplyEffect("stun", enemy, retired, new List<string>());
+            registry.ApplyEffect("weaken", enemy, retired, new List<string>());
+            registry.ApplyEffect("acid", enemy, retired, new List<string>());
+            TestBase.AssertTrue(enemy.StaggerStacks > 0 && Stores.Get(enemy, "rattle") > 0 && (enemy.ExposeStacks ?? 0) > 0,
+                $"retired ids apply Stagger / Rattle / Expose: stagger={enemy.StaggerStacks}, expose={enemy.ExposeStacks}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test Burn
@@ -96,14 +68,6 @@ namespace RPGGame.Tests.Unit
                 $"Burn should queue pending: pending={enemy.PendingBurnFromHits}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test Acid
-            var acidAction = TestDataBuilders.CreateMockAction("AcidAction");
-            acidAction.CausesAcid = true;
-            var acidResults = new List<string>();
-            registry.ApplyEffect("acid", enemy, acidAction, acidResults);
-            TestBase.AssertTrue(enemy.PendingAcidFromHits > 0,
-                $"Acid should queue pending: pending={enemy.PendingAcidFromHits}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestAdvancedStatusEffects()
@@ -146,14 +110,6 @@ namespace RPGGame.Tests.Unit
                 $"Expose should apply: stacks={enemy.ExposeStacks}, turns={enemy.ExposeTurns}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test HP Regen
-            var hpregenAction = TestDataBuilders.CreateMockAction("HPRegenAction");
-            var hpregenResults = new List<string>();
-            registry.ApplyEffect("hpregen", character, hpregenAction, hpregenResults);
-            TestBase.AssertTrue(character.HPRegenStacks > 0 && character.HPRegenTurns > 0,
-                $"HP Regen should apply: stacks={character.HPRegenStacks}, turns={character.HPRegenTurns}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
             // Test Armor Break (folded into Expose)
             int exposeBeforeBreak = enemy.ExposeStacks ?? 0;
             var armorbreakAction = TestDataBuilders.CreateMockAction("ArmorBreakAction");
@@ -161,54 +117,6 @@ namespace RPGGame.Tests.Unit
             registry.ApplyEffect("armorbreak", enemy, armorbreakAction, armorbreakResults);
             TestBase.AssertTrue((enemy.ExposeStacks ?? 0) > exposeBeforeBreak || enemy.ExposeArmorStrip > 0,
                 $"Armor Break should apply Expose: stacks={enemy.ExposeStacks}, strip={enemy.ExposeArmorStrip}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Test Pierce
-            var pierceAction = TestDataBuilders.CreateMockAction("PierceAction");
-            var pierceResults = new List<string>();
-            registry.ApplyEffect("pierce", character, pierceAction, pierceResults);
-            TestBase.AssertTrue(character.HasPierce && character.PierceTurns > 0,
-                $"Pierce should apply: hasPierce={character.HasPierce}, turns={character.PierceTurns}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Test Silence
-            var silenceAction = TestDataBuilders.CreateMockAction("SilenceAction");
-            var silenceResults = new List<string>();
-            registry.ApplyEffect("silence", enemy, silenceAction, silenceResults);
-            TestBase.AssertTrue(enemy.IsSilenced && enemy.SilenceTurns > 0,
-                $"Silence should apply: isSilenced={enemy.IsSilenced}, turns={enemy.SilenceTurns}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Test Stat Drain
-            var statdrainAction = TestDataBuilders.CreateMockAction("StatDrainAction");
-            var statdrainResults = new List<string>();
-            registry.ApplyEffect("statdrain", character, statdrainAction, statdrainResults);
-            TestBase.AssertTrue(character.StatDrainStacks > 0 && character.StatDrainTurns > 0,
-                $"Stat Drain should apply: stacks={character.StatDrainStacks}, turns={character.StatDrainTurns}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Test Absorb
-            var absorbAction = TestDataBuilders.CreateMockAction("AbsorbAction");
-            var absorbResults = new List<string>();
-            registry.ApplyEffect("absorb", character, absorbAction, absorbResults);
-            TestBase.AssertTrue(character.HasAbsorb && character.AbsorbTurns > 0,
-                $"Absorb should apply: hasAbsorb={character.HasAbsorb}, turns={character.AbsorbTurns}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Test Temporary HP
-            var temphpAction = TestDataBuilders.CreateMockAction("TempHPAction");
-            var temphpResults = new List<string>();
-            registry.ApplyEffect("temporaryhp", character, temphpAction, temphpResults);
-            TestBase.AssertTrue(character.TemporaryHP > 0 && character.TemporaryHPTurns > 0,
-                $"Temporary HP should apply: hp={character.TemporaryHP}, turns={character.TemporaryHPTurns}",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            // Test Confusion
-            var confusionAction = TestDataBuilders.CreateMockAction("ConfusionAction");
-            var confusionResults = new List<string>();
-            registry.ApplyEffect("confusion", enemy, confusionAction, confusionResults);
-            TestBase.AssertTrue(enemy.IsConfused && enemy.ConfusionTurns > 0,
-                $"Confusion should apply: isConfused={enemy.IsConfused}, turns={enemy.ConfusionTurns}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             // Test Mark
@@ -219,13 +127,6 @@ namespace RPGGame.Tests.Unit
                 $"Mark should apply: isMarked={enemy.IsMarked}, turns={enemy.MarkTurns}",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
-            // Test Disrupt
-            var disruptAction = TestDataBuilders.CreateMockAction("DisruptAction");
-            var disruptResults = new List<string>();
-            registry.ApplyEffect("disrupt", enemy, disruptAction, disruptResults);
-            TestBase.AssertTrue(true, // Disrupt resets combo, handler exists
-                "Disrupt handler should exist and process combo reset",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestStatusEffectApplication()
@@ -262,16 +163,16 @@ namespace RPGGame.Tests.Unit
             var character = TestDataBuilders.Character().WithName("TestHero").Build();
 
             character.BleedIntensity = 2;
-            character.IsWeakened = true;
+            character.StaggerStacks = 1;
             character.Effects.SlowMultiplier = 0.5;
             character.Effects.SlowTurns = 3;
 
-            TestBase.AssertTrue(character.IsBleeding && character.IsWeakened && character.Effects.SlowMultiplier < 1.0,
+            TestBase.AssertTrue(character.IsBleeding && character.StaggerStacks == 1 && character.Effects.SlowMultiplier < 1.0,
                 "Multiple effects should be stackable",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             character.BleedIntensity = 0;
-            character.IsWeakened = false;
+            character.StaggerStacks = 0;
             character.Effects.SlowMultiplier = 1.0;
             character.Effects.SlowTurns = 0;
         }

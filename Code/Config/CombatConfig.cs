@@ -127,11 +127,6 @@ namespace RPGGame
         /// (<see cref="MaterialSetController.GetSetAndConvertAgility"/>) always counts in full, so Warrior scales through its sets.
         /// </summary>
         public bool HeroAgilitySoftCapExemptsSets { get; set; }
-        /// <summary>
-        /// INT potency: hero AMP × (1 + INT × this), uncapped. 0 = off (legacy: INT only gates strip slots, so points
-        /// between thresholds did nothing).
-        /// </summary>
-        public double IntelligenceAmpPerPoint { get; set; }
         public double ArmorReductionFactor { get; set; } = 100.0;
         public double WeaponAttackTimeClampMin { get; set; } = 0.5;
         public double WeaponAttackTimeClampMax { get; set; } = 1.5;
@@ -470,19 +465,6 @@ namespace RPGGame
         /// <summary>First strip slot (1-based) that rolls at the risen threshold; earlier slots use the base threshold.</summary>
         public int ComboThresholdRiseStartSlot { get; set; } = 2;
 
-        /// <summary>
-        /// True: strip slot k deals 1 + (AMP − 1) × k instead of AMP^k, so INT's AMP keeps paying across long strips
-        /// without exploding once later slots fire often. False (legacy): AMP^k.
-        /// </summary>
-        public bool ComboAmplifierLinearSlots { get; set; }
-
-        /// <summary>
-        /// Rebuild 1.3 (D2.3, D0.10): one AMP formula. AMP = INT curve × gear AMP, and strip slot k (1-based) deals
-        /// AMP^(k−1). While true, INT potency (<see cref="CombatConfig.IntelligenceAmpPerPoint"/>), the Mythic animal set's
-        /// AMP bonus, <see cref="ComboSlotDamagePercentPerStep"/> and <see cref="ComboAmplifierLinearSlots"/> are ignored.
-        /// False restores the old stack (kept until the step 12 cleanup).
-        /// </summary>
-        public bool SingleAmpFormula { get; set; } = true;
 
         /// <summary>
         /// Rebuild 1.4 (D2.6): strip routing (jump / repeat / loop cards) always works. True restores the old
@@ -493,8 +475,6 @@ namespace RPGGame
         /// <summary>AMP added per effective INT above <see cref="ComboAmplifierMaxTech"/> (0 = AMP stops at the cap).</summary>
         public double ComboAmplifierOverflowPerPoint { get; set; }
 
-        /// <summary>Hero damage % per strip slot index (slot k × this), independent of INT: a reason to run longer strips. 0 = off.</summary>
-        public double ComboSlotDamagePercentPerStep { get; set; }
 
         /// <summary>Maximum base combo AMP multiplier at <see cref="ComboAmplifierMaxTech"/> effective INT (name kept for config compatibility).</summary>
         public double ComboAmplifierMax { get; set; }

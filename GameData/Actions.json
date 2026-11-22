@@ -1734,21 +1734,6 @@
     "tags": "stone"
   },
   {
-    "action": "REVEAL",
-    "role": "payoff",
-    "description": "\u002B5 damage per ENIGMA",
-    "tier": 3,
-    "dps": "109%",
-    "numberOfHits": "1",
-    "damage": "120%",
-    "speed": "1.10",
-    "block": "100",
-    "materialScale": "5",
-    "keywordScale": "DAMAGE",
-    "scaleFormula": "ENIGMA",
-    "tags": "unknown"
-  },
-  {
     "action": "QUIRK",
     "role": "payoff",
     "description": "\u002B5 damage per ODDITY",
@@ -1777,36 +1762,6 @@
     "keywordScale": "DAMAGE",
     "scaleFormula": "OMEN",
     "tags": "celestial"
-  },
-  {
-    "action": "KINDLE",
-    "role": "payoff",
-    "description": "\u002B5 damage per KINDLING",
-    "tier": 3,
-    "dps": "109%",
-    "numberOfHits": "2",
-    "damage": "30%",
-    "speed": "0.55",
-    "block": "100",
-    "materialScale": "5",
-    "keywordScale": "DAMAGE",
-    "scaleFormula": "KINDLING",
-    "tags": "wood"
-  },
-  {
-    "action": "UNRAVEL",
-    "role": "payoff",
-    "description": "\u002B5 damage per FRAY",
-    "tier": 3,
-    "dps": "107%",
-    "numberOfHits": "2",
-    "damage": "40%",
-    "speed": "0.75",
-    "block": "180",
-    "materialScale": "5",
-    "keywordScale": "DAMAGE",
-    "scaleFormula": "FRAY",
-    "tags": "cloth"
   },
   {
     "action": "BAT SWARM",

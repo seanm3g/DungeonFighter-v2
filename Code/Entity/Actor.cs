@@ -10,16 +10,6 @@ namespace RPGGame
         public List<(Action action, double probability)> ActionPool { get; private set; }
         public string Name { get; set; }
         
-        // Common effect properties (consolidated from CharacterEffects)
-        // Weaken debuff system
-        public bool IsWeakened { get; set; } = false; // Whether entity is weakened
-        public int WeakenTurns { get; set; } = 0; // Number of turns weakened
-        public double WeakenMultiplier { get; set; } = 0.5; // Damage reduction when weakened (50% outgoing damage)
-        
-        // Stun debuff system
-        public bool IsStunned { get; set; } = false; // Whether entity is stunned
-        public int StunTurnsRemaining { get; set; } = 0; // Number of turns stunned
-
         /// <summary>
         /// Opening-roll edge for the current fight (surprise / scouting): the next N attack rolls use 2d20 keep highest.
         /// Consumed in <c>ActionExecutionFlow</c> when the roll is made.
@@ -39,21 +29,10 @@ namespace RPGGame
         public int RollPenalty { get; set; } = 0; // Penalty to dice rolls
         public int RollPenaltyTurns { get; set; } = 0; // Attack/spell rolls remaining while penalty applies
         
-        /// <summary>Cumulative max-HP poison (%); only increases when poison is applied; global DoT tick reads it without reducing.</summary>
-        public double PoisonPercentOfMaxHealth { get; set; }
-        public double LastPoisonTickTime { get; set; }
-
         /// <summary>Burn intensity: global tick deals this much damage, then decays by 1 and merges <see cref="PendingBurnFromHits"/>.</summary>
         public int BurnIntensity { get; set; }
         public int PendingBurnFromHits { get; set; }
         public double LastBurnTickTime { get; set; }
-
-        /// <summary>Acid intensity: global tick deals this much damage and shreds armor by the same amount, then decays like burn.</summary>
-        public int AcidIntensity { get; set; }
-        public int PendingAcidFromHits { get; set; }
-        public double LastAcidTickTime { get; set; }
-        /// <summary>Cumulative flat armor shredded by acid ticks this encounter (cleared with temp effects).</summary>
-        public int AcidArmorReduction { get; set; }
 
         /// <summary>Bleed intensity: same decay math as burn, resolved when the afflicted actor takes an action.</summary>
         public int BleedIntensity { get; set; }
@@ -90,33 +69,11 @@ namespace RPGGame
         public int ExposeTurns { get; set; } = 0;
         /// <summary>Expose tier 2: fraction of armor stripped while Exposed (see <see cref="ExposeStatus"/>).</summary>
         public double ExposeArmorStrip { get; set; }
-        public int? HPRegenStacks { get; set; } = null;
-        public int HPRegenTurns { get; set; } = 0;
-        public int? HPRegenAmount { get; set; } = null;
-        public bool HasPierce { get; set; } = false;
-        public int PierceTurns { get; set; } = 0;
-        public int? ReflectStacks { get; set; } = null;
-        public int ReflectTurns { get; set; } = 0;
-        public int? ReflectPercentage { get; set; } = null;
-        public bool IsSilenced { get; set; } = false;
-        public int SilenceTurns { get; set; } = 0;
-        public int? StatDrainStacks { get; set; } = null;
-        public int StatDrainTurns { get; set; } = 0;
-        public int? StatDrainAmount { get; set; } = null;
-        public bool HasAbsorb { get; set; } = false;
-        public int AbsorbTurns { get; set; } = 0;
-        public int AbsorbThreshold { get; set; } = 0;
-        public int AbsorbedDamage { get; set; } = 0;
+        /// <summary>Temporary HP: a hero resource (cash-in payout), not a status.</summary>
         public int? TemporaryHP { get; set; } = null;
         public int TemporaryHPTurns { get; set; } = 0;
-        public bool IsConfused { get; set; } = false;
-        public int ConfusionTurns { get; set; } = 0;
-        public double ConfusionChance { get; set; } = 0.0;
         public bool IsMarked { get; set; } = false;
         public int MarkTurns { get; set; } = 0;
-        /// <summary>Brittle (TempoStatuses): the next crit against this actor deals more, then it is spent.</summary>
-        public int BrittleStacks { get; set; }
-        public int BrittleTurns { get; set; }
         /// <summary>Stagger (TempoStatuses): this actor's next action takes longer, then it is spent.</summary>
         public int StaggerStacks { get; set; }
         /// <summary>Haste (TempoStatuses): this actor's actions take less time; one stack falls off per own action.</summary>
@@ -206,18 +163,9 @@ namespace RPGGame
             }
         }
 
-        /// <summary>
-        /// Confusion lasts for a number of resolved actions; each non-self combat action decrements duration.
-        /// </summary>
-        /// <summary>Weaken and Focus last for this actor's next resolved actions; each action uses one turn.</summary>
+        /// <summary>Focus lasts for this actor's next resolved actions; each action uses one turn.</summary>
         public void ConsumeOwnActionStatuses()
         {
-            if (WeakenTurns > 0)
-            {
-                WeakenTurns--;
-                if (WeakenTurns == 0)
-                    IsWeakened = false;
-            }
             FocusTurns = TickStackStatus(FocusTurns, 1, () => FocusStacks = null);
             TempoStatuses.AfterOwnAction(this);
         }
@@ -232,28 +180,9 @@ namespace RPGGame
             return left;
         }
 
-        public void ConsumeConfusionAfterCombatAction(Action? resolvedAction)
-        {
-            if (!IsConfused || ConfusionTurns <= 0 || resolvedAction == null)
-                return;
-            if (resolvedAction.Target == TargetType.Self || resolvedAction.Target == TargetType.Environment)
-                return;
-
-            ConfusionTurns = Math.Max(0, ConfusionTurns - 1);
-            if (ConfusionTurns == 0)
-            {
-                IsConfused = false;
-                ConfusionChance = 0.0;
-            }
-        }
-
         public Action? SelectAction()
         {
             if (ActionPool.Count == 0)
-                return null;
-
-            // Check if actor is stunned (now works for all actors since stun properties are in base class)
-            if (IsStunned)
                 return null;
 
             // Reserve-pool actions are available for combo strip / explicit picks, not default weighted rolls.
@@ -290,24 +219,15 @@ namespace RPGGame
             // Calculate how many turns this action represents
             double turnsPassed = actionLength / 1.0; // Using 1.0 as default action length
             
-            // Update stun effects
-            if (StunTurnsRemaining > 0)
-            {
-                StunTurnsRemaining = Math.Max(0, StunTurnsRemaining - (int)Math.Ceiling(turnsPassed));
-                if (StunTurnsRemaining == 0)
-                    IsStunned = false;
-            }
-            
             // Roll penalty uses attack-based consumption (ConsumeRollPenaltyAfterCombatRoll), not time decay here.
 
-            // Weaken, Confusion and Focus change this actor's own swings: consumed after its action
+            // Focus changes this actor's own swings: consumed after its action
             // (ConsumeOwnActionStatuses), not here, or they expire before the swing they should affect.
 
             // Incoming-damage statuses cover the opponent's swings until this actor acts again.
             int ticks = (int)Math.Ceiling(turnsPassed);
             HardenTurns = TickStackStatus(HardenTurns, ticks, () => HardenStacks = null);
             ExposeTurns = TickStackStatus(ExposeTurns, ticks, () => { ExposeStacks = null; ExposeArmorStrip = 0; });
-            BrittleTurns = TickStackStatus(BrittleTurns, ticks, () => BrittleStacks = 0);
             
             // Update damage reduction decay (per turn, not per action)
             if (DamageReduction > 0)
@@ -323,41 +243,15 @@ namespace RPGGame
                     HasCriticalMissPenalty = false;
             }
 
-            // Pierce: incoming attacks ignore flat armor while turns remain
-            if (PierceTurns > 0)
-            {
-                PierceTurns = Math.Max(0, PierceTurns - (int)Math.Ceiling(turnsPassed));
-                if (PierceTurns == 0)
-                    HasPierce = false;
-            }
         }
         
-        /// <summary>Max HP used for poison % damage ticks (character/enemy override).</summary>
-        public virtual int GetMaxHealthForPoisonDot() => 1;
+        /// <summary>Max HP that DoT text and overkill checks read (character / enemy override).</summary>
+        public virtual int GetMaxHealthForDot() => 1;
 
         static double GetStatusDotTickIntervalSeconds()
         {
             double interval = GameConfiguration.Instance.Poison.TickInterval;
             return interval > 0 ? interval : 5.0;
-        }
-
-        /// <summary>
-        /// Poison: on global tick, deal damage from cumulative % of max HP; stored % is unchanged.
-        /// </summary>
-        public virtual int ProcessPoison(double currentTime)
-        {
-            if (PoisonPercentOfMaxHealth <= 0)
-                return 0;
-            double interval = GetStatusDotTickIntervalSeconds();
-            // GameTicker.Reset() zeros combat time; tick stamps can still hold pre-reset wall-clock values.
-            // Then currentTime - LastPoisonTickTime is negative and no DoT ever runs until real time catches up.
-            if (LastPoisonTickTime > currentTime)
-                LastPoisonTickTime = 0;
-            if (currentTime - LastPoisonTickTime < interval)
-                return 0;
-            LastPoisonTickTime = currentTime;
-            int maxHp = Math.Max(1, GetMaxHealthForPoisonDot());
-            return (int)Math.Floor(maxHp * PoisonPercentOfMaxHealth / 100.0);
         }
 
         /// <summary>
@@ -398,32 +292,6 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Acid: on global tick, deal current intensity damage, add that amount to <see cref="AcidArmorReduction"/>,
-        /// then intensity = max(0, intensity - 1) + pending (same decay as burn).
-        /// </summary>
-        public virtual int ProcessAcid(double currentTime)
-        {
-            if (AcidIntensity <= 0 && PendingAcidFromHits <= 0)
-                return 0;
-            double interval = GetStatusDotTickIntervalSeconds();
-            if (LastAcidTickTime > currentTime)
-                LastAcidTickTime = 0;
-            if (currentTime - LastAcidTickTime < interval)
-                return 0;
-            LastAcidTickTime = currentTime;
-            int pending = PendingAcidFromHits;
-            PendingAcidFromHits = 0;
-            int damage = AcidIntensity > 0 ? AcidIntensity : pending;
-            if (damage > 0)
-                AcidArmorReduction += damage;
-            if (AcidIntensity > 0)
-                AcidIntensity = Math.Max(0, AcidIntensity - 1) + pending;
-            else
-                AcidIntensity = Math.Max(0, damage - 1);
-            return damage;
-        }
-
-        /// <summary>
         /// Bleed: same intensity math as burn, invoked when the afflicted actor finishes taking an action (not global tick).
         /// </summary>
         public virtual int ProcessBleedOnAction()
@@ -440,26 +308,10 @@ namespace RPGGame
             return ScaleDotTickDamage(damage);
         }
 
-        /// <summary>Label for poison DoT messaging (bleed uses a separate pipeline).</summary>
-        public virtual string GetDamageTypeText() => "poison";
-
-        /// <summary>Adds poison % of max HP (monotone; only increases).</summary>
-        public virtual void ApplyPoisonPercent(double deltaPercent)
-        {
-            if (deltaPercent <= 0) return;
-            PoisonPercentOfMaxHealth += deltaPercent;
-        }
-
         public virtual void QueueBurnFromHit(int amount)
         {
             if (amount <= 0) return;
             PendingBurnFromHits += amount;
-        }
-
-        public virtual void QueueAcidFromHit(int amount)
-        {
-            if (amount <= 0) return;
-            PendingAcidFromHits += amount;
         }
 
         public virtual void QueueBleedFromHit(int amount)
@@ -468,16 +320,8 @@ namespace RPGGame
             PendingBleedFromHits += amount;
         }
 
-        /// <summary>Legacy entry: bleeding maps to <see cref="QueueBleedFromHit"/>; poison maps to <see cref="ApplyPoisonPercent"/>.</summary>
-        public virtual void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false)
-        {
-            int d = Math.Max(1, damage);
-            int s = Math.Max(1, stacks);
-            if (isBleeding)
-                QueueBleedFromHit(d * s);
-            else
-                ApplyPoisonPercent(s);
-        }
+        /// <summary>Queues <paramref name="damage"/> × <paramref name="stacks"/> bleed (Poison loads as Bleed).</summary>
+        public void ApplyBleed(int damage, int stacks = 1) => QueueBleedFromHit(Math.Max(1, damage) * Math.Max(1, stacks));
 
         /// <summary>Legacy entry: maps to <see cref="QueueBurnFromHit"/>.</summary>
         public virtual void ApplyBurn(int damage, int stacks = 1)
@@ -487,48 +331,16 @@ namespace RPGGame
             QueueBurnFromHit(d * s);
         }
 
-        /// <summary>Legacy entry: maps to <see cref="QueueAcidFromHit"/>.</summary>
-        public virtual void ApplyAcid(int damage, int stacks = 1)
-        {
-            int d = Math.Max(1, damage);
-            int s = Math.Max(1, stacks);
-            QueueAcidFromHit(d * s);
-        }
-        
-        /// <summary>
-        /// Applies weaken debuff to the actor
-        /// </summary>
-        /// <param name="turns">Number of turns to be weakened</param>
-        public virtual void ApplyWeaken(int turns)
-        {
-            IsWeakened = true;
-            WeakenTurns = turns;
-        }
-        
         /// <summary>
         /// Clears all temporary effects from the actor
         /// </summary>
         public virtual void ClearAllTempEffects()
         {
-            PoisonPercentOfMaxHealth = 0;
-            LastPoisonTickTime = 0;
             BurnIntensity = 0;
             PendingBurnFromHits = 0;
             LastBurnTickTime = 0;
-            AcidIntensity = 0;
-            PendingAcidFromHits = 0;
-            LastAcidTickTime = 0;
-            AcidArmorReduction = 0;
             BleedIntensity = 0;
             PendingBleedFromHits = 0;
-            
-            // Clear stun effects
-            IsStunned = false;
-            StunTurnsRemaining = 0;
-            
-            // Clear weaken effects
-            IsWeakened = false;
-            WeakenTurns = 0;
             
             // Clear roll penalty effects
             RollPenalty = 0;
@@ -540,8 +352,6 @@ namespace RPGGame
             HasCriticalMissPenalty = false;
             CriticalMissPenaltyTurns = 0;
 
-            BrittleStacks = 0;
-            BrittleTurns = 0;
             StaggerStacks = 0;
             HasteStacks = 0;
 
@@ -555,28 +365,8 @@ namespace RPGGame
             ExposeStacks = null;
             ExposeTurns = 0;
             ExposeArmorStrip = 0;
-            HPRegenStacks = null;
-            HPRegenTurns = 0;
-            HPRegenAmount = null;
-            HasPierce = false;
-            PierceTurns = 0;
-            ReflectStacks = null;
-            ReflectTurns = 0;
-            ReflectPercentage = null;
-            IsSilenced = false;
-            SilenceTurns = 0;
-            StatDrainStacks = null;
-            StatDrainTurns = 0;
-            StatDrainAmount = null;
-            HasAbsorb = false;
-            AbsorbTurns = 0;
-            AbsorbThreshold = 0;
-            AbsorbedDamage = 0;
             TemporaryHP = null;
             TemporaryHPTurns = 0;
-            IsConfused = false;
-            ConfusionTurns = 0;
-            ConfusionChance = 0.0;
             IsMarked = false;
             MarkTurns = 0;
             StatusSources.Clear();

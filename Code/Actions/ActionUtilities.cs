@@ -223,22 +223,11 @@ namespace RPGGame
         }
 
         /// <summary>
-        /// Strip slot multiplier from the base AMP: AMP^slot, or 1 + (AMP − 1) × slot with
-        /// <see cref="ComboSystemConfig.ComboAmplifierLinearSlots"/>; heroes add
-        /// <see cref="ComboSystemConfig.ComboSlotDamagePercentPerStep"/> per slot.
+        /// Strip slot multiplier from the base AMP (D2.3, one AMP formula): slot k (0-based) deals AMP^k, heroes and
+        /// enemies alike. The linear-slot, per-slot-percent, INT-potency and Mythic-set AMP paths were deleted in step 12.
         /// </summary>
-        public static double SlotMultiplier(double baseAmp, int slot, bool hero)
-        {
-            if (slot <= 0)
-                return 1.0;
-            var combo = GameConfiguration.Instance.ComboSystem;
-            if (combo.SingleAmpFormula)
-                return Math.Pow(baseAmp, slot);
-            double mult = combo.ComboAmplifierLinearSlots ? 1.0 + (baseAmp - 1.0) * slot : Math.Pow(baseAmp, slot);
-            if (hero && combo.ComboSlotDamagePercentPerStep > 0)
-                mult *= 1.0 + slot * combo.ComboSlotDamagePercentPerStep / 100.0;
-            return mult;
-        }
+        public static double SlotMultiplier(double baseAmp, int slot, bool hero) =>
+            slot <= 0 ? 1.0 : Math.Pow(baseAmp, slot);
 
         /// <summary>
         /// Extra hits per attack from the hero's equipped MULTI-HIT gear mods (Light, Acrobatic). Attacks and spells only; 0 for enemies.

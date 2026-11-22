@@ -381,7 +381,7 @@ namespace RPGGame.Combat.Formatting
             int damage,
             bool stillActive)
         {
-            int maxHp = Math.Max(1, actor?.GetMaxHealthForPoisonDot() ?? 1);
+            int maxHp = Math.Max(1, actor?.GetMaxHealthForDot() ?? 1);
             string prose = RPGGame.Combat.Sequence.CombatSequenceFlavorTokens.InterpretDoTTick(
                 RPGGame.Combat.Sequence.CombatSequenceFlavorTokens.FormatNarrativeActorName(actor),
                 damageType,

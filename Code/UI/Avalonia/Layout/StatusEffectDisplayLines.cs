@@ -97,28 +97,12 @@ namespace RPGGame.UI.Avalonia.Layout
             // Room tags that change this fighter (Elegant / Dilapidated die shift, Unstable bands) while the fight's room has them.
             foreach (var roomStatus in RPGGame.Combat.RoomStatusEffects.For(actor, RPGGame.Combat.RoomStatusEffects.ActiveRoom))
                 lines.Add(RPGGame.Combat.RoomStatusEffects.FormatLine(roomStatus));
-            if (actor.IsWeakened && actor.WeakenTurns > 0)
-                lines.Add($"Weakened ({actor.WeakenTurns} turn{(actor.WeakenTurns != 1 ? "s" : "")})");
-            if (actor.IsStunned && actor.StunTurnsRemaining > 0)
-                lines.Add($"Stunned ({actor.StunTurnsRemaining} turn{(actor.StunTurnsRemaining != 1 ? "s" : "")})");
             if (actor.RollPenalty != 0 && actor.RollPenaltyTurns > 0)
                 lines.Add($"Accuracy -{actor.RollPenalty} {CadenceBonusDisplayFormatter.FormatTurnDurationSuffix(actor.RollPenaltyTurns)}");
-            if (actor.PoisonPercentOfMaxHealth > 0)
-                lines.Add($"Poison {actor.PoisonPercentOfMaxHealth:0.##}% max HP");
             if (actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0)
                 lines.Add($"Bleed {actor.BleedIntensity + actor.PendingBleedFromHits}");
             if (actor.BurnIntensity > 0 || actor.PendingBurnFromHits > 0)
                 lines.Add($"Burn {actor.BurnIntensity + actor.PendingBurnFromHits}");
-            if (actor.AcidIntensity > 0 || actor.PendingAcidFromHits > 0 || actor.AcidArmorReduction > 0)
-            {
-                int acidDisplay = actor.AcidIntensity + actor.PendingAcidFromHits;
-                if (acidDisplay > 0 && actor.AcidArmorReduction > 0)
-                    lines.Add($"Acid {acidDisplay} (−{actor.AcidArmorReduction} armor)");
-                else if (acidDisplay > 0)
-                    lines.Add($"Acid {acidDisplay}");
-                else
-                    lines.Add($"Acid (−{actor.AcidArmorReduction} armor)");
-            }
             if (actor.HasCriticalMissPenalty && actor.CriticalMissPenaltyTurns > 0)
                 lines.Add($"Crit miss ({actor.CriticalMissPenaltyTurns} turn{(actor.CriticalMissPenaltyTurns != 1 ? "s" : "")})");
             if (actor.HardenStacks > 0 && actor.HardenTurns > 0)
@@ -131,26 +115,10 @@ namespace RPGGame.UI.Avalonia.Layout
                 lines.Add(ExposeStatus.IsArmorStripped(actor)
                     ? $"Expose x{actor.ExposeStacks} −{(int)Math.Round(actor.ExposeArmorStrip * 100)}% armor ({actor.ExposeTurns}t)"
                     : $"Expose x{actor.ExposeStacks} ({actor.ExposeTurns}t)");
-            if (actor.HPRegenStacks > 0 && actor.HPRegenTurns > 0)
-                lines.Add($"HP Regen x{actor.HPRegenStacks} ({actor.HPRegenTurns}t)");
-            if (actor.StatDrainStacks > 0 && actor.StatDrainTurns > 0)
-                lines.Add($"Stat drain x{actor.StatDrainStacks} ({actor.StatDrainTurns}t)");
-            if (actor.HasPierce && actor.PierceTurns > 0)
-                lines.Add($"Pierce ({actor.PierceTurns} turn{(actor.PierceTurns != 1 ? "s" : "")})");
-            if (actor.ReflectStacks > 0 && actor.ReflectTurns > 0)
-                lines.Add($"Reflect x{actor.ReflectStacks} ({actor.ReflectTurns}t)");
-            if (actor.IsSilenced && actor.SilenceTurns > 0)
-                lines.Add($"Silence ({actor.SilenceTurns} turn{(actor.SilenceTurns != 1 ? "s" : "")})");
-            if (actor.HasAbsorb && actor.AbsorbTurns > 0)
-                lines.Add($"Absorb ({actor.AbsorbTurns} turn{(actor.AbsorbTurns != 1 ? "s" : "")})");
             if (actor.TemporaryHP > 0 && actor.TemporaryHPTurns > 0)
                 lines.Add($"Temp HP ({actor.TemporaryHPTurns} turn{(actor.TemporaryHPTurns != 1 ? "s" : "")})");
-            if (actor.IsConfused && actor.ConfusionTurns > 0)
-                lines.Add($"Confused ({actor.ConfusionTurns} turn{(actor.ConfusionTurns != 1 ? "s" : "")})");
             if (actor.IsMarked && actor.MarkTurns > 0)
                 lines.Add($"Marked ({actor.MarkTurns} turn{(actor.MarkTurns != 1 ? "s" : "")})");
-            if (TempoStatuses.Brittle(actor) > 0)
-                lines.Add($"Brittle x{actor.BrittleStacks} ({actor.BrittleTurns}t)");
             if (actor.StaggerStacks > 0)
                 lines.Add($"Stagger x{actor.StaggerStacks}");
             if (actor.HasteStacks > 0)

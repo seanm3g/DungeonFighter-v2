@@ -922,15 +922,6 @@ namespace RPGGame.UI.Avalonia.Layout
                 y++;
                 expandedHoverTargets?.Add((rowY, "stat:burn"));
             }
-
-            double poisonOnHit = character.GetWeaponPoisonPercentPerHit();
-            if (poisonOnHit > 0)
-            {
-                int rowY = y;
-                PanelText(x, y, FormatSecondaryStatLine("POISON", $"+{poisonOnHit:0.#}%"), cyan);
-                y++;
-                expandedHoverTargets?.Add((rowY, "stat:poison"));
-            }
         }
     }
 }

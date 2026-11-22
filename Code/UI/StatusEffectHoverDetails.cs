@@ -29,19 +29,15 @@ namespace RPGGame
         public static string DisplayName(string effectId) => (effectId ?? "").ToLowerInvariant() switch
         {
             "armorbreak" or "vulnerability" or "expose" => "Exposed",
-            "hpregen" => "HP Regen",
             "temporaryhp" => "Temporary HP",
-            "confusion" => "Confused",
             "mark" => "Marked",
-            "weaken" => "Weakened",
-            "stun" => "Stunned",
             "" => "",
             string s => char.ToUpperInvariant(s[0]) + s.Substring(1)
         };
 
         /// <summary>
         /// Detail lines for one active status on <paramref name="actor"/>. <paramref name="effectId"/> is the canonical id
-        /// (poison, burn, bleed, acid, stun, weaken, …).
+        /// (burn, bleed, expose, harden, …).
         /// </summary>
         /// <param name="hero">The player, so an enemy row can list the hero actions that inflict it (hero rows use the actor).</param>
         public static List<string> Describe(Actor? actor, string effectId, Character? hero = null)
@@ -129,8 +125,6 @@ namespace RPGGame
                 {
                     "bleed" when player.GetWeaponBleedPerHit() > 0 => $"your weapon mods (+{player.GetWeaponBleedPerHit()} on crit)",
                     "burn" when player.GetWeaponBurnPerHit() > 0 => $"your weapon mods (+{player.GetWeaponBurnPerHit()} on crit)",
-                    "acid" when player.GetWeaponAcidPerHit() > 0 => $"your weapon mods (+{player.GetWeaponAcidPerHit()} on crit)",
-                    "poison" when player.GetWeaponPoisonPercentPerHit() > 0 => $"your weapon mods (+{Fmt(player.GetWeaponPoisonPercentPerHit())}% max HP on crit)",
                     _ => ""
                 };
                 if (weapon.Length > 0)
@@ -198,23 +192,13 @@ namespace RPGGame
 
         private static string WhatItIs(string id) => id switch
         {
-            "poison" => "Poison: a toxin that eats a share of max HP over time.",
             "burn" => "Burn: flames that hurt every tick and slowly die down.",
             "bleed" => "Bleed: an open wound that hurts each time the victim acts.",
-            "acid" => "Acid: corrosion that hurts over time and eats away armor.",
-            "stun" => "Stunned: dazed and unable to act.",
-            "weaken" => "Weakened: blows land with less force.",
             "harden" => "Hardened: braced to take hits.",
             "fortify" => "Fortified: armor reinforced.",
             "focus" => "Focused: strikes are lined up for extra damage.",
             "expose" or "vulnerability" or "armorbreak" => "Exposed: guard is down; Defense is reduced, and at full stacks armor is stripped.",
-            "hpregen" => "Regenerating: health returns each turn.",
-            "pierce" => "Piercing: attacks slip past armor.",
-            "reflect" => "Reflecting: a share of incoming damage bounces back.",
-            "silence" => "Silenced: unable to cast spells.",
-            "absorb" => "Absorbing: storing incoming damage to release it.",
             "temporaryhp" => "Temporary HP: a buffer that is lost before real HP.",
-            "confusion" => "Confused: attacks may hit the wrong target.",
             "mark" => "Marked: the next hit is lined up as a critical.",
             _ => ""
         };
@@ -226,11 +210,8 @@ namespace RPGGame
             string levelNote = dotPerLevel > 0 ? $" Tick damage grows {Fmt(dotPerLevel * 100)}% per victim level above 1." : "";
             return id switch
             {
-                "poison" => $"Every {Fmt(tick)}s of combat time it deals its % of max HP. More poison raises the %; it never decays on its own.",
                 "burn" => $"Every {Fmt(tick)}s it deals damage equal to its intensity, then intensity drops by 1. New burn adds intensity on the next tick.{levelNote}",
                 "bleed" => $"When the victim finishes a turn it takes damage equal to intensity, then intensity drops by 1. Fast attackers bleed out faster.{levelNote}",
-                "acid" => $"Every {Fmt(tick)}s it deals damage equal to intensity and strips that much armor for the rest of the fight; intensity then drops by 1.",
-                "stun" => "The victim loses its turns until the stun runs out; the turn order keeps moving without it.",
                 _ => ""
             };
         }
@@ -241,13 +222,6 @@ namespace RPGGame
                 return "";
             switch (id)
             {
-                case "poison":
-                {
-                    int maxHp = Math.Max(1, actor.GetMaxHealthForPoisonDot());
-                    int dmg = (int)Math.Floor(maxHp * actor.PoisonPercentOfMaxHealth / 100.0);
-                    dmg = actor is Enemy pe ? StatusAffinity.ScaleTick(pe, "poison", dmg) : dmg;
-                    return $"{Fmt(actor.PoisonPercentOfMaxHealth)}% of max HP ≈ {dmg} damage next tick.";
-                }
                 case "burn":
                 {
                     int n = actor.BurnIntensity + actor.PendingBurnFromHits;
@@ -258,17 +232,6 @@ namespace RPGGame
                     int n = actor.BleedIntensity + actor.PendingBleedFromHits;
                     return $"intensity {n} (≈{ScaleForActor(actor, "bleed", Math.Max(actor.BleedIntensity, actor.PendingBleedFromHits))} damage after their next turn, about {SumDecay(n)} total).";
                 }
-                case "acid":
-                {
-                    int n = actor.AcidIntensity + actor.PendingAcidFromHits;
-                    return actor.AcidArmorReduction > 0
-                        ? $"intensity {n}; armor already reduced by {actor.AcidArmorReduction}."
-                        : $"intensity {n}.";
-                }
-                case "stun":
-                    return actor.StunTurnsRemaining > 0 ? $"{Turns(actor.StunTurnsRemaining)} left." : "";
-                case "weaken":
-                    return actor.WeakenTurns > 0 ? $"{Turns(actor.WeakenTurns)} left." : "";
                 case "harden":
                     return $"{actor.HardenStacks} stack(s), {Turns(actor.HardenTurns)} left.";
                 case "fortify":
@@ -280,20 +243,8 @@ namespace RPGGame
                 case "armorbreak":
                     return $"{actor.ExposeStacks} stack(s), {Turns(actor.ExposeTurns)} left."
                         + (ExposeStatus.IsArmorStripped(actor) ? $" Armor stripped {(int)Math.Round(actor.ExposeArmorStrip * 100)}%." : "");
-                case "hpregen":
-                    return $"{actor.HPRegenStacks} stack(s), {Turns(actor.HPRegenTurns)} left.";
-                case "reflect":
-                    return $"{actor.ReflectStacks} stack(s), {Turns(actor.ReflectTurns)} left.";
-                case "pierce":
-                    return $"{Turns(actor.PierceTurns)} left.";
-                case "silence":
-                    return $"{Turns(actor.SilenceTurns)} left.";
-                case "absorb":
-                    return $"{Turns(actor.AbsorbTurns)} left.";
                 case "temporaryhp":
                     return $"{actor.TemporaryHP} temporary HP, {Turns(actor.TemporaryHPTurns)} left.";
-                case "confusion":
-                    return $"{Turns(actor.ConfusionTurns)} left.";
                 case "mark":
                     return $"{Turns(actor.MarkTurns)} left.";
                 default:
@@ -309,10 +260,8 @@ namespace RPGGame
 
         private static string HowItEnds(string id) => id switch
         {
-            "poison" => "when the fight ends.",
-            "burn" or "bleed" or "acid" => "when intensity decays to 0, or the fight ends.",
-            "stun" or "weaken" or "vulnerability" or "harden" or "fortify" or "focus" or "expose" or "hpregen"
-                or "armorbreak" or "reflect" or "pierce" or "silence" or "absorb" or "temporaryhp" or "confusion"
+            "burn" or "bleed" => "when intensity decays to 0, or the fight ends.",
+            "vulnerability" or "harden" or "fortify" or "focus" or "expose" or "armorbreak" or "temporaryhp"
                 => "when its turns run out (counted on the victim's turns).",
             "mark" => "after the next hit lands, or when its turns run out.",
             _ => ""

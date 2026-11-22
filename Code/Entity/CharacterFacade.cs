@@ -198,16 +198,6 @@ namespace RPGGame
             return 1.0 + str * combat.StrengthDamagePerPoint;
         }
 
-        /// <summary>Hero AMP multiplier from INT (1.0 for enemies or when off). See <see cref="CombatConfig.IntelligenceAmpPerPoint"/>.</summary>
-        public double GetIntelligenceAmpMultiplier()
-        {
-            var combat = GameConfiguration.Instance.Combat;
-            if (_character is Enemy || combat.IntelligenceAmpPerPoint <= 0 || GameConfiguration.Instance.ComboSystem.SingleAmpFormula)
-                return 1.0;
-            int intel = Math.Max(0, GetEffectiveIntelligence());
-            return 1.0 + intel * combat.IntelligenceAmpPerPoint;
-        }
-
         // === ACTION MANAGEMENT ===
         public List<Action> GetComboActions() => _character.Actions.GetComboActions();
         public List<Action> GetActionPool() => _character.Actions.GetActionPool(_character);
@@ -263,41 +253,14 @@ namespace RPGGame
             // Update base class effects directly (avoid circular call)
             _character.Stats.UpdateTempEffects(actionLength);
             _character.Effects.UpdateTempEffects(actionLength);
-            // Update base Actor effects (stun, weaken, roll penalty, poison, burn, damage reduction)
-            double turnsPassed = actionLength / 1.0; // Using 1.0 as default action length
-            
-            // Update stun effects
-            if (_character.StunTurnsRemaining > 0)
-            {
-                _character.StunTurnsRemaining = Math.Max(0, _character.StunTurnsRemaining - (int)Math.Ceiling(turnsPassed));
-                if (_character.StunTurnsRemaining == 0)
-                    _character.IsStunned = false;
-            }
-            
             // Roll penalty: attack-based consumption in Actor.ConsumeRollPenaltyAfterCombatRoll (not time decay).
-
-            // Update weaken debuff
-            if (_character.WeakenTurns > 0)
-            {
-                _character.WeakenTurns = Math.Max(0, _character.WeakenTurns - (int)Math.Ceiling(turnsPassed));
-                if (_character.WeakenTurns == 0)
-                {
-                    _character.IsWeakened = false;
-                }
-            }
-            
-            // Poison %, burn intensity, and bleed intensity do not decay from action length (see global DoT tick / bleed-on-action).
+            // Burn intensity, and bleed intensity do not decay from action length (see global DoT tick / bleed-on-action).
         }
         public void ApplySlow(double speedReduction, int duration) => _character.Effects.ApplySlow(speedReduction, duration);
-        public void ApplyPoison(int damage, int stacks = 1, bool isBleeding = false) => _character.ApplyPoison(damage, stacks, isBleeding);
         public void ApplyBurn(int damage, int stacks = 1) => _character.ApplyBurn(damage, stacks);
-        public void ApplyAcid(int damage, int stacks = 1) => _character.ApplyAcid(damage, stacks);
         public void ApplyShield() => _character.Effects.ApplyShield();
         public bool ConsumeShield() => _character.Effects.ConsumeShield();
-        public void ApplyWeaken(int turns) => _character.ApplyWeaken(turns);
-        public int ProcessPoison(double currentTime) => _character.ProcessPoison(currentTime);
         public int ProcessBurn(double currentTime) => _character.ProcessBurn(currentTime);
-        public int ProcessAcid(double currentTime) => _character.ProcessAcid(currentTime);
         public void ClearAllTempEffects() => _character.ClearAllTempEffects();
         public void ClearEncounterTempEffects() => _character.ClearEncounterTempEffects();
         public void ClearDungeonRunTempEffects() => _character.ClearDungeonRunTempEffects();
@@ -326,7 +289,6 @@ namespace RPGGame
         public double GetModificationLifesteal() => _character.Equipment.GetModificationLifesteal();
         public int GetModificationGodlikeBonus() => _character.Equipment.GetModificationGodlikeBonus();
         public int GetWeaponBleedPerHit() => _character.Equipment.GetWeaponBleedPerHit();
-        public double GetWeaponPoisonPercentPerHit() => _character.Equipment.GetWeaponPoisonPercentPerHit();
         public int GetWeaponBurnPerHit() => _character.Equipment.GetWeaponBurnPerHit();
         public int GetWeaponAcidPerHit() => _character.Equipment.GetWeaponAcidPerHit();
         public double GetModificationFreezeChance() => _character.Equipment.GetModificationFreezeChance();

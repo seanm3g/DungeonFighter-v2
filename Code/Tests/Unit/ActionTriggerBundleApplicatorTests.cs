@@ -21,15 +21,12 @@ namespace RPGGame.Tests.Unit
         public static void RunAllTests()
         {
             // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
-            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== Action Trigger Bundle Applicator Tests ===\n");
             _testsRun = _testsPassed = _testsFailed = 0;
 
             TestOnKill_FightDamageMod_DepositsToFightScope();
             TestOnKill_DoesNotFireOnHit();
-            TestOwnedWeaken_SkippedByWholeRowGate_OnHit();
             TestBlankScope_InstantDamageMod_BanksActionCadence();
-            TestGateOnlyListed_PoisonStillAppliesOnHitWhileWeakenIsOwned();
             TestSameSwingDamage_LandsBeforeDamage_AndPostPassSkipsIt();
             TestSameSwingDamage_RespectsTargetHealthFilter();
             TestWeaponSpeedFlat_ShortensTheSwingThatUsedIt();
@@ -82,8 +79,8 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(hero.FightCadenceBuffs.HasAny,
                 "FIGHT scope deposits fight cadence buffs",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(foe.IsWeakened || messages.Count > 0,
-                "weaken applies on kill",
+            TestBase.AssertTrue(Stores.Get(foe, "rattle") > 0 || messages.Count > 0,
+                "weaken (now Rattle) applies on kill",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -104,27 +101,6 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(!applied, "ONKILL bundle skips ActionHit", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!hero.FightCadenceBuffs.HasAny,
                 "no fight deposit on hit",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestOwnedWeaken_SkippedByWholeRowGate_OnHit()
-        {
-            TestBase.SetCurrentTestName(nameof(TestOwnedWeaken_SkippedByWholeRowGate_OnHit));
-            var hero = new Character("BundleHero3", 1);
-            var foe = new Enemy("Goblin", 1, 100, 10, 5, 5, 5);
-            var action = MakeKillFinisher();
-            // No whole-row ONKILL — poison keeps default-on-hit; weaken is owned by bundle.
-            var results = new List<string>();
-            var hit = new CombatEvent(CombatEventType.ActionHit, hero)
-            {
-                Target = foe,
-                Action = action,
-                IsCritical = true
-            };
-
-            _ = CombatEffectsSimplified.ApplyStatusEffects(action, hero, foe, results, hit);
-            TestBase.AssertTrue(!foe.IsWeakened,
-                "owned weaken does not apply via whole-row on hit",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -159,29 +135,6 @@ namespace RPGGame.Tests.Unit
             var plain = new CombatEvent(CombatEventType.ActionHit, hero) { Target = foe, Action = action };
             TestBase.AssertTrue(!RPGGame.Combat.Rules.ActionRules.Dispatch(action, plain, hero, foe, messages),
                 "an ONCRITICAL card rule skips a plain hit", ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestGateOnlyListed_PoisonStillAppliesOnHitWhileWeakenIsOwned()
-        {
-            TestBase.SetCurrentTestName(nameof(TestGateOnlyListed_PoisonStillAppliesOnHitWhileWeakenIsOwned));
-            var hero = new Character("BundleHero5", 1);
-            var foe = new Enemy("Goblin", 1, 100, 10, 5, 5, 5);
-            var action = MakeKillFinisher();
-            var results = new List<string>();
-            var hit = new CombatEvent(CombatEventType.ActionHit, hero)
-            {
-                Target = foe,
-                Action = action,
-                IsCritical = true
-            };
-
-            _ = CombatEffectsSimplified.ApplyStatusEffects(action, hero, foe, results, hit);
-            TestBase.AssertTrue(foe.PoisonPercentOfMaxHealth > 0,
-                "non-owned poison still applies on crit hit (gate_only_listed)",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(!foe.IsWeakened,
-                "owned weaken still skipped on hit",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static Action MakeSameSwingAction(string name, params string[] conditions)

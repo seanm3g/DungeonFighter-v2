@@ -24,52 +24,20 @@ namespace RPGGame.Tests.Unit.Combat
         public static void RunAllTests()
         {
             // Step 5: these tests cover the retired statuses' code, which stays until step 12 (CoreStatuses).
-            using var legacyStatuses = RPGGame.CoreStatuses.Pin(false);
             Console.WriteLine("=== CombatEffectsSimplified Tests ===\n");
             
             _testsRun = 0;
             _testsPassed = 0;
             _testsFailed = 0;
 
-            TestApplyStatusEffects_PoisonFromAction_RegistersOnTarget();
             TestProcessStatusEffects_NoPoisonOrBurn_ReturnsZeroTotalDamage();
             TestBurnIntensityDecayAndPendingMerge();
-            TestAcidIntensityDecayPendingMergeAndArmorShred();
-            TestPoisonPercentUnchangedAcrossTicks();
             TestProcessStatusEffects_DoesNotRepeatDotStateBeforeNextTick();
-            TestProcessStatusEffects_NarrativeModeEmitsPoisonProse();
             TestBleedOnActionWithoutGameTimeTick();
-            TestCanEntityAct_NotStunned_ReturnsTrue();
-            TestCanEntityAct_Stunned_ReturnsFalse();
             TestNonLivingEnemyBurnTicksViaStatusEffectProcessor();
-            TestNonLivingEnemyAcidTicksAndShredsArmor();
             TestWeaponDoTModsRequireCriticalHitEvent();
-            TestWeakenStatusLogLineUsesEntityColorOnActorName();
 
             TestBase.PrintSummary("CombatEffectsSimplified Tests", _testsRun, _testsPassed, _testsFailed);
-        }
-
-        private static void TestApplyStatusEffects_PoisonFromAction_RegistersOnTarget()
-        {
-            Console.WriteLine("--- ApplyStatusEffects: poison action applies via registry ---");
-
-            var attacker = TestDataBuilders.Character().WithName("AllyAttacker").Build();
-            var target = TestDataBuilders.Enemy().WithName("PoisonTarget").Build();
-            var action = TestDataBuilders.CreateMockAction("VenomStrike", ActionType.Attack);
-            action.CausesPoison = true;
-
-            var results = new List<string>();
-            var critHit = new CombatEvent(CombatEventType.ActionHit, attacker)
-            {
-                Target = target,
-                Action = action,
-                IsCritical = true
-            };
-            bool applied = CombatEffectsSimplified.ApplyStatusEffects(action, attacker, target, results, critHit);
-
-            TestBase.AssertTrue(target.PoisonPercentOfMaxHealth > 0 || applied,
-                "Poison-from-action path should increase poison % or set effectsApplied",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
         private static void TestWeaponDoTModsRequireCriticalHitEvent()
@@ -119,13 +87,10 @@ namespace RPGGame.Tests.Unit.Combat
                 IsCritical = false
             };
             var resultsNon = new List<string>();
-            target.PoisonPercentOfMaxHealth = 0;
             target.PendingBurnFromHits = 0;
             target.PendingBleedFromHits = 0;
-            target.PendingAcidFromHits = 0;
             _ = CombatEffectsSimplified.ApplyStatusEffects(jab, attacker, target, resultsNon, nonCrit);
-            TestBase.AssertTrue(target.PoisonPercentOfMaxHealth > 0.0001 || target.PendingBurnFromHits > 0
-                    || target.PendingBleedFromHits > 0 || target.PendingAcidFromHits > 0,
+            TestBase.AssertTrue(target.PendingBurnFromHits > 0 || target.PendingBleedFromHits > 0 || (target.ExposeStacks ?? 0) > 0,
                 "non-crit landed hit applies gear DoT (ONCONNECT default)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
 
@@ -137,9 +102,8 @@ namespace RPGGame.Tests.Unit.Combat
             };
             var resultsCrit = new List<string>();
             _ = CombatEffectsSimplified.ApplyStatusEffects(jab, attacker, target, resultsCrit, crit);
-            TestBase.AssertTrue(target.PoisonPercentOfMaxHealth > 0 && target.PendingBurnFromHits > 0
-                    && target.PendingBleedFromHits > 0 && target.PendingAcidFromHits > 0,
-                "critical hit event should apply all four weapon DoT channels",
+            TestBase.AssertTrue(target.PendingBurnFromHits > 0 && target.PendingBleedFromHits > 0 && (target.ExposeStacks ?? 0) > 0,
+                "critical hit event should apply burn, bleed and acid (as Expose)",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 
@@ -148,7 +112,6 @@ namespace RPGGame.Tests.Unit.Combat
             Console.WriteLine("--- ProcessStatusEffects: clean actor yields no damage ---");
 
             var actor = TestDataBuilders.Character().WithName("CleanActor").Build();
-            actor.PoisonPercentOfMaxHealth = 0;
             actor.BurnIntensity = 0;
             actor.PendingBurnFromHits = 0;
 
@@ -176,63 +139,20 @@ namespace RPGGame.Tests.Unit.Combat
             }
         }
 
-        private static void TestAcidIntensityDecayPendingMergeAndArmorShred()
-        {
-            Console.WriteLine("--- Acid: decay + pending merge + armor shred on global tick ---");
-            using (GameTicker.BeginIsolatedEncounterGameTime())
-            {
-                var enemy = new Enemy("AcidDummy", 1, 100, 5, 5, 5, 5, armor: 12);
-                enemy.AcidIntensity = 5;
-                enemy.PendingAcidFromHits = 3;
-                enemy.LastAcidTickTime = 0;
-                enemy.AcidArmorReduction = 0;
-                int armorBefore = DamageCalculator.ResolveTargetArmor(enemy);
-                TestBase.AssertEqual(12, armorBefore, "armor before acid tick", ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-                GameTicker.Instance.AdvanceGameTime(5.1);
-                int dmg = enemy.ProcessAcid(GameTicker.Instance.GetCurrentGameTime());
-                TestBase.AssertEqual(5, dmg, "acid damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(7, enemy.AcidIntensity, "acid intensity after decay+pending", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(5, enemy.AcidArmorReduction, "acid armor shred equals tick damage", ref _testsRun, ref _testsPassed, ref _testsFailed);
-                TestBase.AssertEqual(7, DamageCalculator.ResolveTargetArmor(enemy),
-                    "enemy ResolveTargetArmor subtracts AcidArmorReduction",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
-        }
-
-        private static void TestPoisonPercentUnchangedAcrossTicks()
-        {
-            Console.WriteLine("--- Poison: stored % unchanged after tick damage ---");
-            using (GameTicker.BeginIsolatedEncounterGameTime())
-            {
-                var enemy = TestDataBuilders.Enemy().WithName("PoisonDummy").Build();
-                enemy.PoisonPercentOfMaxHealth = 4;
-                enemy.LastPoisonTickTime = 0;
-                GameTicker.Instance.AdvanceGameTime(5.1);
-                double pctBefore = enemy.PoisonPercentOfMaxHealth;
-                _ = enemy.ProcessPoison(GameTicker.Instance.GetCurrentGameTime());
-                TestBase.AssertTrue(Math.Abs(pctBefore - enemy.PoisonPercentOfMaxHealth) < 0.0001,
-                    "poison % should not decay on tick",
-                    ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
-        }
-
         private static void TestProcessStatusEffects_DoesNotRepeatDotStateBeforeNextTick()
         {
             Console.WriteLine("--- ProcessStatusEffects: no duplicate DoT state before next tick ---");
             using (GameTicker.BeginIsolatedEncounterGameTime())
             {
                 var enemy = TestDataBuilders.Enemy().WithName("PoisonDummy").WithHealth(100).Build();
-                enemy.PoisonPercentOfMaxHealth = 2;
-                enemy.LastPoisonTickTime = 0;
                 enemy.BurnIntensity = 4;
                 enemy.LastBurnTickTime = 0;
 
                 GameTicker.Instance.AdvanceGameTime(5.1);
                 var firstResults = new List<string>();
-                var firstBreakdown = CombatEffectsSimplified.ProcessStatusEffectsWithBreakdown(enemy, firstResults);
+                int firstDamage = CombatEffectsSimplified.ProcessStatusEffects(enemy, firstResults);
 
-                TestBase.AssertTrue(firstBreakdown.TotalDamage > 0,
+                TestBase.AssertTrue(firstDamage > 0,
                     "first DoT processing after interval should tick",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertTrue(firstResults.Count > 0,
@@ -240,64 +160,14 @@ namespace RPGGame.Tests.Unit.Combat
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
 
                 var secondResults = new List<string>();
-                var secondBreakdown = CombatEffectsSimplified.ProcessStatusEffectsWithBreakdown(enemy, secondResults);
+                int secondDamage = CombatEffectsSimplified.ProcessStatusEffects(enemy, secondResults);
 
-                TestBase.AssertEqual(0, secondBreakdown.TotalDamage,
+                TestBase.AssertEqual(0, secondDamage,
                     "second DoT processing before next interval should not tick",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
                 TestBase.AssertEqual(0, secondResults.Count,
                     "second DoT processing before next interval should not repeat poison/burn detail lines",
                     ref _testsRun, ref _testsPassed, ref _testsFailed);
-            }
-        }
-
-        private static void TestProcessStatusEffects_NarrativeModeEmitsPoisonProse()
-        {
-            Console.WriteLine("--- ProcessStatusEffects: F7 narrative emits poison prose, not takes-line ---");
-            bool prevNarrative = DeveloperModeState.IsNarrativeCombatLog;
-            DeveloperModeState.SetNarrativeCombatLog(true);
-            try
-            {
-                using (GameTicker.BeginIsolatedEncounterGameTime())
-                {
-                    var enemy = TestDataBuilders.Enemy().WithName("Salamander").WithHealth(100).Build();
-                    enemy.PoisonPercentOfMaxHealth = 1;
-                    enemy.LastPoisonTickTime = 0;
-
-                    GameTicker.Instance.AdvanceGameTime(5.1);
-                    var results = new List<string>();
-                    var breakdown = CombatEffectsSimplified.ProcessStatusEffectsWithBreakdown(enemy, results);
-
-                    TestBase.AssertTrue(breakdown.PoisonDamage > 0,
-                        "poison should tick",
-                        ref _testsRun, ref _testsPassed, ref _testsFailed);
-                    TestBase.AssertEqual(1, results.Count,
-                        "narrative poison tick is one prose line (no separate % remain)",
-                        ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-                    string plain = ColoredTextRenderer.RenderAsPlainText(
-                        ColoredTextParser.Parse(results[0]));
-                    TestBase.AssertTrue(plain.Contains("Salamander", StringComparison.Ordinal),
-                        $"prose names victim, got: {plain}",
-                        ref _testsRun, ref _testsPassed, ref _testsFailed);
-                    TestBase.AssertTrue(plain.Contains("poison", StringComparison.OrdinalIgnoreCase)
-                            || plain.Contains("Poison", StringComparison.Ordinal),
-                        $"prose names poison, got: {plain}",
-                        ref _testsRun, ref _testsPassed, ref _testsFailed);
-                    TestBase.AssertTrue(!plain.Contains("takes", StringComparison.OrdinalIgnoreCase),
-                        $"not mechanical takes-line, got: {plain}",
-                        ref _testsRun, ref _testsPassed, ref _testsFailed);
-                    TestBase.AssertTrue(!plain.Contains("max HP", StringComparison.OrdinalIgnoreCase),
-                        $"no % of max HP detail, got: {plain}",
-                        ref _testsRun, ref _testsPassed, ref _testsFailed);
-                    TestBase.AssertTrue(!System.Text.RegularExpressions.Regex.IsMatch(plain, @"\d"),
-                        $"no numerals in narrative DoT prose, got: {plain}",
-                        ref _testsRun, ref _testsPassed, ref _testsFailed);
-                }
-            }
-            finally
-            {
-                DeveloperModeState.SetNarrativeCombatLog(prevNarrative);
             }
         }
 
@@ -353,125 +223,6 @@ namespace RPGGame.Tests.Unit.Combat
             {
                 TurnManager.DisableCombatUIOutput = prevUi;
             }
-        }
-
-        /// <summary>
-        /// Non-living enemies still take acid ticks and accumulate armor shred (like burn; unlike poison/bleed).
-        /// </summary>
-        private static void TestNonLivingEnemyAcidTicksAndShredsArmor()
-        {
-            Console.WriteLine("--- StatusEffectProcessor: non-living enemy acid tick + armor shred ---");
-            bool prevUi = TurnManager.DisableCombatUIOutput;
-            TurnManager.DisableCombatUIOutput = true;
-            try
-            {
-                using (GameTicker.BeginIsolatedEncounterGameTime())
-                {
-                    var player = TestDataBuilders.Character().WithName("Player").Build();
-                    player.AcidIntensity = 0;
-                    player.PendingAcidFromHits = 0;
-
-                    var enemy = new Enemy("Construct", 1, 100, 5, 5, 5, 5, armor: 15, isLiving: false);
-                    TestBase.AssertTrue(!enemy.IsLiving && enemy.IsAlive,
-                        "fixture should be non-living template but alive in combat",
-                        ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-                    int hpBefore = enemy.CurrentHealth;
-                    enemy.AcidIntensity = 6;
-                    enemy.LastAcidTickTime = 0;
-                    enemy.AcidArmorReduction = 0;
-                    GameTicker.Instance.AdvanceGameTime(5.1);
-
-                    StatusEffectProcessor.ProcessDamageOverTimeEffects(player, enemy);
-
-                    TestBase.AssertEqual(hpBefore - 6, enemy.CurrentHealth,
-                        "acid tick should reduce HP on non-living enemy",
-                        ref _testsRun, ref _testsPassed, ref _testsFailed);
-                    TestBase.AssertEqual(5, enemy.AcidIntensity,
-                        "acid intensity should decay after tick",
-                        ref _testsRun, ref _testsPassed, ref _testsFailed);
-                    TestBase.AssertEqual(6, enemy.AcidArmorReduction,
-                        "acid tick should shred armor by intensity",
-                        ref _testsRun, ref _testsPassed, ref _testsFailed);
-                    TestBase.AssertEqual(9, DamageCalculator.ResolveTargetArmor(enemy),
-                        "non-living enemy armor after acid shred",
-                        ref _testsRun, ref _testsPassed, ref _testsFailed);
-                }
-            }
-            finally
-            {
-                TurnManager.DisableCombatUIOutput = prevUi;
-            }
-        }
-
-        private static void TestCanEntityAct_NotStunned_ReturnsTrue()
-        {
-            Console.WriteLine("--- CanEntityAct: unstunned actor can act ---");
-
-            var actor = TestDataBuilders.Character().WithName("Ready").Build();
-            actor.IsStunned = false;
-            var results = new List<string>();
-
-            bool can = CombatEffectsSimplified.CanEntityAct(actor, results);
-
-            TestBase.AssertTrue(can, "Unstunned actor should be able to act",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestCanEntityAct_Stunned_ReturnsFalse()
-        {
-            Console.WriteLine("--- CanEntityAct: stunned actor cannot act ---");
-
-            var actor = TestDataBuilders.Character().WithName("StunnedHero").Build();
-            actor.IsStunned = true;
-            var results = new List<string>();
-
-            bool can = CombatEffectsSimplified.CanEntityAct(actor, results);
-
-            TestBase.AssertTrue(!can, "Stunned actor should not act",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(results.Count > 0, "Stun path should add a message",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-        }
-
-        private static void TestWeakenStatusLogLineUsesEntityColorOnActorName()
-        {
-            Console.WriteLine("--- Status log: weaken line uses EntityColorHelper for name ---");
-
-            var target = TestDataBuilders.Character().WithName("Zion Twilight").Build();
-            var action = new Action { CausesWeaken = true };
-            var results = new List<string>();
-            var handler = new WeakenEffectHandler();
-            bool applied = handler.Apply(target, action, results);
-
-            TestBase.AssertTrue(applied, "Weaken handler should apply",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(results.Count == 1, "Expected one log line",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            TestBase.AssertTrue(results[0].IndexOf("{{player|", StringComparison.OrdinalIgnoreCase) < 0,
-                "Log line should not use legacy {{player|...}} name markup",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-
-            var expectedRgb = EntityColorHelper.GetActorColor(target);
-            var parsed = ColoredTextParser.Parse(results[0]);
-            ColoredText? nameSegment = null;
-            foreach (var seg in parsed)
-            {
-                if (seg.Text.IndexOf("Zion", StringComparison.Ordinal) >= 0)
-                {
-                    nameSegment = seg;
-                    break;
-                }
-            }
-
-            TestBase.AssertTrue(nameSegment != null, "Parsed line should include the actor name",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
-            bool rgbMatch = nameSegment!.Color.R == expectedRgb.R
-                && nameSegment.Color.G == expectedRgb.G
-                && nameSegment.Color.B == expectedRgb.B;
-            TestBase.AssertTrue(rgbMatch,
-                $"Name color should match EntityColorHelper (expected {expectedRgb}, got {nameSegment.Color})",
-                ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }
 }
