@@ -240,7 +240,9 @@ namespace RPGGame.Tests.Unit.UI
 
             c.Effects.AddMaterialKeyword("CHAIN", 1);
             c.Effects.SetMaterialKeywordSource("CHAIN", "CAST · ON COMBO");
-            string chainTip = string.Join("\n", LeftPanelTooltipBuilder.BuildLines(c, LeftPanelHoverState.Prefix + "status:0", 80, 16));
+            // D3.7: material stores left the status panel (they're on the NOW card); their hover copy still explains them.
+            string chainLine = RPGGame.UI.Avalonia.Layout.StatusEffectDisplayLines.BuildAttachedLines(c).First(l => l.StartsWith("CHAIN", StringComparison.Ordinal));
+            string chainTip = chainLine + "\n" + string.Join("\n", HoverEffectCopy.ExplainStatusLine(c, chainLine));
             TestBase.AssertTrue(chainTip.Contains("CHAIN", StringComparison.Ordinal)
                     && chainTip.Contains("ON COMBO", StringComparison.Ordinal)
                     && chainTip.Contains("WILLOW LASH", StringComparison.Ordinal)
