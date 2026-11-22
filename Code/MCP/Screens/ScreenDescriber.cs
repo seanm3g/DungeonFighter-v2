@@ -72,7 +72,7 @@ namespace RPGGame.MCP.Screens
                 string type = i < rows.Count ? (rows[i].Type ?? "").Trim() : "";
                 string cls = Enum.TryParse(type, ignoreCase: true, out WeaponType wt) ? ClassForWeapon(wt) : "";
                 string kind = type.Length == 0 ? "" : $" ({type}{(cls.Length > 0 ? $", {cls} path" : "")})";
-                string line = $"{w.name}{kind}: damage {w.damage:0.#}, swing {w.attackSpeed:0.##}s";
+                string line = $"{w.name}{kind}: damage {w.damage:0.#}, swing {GameConfiguration.Instance.Combat.BaseAttackTime * w.attackSpeed:0.0}s";
                 if (Enum.TryParse(type, ignoreCase: true, out WeaponType styleType))
                 {
                     var presentation = GameConfiguration.Instance.ClassPresentation;

@@ -17,6 +17,10 @@ namespace RPGGame
     {
         private static readonly EffectHandlerRegistry _effectRegistry = new EffectHandlerRegistry();
 
+        /// <summary>A damage-over-time tick landed (actor, "bleed" / "poison" / "burn", damage). The MCP swing log
+        /// names it, since its HP bars otherwise drop with no cause shown.</summary>
+        public static event Action<Actor, string, int>? DoTTicked;
+
         /// <summary>Poison, burn, acid, and bleed from weapon mods use WHEN tokens (default ONCRITICAL).</summary>
         private static bool ShouldApplyEquipmentDoTFromHit(CombatEvent? combatEvent, string? triggerWhen)
         {
@@ -444,6 +448,8 @@ namespace RPGGame
             int damage = actor.ProcessBleedOnAction();
             bool stillActive = actor.BleedIntensity > 0 || actor.PendingBleedFromHits > 0;
             if (damage > 0)
+                DoTTicked?.Invoke(actor, "bleed", damage);
+            if (damage > 0)
             {
                 if (DeveloperModeState.IsNarrativeCombatLog)
                 {
@@ -484,6 +490,7 @@ namespace RPGGame
             int damage = actor.ProcessPoison(currentTime);
             if (damage <= 0)
                 return 0;
+            DoTTicked?.Invoke(actor, "poison", damage);
 
             bool stillActive = actor.PoisonPercentOfMaxHealth > 0;
             if (DeveloperModeState.IsNarrativeCombatLog)
@@ -519,6 +526,7 @@ namespace RPGGame
             int damage = actor.ProcessBurn(currentTime);
             if (damage <= 0)
                 return 0;
+            DoTTicked?.Invoke(actor, "burn", damage);
 
             int displayIntensity = actor.BurnIntensity + actor.PendingBurnFromHits;
             bool stillActive = displayIntensity > 0;

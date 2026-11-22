@@ -17,13 +17,14 @@ namespace RPGGame.MCP
         private readonly Action<CombatEvent> _onExecuted, _onHit, _onMiss, _onStatus, _onDied, _onRoomCleared;
         private Pending? _pending;
         private readonly List<string> _statuses = new();
+        private readonly List<string> _ticks = new();
 
         private sealed class Pending
         {
             public Actor Source = null!;
             public Actor? Target;
             public string ActionName = "";
-            public int Roll;
+            public int Roll, Natural;
             public bool Combo, Crit, Hit, Miss, ChainBreak;
         }
 
@@ -37,12 +38,18 @@ namespace RPGGame.MCP
             _output = output;
             _hero = hero;
             _onExecuted = OnExecuted;
-            _onHit = e => { if (Matches(e)) { _pending!.Hit = true; _pending.Combo |= e.IsCombo; _pending.Crit |= e.IsCritical; } };
+            _onHit = e => { if (Matches(e)) { _pending!.Hit = true; _pending.Combo |= e.IsCombo; _pending.Crit |= e.IsCritical; if (_pending.Natural == 0) _pending.Natural = e.NaturalRollValue; } };
             _onMiss = e => { if (Matches(e)) { _pending!.Miss = true; _pending.ChainBreak |= e.IsChainBreak; } };
             _onStatus = OnStatus;
             // The game already writes "<enemy> has been defeated!"; just close the last swing first.
             _onDied = _ => Flush();
             _onRoomCleared = e => { Flush(); RoomsCleared++; _output.WriteLine("  Room cleared."); };
+            // Bleed / Poison / Burn ticks: named on the swing line they land in, so HP never drops with no cause shown.
+            RPGGame.CombatEffectsSimplified.DoTTicked += (actor, kind, damage) =>
+            {
+                string who = actor is Enemy ? actor.Name : actor is Character ? "Hero" : actor?.Name ?? "?";
+                _ticks.Add($"{kind} -{damage} on {who}");
+            };
         }
 
         /// <summary>
@@ -76,6 +83,7 @@ namespace RPGGame.MCP
             if (_pending != null && Matches(e))
             {
                 _pending.Roll = e.RollValue;
+                if (e.NaturalRollValue > 0) _pending.Natural = e.NaturalRollValue;
                 _pending.Combo |= e.IsCombo;
                 _pending.Crit |= e.IsCritical;
                 _pending.Target ??= e.Target;
@@ -88,6 +96,7 @@ namespace RPGGame.MCP
                 Target = e.Target,
                 ActionName = string.IsNullOrWhiteSpace(e.Action?.Name) ? "" : e.Action!.Name,
                 Roll = e.RollValue,
+                Natural = e.NaturalRollValue,
                 Combo = e.IsCombo,
                 Crit = e.IsCritical
             };
@@ -112,7 +121,10 @@ namespace RPGGame.MCP
             var hero = _hero();
             string who = p.Source is Enemy ? p.Source.Name : p.Source is Character ? "Hero" : $"[Room] {p.Source?.Name}";
             string outcome = p.Miss && !p.Hit ? (p.ChainBreak ? "chain ends" : "miss") : p.Crit ? "CRIT" : p.Combo ? "COMBO" : p.Hit ? "hit" : "";
-            string roll = p.Roll > 0 ? $" roll {p.Roll}" : "";
+            // The die face, then the total when bonuses move it ("roll 1 (total 9)"): a bare total read as a natural 1 that hit.
+            string roll = p.Natural > 0
+                ? $" roll {p.Natural}{(p.Roll != p.Natural ? $" (total {p.Roll})" : "")}"
+                : p.Roll > 0 ? $" roll {p.Roll}" : "";
             string actionName = p.ActionName.Length > 0 ? p.ActionName : "attack";
             var parts = new List<string> { $"{who}: {actionName}{roll}{(outcome.Length > 0 ? " " + outcome : "")}" };
 
@@ -125,6 +137,11 @@ namespace RPGGame.MCP
             {
                 parts.Add("applied " + string.Join(", ", _statuses));
                 _statuses.Clear();
+            }
+            if (_ticks.Count > 0)
+            {
+                parts.Add(string.Join(", ", _ticks));
+                _ticks.Clear();
             }
             _output.WriteLine("  " + string.Join(" | ", parts));
         }

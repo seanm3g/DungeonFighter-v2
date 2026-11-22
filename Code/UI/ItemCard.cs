@@ -82,7 +82,7 @@ namespace RPGGame.UI
         public static List<string> CompareFor(Character hero, Item item, string slot)
         {
             var worn = hero.Equipment.GetSlotItem(slot);
-            string stamp = $"{hero.Level}|{string.Join("|", new[] { "weapon", "head", "body", "legs", "feet" }.Select(s => hero.Equipment.GetSlotItem(s)?.Name ?? "-"))}";
+            string stamp = $"{hero.Level}|{string.Join("|", new[] { "weapon", "head", "body", "legs", "feet" }.Select(s => hero.Equipment.GetSlotItem(s)?.Name ?? "-"))}|{string.Join(",", hero.GetComboActions().Select(a => a.Name))}";
             var cached = CompareCache.GetOrCreateValue(item);
             if (cached.Stamp == stamp)
                 return cached.Compare;
@@ -100,6 +100,8 @@ namespace RPGGame.UI
                 result.Add(worn == null ? $"Empty slot: {body}" : $"vs {worn.Name}: {body}");
                 foreach (string s in LootRevealBuilder.SetLines(hero, item, slot).Where(s => s.StartsWith("breaks")))
                     result.Add(s);
+                if (LootRevealBuilder.StripLossLine(hero, item, slot) is { } stripLoss)
+                    result.Add(stripLoss);
             }
             cached.Stamp = stamp;
             cached.Compare = result;

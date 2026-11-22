@@ -176,11 +176,16 @@ namespace RPGGame
                 }
             }
 
-            if (item.Modifications != null && item.Modifications.Count > 0 && lines.Count < maxLines)
+            // A mod with no effect, value or text (the starter Leather material tag) says nothing: "Leather — value 0".
+            var shownMods = item.Modifications?
+                .Where(m => m != null && !(string.IsNullOrWhiteSpace(m.Effect) && m.RolledValue == 0 && string.IsNullOrWhiteSpace(m.Description)
+                                           && AffixTemplates.Describe(m, item) is not { Length: > 0 }))
+                .ToList();
+            if (shownMods != null && shownMods.Count > 0 && lines.Count < maxLines)
             {
                 AddBlank(lines);
                 AddLine(lines, SectionHeader("Affixes"));
-                foreach (var mod in item.Modifications)
+                foreach (var mod in shownMods)
                 {
                     if (lines.Count >= maxLines) break;
                     AddLine(lines, BuildModificationLine(item, mod));

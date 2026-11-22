@@ -94,6 +94,18 @@ namespace RPGGame.Tests.Unit.Rebuild
                     var e2 = LootRevealBuilder.Build(two, weakHelm);
                     TestBase.AssertTrue(e2.Verdict != LootVerdict.Worse && e2.VerdictLine.Contains("empty strip slot"),
                         $"An action for an empty slot counts: {e2.VerdictLine}", ref _run, ref _passed, ref _failed);
+
+                    // Playtest 11-21: swapping out the piece that grants a strip action says so and is never a plain upgrade.
+                    two.EquipItem(weakHelm, "head");
+                    two.AddToCombo(action);
+                    var bigHelm = new HeadItem("Great Helm", tier: 3, armor: 30) { Rarity = "Rare" };
+                    string? loss = LootRevealBuilder.StripLossLine(two, bigHelm, "head");
+                    var e3 = LootRevealBuilder.Build(two, bigHelm);
+                    TestBase.AssertTrue(loss != null && loss.Contains(action.Name.ToUpperInvariant()) && e3.Beats.Contains(loss)
+                            && e3.Verdict == LootVerdict.Sidegrade && e3.VerdictLine.Contains("replaces"),
+                        $"Losing a strip action is called out: {loss} / {e3.VerdictLine}", ref _run, ref _passed, ref _failed);
+                    TestBase.AssertTrue(LootRevealBuilder.StripLossLine(two, new HeadItem("Twin Hood") { GearAction = action.Name }, "head") == null,
+                        "A piece granting the same action loses nothing", ref _run, ref _passed, ref _failed);
                 }
             }
             finally

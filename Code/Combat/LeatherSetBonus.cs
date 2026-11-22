@@ -95,7 +95,7 @@ namespace RPGGame
         {
             int n = CountEquipped(hero);
             yield return FormatHudLine(n);
-            yield return $"WHILE_EQUIPPED {LuckUnlockCount}+ : {LuckyStatusName} (2d20 keep highest) on 1 roll per Leather piece each fight";
+            yield return $"{LuckUnlockCount}+ pieces worn: {LuckyStatusName} (roll twice, keep the higher) on 1 roll per Leather piece each fight";
             if (n >= LuckUnlockCount)
                 yield return $"{LuckyStatusName}: {RollsLeft(hero)} of {RollsPerFight(hero)} rolls left this fight";
             else

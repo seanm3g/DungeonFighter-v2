@@ -108,6 +108,7 @@ namespace RPGGame.MCP
             }
 
             _combatLog.EnsureSubscribed();
+            RPGGame.Combat.Narrative.FernisFightSession.BeforeLines = _combatLog.Flush;
             try
             {
                 await _game.HandleInput(input);

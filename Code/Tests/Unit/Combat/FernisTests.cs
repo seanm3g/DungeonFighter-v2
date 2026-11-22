@@ -38,8 +38,13 @@ namespace RPGGame.Tests.Unit.Combat
             // Class lines join the pool: over many picks a Rogue hears a Rogue-only line.
             var rng = new Random(7);
             bool heardRogue = Enumerable.Range(0, 200).Select(_ => bank.Pick(FernisMoments.FightWon, "rogue", rng))
-                .Any(l => l != null && l.Contains("Stabbed", StringComparison.Ordinal));
+                .Any(l => l != null && l.Contains("thousand cuts", StringComparison.Ordinal));
             TestBase.AssertTrue(heardRogue, "class lines are in the class's pool", ref _run, ref _passed, ref _failed);
+
+            // No repeats: a moment skips its recent lines while the pool has others.
+            var fresh = FernisLineBank.Load();
+            var picks = Enumerable.Range(0, 3).Select(_ => fresh.Pick(FernisMoments.Death, null, new Random(11))).ToList();
+            TestBase.AssertTrue(picks.Distinct().Count() == 3, $"three picks of a 3-line moment are all different ({string.Join(" / ", picks)})", ref _run, ref _passed, ref _failed);
 
             // Budget: one line per swing; big moments always speak.
             var narrator = new FernisNarrator(bank, new Random(3));
@@ -65,7 +70,8 @@ namespace RPGGame.Tests.Unit.Combat
             enemy.CurrentHealth = 0;
             session.FinishFight();
             var pending = session.Pending;
-            TestBase.AssertTrue(pending.Count == 2 && bank.Moments[FernisMoments.Comeback].Lines["any"]
+            // The result line takes the last swing's slot: the close-call line still queued is replaced, not doubled.
+            TestBase.AssertTrue(pending.Count == 1 && bank.Moments[FernisMoments.Comeback].Lines["any"]
                     .Any(t => FernisLineBank.Fill(t, new Dictionary<string, string> { ["hp"] = "10" }).Length > 0),
                 "a win after a close call ends on a comeback line", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(2, session.HeroSwings, "hero swings are counted for {turns}", ref _run, ref _passed, ref _failed);

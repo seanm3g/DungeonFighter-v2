@@ -64,7 +64,13 @@ namespace RPGGame.Combat.Narrative
 
         public bool IsBig(string moment) => Moments.TryGetValue(moment, out var m) && m.Big;
 
-        /// <summary>A line for the moment: the class's own lines and the "any" lines together, picked evenly.</summary>
+        /// <summary>Lines said recently, per moment (oldest first); a pick skips them while the pool has others.</summary>
+        private readonly Dictionary<string, List<string>> _recent = new();
+
+        /// <summary>
+        /// A line for the moment: the class's own lines and the "any" lines together, picked evenly, skipping the
+        /// moment's last few lines (playtest 11-21: the same win line twice in two dungeons).
+        /// </summary>
         public string? Pick(string moment, string? heroClass, Random rng)
         {
             if (!Moments.TryGetValue(moment, out var m))
@@ -74,7 +80,21 @@ namespace RPGGame.Combat.Narrative
                 pool.AddRange(own);
             if (m.Lines.TryGetValue("any", out var any))
                 pool.AddRange(any);
-            return pool.Count == 0 ? null : pool[rng.Next(pool.Count)];
+            if (pool.Count == 0)
+                return null;
+            lock (_recent)
+            {
+                if (!_recent.TryGetValue(moment, out var recent))
+                    _recent[moment] = recent = new List<string>();
+                var fresh = pool.Where(l => !recent.Contains(l)).ToList();
+                var from = fresh.Count > 0 ? fresh : pool;
+                string line = from[rng.Next(from.Count)];
+                recent.Remove(line);
+                recent.Add(line);
+                while (recent.Count > Math.Max(0, pool.Count - 1))
+                    recent.RemoveAt(0);
+                return line;
+            }
         }
 
         /// <summary>Fills {token}s; unknown tokens are dropped so no brace reaches the screen.</summary>
@@ -199,6 +219,10 @@ namespace RPGGame.Combat.Narrative
         /// <summary>Raised for each line written ("Fernis: ..."); the MCP swing log adds it to <c>NewEvents</c>.</summary>
         public static event System.Action<string>? LineSpoken;
 
+        /// <summary>Called before queued lines are written. The MCP swing log writes each swing late (when the next one
+        /// starts), so it flushes here and a line never lands above the swing it reacts to.</summary>
+        public static System.Action? BeforeLines { get; set; }
+
         public int HeroSwings => _heroSwings;
 
         private Dictionary<string, string> Tokens(int links = 0, string cause = "") => new()
@@ -289,6 +313,14 @@ namespace RPGGame.Combat.Narrative
         public void FinishFight()
         {
             TrackHeroHealth();
+            bool resultIsBig = !_hero.IsAlive || (!_enemy.IsAlive && _closeCall);
+            if (resultIsBig)
+            {
+                // The fight's result line takes the last swing's slot: a close-call line still waiting from that same
+                // swing would land as two lines on one beat ("Low health! ..." then the death line, playtest 11-21).
+                lock (_lock)
+                    _pending.Clear();
+            }
             if (!_hero.IsAlive)
                 Say(FernisMoments.Death, Tokens(), ignoreBudget: true);
             else if (!_enemy.IsAlive)
@@ -304,6 +336,8 @@ namespace RPGGame.Combat.Narrative
                 lines = _pending.ToList();
                 _pending.Clear();
             }
+            if (lines.Count > 0)
+                BeforeLines?.Invoke();
             foreach (string line in lines)
             {
                 string said = $"{_narrator.Speaker}: {line}";

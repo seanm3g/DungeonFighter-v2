@@ -90,6 +90,9 @@ namespace RPGGame.LootReveal
                 : $"vs {current.Name}: " + (compare.Count > 0 ? string.Join("  ", compare) : "the same"));
             var setLines = SetLines(hero, item, slot, out string? brokenBonus);
             beats.AddRange(setLines);
+            string? stripLoss = StripLossLine(hero, item, slot);
+            if (stripLoss != null)
+                beats.Add(stripLoss);
 
             // 4. Its action (Uncommon+), 5. its modifier, then its unique rule (Legendary+): each its own beat.
             if (rank >= 1)
@@ -156,6 +159,14 @@ namespace RPGGame.LootReveal
             {
                 verdict = LootVerdict.Worse;
                 why = "Worse than what you wear.";
+            }
+            if (stripLoss != null && verdict is LootVerdict.Upgrade or LootVerdict.Sidegrade)
+            {
+                // Losing strip actions is a build change, never a plain upgrade: say so and don't pre-mark Equip.
+                verdict = LootVerdict.Sidegrade;
+                why = why.StartsWith("Sidegrade", StringComparison.Ordinal)
+                    ? why.TrimEnd('.') + $", and it {stripLoss}."
+                    : $"Sidegrade: it {stripLoss}.";
             }
             if (!item.MeetsRequirements(hero))
                 why += " (You don't meet its requirements yet.)";
@@ -276,6 +287,40 @@ namespace RPGGame.LootReveal
                 .Where(a => !IsRequiredBasic(item, a) && !have.Contains(a))
                 .Select(a => a.ToUpperInvariant())
                 .FirstOrDefault();
+        }
+
+        /// <summary>
+        /// Strip actions the hero loses by wearing <paramref name="item"/> in <paramref name="slot"/>: actions in the
+        /// sequence that only the current piece grants (playtest 11-21: a sword drop read "+2 Damage" while it swapped
+        /// STAB and CUT for STRIKE). "replaces STAB, CUT in your strip (brings STRIKE)"; null when nothing is lost.
+        /// </summary>
+        public static string? StripLossLine(Character hero, Item item, string slot)
+        {
+            if (hero == null || item == null || string.IsNullOrEmpty(slot))
+                return null;
+            var current = hero.Equipment.GetSlotItem(slot);
+            if (current == null || ReferenceEquals(current, item))
+                return null;
+            var keep = new HashSet<string>(GearActionNames.Resolve(item), StringComparer.OrdinalIgnoreCase);
+            foreach (var s in new[] { "weapon", "head", "body", "legs", "feet" })
+                if (s != slot)
+                    foreach (var name in GearActionNames.Resolve(hero.Equipment.GetSlotItem(s)))
+                        keep.Add(name);
+            var granted = new HashSet<string>(GearActionNames.Resolve(current), StringComparer.OrdinalIgnoreCase);
+            var lost = hero.GetComboActions()
+                .Select(a => a.Name)
+                .Where(n => granted.Contains(n) && !keep.Contains(n))
+                .Select(n => n.ToUpperInvariant())
+                .Distinct()
+                .ToList();
+            if (lost.Count == 0)
+                return null;
+            var brings = GearActionNames.Resolve(item)
+                .Where(n => !granted.Contains(n))
+                .Select(n => n.ToUpperInvariant())
+                .Distinct()
+                .ToList();
+            return $"replaces {string.Join(", ", lost)} in your strip" + (brings.Count > 0 ? $" (brings {string.Join(", ", brings)})" : "");
         }
 
         private static bool IsRequiredBasic(Item item, string action) =>
