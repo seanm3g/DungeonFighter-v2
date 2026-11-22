@@ -10,6 +10,35 @@ Nothing pushed, no PR.
 Already done before tonight (see [`REBUILD_STATUS_2026-11-18.md`](REBUILD_STATUS_2026-11-18.md) and git log):
 steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb cut (CASH IN / DETONATE).
 
+## When you're back
+
+**Done tonight:** Phase 11 (item roll table) and the code side of build steps 3–9, one commit each on
+`phase11-item-rolls`. Last full run: **15138 passed**; the remaining failures were 4 tree-shape expectations, since
+fixed and rerun, plus 1 known flaky test. Nothing pushed. **Not started:** steps 10 (Fragile cards, Jam / Burn out),
+11 (the ~100-action content and lore pass) and 12 (deleting the switched-off code). 12 should wait until you've
+played with the switches on.
+
+**Partial steps:** much of what's left in steps 3–9 is board or screen work I couldn't check by eye (Fernis's
+shoulder sprite, the status panel and NOW card, NEW cards, strip-editor arrows) and content rewrites (region
+rosters, enemy skins, materials onto chain moments, cutting filler skill nodes). Each step's "Not done" list below
+names them.
+
+**Things that change how the game plays** (no sims were run; over-v57 was calibrated before these):
+- Class hits apply their status (SLAM Stagger, STRIKE Guard, STAB Bleed, MAGIC MISSILE Burn).
+- Room enemies show one modifier: a prefix or Rare affix replaces the region affix, so they're a bit weaker.
+- Prefixes have one rule each (Giant +30% HP only, Frozen Staggers, Venomous Bleeds, ...).
+- Poison content Bleeds, Stun / Slow Stagger, and so on (`DF_LEGACY_STATUSES=1` reverts).
+- Wood / Cloth / Unknown no longer drop or form sets (`DF_LEGACY_MATERIALS=1` reverts).
+- 1 in 4 empty rooms has an encounter (a shrine heals 15%, a merchant gives a consumable, ...), in sims too.
+- Mythic items carry a class-bending rule; Core slot nodes add strip slots; material branches need 2 pieces worn.
+- Below Epic, base modifiers no longer use RANK / TAGAS / SETCOUNT.
+
+**REVIEW items** (placeholders the 11-18 defaults allow): action roles seeded by a rule, Fernis's lines, family
+matchups, prefix rules, Mythic rules, encounter outcomes, region levels, Weaken → Rattle.
+
+**Test-runner side effect:** every full `--run-tests` rewrote the active patch `over-v57.json`. I restored it from
+git after each run; it is in no commit.
+
 ## Summary
 
 | Sub-step | Status | Commit | Tests |
@@ -22,7 +51,10 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
 | 6 Event labels (11), modifiers scoped by rarity | partial | `b582683f` | 15124 + label fixes; affected suites 0 failed |
 | 7 Mythic class-bending rules | done | `3c6fc5c9` | 15141 passed / 0 failed |
 | 8 Cosmetic Wood / Cloth / Unknown | partial | `c542f44e` | 15140 passed / 1 failed (then fixed; ItemRoller 0 failed) |
-| 9 Core slot nodes, material branch gate | partial | (this commit) | 15138 passed / 5 failed (4 tree-shape expectations fixed, 1 known flaky) |
+| 9 Core slot nodes, material branch gate | partial | `2dc79522` | 15138 passed / 5 failed (4 tree-shape expectations fixed, 1 known flaky) |
+| 10 Late rungs (Fragile cards, Jam / Burn out, callouts) | not started | — | — |
+| 11 Content and lore pass | not started | — | — |
+| 12 Cleanup (delete switched-off code) | not started (needs your review of the switches first) | — | — |
 
 ## Phase 11 — item rolls (D11.1–D11.12)
 - **Class affinity (D11.7):** every rolled item has one of 10 affinities (`Item.ClassAffinity`, saved as
