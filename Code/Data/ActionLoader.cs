@@ -484,6 +484,8 @@ namespace RPGGame
                 { "PALM", "CASH IN" },
                 { "BARRIER", "BULWARK" },
                 { "DISTILL", "DETONATE" },
+                // Lore rename pass (D9.12, 2026-11-22): it applies Bleed now, not poison.
+                { "VENOM COAT", "RED CORD" },
             };
 
             if (_actions == null)

@@ -7,7 +7,7 @@
         x:Class="RPGGame.UI.Avalonia.SettingsWindow"
         Classes="settings-ui"
         Icon="/UI/Avalonia/Assets/df_icon.ico"
-        Title="Game Settings - DungeonFighter v2"
+        Title="Game Settings - Demon Fighter"
         Background="{DynamicResource SettingsBackground}"
         Width="1728" Height="972" MinWidth="1400" MinHeight="800"
         WindowStartupLocation="CenterScreen"

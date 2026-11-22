@@ -10,7 +10,7 @@
             <!-- Game Information -->
             <StackPanel Spacing="15">
                 <StackPanel Spacing="15">
-                    <TextBlock Text="DungeonFighter v2" 
+                    <TextBlock Text="Demon Fighter" 
                                Classes="settings-panel-title" 
                                HorizontalAlignment="Center"
                                Margin="0,0,0,10"/>

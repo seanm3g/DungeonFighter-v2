@@ -287,6 +287,9 @@ namespace RPGGame
             var byName = enemyData
                 .GroupBy(e => e.Name, StringComparer.OrdinalIgnoreCase)
                 .ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+            foreach (var e in enemyData)
+                foreach (var former in e.FormerNames ?? new List<string>())
+                    byName.TryAdd(former, e); // a room that still names an enemy by its pre-rename name
 
             var weighted = new List<(EnemyData data, double weight)>();
             foreach (var entry in roomEnemySpawnPool!)

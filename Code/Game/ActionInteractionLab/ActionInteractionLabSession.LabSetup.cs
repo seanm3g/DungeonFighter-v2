@@ -29,7 +29,7 @@ namespace RPGGame.ActionInteractionLab
         private int _labPanelEnemyLevelDelta;
 
         /// <summary>Default loader enemy when Action Lab opens (must match a name in Enemies.json).</summary>
-        private const string DefaultCatalogEnemyType = "Sandstorm Flanker";
+        private const string DefaultCatalogEnemyType = "Glass-Road Raider";
 
         /// <summary>
         /// When <see cref="EnemyLoader"/> contains <see cref="DefaultCatalogEnemyType"/>, replaces the default lab

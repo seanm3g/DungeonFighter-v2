@@ -16,15 +16,15 @@
     ],
     "enemies": [
       {
-        "name": "Alpha Wolf",
+        "name": "Mother's Wolf",
         "weight": 2.0
       },
       {
-        "name": "Cursed Bear",
+        "name": "Orchard Bear",
         "weight": 1.0
       },
       {
-        "name": "Bone Spreader",
+        "name": "Bone-Reader",
         "weight": 1.0
       }
     ],
@@ -51,15 +51,15 @@
     ],
     "enemies": [
       {
-        "name": "Alpha Wolf",
+        "name": "Mother's Wolf",
         "weight": 1.0
       },
       {
-        "name": "Cursed Bear",
+        "name": "Orchard Bear",
         "weight": 2.0
       },
       {
-        "name": "Bone Spreader",
+        "name": "Bone-Reader",
         "weight": 1.0
       }
     ],
@@ -86,15 +86,15 @@
     ],
     "enemies": [
       {
-        "name": "Alpha Wolf",
+        "name": "Mother's Wolf",
         "weight": 1.0
       },
       {
-        "name": "Cursed Bear",
+        "name": "Orchard Bear",
         "weight": 1.0
       },
       {
-        "name": "Bone Spreader",
+        "name": "Bone-Reader",
         "weight": 2.0
       }
     ],
@@ -121,15 +121,15 @@
     ],
     "enemies": [
       {
-        "name": "Valley Prowler",
+        "name": "Bounty Prowler",
         "weight": 2.0
       },
       {
-        "name": "Living Wall Crawler",
+        "name": "Gray Ring Crawler",
         "weight": 1.0
       },
       {
-        "name": "Animated Vine",
+        "name": "Mosshaven Thorn-Ring",
         "weight": 1.0
       }
     ],
@@ -156,15 +156,15 @@
     ],
     "enemies": [
       {
-        "name": "Valley Prowler",
+        "name": "Bounty Prowler",
         "weight": 1.0
       },
       {
-        "name": "Living Wall Crawler",
+        "name": "Gray Ring Crawler",
         "weight": 2.0
       },
       {
-        "name": "Animated Vine",
+        "name": "Mosshaven Thorn-Ring",
         "weight": 1.0
       }
     ],
@@ -190,15 +190,15 @@
     ],
     "enemies": [
       {
-        "name": "Valley Prowler",
+        "name": "Bounty Prowler",
         "weight": 1.0
       },
       {
-        "name": "Living Wall Crawler",
+        "name": "Gray Ring Crawler",
         "weight": 1.0
       },
       {
-        "name": "Animated Vine",
+        "name": "Mosshaven Thorn-Ring",
         "weight": 2.0
       }
     ],
@@ -225,15 +225,15 @@
     ],
     "enemies": [
       {
-        "name": "Hedge Hound",
+        "name": "Hedge-King's Hound",
         "weight": 2.0
       },
       {
-        "name": "Dead End Mimic",
+        "name": "Wrong Door",
         "weight": 1.0
       },
       {
-        "name": "Shattered Reflection",
+        "name": "Echo Widow",
         "weight": 1.0
       }
     ],
@@ -260,15 +260,15 @@
     ],
     "enemies": [
       {
-        "name": "Hedge Hound",
+        "name": "Hedge-King's Hound",
         "weight": 1.0
       },
       {
-        "name": "Dead End Mimic",
+        "name": "Wrong Door",
         "weight": 2.0
       },
       {
-        "name": "Shattered Reflection",
+        "name": "Echo Widow",
         "weight": 1.0
       }
     ],
@@ -295,15 +295,15 @@
     ],
     "enemies": [
       {
-        "name": "Hedge Hound",
+        "name": "Hedge-King's Hound",
         "weight": 1.0
       },
       {
-        "name": "Dead End Mimic",
+        "name": "Wrong Door",
         "weight": 1.0
       },
       {
-        "name": "Shattered Reflection",
+        "name": "Echo Widow",
         "weight": 2.0
       }
     ],
@@ -329,15 +329,15 @@
     ],
     "enemies": [
       {
-        "name": "Reed Stalker",
+        "name": "Reed-Man",
         "weight": 2.0
       },
       {
-        "name": "Mosquito Swarm",
+        "name": "Marsh-Hum Swarm",
         "weight": 1.0
       },
       {
-        "name": "Shelf Specter",
+        "name": "Fog Voice",
         "weight": 1.0
       }
     ],
@@ -364,15 +364,15 @@
     ],
     "enemies": [
       {
-        "name": "Reed Stalker",
+        "name": "Reed-Man",
         "weight": 1.0
       },
       {
-        "name": "Mosquito Swarm",
+        "name": "Marsh-Hum Swarm",
         "weight": 2.0
       },
       {
-        "name": "Shelf Specter",
+        "name": "Fog Voice",
         "weight": 1.0
       }
     ],
@@ -399,15 +399,15 @@
     ],
     "enemies": [
       {
-        "name": "Reed Stalker",
+        "name": "Reed-Man",
         "weight": 1.0
       },
       {
-        "name": "Mosquito Swarm",
+        "name": "Marsh-Hum Swarm",
         "weight": 1.0
       },
       {
-        "name": "Shelf Specter",
+        "name": "Fog Voice",
         "weight": 2.0
       }
     ],
@@ -434,7 +434,7 @@
     ],
     "enemies": [
       {
-        "name": "Cave Lurcher",
+        "name": "Cold Shrine Lurcher",
         "weight": 2.0
       },
       {
@@ -442,7 +442,7 @@
         "weight": 1.0
       },
       {
-        "name": "Sinkhole Lurker",
+        "name": "Crystal-Bed Leech",
         "weight": 1.0
       }
     ],
@@ -469,7 +469,7 @@
     ],
     "enemies": [
       {
-        "name": "Cave Lurcher",
+        "name": "Cold Shrine Lurcher",
         "weight": 1.0
       },
       {
@@ -477,7 +477,7 @@
         "weight": 2.0
       },
       {
-        "name": "Sinkhole Lurker",
+        "name": "Crystal-Bed Leech",
         "weight": 1.0
       }
     ],
@@ -504,7 +504,7 @@
     ],
     "enemies": [
       {
-        "name": "Cave Lurcher",
+        "name": "Cold Shrine Lurcher",
         "weight": 1.0
       },
       {
@@ -512,7 +512,7 @@
         "weight": 1.0
       },
       {
-        "name": "Sinkhole Lurker",
+        "name": "Crystal-Bed Leech",
         "weight": 2.0
       }
     ],
@@ -539,15 +539,15 @@
     ],
     "enemies": [
       {
-        "name": "Fourecourt Guard",
+        "name": "Drowned Court Guard",
         "weight": 2.0
       },
       {
-        "name": "Depth Drainer",
+        "name": "Channel-Keeper",
         "weight": 1.0
       },
       {
-        "name": "Throne Revenant",
+        "name": "Crowned Revenant",
         "weight": 1.0
       }
     ],
@@ -574,15 +574,15 @@
     ],
     "enemies": [
       {
-        "name": "Fourecourt Guard",
+        "name": "Drowned Court Guard",
         "weight": 1.0
       },
       {
-        "name": "Depth Drainer",
+        "name": "Channel-Keeper",
         "weight": 2.0
       },
       {
-        "name": "Throne Revenant",
+        "name": "Crowned Revenant",
         "weight": 1.0
       }
     ],
@@ -609,15 +609,15 @@
     ],
     "enemies": [
       {
-        "name": "Fourecourt Guard",
+        "name": "Drowned Court Guard",
         "weight": 1.0
       },
       {
-        "name": "Depth Drainer",
+        "name": "Channel-Keeper",
         "weight": 1.0
       },
       {
-        "name": "Throne Revenant",
+        "name": "Crowned Revenant",
         "weight": 2.0
       }
     ],
@@ -644,15 +644,15 @@
     ],
     "enemies": [
       {
-        "name": "Cinder Hound",
+        "name": "Charwood Hound",
         "weight": 2.0
       },
       {
-        "name": "Cave Ember Toad",
+        "name": "Crater Toad",
         "weight": 1.0
       },
       {
-        "name": "Smog Lurker",
+        "name": "Dry Fog Lurker",
         "weight": 1.0
       }
     ],
@@ -679,15 +679,15 @@
     ],
     "enemies": [
       {
-        "name": "Cinder Hound",
+        "name": "Charwood Hound",
         "weight": 1.0
       },
       {
-        "name": "Cave Ember Toad",
+        "name": "Crater Toad",
         "weight": 2.0
       },
       {
-        "name": "Smog Lurker",
+        "name": "Dry Fog Lurker",
         "weight": 1.0
       }
     ],
@@ -714,15 +714,15 @@
     ],
     "enemies": [
       {
-        "name": "Cinder Hound",
+        "name": "Charwood Hound",
         "weight": 1.0
       },
       {
-        "name": "Cave Ember Toad",
+        "name": "Crater Toad",
         "weight": 1.0
       },
       {
-        "name": "Smog Lurker",
+        "name": "Dry Fog Lurker",
         "weight": 2.0
       }
     ],
@@ -749,15 +749,15 @@
     ],
     "enemies": [
       {
-        "name": "Temple Knight",
+        "name": "Burning Hall Knight",
         "weight": 2.0
       },
       {
-        "name": "Lava Spitter",
+        "name": "Black-Glass Spitter",
         "weight": 1.0
       },
       {
-        "name": "Torch Wraith",
+        "name": "Ember Watch Wraith",
         "weight": 1.0
       }
     ],
@@ -784,15 +784,15 @@
     ],
     "enemies": [
       {
-        "name": "Temple Knight",
+        "name": "Burning Hall Knight",
         "weight": 1.0
       },
       {
-        "name": "Lava Spitter",
+        "name": "Black-Glass Spitter",
         "weight": 2.0
       },
       {
-        "name": "Torch Wraith",
+        "name": "Ember Watch Wraith",
         "weight": 1.0
       }
     ],
@@ -819,15 +819,15 @@
     ],
     "enemies": [
       {
-        "name": "Temple Knight",
+        "name": "Burning Hall Knight",
         "weight": 1.0
       },
       {
-        "name": "Lava Spitter",
+        "name": "Black-Glass Spitter",
         "weight": 1.0
       },
       {
-        "name": "Torch Wraith",
+        "name": "Ember Watch Wraith",
         "weight": 2.0
       }
     ],
@@ -854,15 +854,15 @@
     ],
     "enemies": [
       {
-        "name": "Molten Crab",
+        "name": "Hearthstone Crab",
         "weight": 2.0
       },
       {
-        "name": "Blood Feeder",
+        "name": "Amber Leech",
         "weight": 1.0
       },
       {
-        "name": "Overflow Imp",
+        "name": "Salamander Imp",
         "weight": 1.0
       }
     ],
@@ -889,15 +889,15 @@
     ],
     "enemies": [
       {
-        "name": "Molten Crab",
+        "name": "Hearthstone Crab",
         "weight": 1.0
       },
       {
-        "name": "Blood Feeder",
+        "name": "Amber Leech",
         "weight": 2.0
       },
       {
-        "name": "Overflow Imp",
+        "name": "Salamander Imp",
         "weight": 1.0
       }
     ],
@@ -924,15 +924,15 @@
     ],
     "enemies": [
       {
-        "name": "Molten Crab",
+        "name": "Hearthstone Crab",
         "weight": 1.0
       },
       {
-        "name": "Blood Feeder",
+        "name": "Amber Leech",
         "weight": 1.0
       },
       {
-        "name": "Overflow Imp",
+        "name": "Salamander Imp",
         "weight": 2.0
       }
     ],
@@ -959,15 +959,15 @@
     ],
     "enemies": [
       {
-        "name": "Sandstorm Flanker",
+        "name": "Glass-Road Raider",
         "weight": 2.0
       },
       {
-        "name": "Glass Shard Golem",
+        "name": "Blackglass Golem",
         "weight": 1.0
       },
       {
-        "name": "Mirage Hunter",
+        "name": "Moving Water",
         "weight": 1.0
       }
     ],
@@ -994,15 +994,15 @@
     ],
     "enemies": [
       {
-        "name": "Sandstorm Flanker",
+        "name": "Glass-Road Raider",
         "weight": 1.0
       },
       {
-        "name": "Glass Shard Golem",
+        "name": "Blackglass Golem",
         "weight": 2.0
       },
       {
-        "name": "Mirage Hunter",
+        "name": "Moving Water",
         "weight": 1.0
       }
     ],
@@ -1029,15 +1029,15 @@
     ],
     "enemies": [
       {
-        "name": "Sandstorm Flanker",
+        "name": "Glass-Road Raider",
         "weight": 1.0
       },
       {
-        "name": "Glass Shard Golem",
+        "name": "Blackglass Golem",
         "weight": 1.0
       },
       {
-        "name": "Mirage Hunter",
+        "name": "Moving Water",
         "weight": 2.0
       }
     ],
@@ -1064,15 +1064,15 @@
     ],
     "enemies": [
       {
-        "name": "Hawk",
+        "name": "Cragwing",
         "weight": 2.0
       },
       {
-        "name": "Edge Stalker",
+        "name": "Highspine Stalker",
         "weight": 1.0
       },
       {
-        "name": "Storm Caller",
+        "name": "Ridgeway Caller",
         "weight": 1.0
       }
     ],
@@ -1099,15 +1099,15 @@
     ],
     "enemies": [
       {
-        "name": "Hawk",
+        "name": "Cragwing",
         "weight": 1.0
       },
       {
-        "name": "Edge Stalker",
+        "name": "Highspine Stalker",
         "weight": 2.0
       },
       {
-        "name": "Storm Caller",
+        "name": "Ridgeway Caller",
         "weight": 1.0
       }
     ],
@@ -1134,15 +1134,15 @@
     ],
     "enemies": [
       {
-        "name": "Hawk",
+        "name": "Cragwing",
         "weight": 1.0
       },
       {
-        "name": "Edge Stalker",
+        "name": "Highspine Stalker",
         "weight": 1.0
       },
       {
-        "name": "Storm Caller",
+        "name": "Ridgeway Caller",
         "weight": 2.0
       }
     ],
@@ -1169,7 +1169,7 @@
     ],
     "enemies": [
       {
-        "name": "Guardian Scarab",
+        "name": "Scarab Warden",
         "weight": 2.0
       },
       {
@@ -1204,7 +1204,7 @@
     ],
     "enemies": [
       {
-        "name": "Guardian Scarab",
+        "name": "Scarab Warden",
         "weight": 1.0
       },
       {
@@ -1239,7 +1239,7 @@
     ],
     "enemies": [
       {
-        "name": "Guardian Scarab",
+        "name": "Scarab Warden",
         "weight": 1.0
       },
       {

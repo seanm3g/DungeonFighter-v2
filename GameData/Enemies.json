@@ -757,7 +757,8 @@
     "biome": "Desert",
     "location": "Dune",
     "rarity": "uncommon",
-    "name": "Sandstorm Flanker",
+    "name": "Glass-Road Raider",
+    "formerNames": ["Sandstorm Flanker"],
     "archetype": "Berserker",
     "baseAttributes": {
       "strength": 4,
@@ -972,7 +973,8 @@
     "biome": "Desert",
     "location": "Glass Plains",
     "rarity": "Rare",
-    "name": "Glass Shard Golem",
+    "name": "Blackglass Golem",
+    "formerNames": ["Glass Shard Golem"],
     "archetype": "Duelist",
     "baseAttributes": {
       "strength": 1,
@@ -990,8 +992,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Glass Shackles",
-      "Shard Siphon"
+      "Blackglass Shackles",
+      "Blackglass Siphon"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -1013,7 +1015,8 @@
     "biome": "Desert",
     "location": "Oasis",
     "rarity": "uncommon",
-    "name": "Mirage Hunter",
+    "name": "Moving Water",
+    "formerNames": ["Mirage Hunter"],
     "archetype": "Trickster",
     "baseAttributes": {
       "strength": 7,
@@ -1031,8 +1034,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Mirage Mire",
-      "Thirsting Mirage"
+      "Dry Mire",
+      "False Water"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -1265,7 +1268,8 @@
     "biome": "Pyramids",
     "location": "Tomb Entrance",
     "rarity": "uncommon",
-    "name": "Guardian Scarab",
+    "name": "Scarab Warden",
+    "formerNames": ["Guardian Scarab"],
     "archetype": "Knight",
     "baseAttributes": {
       "strength": 1,
@@ -1283,8 +1287,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Scarab Curse",
-      "Venom Mandibles"
+      "Warden\u0027s Curse",
+      "Grave Mandibles"
     ],
     "kit": [
       "ENEMY SUNDER",
@@ -1504,7 +1508,8 @@
     "biome": "Mountains",
     "location": "Cliffs Edge",
     "rarity": "uncommon",
-    "name": "Hawk",
+    "name": "Cragwing",
+    "formerNames": ["Hawk"],
     "archetype": "Acrobat",
     "baseAttributes": {
       "strength": 1,
@@ -1586,7 +1591,8 @@
     "biome": "Mountains",
     "location": "Cliffs Edge",
     "rarity": "Rare",
-    "name": "Edge Stalker",
+    "name": "Highspine Stalker",
+    "formerNames": ["Edge Stalker"],
     "archetype": "Assassin",
     "baseAttributes": {
       "strength": 5,
@@ -1746,7 +1752,8 @@
     "biome": "Mountains",
     "location": "The Summit",
     "rarity": "uncommon",
-    "name": "Storm Caller",
+    "name": "Ridgeway Caller",
+    "formerNames": ["Storm Caller"],
     "archetype": "Sage",
     "baseAttributes": {
       "strength": 4,
@@ -1765,7 +1772,7 @@
     "tempo": "normal",
     "actions": [
       "Lightning Strike",
-      "Thunderfall"
+      "Pass Toll"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -1865,7 +1872,8 @@
     "biome": "Ashen Land",
     "location": "Smoldering Ridge",
     "rarity": "uncommon",
-    "name": "Cinder Hound",
+    "name": "Charwood Hound",
+    "formerNames": ["Cinder Hound"],
     "archetype": "Berserker",
     "baseAttributes": {
       "strength": 2,
@@ -2024,7 +2032,8 @@
     "biome": "Ashen Land",
     "location": "Smokey Cave",
     "rarity": "uncommon",
-    "name": "Cave Ember Toad",
+    "name": "Crater Toad",
+    "formerNames": ["Cave Ember Toad"],
     "archetype": "Brute",
     "baseAttributes": {
       "strength": 3,
@@ -2042,7 +2051,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "slow",
     "actions": [
-      "Ember Spit",
+      "Crater Spit",
       "Numbing Tongue"
     ],
     "kit": [
@@ -2066,7 +2075,8 @@
     "biome": "Ashen Land",
     "location": "Smokey Cave",
     "rarity": "Rare",
-    "name": "Smog Lurker",
+    "name": "Dry Fog Lurker",
+    "formerNames": ["Smog Lurker"],
     "archetype": "Assassin",
     "baseAttributes": {
       "strength": 1,
@@ -2084,8 +2094,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Smog Step",
-      "Smog Ignition"
+      "Dry Fog Step",
+      "Dry Fog Ignition"
     ],
     "kit": [
       "ENEMY REND",
@@ -2274,7 +2284,8 @@
     "biome": "Fire Temple",
     "location": "Lava Moat Bridge",
     "rarity": "uncommon",
-    "name": "Lava Spitter",
+    "name": "Black-Glass Spitter",
+    "formerNames": ["Lava Spitter"],
     "archetype": "Sage",
     "baseAttributes": {
       "strength": 4,
@@ -2352,7 +2363,8 @@
     "biome": "Fire Temple",
     "location": "Torched Great Hall",
     "rarity": "uncommon",
-    "name": "Temple Knight",
+    "name": "Burning Hall Knight",
+    "formerNames": ["Temple Knight"],
     "archetype": "Knight",
     "baseAttributes": {
       "strength": 3,
@@ -2370,7 +2382,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "slow",
     "actions": [
-      "Iron Vow",
+      "Burning Hall Vow",
       "Shield Bash"
     ],
     "kit": [
@@ -2440,7 +2452,8 @@
     "biome": "Fire Temple",
     "location": "Torched Great Hall",
     "rarity": "Rare",
-    "name": "Torch Wraith",
+    "name": "Ember Watch Wraith",
+    "formerNames": ["Torch Wraith"],
     "archetype": "Trickster",
     "baseAttributes": {
       "strength": 1,
@@ -2613,7 +2626,8 @@
     "biome": "Lava Cave",
     "location": "Lava Spring",
     "rarity": "uncommon",
-    "name": "Blood Feeder",
+    "name": "Amber Leech",
+    "formerNames": ["Blood Feeder"],
     "archetype": "Assassin",
     "baseAttributes": {
       "strength": 3,
@@ -2817,7 +2831,8 @@
     "biome": "Lava Cave",
     "location": "Slag Archipelago",
     "rarity": "Rare",
-    "name": "Molten Crab",
+    "name": "Hearthstone Crab",
+    "formerNames": ["Molten Crab"],
     "archetype": "Knight",
     "baseAttributes": {
       "strength": 3,
@@ -2904,7 +2919,8 @@
     "biome": "Lava Cave",
     "location": "Amber City",
     "rarity": "uncommon",
-    "name": "Overflow Imp",
+    "name": "Salamander Imp",
+    "formerNames": ["Overflow Imp"],
     "archetype": "Trickster",
     "baseAttributes": {
       "strength": 3,
@@ -3025,7 +3041,8 @@
     "biome": "Den",
     "location": "Cave Entrance",
     "rarity": "uncommon",
-    "name": "Alpha Wolf",
+    "name": "Mother\u0027s Wolf",
+    "formerNames": ["Alpha Wolf"],
     "archetype": "Berserker",
     "baseAttributes": {
       "strength": 2,
@@ -3043,8 +3060,8 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Leader\u0027s Fang",
-      "Rally Pack"
+      "Wolf-Stone Fang",
+      "Warband Rush"
     ],
     "kit": [
       "ENEMY REND",
@@ -3065,7 +3082,8 @@
     "biome": "Den",
     "location": "Cave Entrance",
     "rarity": "Rare",
-    "name": "Bone Spreader",
+    "name": "Bone-Reader",
+    "formerNames": ["Bone Spreader"],
     "archetype": "Sage",
     "baseAttributes": {
       "strength": 3,
@@ -3140,7 +3158,8 @@
     "biome": "Den",
     "location": "Offering Mound",
     "rarity": "uncommon",
-    "name": "Cursed Bear",
+    "name": "Orchard Bear",
+    "formerNames": ["Cursed Bear"],
     "archetype": "Brute",
     "baseAttributes": {
       "strength": 1,
@@ -3386,7 +3405,8 @@
     "biome": "Labyrinth",
     "location": "Hedge Corridor",
     "rarity": "uncommon",
-    "name": "Hedge Hound",
+    "name": "Hedge-King\u0027s Hound",
+    "formerNames": ["Hedge Hound"],
     "archetype": "Berserker",
     "baseAttributes": {
       "strength": 4,
@@ -3405,7 +3425,7 @@
     "tempo": "normal",
     "actions": [
       "Hedge Ram",
-      "Bush Ambush"
+      "Hedge Ambush"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -3423,7 +3443,8 @@
     "biome": "Labyrinth",
     "location": "Hedge Corridor",
     "rarity": "Rare",
-    "name": "Dead End Mimic",
+    "name": "Wrong Door",
+    "formerNames": ["Dead End Mimic"],
     "archetype": "Trickster",
     "baseAttributes": {
       "strength": 2,
@@ -3441,7 +3462,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Trap Door",
+      "No Ribbon",
       "Dead End Dread"
     ],
     "kit": [
@@ -3618,7 +3639,8 @@
     "biome": "Labyrinth",
     "location": "The Room of Two Mirrors",
     "rarity": "uncommon",
-    "name": "Shattered Reflection",
+    "name": "Echo Widow",
+    "formerNames": ["Shattered Reflection"],
     "archetype": "Trickster",
     "baseAttributes": {
       "strength": 5,
@@ -3636,7 +3658,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Feeble Reflection",
+      "Last Words",
       "Fragment"
     ],
     "kit": [
@@ -3894,7 +3916,8 @@
     "biome": "Dense Brush",
     "location": "Wildflower Valley",
     "rarity": "Rare",
-    "name": "Valley Prowler",
+    "name": "Bounty Prowler",
+    "formerNames": ["Valley Prowler"],
     "archetype": "Berserker",
     "baseAttributes": {
       "strength": 2,
@@ -3912,7 +3935,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "normal",
     "actions": [
-      "Toxic Fang",
+      "Bounty Fang",
       "Hamstring"
     ],
     "kit": [
@@ -3931,7 +3954,8 @@
     "biome": "Dense Brush",
     "location": "Overgrown Ruin",
     "rarity": "uncommon",
-    "name": "Living Wall Crawler",
+    "name": "Gray Ring Crawler",
+    "formerNames": ["Living Wall Crawler"],
     "archetype": "Assassin",
     "baseAttributes": {
       "strength": 5,
@@ -3949,7 +3973,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "fast",
     "actions": [
-      "Mortar Grip",
+      "Root Grip",
       "Stone Feast"
     ],
     "kit": [
@@ -3969,7 +3993,8 @@
     "biome": "Dense Brush",
     "location": "Overgrown Ruin",
     "rarity": "uncommon",
-    "name": "Animated Vine",
+    "name": "Mosshaven Thorn-Ring",
+    "formerNames": ["Animated Vine"],
     "archetype": "Duelist",
     "baseAttributes": {
       "strength": 3,
@@ -4045,7 +4070,8 @@
     "biome": "Mirror Pond",
     "location": "Reed Shallows",
     "rarity": "uncommon",
-    "name": "Reed Stalker",
+    "name": "Reed-Man",
+    "formerNames": ["Reed Stalker"],
     "archetype": "Assassin",
     "baseAttributes": {
       "strength": 0,
@@ -4064,7 +4090,7 @@
     "tempo": "fast",
     "actions": [
       "Reed Tangle",
-      "Predator\u0027s Eye"
+      "Fog Raid"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -4086,7 +4112,8 @@
     "biome": "Mirror Pond",
     "location": "Reed Shallows",
     "rarity": "uncommon",
-    "name": "Mosquito Swarm",
+    "name": "Marsh-Hum Swarm",
+    "formerNames": ["Mosquito Swarm"],
     "archetype": "Acrobat",
     "baseAttributes": {
       "strength": 6,
@@ -4357,7 +4384,8 @@
     "biome": "Mirror Pond",
     "location": "Fog Shelf",
     "rarity": "Rare",
-    "name": "Shelf Specter",
+    "name": "Fog Voice",
+    "formerNames": ["Shelf Specter"],
     "archetype": "Trickster",
     "baseAttributes": {
       "strength": 4,
@@ -4376,7 +4404,7 @@
     "tempo": "normal",
     "actions": [
       "Veil Snare",
-      "Phantom Siphon"
+      "Only the Voice"
     ],
     "kit": [
       "ENEMY ENSNARE",
@@ -4475,7 +4503,8 @@
     "biome": "Spring",
     "location": "Grotto",
     "rarity": "Rare",
-    "name": "Cave Lurcher",
+    "name": "Cold Shrine Lurcher",
+    "formerNames": ["Cave Lurcher"],
     "archetype": "Brute",
     "baseAttributes": {
       "strength": 2,
@@ -4553,7 +4582,8 @@
     "biome": "Spring",
     "location": "Chronicle Basin",
     "rarity": "uncommon",
-    "name": "Sinkhole Lurker",
+    "name": "Crystal-Bed Leech",
+    "formerNames": ["Sinkhole Lurker"],
     "archetype": "Assassin",
     "baseAttributes": {
       "strength": 4,
@@ -4748,7 +4778,8 @@
     "biome": "Water Temple",
     "location": "Flooded Forecourt",
     "rarity": "uncommon",
-    "name": "Fourecourt Guard",
+    "name": "Drowned Court Guard",
+    "formerNames": ["Fourecourt Guard"],
     "archetype": "Knight",
     "baseAttributes": {
       "strength": 3,
@@ -4766,7 +4797,7 @@
     "healthGrowthPercent": 4.29,
     "tempo": "heavy",
     "actions": [
-      "Tidal Bulwark",
+      "Court Bulwark",
       "Shield Wall"
     ],
     "kit": [
@@ -4790,7 +4821,8 @@
     "biome": "Water Temple",
     "location": "Flooded Forecourt",
     "rarity": "uncommon",
-    "name": "Depth Drainer",
+    "name": "Channel-Keeper",
+    "formerNames": ["Depth Drainer"],
     "archetype": "Sage",
     "baseAttributes": {
       "strength": 5,
@@ -5065,7 +5097,8 @@
     "biome": "Water Temple",
     "location": "The Drowned Throne",
     "rarity": "Rare",
-    "name": "Throne Revenant",
+    "name": "Crowned Revenant",
+    "formerNames": ["Throne Revenant"],
     "archetype": "Warlord",
     "baseAttributes": {
       "strength": 2,

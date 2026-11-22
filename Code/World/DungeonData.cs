@@ -25,6 +25,10 @@ namespace RPGGame
     {
         [JsonPropertyName("name")]
         public string name { get; set; } = "";
+        /// <summary>Names before the lore rename (D9.12, 2026-11-22); old names in history and tools still resolve.</summary>
+        [JsonPropertyName("formerNames")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? formerNames { get; set; }
         [JsonPropertyName("theme")]
         public string theme { get; set; } = "";
         /// <summary>Element region (Forest / Water / Fire / Air) this biome dungeon belongs to; informational for the sheet.</summary>

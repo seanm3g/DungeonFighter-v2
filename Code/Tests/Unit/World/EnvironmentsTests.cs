@@ -26,6 +26,7 @@ namespace RPGGame.Tests.Unit.World
             TestRetiredStillLoads();
             TestBoon();
             TestSpawnsOnlyKept();
+            TestLoreRenames();
 
             TestBase.PrintSummary("Environments Tests", _run, _passed, _failed);
         }
@@ -114,6 +115,22 @@ namespace RPGGame.Tests.Unit.World
             for (int i = 0; i < 20 && Stores.Get(target, "expose") == 0; i++)
                 EnvironmentalActionExecutor.ExecuteEnvironmentalAction(room, new List<Actor> { target }, brine, room);
             Check(Stores.Get(target, "expose") > 0, "Corroding Brine (Acid) now lands Expose");
+        }
+
+        private static void TestLoreRenames()
+        {
+            var wolf = EnemyLoader.CreateEnemy("Alpha Wolf", 5);
+            Check(wolf != null && wolf.Name == "Mother's Wolf", "a pre-rename enemy name loads the renamed enemy");
+            Check(EnemyLoader.GetEnemyData("Mother's Wolf")?.FormerNames?.Contains("Alpha Wolf") == true, "the renamed row keeps its former name");
+            Check(ActionLoader.GetAction("VENOM COAT")?.Name == "RED CORD", "VENOM COAT loads as RED CORD");
+            Check(RPGGame.UI.Avalonia.DungeonThemeColors.GetThemeForDungeonName("The Den") == "Den"
+                && RPGGame.UI.Avalonia.DungeonThemeColors.GetThemeForDungeonName("Denwatch") == "Den", "old and new dungeon names map to the theme");
+            var forest = new TravelRegionCatalog().GetAllRegions().FirstOrDefault(r => r.Id == "forest");
+            Check(forest?.DisplayName == "Widow's Blush", "region display name renamed, id kept");
+            Check(SkillTreesConfig.TryLoadFromGameDataFile()?.GetNode("b-venom")?.Name == "Hammerdown", "Venom Mace node is Hammerdown (id kept)");
+            var en = EnemyLoader.GetAllEnemyData();
+            Check(en.Where(e => !e.Retired).All(e => e.Actions.All(a => !a.Contains("Venom") && !a.Contains("Toxic"))),
+                "no kept enemy action is named for poison");
         }
 
         private static void TestSpawnsOnlyKept()

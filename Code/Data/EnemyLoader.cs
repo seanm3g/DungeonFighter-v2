@@ -67,6 +67,14 @@ namespace RPGGame
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
         public bool Retired { get; set; }
 
+        /// <summary>
+        /// Names this enemy had before the lore rename (D9.12, 2026-11-22). Lookups by an old name (saves, tools, patch
+        /// calibration keys, tests) resolve to this row; the display name is <see cref="Name"/>.
+        /// </summary>
+        [JsonPropertyName("formerNames")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+        public List<string>? FormerNames { get; set; }
+
         [JsonPropertyName("archetype")]
         public string Archetype { get; set; } = "Berserker"; // Default archetype
         /// <summary>
@@ -287,17 +295,8 @@ namespace RPGGame
                 if (_enemies == null)
                     LoadEnemiesCore(validate: false);
 
-                if (_enemies != null)
-                {
-                    if (_enemies.TryGetValue(enemyType, out var enemyData))
-                        return CreateEnemyFromData(enemyData, level);
-
-                    var caseInsensitiveMatch = _enemies.FirstOrDefault(kvp =>
-                        string.Equals(kvp.Key, enemyType, StringComparison.OrdinalIgnoreCase));
-
-                    if (caseInsensitiveMatch.Key != null)
-                        return CreateEnemyFromData(caseInsensitiveMatch.Value, level);
-                }
+                if (FindCore(enemyType) is { } enemyData)
+                    return CreateEnemyFromData(enemyData, level);
 
                 return null;
             }
@@ -321,6 +320,24 @@ namespace RPGGame
             return enemy;
         }
 
+        /// <summary>
+        /// Row by name: exact, then case-insensitive, then a former name (lore rename, 2026-11-22). Caller holds
+        /// <see cref="EnemiesLock"/> and has loaded <see cref="_enemies"/>.
+        /// </summary>
+        private static EnemyData? FindCore(string? enemyType)
+        {
+            if (_enemies == null || string.IsNullOrWhiteSpace(enemyType))
+                return null;
+            if (_enemies.TryGetValue(enemyType, out var exact))
+                return exact;
+            var match = _enemies.FirstOrDefault(kvp => string.Equals(kvp.Key, enemyType, StringComparison.OrdinalIgnoreCase));
+            if (match.Key != null)
+                return match.Value;
+            string wanted = enemyType.Trim();
+            return _enemies.Values.FirstOrDefault(e => e.FormerNames != null
+                && e.FormerNames.Any(n => string.Equals(n, wanted, StringComparison.OrdinalIgnoreCase)));
+        }
+
         public static bool HasEnemy(string enemyType)
         {
             lock (EnemiesLock)
@@ -328,14 +345,7 @@ namespace RPGGame
                 if (_enemies == null)
                     LoadEnemiesCore(validate: false);
 
-                if (_enemies == null)
-                    return false;
-
-                if (_enemies.ContainsKey(enemyType))
-                    return true;
-
-                return _enemies.Keys.Any(key =>
-                    string.Equals(key, enemyType, StringComparison.OrdinalIgnoreCase));
+                return FindCore(enemyType) != null;
             }
         }
 
@@ -357,19 +367,7 @@ namespace RPGGame
                 if (_enemies == null)
                     LoadEnemiesCore(validate: false);
 
-                if (_enemies != null)
-                {
-                    if (_enemies.TryGetValue(enemyType, out var enemyData))
-                        return enemyData;
-
-                    var caseInsensitiveMatch = _enemies.FirstOrDefault(kvp =>
-                        string.Equals(kvp.Key, enemyType, StringComparison.OrdinalIgnoreCase));
-
-                    if (caseInsensitiveMatch.Key != null)
-                        return caseInsensitiveMatch.Value;
-                }
-
-                return null;
+                return FindCore(enemyType);
             }
         }
 

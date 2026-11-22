@@ -47,147 +47,183 @@
     "retired": true
   },
   {
-    "name": "The Den",
+    "name": "Denwatch",
+    "formerNames": [
+      "The Den"
+    ],
     "theme": "Den",
     "region": "Forest",
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Alpha Wolf",
-      "Cursed Bear",
-      "Bone Spreader"
+      "Mother's Wolf",
+      "Orchard Bear",
+      "Bone-Reader"
     ]
   },
   {
-    "name": "Hedge Labyrinth",
+    "name": "The Hedge Nobody Leaves",
+    "formerNames": [
+      "Hedge Labyrinth"
+    ],
     "theme": "Labyrinth",
     "region": "Forest",
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Hedge Hound",
-      "Dead End Mimic",
-      "Shattered Reflection"
+      "Hedge-King's Hound",
+      "Wrong Door",
+      "Echo Widow"
     ]
   },
   {
-    "name": "Dense Brush",
+    "name": "The Gray Ring",
+    "formerNames": [
+      "Dense Brush"
+    ],
     "theme": "Dense Brush",
     "region": "Forest",
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Valley Prowler",
-      "Living Wall Crawler",
-      "Animated Vine"
+      "Bounty Prowler",
+      "Gray Ring Crawler",
+      "Mosshaven Thorn-Ring"
     ]
   },
   {
-    "name": "Mirror Pond",
+    "name": "The Millpond",
+    "formerNames": [
+      "Mirror Pond"
+    ],
     "theme": "Mirror Pond",
     "region": "Water",
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Reed Stalker",
-      "Mosquito Swarm",
-      "Shelf Specter"
+      "Reed-Man",
+      "Marsh-Hum Swarm",
+      "Fog Voice"
     ]
   },
   {
-    "name": "Hidden Spring",
+    "name": "The Crystal Beds",
+    "formerNames": [
+      "Hidden Spring"
+    ],
     "theme": "Spring",
     "region": "Water",
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Cave Lurcher",
+      "Cold Shrine Lurcher",
       "Chronicle Watcher",
-      "Sinkhole Lurker"
+      "Crystal-Bed Leech"
     ]
   },
   {
-    "name": "Water Temple",
+    "name": "The Drowned Court",
+    "formerNames": [
+      "Water Temple"
+    ],
     "theme": "Water Temple",
     "region": "Water",
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Fourecourt Guard",
-      "Depth Drainer",
-      "Throne Revenant"
+      "Drowned Court Guard",
+      "Channel-Keeper",
+      "Crowned Revenant"
     ]
   },
   {
-    "name": "Ashen Land",
+    "name": "The Charwood",
+    "formerNames": [
+      "Ashen Land"
+    ],
     "theme": "Ashen Land",
     "region": "Fire",
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Cinder Hound",
-      "Cave Ember Toad",
-      "Smog Lurker"
+      "Charwood Hound",
+      "Crater Toad",
+      "Dry Fog Lurker"
     ]
   },
   {
-    "name": "Fire Temple",
+    "name": "The Burning Hall",
+    "formerNames": [
+      "Fire Temple"
+    ],
     "theme": "Fire Temple",
     "region": "Fire",
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Temple Knight",
-      "Lava Spitter",
-      "Torch Wraith"
+      "Burning Hall Knight",
+      "Black-Glass Spitter",
+      "Ember Watch Wraith"
     ]
   },
   {
-    "name": "Lava Cave",
+    "name": "The Smoke-Cave",
+    "formerNames": [
+      "Lava Cave"
+    ],
     "theme": "Lava Cave",
     "region": "Fire",
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Molten Crab",
-      "Blood Feeder",
-      "Overflow Imp"
+      "Hearthstone Crab",
+      "Amber Leech",
+      "Salamander Imp"
     ]
   },
   {
-    "name": "Glass Desert",
+    "name": "The Dune-Hollows",
+    "formerNames": [
+      "Glass Desert"
+    ],
     "theme": "Desert",
     "region": "Air",
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Sandstorm Flanker",
-      "Glass Shard Golem",
-      "Mirage Hunter"
+      "Glass-Road Raider",
+      "Blackglass Golem",
+      "Moving Water"
     ]
   },
   {
-    "name": "The Pyramids",
+    "name": "The Tomb of Too Many Eyes",
+    "formerNames": [
+      "The Pyramids"
+    ],
     "theme": "Pyramids",
     "region": "Air",
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Guardian Scarab",
+      "Scarab Warden",
       "Mummy",
       "Sun Priest"
     ]
   },
   {
-    "name": "Windswept Mountains",
+    "name": "The Ridgeway",
+    "formerNames": [
+      "Windswept Mountains"
+    ],
     "theme": "Mountains",
     "region": "Air",
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Hawk",
-      "Edge Stalker",
-      "Storm Caller"
+      "Cragwing",
+      "Highspine Stalker",
+      "Ridgeway Caller"
     ]
   }
 ]

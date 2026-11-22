@@ -203,7 +203,12 @@ namespace RPGGame.UI.Avalonia
                     foreach (var d in JsonLoader.LoadJsonList<DungeonData>("Dungeons.json"))
                     {
                         if (!string.IsNullOrWhiteSpace(d.name) && !string.IsNullOrWhiteSpace(d.theme))
+                        {
                             map[d.name.Trim()] = d.theme.Trim();
+                            foreach (var former in d.formerNames ?? new List<string>())
+                                if (!string.IsNullOrWhiteSpace(former))
+                                    map.TryAdd(former.Trim(), d.theme.Trim());
+                        }
                     }
                 }
                 catch

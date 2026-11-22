@@ -280,7 +280,7 @@
           "sharedWith": []
         },
         {
-          "name": "Venom Mace",
+          "name": "Hammerdown",
           "type": "Passive",
           "effect": "Mace hits against Bleeding enemies turn 2 Bleed into 1 Stagger.",
           "payoff": "Bleed becomes impact.",
@@ -1779,7 +1779,7 @@
           "crossWire": "WHILE -> CRIT 1; WHILE IF TEC>=100 -> CRIT 1"
         },
         {
-          "name": "Envenomed Edge",
+          "name": "Hedge-Blade",
           "type": "Passive",
           "effect": "Hits on a Burning enemy turn 1 Burn into 2 Bleed; critical hits convert twice.",
           "payoff": "Fire becomes Bleed.",

@@ -314,7 +314,7 @@ namespace RPGGame
         /// </summary>
         public void ExitGame()
         {
-            ShowMessageEvent?.Invoke("Thanks for playing Dungeon Fighter!");
+            ShowMessageEvent?.Invoke("Thanks for playing Demon Fighter!");
             if (customUIManager is CanvasUICoordinator canvasUI)
             {
                 canvasUI.Close();

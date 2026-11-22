@@ -350,7 +350,7 @@ namespace RPGGame
                 using var guiMutex = new Mutex(true, guiMutexName, out bool createdNewGuiInstance);
                 if (!createdNewGuiInstance)
                 {
-                    Console.WriteLine("Dungeon Fighter is already running.");
+                    Console.WriteLine("Demon Fighter is already running.");
                     return;
                 }
 

@@ -104,10 +104,10 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
                 return;
             }
 
-            const string defaultEnemy = "Sandstorm Flanker";
+            const string defaultEnemy = "Glass-Road Raider";
             if (!types.Any(t => string.Equals(t, defaultEnemy, StringComparison.OrdinalIgnoreCase)))
             {
-                TestBase.AssertTrue(true, "LabSessionBegin_PicksDefaultCatalogEnemy skipped (Sandstorm Flanker missing)", ref run, ref passed, ref failed);
+                TestBase.AssertTrue(true, "LabSessionBegin_PicksDefaultCatalogEnemy skipped (Glass-Road Raider missing)", ref run, ref passed, ref failed);
                 return;
             }
 
@@ -126,7 +126,7 @@ namespace RPGGame.Tests.Unit.ActionInteractionLab
             var snap = lab.CaptureSimulationSnapshot();
             TestBase.AssertTrue(
                 string.Equals(defaultEnemy, snap.SessionEnemyLoaderType, StringComparison.OrdinalIgnoreCase),
-                "Begin sets Sandstorm Flanker as default loader enemy",
+                "Begin sets Glass-Road Raider as default loader enemy",
                 ref run, ref passed, ref failed);
             TestBase.AssertEqual(1, snap.EnemyLevel, "Begin uses level 1 loader enemy", ref run, ref passed, ref failed);
 

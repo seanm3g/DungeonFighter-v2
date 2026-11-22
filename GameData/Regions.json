@@ -1,7 +1,7 @@
 [
   {
     "id": "forest",
-    "displayName": "Whisperledger Wilds",
+    "displayName": "Widow's Blush",
     "theme": "Forest",
     "description": "Trade-roads under old trees, where dens and hedge mazes hide the first real dangers.",
     "minLevel": 1,
@@ -17,7 +17,7 @@
   },
   {
     "id": "water",
-    "displayName": "Mirrormere Shallows",
+    "displayName": "Reed Hollow",
     "theme": "Water",
     "description": "Reed beds and still pools that show you a little more than your reflection.",
     "minLevel": 6,
@@ -33,7 +33,7 @@
   },
   {
     "id": "lava",
-    "displayName": "Ashglass Covenant",
+    "displayName": "The Ember Valleys",
     "theme": "Fire",
     "description": "Forges and vaults where oaths were tempered in heat and brittle glass.",
     "minLevel": 11,
@@ -49,7 +49,7 @@
   },
   {
     "id": "air",
-    "displayName": "Sandglass Dunes",
+    "displayName": "The Glass Road",
     "theme": "Air",
     "description": "Dunes, glass plains and a single oasis under a merciless sun.",
     "minLevel": 16,
@@ -65,7 +65,7 @@
   },
   {
     "id": "forest-2",
-    "displayName": "Thornveil Deepwood",
+    "displayName": "Greenreach",
     "theme": "Forest",
     "description": "The canopy closes and the brush grows teeth; packs hunt in the green dark.",
     "minLevel": 21,
@@ -81,7 +81,7 @@
   },
   {
     "id": "water-2",
-    "displayName": "Tideglass Reach",
+    "displayName": "Lockmere",
     "theme": "Water",
     "description": "Springs and grottos where the tide runs underground.",
     "minLevel": 26,
@@ -97,7 +97,7 @@
   },
   {
     "id": "fire-2",
-    "displayName": "Cinderfall Marches",
+    "displayName": "Aldergate",
     "theme": "Fire",
     "description": "Ash falls like snow across ridges of black stone.",
     "minLevel": 31,
@@ -113,7 +113,7 @@
   },
   {
     "id": "air-2",
-    "displayName": "Sunscour Wastes",
+    "displayName": "Blackglass",
     "theme": "Air",
     "description": "Wind-scoured desert ringed by tombs of forgotten kings.",
     "minLevel": 36,
@@ -129,7 +129,7 @@
   },
   {
     "id": "forest-3",
-    "displayName": "Elderroot Expanse",
+    "displayName": "Duskmoor",
     "theme": "Forest",
     "description": "Roots older than kingdoms split the ruins; the maze walls move when unwatched.",
     "minLevel": 41,
@@ -145,7 +145,7 @@
   },
   {
     "id": "water-3",
-    "displayName": "Sunken Choir",
+    "displayName": "Siltmoor Mere",
     "theme": "Water",
     "description": "Half-drowned temples that still ring with hymns at high water.",
     "minLevel": 46,
@@ -161,7 +161,7 @@
   },
   {
     "id": "fire-3",
-    "displayName": "Emberforge Depths",
+    "displayName": "Cresthollow",
     "theme": "Fire",
     "description": "Lava caves beneath a temple that burns without fuel.",
     "minLevel": 51,
@@ -177,7 +177,7 @@
   },
   {
     "id": "air-3",
-    "displayName": "Tombwind Heights",
+    "displayName": "The Cracked Ascension",
     "theme": "Air",
     "description": "Pyramids at the foot of the mountains, their curses carried on the wind.",
     "minLevel": 56,
@@ -193,7 +193,7 @@
   },
   {
     "id": "forest-4",
-    "displayName": "Gloamhollow Weald",
+    "displayName": "Hallow's Bend",
     "theme": "Forest",
     "description": "A forest at permanent dusk where every den has a crowned alpha.",
     "minLevel": 61,
@@ -209,7 +209,7 @@
   },
   {
     "id": "water-4",
-    "displayName": "Abyssal Mirror",
+    "displayName": "Stillmoot",
     "theme": "Water",
     "description": "The pond floor drops away into black water that watches back.",
     "minLevel": 66,
@@ -225,7 +225,7 @@
   },
   {
     "id": "fire-4",
-    "displayName": "Pyre of Oaths",
+    "displayName": "Emberfall",
     "theme": "Fire",
     "description": "Where broken promises are burned, along with whoever made them.",
     "minLevel": 71,
@@ -241,7 +241,7 @@
   },
   {
     "id": "air-4",
-    "displayName": "Skyreach Spires",
+    "displayName": "The Highspine",
     "theme": "Air",
     "description": "Cliffs so high the clouds pass below your feet.",
     "minLevel": 76,
@@ -257,7 +257,7 @@
   },
   {
     "id": "forest-5",
-    "displayName": "Worldroot Heart",
+    "displayName": "The Bramble Mother's Wood",
     "theme": "Forest",
     "description": "The heartwood of the world, where the oldest beasts keep their vigil.",
     "minLevel": 81,
@@ -273,7 +273,7 @@
   },
   {
     "id": "water-5",
-    "displayName": "Drowned Crown",
+    "displayName": "The Marsh-Heart",
     "theme": "Water",
     "description": "The seat of the drowned court, where the throne is never empty.",
     "minLevel": 86,
@@ -289,7 +289,7 @@
   },
   {
     "id": "fire-5",
-    "displayName": "Molten Throne",
+    "displayName": "The Embers' Crater",
     "theme": "Fire",
     "description": "The heart of the fire, ruled from a throne of slag and gold.",
     "minLevel": 91,
@@ -305,7 +305,7 @@
   },
   {
     "id": "air-5",
-    "displayName": "Stormcrown Summit",
+    "displayName": "Antarkeia",
     "theme": "Air",
     "description": "The roof of the world, where storms are born and titans sleep.",
     "minLevel": 96,

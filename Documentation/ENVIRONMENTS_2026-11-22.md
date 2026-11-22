@@ -43,6 +43,8 @@ No balance work: enemy stats, kits and hazard numbers are unchanged; only who sp
 
 ## The 12 environments
 
+Names in this section are the pre-rename ones (content step 2); the lore renames of step 3 are tabled at the end.
+
 Region family in brackets (`EnemyAffixes.json`): Forest = Rooted (+HP), Water = Undertow (Stagger on hit), Fire =
 Kindled (Burn on hit), Air = Windswept (speed). Kit names are `ENEMY <kit>` templates.
 
@@ -179,3 +181,102 @@ Frenzy); the core statuses all show up on enemies, hazards or boons (Focus only 
 3. **Slow hazards** (Shifting Hedges, Sandstorm) slow the hero (`CharacterEffects` Slow) and do nothing to enemies,
    though their text says Stagger (since step 5). Switching them to the Stagger store is one line; not changed here.
 4. Boon names and amounts (1–2 stacks, same roll as hazards) are first guesses; no sims.
+
+## Lore renames (D9.12, done once, 2026-11-22) — **REVIEW**
+
+Source: the collaborator's Faerlan artifact, **Common knowledge and Legend / scholar lenses only** (the Truth lens and
+the original prose were not read for this; the saved page was parsed for those two lenses). Record IDs below; a name
+taken from a record's title (no lens line used) says "title". Display names change; ids, themes, code identifiers and
+file keys don't. Old names keep loading:
+
+- **Enemies** have no id, so each renamed row keeps `formerNames` (`EnemyData.FormerNames`): `EnemyLoader`
+  (`CreateEnemy`, `GetEnemyData`, `HasEnemy`), room pools and the per-enemy **calibration** keys in the balance patches
+  (`EnemyIdentity`, keyed by name) all resolve an old name to the renamed row, so no numbers move. Renamed flavor
+  actions get new `EnemyActions.json` aliases; the old alias keys stay.
+- **Dungeons** have no id either: `formerNames` on `Dungeons.json` rows (`DungeonData.formerNames`), read by
+  `DungeonThemeColors.GetThemeForDungeonName` (the only name → dungeon lookup); history entries keep whatever name
+  they recorded. Themes (Den, Labyrinth, ...) are unchanged, so rooms, affixes and matchups are untouched.
+- **Regions**: `displayName` only; ids (`forest`, `water-2`, ...) are what saves and code use.
+- The Demon titles in `EnemyAffixes.json` ("Demon of the Den") are unshown data and were left.
+- Player text now says **Demon Fighter** in the window titles, the About panel, the quit line and the "already
+  running" line (the in-game "DUNGEON FIGHTERS" panel header was left: code compares that string).
+
+### Regions (20; id → new display name)
+| Id | Old | New | Record |
+|---|---|---|---|
+| forest | Whisperledger Wilds | Widow's Blush | PL-widows-blush (the forest the Widows saved by running roads through it) |
+| water | Mirrormere Shallows | Reed Hollow | PL-reed-hollow (title), EV-long-wet |
+| lava | Ashglass Covenant | The Ember Valleys | EV-emptying-of-the-ember-valleys |
+| air | Sandglass Dunes | The Glass Road | EV-caravan-mistress ("every well on the glass road") |
+| forest-2 | Thornveil Deepwood | Greenreach | PL-greenreach, EV-greenreach-refusal |
+| water-2 | Tideglass Reach | Lockmere | EV-lockmere-raised |
+| fire-2 | Cinderfall Marches | Aldergate | EV-third-day-at-aldergate (a morning of ash), EV-second-inheritance |
+| air-2 | Sunscour Wastes | Blackglass | EV-noon-at-blackglass |
+| forest-3 | Elderroot Expanse | Duskmoor | PL-duskmoor-wood, EV-duskmoor-wood |
+| water-3 | Sunken Choir | Siltmoor Mere | EV-siltmoor-barley |
+| fire-3 | Emberforge Depths | Cresthollow | EV-vent-keepers-of-cresthollow (miners) |
+| air-3 | Tombwind Heights | The Cracked Ascension | PL-cracked-ascension (title), EV-names-in-the-ascension |
+| forest-4 | Gloamhollow Weald | Hallow's Bend | PL-hallows-bend, EV-hound-village |
+| water-4 | Abyssal Mirror | Stillmoot | PL-sallowmere (title "Stillmoot") |
+| fire-4 | Pyre of Oaths | Emberfall | EV-standing-ban (four houses swore at Emberfall) |
+| air-4 | Skyreach Spires | The Highspine | EV-featherfalls-echo |
+| forest-5 | Worldroot Heart | The Bramble Mother's Wood | EV-greenreach-refusal |
+| water-5 | Drowned Crown | The Marsh-Heart | EV-marsh-heart-scouts, EV-lines-to-the-heart |
+| fire-5 | Molten Throne | The Embers' Crater | PL-embers-crater (title), EV-crater-loaf |
+| air-5 | Stormcrown Summit | Antarkeia | PL-antarkeia (ground everyone has reason to leave alone) |
+
+### Dungeons (12; theme unchanged)
+| Theme | Old | New | Record |
+|---|---|---|---|
+| Den | The Den | Denwatch | EV-denwatch-squatters, EV-alphas-reach |
+| Labyrinth | Hedge Labyrinth | The Hedge Nobody Leaves | EV-hedge-nobody-leaves |
+| Dense Brush | Dense Brush | The Gray Ring | EV-grey-ring-in-the-wood |
+| Mirror Pond | Mirror Pond | The Millpond | EV-boy-in-the-millpond, EV-fog-voice |
+| Spring | Hidden Spring | The Crystal Beds | EV-steam-crystals |
+| Water Temple | Water Temple | The Drowned Court | PL-water-temple |
+| Ashen Land | Ashen Land | The Charwood | EV-the-charwood |
+| Fire Temple | Fire Temple | The Burning Hall | EV-order-of-the-burning-hall |
+| Lava Cave | Lava Cave | The Smoke-Cave | EV-golems-wall ("the smoke-cave") |
+| Desert | Glass Desert | The Dune-Hollows | EV-caravan-mistress ("out of the dune-hollows at dusk") |
+| Pyramids | The Pyramids | The Tomb of Too Many Eyes | PL-tomb-of-too-many-eyes (title) |
+| Mountains | Windswept Mountains | The Ridgeway | EV-ridgeway-partys-toll |
+
+### Enemies (33 of the 36; kept: Chronicle Watcher, Mummy, Sun Priest, already lore names: GR-chronicle-keepers, EV-mummy-brown-trade, FA-sun-priests)
+| Old | New | Record | Renamed flavor actions |
+|---|---|---|---|
+| Alpha Wolf | Mother's Wolf | EV-wolf-taboo, EV-bramble-mothers-grave | Leader's Fang → Wolf-Stone Fang; Rally Pack → Warband Rush (EV-alphas-reach) |
+| Cursed Bear | Orchard Bear | EV-bare-orchard | — |
+| Bone Spreader | Bone-Reader | EV-bone-readers | — |
+| Hedge Hound | Hedge-King's Hound | EV-hedge-king | Bush Ambush → Hedge Ambush |
+| Dead End Mimic | Wrong Door | EV-wrong-door ("No ribbon, no door") | Trap Door → No Ribbon |
+| Shattered Reflection | Echo Widow | EV-echo-widow | Feeble Reflection → Last Words |
+| Valley Prowler | Bounty Prowler | EV-wolf-bounty | Toxic Fang → Bounty Fang |
+| Living Wall Crawler | Gray Ring Crawler | EV-grey-ring-in-the-wood | Mortar Grip → Root Grip |
+| Animated Vine | Mosshaven Thorn-Ring | EV-thorn-rings-of-mosshaven | — |
+| Reed Stalker | Reed-Man | EV-reed-boat-raiders | Predator's Eye → Fog Raid |
+| Mosquito Swarm | Marsh-Hum Swarm | EV-edge-sitters ("the marsh hums") | — |
+| Shelf Specter | Fog Voice | EV-fog-voice | Phantom Siphon → Only the Voice |
+| Cave Lurcher | Cold Shrine Lurcher | PL-long-cold-shrine (title) | — |
+| Sinkhole Lurker | Crystal-Bed Leech | EV-steam-crystals ("the leech is already there") | — |
+| Fourecourt Guard | Drowned Court Guard | PL-water-temple | Tidal Bulwark → Court Bulwark |
+| Depth Drainer | Channel-Keeper | EV-channel-that-stopped | — |
+| Throne Revenant | Crowned Revenant | EV-crowned-revenant | — |
+| Cinder Hound | Charwood Hound | EV-the-charwood | — |
+| Cave Ember Toad | Crater Toad | EV-crater-loaf | Ember Spit → Crater Spit |
+| Smog Lurker | Dry Fog Lurker | EV-dry-fog | Smog Step → Dry Fog Step; Smog Ignition → Dry Fog Ignition |
+| Temple Knight | Burning Hall Knight | EV-order-of-the-burning-hall | Iron Vow → Burning Hall Vow |
+| Lava Spitter | Black-Glass Spitter | EV-smoking-mirrors | — |
+| Torch Wraith | Ember Watch Wraith | EV-ember-watch | — |
+| Molten Crab | Hearthstone Crab | EV-crab-stones | — |
+| Blood Feeder | Amber Leech | EV-amber-cutters | — |
+| Overflow Imp | Salamander Imp | EV-salamander-charter | — |
+| Sandstorm Flanker | Glass-Road Raider | EV-caravan-mistress | — (also the Action Lab's default enemy) |
+| Glass Shard Golem | Blackglass Golem | EV-noon-at-blackglass, EV-golems-wall | Glass Shackles → Blackglass Shackles; Shard Siphon → Blackglass Siphon |
+| Mirage Hunter | Moving Water | EV-lost-caravan-of-the-oasis | Mirage Mire → Dry Mire; Thirsting Mirage → False Water |
+| Guardian Scarab | Scarab Warden | EV-scarab-wardens | Scarab Curse → Warden's Curse; Venom Mandibles → Grave Mandibles |
+| Hawk | Cragwing | EV-cragwings-face-west | — |
+| Edge Stalker | Highspine Stalker | EV-featherfalls-echo | — |
+| Storm Caller | Ridgeway Caller | EV-ridgeway-partys-toll | Thunderfall → Pass Toll |
+
+Count: 20 regions, 12 dungeons, 33 enemies, 21 enemy flavor actions, 3 player-facing cards / nodes (see
+`ACTION_CUT_2026-11-22.md`). The 12 boon names are new and plain (Warm Hollow, Straight Run, ...), not lore names.

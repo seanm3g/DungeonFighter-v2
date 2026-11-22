@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using RPGGame.World.Tags;
 
 namespace RPGGame
@@ -72,7 +74,15 @@ namespace RPGGame
             double health = Math.Pow(healthShape, intensity);
 
             double calibration = 1.0;
-            if (config.Calibration != null && config.Calibration.TryGetValue(data.Name, out var anchors) && anchors?.Count > 0)
+            // Calibration is keyed by enemy name in the patches; a renamed enemy (lore pass, 2026-11-22) keeps its former key.
+            List<EnemyDamageCurveAnchor>? anchors = null;
+            if (config.Calibration != null)
+            {
+                foreach (string key in new[] { data.Name }.Concat(data.FormerNames ?? new List<string>()))
+                    if (config.Calibration.TryGetValue(key, out anchors) && anchors?.Count > 0)
+                        break;
+            }
+            if (anchors?.Count > 0)
                 calibration = new EnemyDamageCurveConfig { Enabled = true, Anchors = anchors }.MultiplierAt(level);
 
             double refAttr = ReferenceAttributeAt(level, enemySystem);

@@ -199,7 +199,7 @@ namespace RPGGame.Tests.Unit
             Stores.Add(foe, "weaken", 1);
             TestBase.AssertTrue(Stores.Get(foe, "rattle") >= 1, "weaken store adds Rattle", ref _run, ref _passed, ref _failed);
 
-            foreach (string name in new[] { "VENOM COAT", "OPEN VEIN", "STOKE", "CORRODE", "DAZE", "BRACE" })
+            foreach (string name in new[] { "RED CORD", "VENOM COAT", "OPEN VEIN", "STOKE", "CORRODE", "DAZE", "BRACE" })
             {
                 var data = ActionLoader.GetActionData(name);
                 TestBase.AssertTrue(data != null && VerbSpec.Parse(data.Verb)?.Kind == VerbKind.Apply

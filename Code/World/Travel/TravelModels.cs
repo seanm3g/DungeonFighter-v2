@@ -275,7 +275,7 @@ namespace RPGGame
             new TravelRegion
             {
                 Id = "forest",
-                DisplayName = "Whisperledger Wilds",
+                DisplayName = "Widow's Blush",
                 Theme = "Forest",
                 Description = "Trade-roads where relics once changed hands; the trees remember every inscription.",
                 LinkedDungeonThemes = new List<string> { "Forest", "Crypt", "Sky" }
@@ -283,7 +283,7 @@ namespace RPGGame
             new TravelRegion
             {
                 Id = "lava",
-                DisplayName = "Ashglass Covenant",
+                DisplayName = "The Ember Valleys",
                 Theme = "Lava",
                 Description = "Forges and vaults where oaths were tempered in heat and brittle glass.",
                 LinkedDungeonThemes = new List<string> { "Lava", "Ice", "Sky" }

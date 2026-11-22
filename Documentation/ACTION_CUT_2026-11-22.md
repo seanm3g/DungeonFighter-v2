@@ -87,7 +87,7 @@ rolls but their skill nodes still grant them — see question 1.
 | CONCENTRATE | setup | skill node `r-concentrate` grants it |
 | FAN OF KNIVES | payoff | the many-quick-hits card (4 hits) |
 | BLOODLET | payoff | cashes a material store into Bleed |
-| VENOM COAT | payoff | Bleed source; was `APPLY poison 6` (a retired status) → `APPLY bleed 2`. Name is a rename candidate |
+| RED CORD (was VENOM COAT) | payoff | Bleed source; was `APPLY poison 6` (a retired status) → `APPLY bleed 2`. Renamed in the content pass |
 | LOADED DICE | setup | exact rolls: next natural roll = 12 |
 | CRIT FACES | setup | exact rolls: 19s crit for the fight |
 | GAMBLERS BLESSING | sequence | crit → next card fires again |
@@ -392,7 +392,18 @@ words; tone melancholic. Rarity rule used: starters (Common starter gear) get no
 | QUIRK | "A statue's hand with knuckles. Tell me what statue needs knuckles." | EV-hand-in-the-guildhall |
 | STARFALL | "The sky threw down its own iron to arm the faithful. It answers only a clean hand." — Sun Priest preaching | TM-star-iron |
 
-## Rename proposals (not done; D9.12 says renames happen once)
+## Renames done (content pass, 2026-11-22; D9.12, once) — **REVIEW**
+
+| Old | New | Kind | Record | Loads old name via |
+|---|---|---|---|---|
+| VENOM COAT | RED CORD | card (Rogue, applies Bleed) | EV-ankle-cord (its flavor line already: "Tie them red at the ankle") | `ActionLoader` alias |
+| Venom Mace | Hammerdown | skill node `b-venom` (Bleed → Stagger on mace hits) | EV-first-forfeiture ("the Hammerdowns", BLUDGEON's flavor) | node id unchanged |
+| Envenomed Edge | Hedge-Blade | skill node `r-edge` (Burn → Bleed) | EV-hedge-blade-price-wars (hunters' cant) | node id unchanged |
+
+The hybrid skill nodes now carry their card's name (Shoulder Check, Iron Guard, ...: content step 1). Enemies,
+regions and dungeons: `ENVIRONMENTS_2026-11-22.md`. The proposals below were the input.
+
+## Rename proposals (input to the pass above)
 
 Cards whose names fight their new mechanics or the lore, for one rename pass with you:
 - VENOM COAT (now Bleed) → e.g. "ASH IN THE CUT" (Long Grief: rub ash into old cuts).
