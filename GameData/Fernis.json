@@ -1,0 +1,114 @@
+{
+  "_doc": "Fernis D Man's line bank (Documentation/CORE_DESIGN_PASS_2026-11-17.md, D9.1-D9.9). A small devil on your shoulder: finds things truthfully, gives the opposite of good advice, finds your suffering hilarious. Moments are keyed by event; 'big' moments always speak, small ones roll smallChance; at most one line per hero swing. Lines by class (barbarian / warrior / rogue / wizard) fall back to 'any'. Tokens: {hero} {enemy} {turns} {links} {cause} {hp} {status}. Draft lines: REVIEW in the step 11 lore pass.",
+  "speaker": "Fernis",
+  "maxLinesPerSwing": 1,
+  "smallChance": 0.35,
+  "moments": {
+    "fightWon": {
+      "big": false,
+      "lines": {
+        "any": [
+          "{turns} turns. I've seen faster funerals, but fine.",
+          "{enemy} is down. I'd call that a win if I were generous. I'm not.",
+          "Done in {turns}. Next time try losing, it's more interesting for me."
+        ],
+        "barbarian": ["You hit it until it stopped. Truly the thinking man's approach."],
+        "warrior": ["Very tidy. Very sensible. I nearly fell asleep on your shoulder."],
+        "rogue": ["Stabbed to death. Classic. Your mother would be so proud."],
+        "wizard": ["Magic. Big lights. It died. I'm told that's a career."]
+      }
+    },
+    "comeback": {
+      "big": true,
+      "lines": {
+        "any": [
+          "You were at {hp}% and you WON? I'd already sold your boots.",
+          "Back from the brink. Disgusting. I had a whole eulogy ready."
+        ]
+      }
+    },
+    "death": {
+      "big": true,
+      "lines": {
+        "any": [
+          "Here lies {hero}. Tried hard. Rolled a one.",
+          "Well. That's the end of my free ride.",
+          "{enemy} wins. I'll be on its shoulder now. No hard feelings."
+        ],
+        "barbarian": ["Died swinging. Mostly at air, but swinging."],
+        "warrior": ["All that armor, and it still found the soft bit."],
+        "rogue": ["Quick, clever, dead. Two out of three."],
+        "wizard": ["You read every book except the one about not dying."]
+      }
+    },
+    "chainComplete": {
+      "big": true,
+      "lines": {
+        "any": [
+          "{links} links! I'd clap, but I'm holding a tiny fork.",
+          "The whole strip, start to finish. Don't let it go to your head. Too late.",
+          "{links} in a row. Do that again and I might have to respect you."
+        ]
+      }
+    },
+    "chainBroken": {
+      "big": false,
+      "lines": {
+        "any": [
+          "Chain's gone. {cause}. I'm writing it down.",
+          "And there goes the combo. {cause}. Beautiful.",
+          "{cause} cost you a link. Keep doing that, it's hilarious."
+        ]
+      }
+    },
+    "overkill": {
+      "big": false,
+      "lines": {
+        "any": [
+          "It was already dead. You kept going. I love you a little.",
+          "Overkill. Rude to the corpse, honestly.",
+          "That hit had leftovers. Somebody take them home."
+        ]
+      }
+    },
+    "closeCall": {
+      "big": true,
+      "lines": {
+        "any": [
+          "{hp}% HP. I'm updating my will. You're not in it.",
+          "You're about to die. Stand still, it's quicker.",
+          "Low health! Great time to try your slowest card."
+        ]
+      }
+    },
+    "threat": {
+      "big": false,
+      "lines": {
+        "any": [
+          "Its chain is at {links}. This is the part where you worry.",
+          "{enemy} is building something. Ignore it, I'm sure it's nothing.",
+          "{links} links on the other side. Don't block. Blocking is for cowards."
+        ]
+      }
+    },
+    "newConcept": {
+      "big": true,
+      "lines": {
+        "any": [
+          "{status}. New toy. I'd be furious.",
+          "Ooh, {status}. You'll hate this. I already love it."
+        ]
+      }
+    },
+    "dungeonSummary": {
+      "big": true,
+      "lines": {
+        "any": [
+          "Out alive. Your best chain was {links}. I've had longer naps.",
+          "Dungeon done. I counted every mistake. It's a long list.",
+          "We made it out. Next time take the scary door, trust me."
+        ]
+      }
+    }
+  }
+}

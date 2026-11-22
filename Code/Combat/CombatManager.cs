@@ -432,6 +432,10 @@ namespace RPGGame
             CombatEffectsSimplified.ApplyEnemyStartAffixes(currentEnemy, room);
             RPGGame.Combat.Events.HeroEventHub.Raise(player, RPGGame.Combat.Rules.EnemyRules.FightStart);
 
+            // Fernis D Man and the swing moments (D9.1, D9.5): live, unmuted fights only.
+            var fernis = RPGGame.Combat.Narrative.FernisFightSession.Enabled
+                ? new RPGGame.Combat.Narrative.FernisFightSession(player, currentEnemy)
+                : null;
             try
             {
                 if (tutorialScript != null)
@@ -446,6 +450,7 @@ namespace RPGGame
                     if (!CombatUiMuteScope.IsMuted && !DisableCombatUIOutput)
                         await DeveloperModeState.WaitWhilePausedAsync(cancellationToken);
                     var step = await AdvanceSingleTurnAsync(player, currentEnemy, room, forcedAction: null, tutorialScript: tutorialScript);
+                    fernis?.Flush();
                     if (step == CombatSingleTurnResult.Advanced)
                         continue;
                     break;
@@ -454,6 +459,11 @@ namespace RPGGame
                 // A kill gets its moment on the board before the fight hands back to the log.
                 if (player.IsAlive && !currentEnemy.IsAlive && !CombatUiMuteScope.IsMuted)
                     await CombatTurnAnnouncement.AnnounceDefeatAsync(currentEnemy);
+                if (fernis != null && tutorialScript == null)
+                {
+                    fernis.FinishFight();
+                    fernis.Flush();
+                }
                 if (tutorialScript != null && player.IsAlive && !currentEnemy.IsAlive)
                     await TutorialCoach.ShowAllAsync(tutorialScript.OutroNotes, TutorialCoach.BuildTokens(player), cancellationToken);
 
@@ -480,6 +490,7 @@ namespace RPGGame
             }
             finally
             {
+                fernis?.Dispose();
                 Cleanup();
             }
         }

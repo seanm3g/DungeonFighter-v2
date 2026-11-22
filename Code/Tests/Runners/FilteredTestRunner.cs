@@ -230,6 +230,7 @@ namespace RPGGame.Tests.Runners
             list.Add(new TestSuiteEntry("combat", "CombatDelayManager", () => RPGGame.Tests.Unit.Combat.CombatDelayManagerTests.RunAllTests()));
             list.Add(new TestSuiteEntry("config", "CharacterRevealRhythmCalculator", () => RPGGame.Tests.Unit.Config.CharacterRevealRhythmCalculatorTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatUiMuteScope", () => RPGGame.Tests.Unit.Combat.CombatUiMuteScopeTests.RunAllTests()));
+            list.Add(new TestSuiteEntry("combat", "Fernis", () => RPGGame.Tests.Unit.Combat.FernisTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "HealthBarDeltaDamageHint", () => RPGGame.Tests.Unit.Combat.HealthBarDeltaDamageHintTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "CombatEffectsSimplified", () => RPGGame.Tests.Unit.Combat.CombatEffectsSimplifiedTests.RunAllTests()));
             list.Add(new TestSuiteEntry("combat", "ActionTriggerGate", () => RPGGame.Tests.Unit.ActionTriggerGateTests.RunAllTests()));

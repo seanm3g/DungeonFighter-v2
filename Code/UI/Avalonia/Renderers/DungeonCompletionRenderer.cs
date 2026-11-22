@@ -126,6 +126,12 @@ namespace RPGGame.UI.Avalonia.Renderers
 
             AddLogLine(lines, BuildMetricLine("Total Damage Received:", sessionStats.RunDamageReceived.ToString("N0")));
 
+            // Fernis D Man narrates the run (D9.2).
+
+            if (RPGGame.Combat.Narrative.FernisNarrator.SummaryLine(player) is { } fernisLine)
+
+                AddLogLine(lines, new List<ColoredText> { new ColoredText(fernisLine, AsciiArtAssets.Colors.Yellow) });
+
 
 
             lines.Add(new List<ColoredText>());
