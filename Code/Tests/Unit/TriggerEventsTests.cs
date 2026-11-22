@@ -103,11 +103,11 @@ namespace RPGGame.Tests.Unit
         {
             TestBase.SetCurrentTestName(nameof(TestLabelsAndDescriptions));
             TestBase.AssertEqual("On take hit", ItemTriggerBundleDisplay.FormatWhen("ON_RECEIVE_HIT"), "take-hit alias label", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("On natural 7", ItemTriggerBundleDisplay.FormatWhen("ONNATURALROLL:7"), "arg label", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("On hit or miss, natural 7", ItemTriggerBundleDisplay.FormatWhen("ONNATURALROLL:7"), "arg label", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("On room clear #3", ItemTriggerBundleDisplay.FormatWhen("ONROOMSCLEARED:3"), "room-clear arg label", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("On roll total 15", ItemTriggerBundleDisplay.FormatWhen("ONROLLVALUE:15"), "roll-value arg label", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("On hit or miss, roll total 15", ItemTriggerBundleDisplay.FormatWhen("ONROLLVALUE:15"), "roll-value arg label", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("While equipped", ItemTriggerBundleDisplay.FormatWhen("WHILE_EQUIPPED"), "equip label", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("On normal hit", ItemTriggerBundleDisplay.FormatWhen("ONHIT"), "normal hit label", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("On hit, first roll", ItemTriggerBundleDisplay.FormatWhen("ONHIT"), "normal hit label", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("each time an enemy hits you", MaterialBuildData.DescribeWhen("ON_RECEIVE_HIT"), "describe alias", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("its set trigger", MaterialBuildData.DescribeWhen(""), "describe empty", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("ONSOMETHINGNEW", MaterialBuildData.DescribeWhen("ON_SOMETHING_NEW"), "describe unknown falls back to token", ref _run, ref _passed, ref _failed);

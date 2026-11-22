@@ -18,7 +18,8 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
 | 3.1 Action roles, class hits | done | `9c9d9d9d` | 15074 passed / 0 failed |
 | 3.2 + 3.3 Fernis, swing moments, fight results | done | `8123dd8b` | 15086 passed / 2 failed (both flaky, see below) |
 | 4 Families, matchups, one modifier, prefixes, regions, encounters | partial | `234f1287` | 15106 passed / 0 failed |
-| 5 Core statuses, NEW moment | partial | (this commit) | 15128 passed / 0 failed |
+| 5 Core statuses, NEW moment | partial | `4204f65f` | 15128 passed / 0 failed |
+| 6 Event labels (11), modifiers scoped by rarity | partial | (this commit) | 15124 + label fixes; affected suites 0 failed |
 
 ## Phase 11 — item rolls (D11.1–D11.12)
 - **Class affinity (D11.7):** every rolled item has one of 10 affinities (`Item.ClassAffinity`, saved as
@@ -154,3 +155,19 @@ steps 0, 1, 2; step 6's engine merge and fixed resolution order; step 8's verb c
 - Direct code paths that apply a retired status without going through the registry or `Stores` (some older combat
   helpers call `ApplyPoison`-style methods directly) are not migrated.
 - Affinities as immune / weak: `StatusAffinities.json` already does this by tag; not changed.
+
+## Step 6 — Synergies and the one rule engine (rest)
+
+### Done
+- **11 player-facing events (D6.1):** every trigger event's card label now reads as one of hit, miss, crit, crit
+  miss, action, chain end, kill, take hit, status, turn, with roll details as conditions ("On hit, right after a
+  miss", "On hit or miss, odd roll", "On status: Stagger", "On action, 2+ hits in a row"). Tokens and aliases are
+  unchanged, so no rule changes meaning. Three label tests updated.
+- **Base modifiers scoped by rarity (D4.2, D6.5):** below Epic a base modifier is self-contained; RANK / TAGAS /
+  SETCOUNT parts drop, and a base left with nothing rolls a self-contained class modifier instead
+  (`BaseModifierRoller.ScopeToRarity`). New roller test.
+
+### Not done
+- **On chain complete** as its own event: Fernis already reacts to it (step 3), but no rule token raises it yet.
+- Cutting the internal token set (the 30 tokens stay; the material earn rules that use ONODD, ONFIRSTHIT,
+  ONHEALTHTHRESHOLD... move onto chain moments in step 8, which is a design-and-balance pass).

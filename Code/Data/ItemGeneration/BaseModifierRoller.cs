@@ -100,6 +100,24 @@ namespace RPGGame.Data.ItemGeneration
             item.ImplicitRule = rolled.Rule;
         }
 
+        /// <summary>
+        /// Rarity scope (D4.2, D6.5, Phase 10 step 6): modifiers that reach into other systems (RANK a skill node,
+        /// TAGAS another tag, SETCOUNT a set) need Epic or better; below that a modifier is self-contained. Returns the
+        /// rule with the out-of-scope parts dropped (empty when none is left).
+        /// </summary>
+        public static string ScopeToRarity(string? rule, string? rarity)
+        {
+            if (string.IsNullOrWhiteSpace(rule) || RarityOrder.IndexOf(rarity) >= EpicIndex)
+                return rule ?? "";
+            return string.Join("; ", SplitRules(rule).Where(p => !ReachesOut(p)));
+        }
+
+        public const int EpicIndex = 3;
+
+        /// <summary>True for a rule part that uses RANK, TAGAS or SETCOUNT.</summary>
+        public static bool ReachesOut(string part) =>
+            CrossWireRule.Parse(part, "scope") is { Verb: "RANK" or "TAGAS" or "SETCOUNT" };
+
         /// <summary>The rules of a modifier (<see cref="Item.ImplicitRule"/> may hold several, <c>;</c>-separated).</summary>
         public static List<string> SplitRules(string? rule) =>
             (rule ?? "").Split(';').Select(p => p.Trim()).Where(p => p.Length > 0).ToList();

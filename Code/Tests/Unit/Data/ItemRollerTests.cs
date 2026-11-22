@@ -69,6 +69,7 @@ namespace RPGGame.Tests.Unit.Data
             TestClassAffinityTiltsLines();
             TestEveryHybridHasLines();
             TestEveryRuleLineParses();
+            TestModifiersReachOutOnlyFromEpic();
 
             TestBase.PrintSummary("ItemRoller Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -892,6 +893,24 @@ namespace RPGGame.Tests.Unit.Data
             var thin = HybridTrees.All.Select(h => h.Tag)
                 .Where(tag => _cache.ItemMods.Families.Count(f => f.Classes?.Contains(tag) == true) < 2).ToList();
             TestBase.AssertTrue(thin.Count == 0, $"every hybrid has at least 2 composite lines (thin: {string.Join(", ", thin)})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>Step 6 (D4.2, D6.5): RANK / TAGAS / SETCOUNT base modifiers only from Epic up.</summary>
+        private static void TestModifiersReachOutOnlyFromEpic()
+        {
+            int low = 0, lowBad = 0, high = 0, highReach = 0;
+            foreach (string r in new[] { "Uncommon", "Rare", "Epic", "Legendary" })
+                foreach (var (item, _) in Roll(new ItemRollRequest { ItemLevel = 60, Rarity = r, AllowRollUps = false }, 200, 70000 + r.Length * 977))
+                {
+                    var parts = BaseModifierRoller.SplitRules(item.ImplicitRule);
+                    bool reaches = parts.Any(BaseModifierRoller.ReachesOut);
+                    if (RarityOrder.IndexOf(item.Rarity) < BaseModifierRoller.EpicIndex) { low++; if (reaches) lowBad++; }
+                    else { high++; if (reaches) highReach++; }
+                }
+            TestBase.AssertTrue(low > 0 && lowBad == 0, $"below Epic, base modifiers are self-contained ({lowBad} of {low} reach out)",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(high > 0 && highReach > 0, $"from Epic, base modifiers can reach other systems ({highReach} of {high})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
 

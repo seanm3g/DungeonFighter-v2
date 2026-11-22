@@ -470,7 +470,28 @@ namespace RPGGame.Data.ItemGeneration
                 _item.Implicit = "";
                 if (CommonItemRules.MustBePlain(_item))
                     return; // Rebuild 2.1: a Common has no base modifier.
-                var rolled = BaseModifierRoller.FromCatalog(_modifierTemplate, For("implicit"));
+                var implicitRng = For("implicit");
+                var rolled = BaseModifierRoller.FromCatalog(_modifierTemplate, implicitRng);
+                // Step 6 (D4.2, D6.5): below Epic a base modifier is self-contained; RANK / TAGAS / SETCOUNT parts drop, and
+                // a base left with nothing takes a self-contained class modifier instead.
+                if (rolled is { } scoped && RarityOrder.IndexOf(_item.Rarity) < BaseModifierRoller.EpicIndex)
+                {
+                    string kept = BaseModifierRoller.ScopeToRarity(scoped.Rule, _item.Rarity);
+                    if (kept.Length == 0)
+                    {
+                        rolled = null;
+                        for (int attempt = 0; attempt < 6 && rolled == null; attempt++)
+                        {
+                            var alt = BaseModifierRoller.Roll(_spec.Class, _ilvl, implicitRng, Cfg.ImplicitPercentPerItemLevel);
+                            if (alt is { } a && BaseModifierRoller.ScopeToRarity(a.Rule, _item.Rarity) == a.Rule)
+                                rolled = a;
+                        }
+                    }
+                    else if (kept != scoped.Rule)
+                    {
+                        rolled = scoped with { Rule = kept };
+                    }
+                }
                 if (rolled is not { } r)
                     return;
                 _item.ImplicitRule = r.Rule;
