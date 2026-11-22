@@ -57,6 +57,8 @@ namespace RPGGame.UI.Avalonia.Renderers
                 && ReferenceEquals(turn.Queue[0].Actor, enemy) && !turn.Queue[0].IsActing)
                 canvas.AddText(nextCard.X + 1, nextCard.Y, " NEXT ", AsciiArtAssets.Colors.Gold);
 
+            DrawNewConceptCard(colX, colW, enemyStripH, enemyCards);
+
             var heroCard = HeroCardRect(player, LiveSwingFor(player));
             UpdateTurnSpotlight(player, enemy, turn, enemyCard, heroCard, (colX, 0, colW, enemyStripH), enemyCards);
 
@@ -1305,6 +1307,31 @@ namespace RPGGame.UI.Avalonia.Renderers
             int exact = branches.FindIndex(b => b.Outcome != null && b.Critical == critical
                 && (b.Outcome == swing.Outcome || (critical && !miss && b.Outcome != CombatSequenceSwingOutcome.Miss)));
             return exact >= 0 ? exact : branches.FindIndex(b => b.Outcome == swing.Outcome);
+        }
+
+        private static readonly Color NewCardBorder = Color.FromRgb(255, 220, 90);
+
+        /// <summary>
+        /// D9.3: the NEW card for a status met for the first time, beside the enemy strip (on the wider side of its cards),
+        /// one sentence wrapped into a small box; fades out over its last second.
+        /// </summary>
+        private void DrawNewConceptCard(int colX, int colW, int stripH, List<(int X, int Y, int W, int H)> enemyCards)
+        {
+            if (RPGGame.Combat.Narrative.NewConceptCards.Visible(DateTimeOffset.UtcNow) is not { } shown)
+                return;
+            CombatBoardAnimation.RequestFrame();
+            int left = enemyCards.Count > 0 ? enemyCards[0].X - colX - 2 : colW / 2;
+            int right = enemyCards.Count > 0 ? colX + colW - (enemyCards[^1].X + enemyCards[^1].W) - 2 : colW / 2;
+            int w = Math.Min(30, Math.Max(left, right));
+            if (w < 14)
+                return; // no room beside the strip: Fernis's line in the log still names it
+            int x = left >= right ? colX + 1 : colX + colW - 1 - w;
+            var rows = RPGGame.UI.BoardText.Wrap(shown.Card.Text, w - 2, Math.Max(1, stripH - 2));
+            int h = rows.Count + 2;
+            double a = shown.Alpha;
+            AddBoardBox(x, 0, w, h, LerpColor(BoardCardBackground, NewCardBorder, a), BoardCardBackground, borderThicknessPixels: 2);
+            for (int i = 0; i < rows.Count; i++)
+                canvas.AddText(x + 1, 1 + i, rows[i], LerpColor(BoardCardBackground, i == 0 ? NewCardBorder : AsciiArtAssets.Colors.White, a));
         }
 
         private static readonly Color NowStatusLineColor = Color.FromRgb(150, 200, 255);

@@ -84,6 +84,9 @@ namespace RPGGame.Tests.Unit.Combat
 
             TestBase.AssertTrue(!FernisFightSession.Enabled || !RPGGame.Combat.CombatUiMuteScope.IsMuted, "Fernis is off in muted fights", ref _run, ref _passed, ref _failed);
 
+            // Statuses these sessions met would otherwise mark items in later loot-reveal tests (D9.3).
+            NewConceptCards.Dismiss();
+            NewConceptCards.ClearMet();
             TestBase.PrintSummary("Fernis Tests", _run, _passed, _failed);
         }
     }

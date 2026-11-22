@@ -113,6 +113,10 @@ namespace RPGGame.LootReveal
                         beats.Add($"★ {RuleText.Plain(unique)}");
             }
 
+            // NEW (D9.3): the loot that answers a status met this run ("own it").
+            if (RPGGame.Combat.Narrative.NewConceptCards.LootLine(item) is { } newLine)
+                beats.Add(newLine);
+
             // 6. The verdict.
             LootVerdict verdict;
             string why;
@@ -424,6 +428,8 @@ namespace RPGGame.LootReveal
             if (list.Count == 0)
                 return null;
             Active = new LootRevealSession(hero, LootRevealBuilder.BuildAll(hero, list));
+            // The statuses met this run have had their chance to mark an answering item (D9.3).
+            RPGGame.Combat.Narrative.NewConceptCards.ClearMet();
             return Active;
         }
 
