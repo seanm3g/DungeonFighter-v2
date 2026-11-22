@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using RPGGame;
 using RPGGame.Tests.Unit.Config;
@@ -64,6 +64,7 @@ namespace RPGGame.Tests.Runners
             ("ActionCut", () => ActionCutTests.RunAllTests()),
             ("WeaponUpgrade", () => WeaponUpgradeTests.RunAllTests()),
             ("RebuildStep4", () => RPGGame.Tests.Unit.World.RebuildStep4Tests.RunAllTests()),
+            ("Environments", () => RPGGame.Tests.Unit.World.EnvironmentsTests.RunAllTests()),
             ("GameDataValidator", () => GameDataValidatorTests.RunAllTests()),
             ("ActionDataValidator", () => ActionDataValidatorTests.RunAllTests()),
         };

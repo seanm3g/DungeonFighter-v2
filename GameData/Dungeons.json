@@ -13,7 +13,8 @@
       "Boar",
       "Rats",
       "Giant Ants"
-    ]
+    ],
+    "retired": true
   },
   {
     "name": "Lava Caves",
@@ -27,7 +28,8 @@
       "Salamander",
       "Ember Spirit",
       "Magma Beast"
-    ]
+    ],
+    "retired": true
   },
   {
     "name": "Haunted Crypt",
@@ -41,7 +43,8 @@
       "Ghoul",
       "Lich",
       "Wight"
-    ]
+    ],
+    "retired": true
   },
   {
     "name": "The Den",
@@ -50,15 +53,9 @@
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Territorial Hound",
       "Alpha Wolf",
-      "Bone Spreader",
-      "Tribute Beast",
       "Cursed Bear",
-      "Mound Warden",
-      "Moon Blessed",
-      "Echo Stalker",
-      "Vigil Alpha"
+      "Bone Spreader"
     ]
   },
   {
@@ -68,15 +65,9 @@
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Guile Sprite",
       "Hedge Hound",
       "Dead End Mimic",
-      "Maze Runner",
-      "Loop Shade",
-      "Instinct Eater",
-      "Duplicate",
-      "Shattered Reflection",
-      "The Other"
+      "Shattered Reflection"
     ]
   },
   {
@@ -86,15 +77,9 @@
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Thorn Boar",
-      "Root Sprite",
-      "Rattlesnake",
-      "Nectar Drone",
-      "Pollen Wraith",
       "Valley Prowler",
       "Living Wall Crawler",
-      "Animated Vine",
-      "Ruin Wraith"
+      "Animated Vine"
     ]
   },
   {
@@ -106,12 +91,6 @@
     "possibleEnemies": [
       "Reed Stalker",
       "Mosquito Swarm",
-      "Mud Lurker",
-      "Current Rider",
-      "Slick Eel",
-      "Hollow Drifter",
-      "Fog Mimic",
-      "Cold Creeper",
       "Shelf Specter"
     ]
   },
@@ -122,15 +101,9 @@
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Glow Mite",
-      "Frost Creeper",
       "Cave Lurcher",
       "Chronicle Watcher",
-      "Sinkhole Lurker",
-      "Ink Stalker",
-      "Vent Sprite",
-      "Lion Fish",
-      "Mist Phantom"
+      "Sinkhole Lurker"
     ]
   },
   {
@@ -142,12 +115,6 @@
     "possibleEnemies": [
       "Fourecourt Guard",
       "Depth Drainer",
-      "Tide Sentinel",
-      "Pressure Monk",
-      "Cascade Rider",
-      "Aqueduct Warden",
-      "Still Gazer",
-      "Undertow Shade",
       "Throne Revenant"
     ]
   },
@@ -159,14 +126,8 @@
     "maxLevel": 100,
     "possibleEnemies": [
       "Cinder Hound",
-      "Magma Creeper",
-      "Ashwing Harpy",
-      "Soot Golem",
       "Cave Ember Toad",
-      "Smog Lurker",
-      "Charwood Stalker",
-      "Scorched Treant",
-      "Reignited Wisp"
+      "Smog Lurker"
     ]
   },
   {
@@ -176,15 +137,9 @@
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Bridge Warden",
-      "Lava Spitter",
-      "Flame Drifter",
       "Temple Knight",
-      "Pilar Watcher",
-      "Torch Wraith",
-      "Royal Flame Guard",
-      "Seal Caster",
-      "Throne Effigy"
+      "Lava Spitter",
+      "Torch Wraith"
     ]
   },
   {
@@ -194,15 +149,9 @@
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Blood Feeder",
-      "Vent Spore",
-      "Crystal Leech",
-      "Slag Tortoise",
-      "Island Drifter",
       "Molten Crab",
-      "Amber Sentinel",
-      "Overflow Imp",
-      "Amber Trapper"
+      "Blood Feeder",
+      "Overflow Imp"
     ]
   },
   {
@@ -213,14 +162,8 @@
     "maxLevel": 100,
     "possibleEnemies": [
       "Sandstorm Flanker",
-      "Sand Serpent",
-      "Dune Roller",
-      "Sun Lance Scorpion",
-      "Glare Stalker",
       "Glass Shard Golem",
-      "Mirage Hunter",
-      "Shadow Wraith",
-      "Restorative Leech"
+      "Mirage Hunter"
     ]
   },
   {
@@ -230,15 +173,9 @@
     "minLevel": 1,
     "maxLevel": 100,
     "possibleEnemies": [
-      "Stone Colossus",
-      "Poison Dart Sentinel",
-      "Sun Priest",
       "Guardian Scarab",
-      "Tomb Creeper",
-      "Sarcopha Gus",
-      "Burial Lich",
       "Mummy",
-      "Ancestor's Shade"
+      "Sun Priest"
     ]
   },
   {
@@ -249,14 +186,8 @@
     "maxLevel": 100,
     "possibleEnemies": [
       "Hawk",
-      "Rock Lobber",
       "Edge Stalker",
-      "Scavenger Rat",
-      "Toxic Drinker",
-      "Deserter Shade",
-      "Storm Caller",
-      "Altitude Wraith",
-      "Summit Titan"
+      "Storm Caller"
     ]
   }
 ]

@@ -14,7 +14,8 @@
     "causesSlow": false,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "boss collapse",
@@ -31,7 +32,8 @@
     "causesSlow": false,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "graveyard rising",
@@ -48,7 +50,8 @@
     "causesSlow": true,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "ice shards",
@@ -65,7 +68,8 @@
     "causesSlow": false,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "ruins curse",
@@ -82,7 +86,8 @@
     "causesSlow": false,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "ash cloud",
@@ -99,7 +104,8 @@
     "causesSlow": false,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "ember rain",
@@ -150,7 +156,8 @@
     "causesSlow": false,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "falling branch",
@@ -167,7 +174,8 @@
     "causesSlow": false,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "pollen cloud",
@@ -185,7 +193,8 @@
     "causesPoison": true,
     "poisonPercent": 0.25,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "thorn vines",
@@ -219,7 +228,8 @@
     "causesSlow": false,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "sandstorm",
@@ -253,7 +263,8 @@
     "causesSlow": false,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "sacred flames",
@@ -287,7 +298,8 @@
     "causesSlow": false,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "shifting hedges",
@@ -321,7 +333,8 @@
     "causesSlow": false,
     "causesPoison": false,
     "causesBurn": true,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "steam burst",
@@ -372,7 +385,8 @@
     "causesSlow": true,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "gale force",
@@ -389,7 +403,8 @@
     "causesSlow": true,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "rockfall",
@@ -424,7 +439,8 @@
     "causesPoison": true,
     "poisonPercent": 0.25,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "dart trap",
@@ -458,7 +474,8 @@
     "causesSlow": true,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
   },
   {
     "id": "scalding vent",
@@ -509,6 +526,223 @@
     "causesSlow": false,
     "causesPoison": false,
     "causesBurn": false,
-    "causesAcid": false
+    "causesAcid": false,
+    "retired": true
+  },
+  {
+    "id": "warm hollow",
+    "name": "Warm Hollow",
+    "theme": "Den",
+    "roomType": null,
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "A dry hollow under the roots to put your back to (you gain Guard)",
+    "causesStun": false,
+    "causesBleed": false,
+    "causesWeaken": false,
+    "causesSlow": false,
+    "causesPoison": false,
+    "causesBurn": false,
+    "causesAcid": false,
+    "grants": "harden"
+  },
+  {
+    "id": "straight run",
+    "name": "Straight Run",
+    "theme": "Labyrinth",
+    "roomType": null,
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "For a moment the hedges part on one straight line (you gain Haste)",
+    "causesStun": false,
+    "causesBleed": false,
+    "causesWeaken": false,
+    "causesSlow": false,
+    "causesPoison": false,
+    "causesBurn": false,
+    "causesAcid": false,
+    "grants": "haste"
+  },
+  {
+    "id": "sunlit gap",
+    "name": "Sunlit Gap",
+    "theme": "Dense Brush",
+    "roomType": null,
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "Light breaks through the canopy and shows you the next blow (you gain Focus)",
+    "causesStun": false,
+    "causesBleed": false,
+    "causesWeaken": false,
+    "causesSlow": false,
+    "causesPoison": false,
+    "causesBurn": false,
+    "causesAcid": false,
+    "grants": "focus"
+  },
+  {
+    "id": "still water",
+    "name": "Still Water",
+    "theme": "Mirror Pond",
+    "roomType": null,
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "The pond goes still and shows the foe a moment early (you gain Focus)",
+    "causesStun": false,
+    "causesBleed": false,
+    "causesWeaken": false,
+    "causesSlow": false,
+    "causesPoison": false,
+    "causesBurn": false,
+    "causesAcid": false,
+    "grants": "focus"
+  },
+  {
+    "id": "cold spring",
+    "name": "Cold Spring",
+    "theme": "Spring",
+    "roomType": null,
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "A mouthful of cold spring water wakes you up (you gain Haste)",
+    "causesStun": false,
+    "causesBleed": false,
+    "causesWeaken": false,
+    "causesSlow": false,
+    "causesPoison": false,
+    "causesBurn": false,
+    "causesAcid": false,
+    "grants": "haste"
+  },
+  {
+    "id": "temple ward",
+    "name": "Temple Ward",
+    "theme": "Water Temple",
+    "roomType": null,
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "An old ward on the temple floor flickers up around you (you gain Guard)",
+    "causesStun": false,
+    "causesBleed": false,
+    "causesWeaken": false,
+    "causesSlow": false,
+    "causesPoison": false,
+    "causesBurn": false,
+    "causesAcid": false,
+    "grants": "harden"
+  },
+  {
+    "id": "ash lee",
+    "name": "Ash Lee",
+    "theme": "Ashen Land",
+    "roomType": null,
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "You drop into the lee of a burnt trunk as the smoke rolls over (you gain Guard)",
+    "causesStun": false,
+    "causesBleed": false,
+    "causesWeaken": false,
+    "causesSlow": false,
+    "causesPoison": false,
+    "causesBurn": false,
+    "causesAcid": false,
+    "grants": "harden"
+  },
+  {
+    "id": "brazier glow",
+    "name": "Brazier Glow",
+    "theme": "Fire Temple",
+    "roomType": null,
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "The braziers flare and light up every gap in their guard (you gain Focus)",
+    "causesStun": false,
+    "causesBleed": false,
+    "causesWeaken": false,
+    "causesSlow": false,
+    "causesPoison": false,
+    "causesBurn": false,
+    "causesAcid": false,
+    "grants": "focus"
+  },
+  {
+    "id": "hot draft",
+    "name": "Hot Draft",
+    "theme": "Lava Cave",
+    "roomType": null,
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "A rush of hot air from the vents pushes at your back (you gain Haste)",
+    "causesStun": false,
+    "causesBleed": false,
+    "causesWeaken": false,
+    "causesSlow": false,
+    "causesPoison": false,
+    "causesBurn": false,
+    "causesAcid": false,
+    "grants": "haste"
+  },
+  {
+    "id": "standing stone",
+    "name": "Standing Stone",
+    "theme": "Desert",
+    "roomType": null,
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "You get the shade of a standing stone between you and the glare (you gain Guard)",
+    "causesStun": false,
+    "causesBleed": false,
+    "causesWeaken": false,
+    "causesSlow": false,
+    "causesPoison": false,
+    "causesBurn": false,
+    "causesAcid": false,
+    "grants": "harden"
+  },
+  {
+    "id": "sun shaft",
+    "name": "Sun Shaft",
+    "theme": "Pyramids",
+    "roomType": null,
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "A shaft of sunlight through the stones lights the way (you gain Focus)",
+    "causesStun": false,
+    "causesBleed": false,
+    "causesWeaken": false,
+    "causesSlow": false,
+    "causesPoison": false,
+    "causesBurn": false,
+    "causesAcid": false,
+    "grants": "focus"
+  },
+  {
+    "id": "tailwind",
+    "name": "Tailwind",
+    "theme": "Mountains",
+    "roomType": null,
+    "type": "Buff",
+    "damageMultiplier": 0.0,
+    "length": 2.0,
+    "description": "The gale turns and pushes at your back (you gain Haste)",
+    "causesStun": false,
+    "causesBleed": false,
+    "causesWeaken": false,
+    "causesSlow": false,
+    "causesPoison": false,
+    "causesBurn": false,
+    "causesAcid": false,
+    "grants": "haste"
   }
 ]

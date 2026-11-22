@@ -4,6 +4,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Goblin",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -42,6 +43,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Spider",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -81,6 +83,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Wolf",
     "archetype": "Berserker",
     "baseAttributes": {
@@ -117,6 +120,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Fire Elemental",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -155,6 +159,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Lava Golem",
     "archetype": "Brute",
     "baseAttributes": {
@@ -191,6 +196,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Bats",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -230,6 +236,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Rats",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -269,6 +276,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Giant Ants",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -308,6 +316,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Skeleton",
     "archetype": "Berserker",
     "baseAttributes": {
@@ -346,6 +355,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Zombie",
     "archetype": "Brute",
     "baseAttributes": {
@@ -379,6 +389,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Wraith",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -416,6 +427,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Bear",
     "archetype": "Berserker",
     "baseAttributes": {
@@ -453,6 +465,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Treant",
     "archetype": "Brute",
     "baseAttributes": {
@@ -487,6 +500,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Boar",
     "archetype": "Berserker",
     "baseAttributes": {
@@ -523,6 +537,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Salamander",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -560,6 +575,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Ember Spirit",
     "archetype": "Sage",
     "baseAttributes": {
@@ -596,6 +612,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Magma Beast",
     "archetype": "Brute",
     "baseAttributes": {
@@ -630,6 +647,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Ghoul",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -663,6 +681,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Lich",
     "archetype": "Sage",
     "baseAttributes": {
@@ -700,6 +719,7 @@
     "biome": "n/a",
     "location": "General",
     "rarity": "common",
+    "retired": true,
     "name": "Wight",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -777,6 +797,7 @@
     "biome": "Desert",
     "location": "Dune",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Sand Serpent",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -819,6 +840,7 @@
     "biome": "Desert",
     "location": "Dune",
     "rarity": "Rare",
+    "retired": true,
     "name": "Dune Roller",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -863,6 +885,7 @@
     "biome": "Desert",
     "location": "Glass Plains",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Sun Lance Scorpion",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -906,6 +929,7 @@
     "biome": "Desert",
     "location": "Glass Plains",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Glare Stalker",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -1032,6 +1056,7 @@
     "biome": "Desert",
     "location": "Oasis",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Shadow Wraith",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -1070,6 +1095,7 @@
     "biome": "Desert",
     "location": "Oasis",
     "rarity": "Rare",
+    "retired": true,
     "name": "Restorative Leech",
     "archetype": "Sage",
     "baseAttributes": {
@@ -1112,6 +1138,7 @@
     "biome": "Pyramids",
     "location": "Grand Corridor",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Stone Colossus",
     "archetype": "Brute",
     "baseAttributes": {
@@ -1152,6 +1179,7 @@
     "biome": "Pyramids",
     "location": "Grand Corridor",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Poison Dart Sentinel",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -1281,6 +1309,7 @@
     "biome": "Pyramids",
     "location": "Tomb Entrance",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Tomb Creeper",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -1319,6 +1348,7 @@
     "biome": "Pyramids",
     "location": "Tomb Entrance",
     "rarity": "Rare",
+    "retired": true,
     "name": "Sarcopha Gus",
     "archetype": "Brute",
     "baseAttributes": {
@@ -1356,6 +1386,7 @@
     "biome": "Pyramids",
     "location": "Burial Chamber",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Burial Lich",
     "archetype": "Sage",
     "baseAttributes": {
@@ -1435,6 +1466,7 @@
     "biome": "Pyramids",
     "location": "Burial Chamber",
     "rarity": "Rare",
+    "retired": true,
     "name": "Ancestor\u0027s Shade",
     "archetype": "Sage",
     "baseAttributes": {
@@ -1510,6 +1542,7 @@
     "biome": "Mountains",
     "location": "Cliffs Edge",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Rock Lobber",
     "archetype": "Brute",
     "baseAttributes": {
@@ -1594,6 +1627,7 @@
     "biome": "Mountains",
     "location": "Abandoned Campsite",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Scavenger Rat",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -1636,6 +1670,7 @@
     "biome": "Mountains",
     "location": "Abandoned Campsite",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Toxic Drinker",
     "archetype": "Sage",
     "baseAttributes": {
@@ -1673,6 +1708,7 @@
     "biome": "Mountains",
     "location": "Abandoned Campsite",
     "rarity": "Rare",
+    "retired": true,
     "name": "Deserter Shade",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -1748,6 +1784,7 @@
     "biome": "Mountains",
     "location": "The Summit",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Altitude Wraith",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -1787,6 +1824,7 @@
     "biome": "Mountains",
     "location": "The Summit",
     "rarity": "Rare",
+    "retired": true,
     "name": "Summit Titan",
     "archetype": "Brute",
     "baseAttributes": {
@@ -1865,6 +1903,7 @@
     "biome": "Ashen Land",
     "location": "Smoldering Ridge",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Magma Creeper",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -1904,6 +1943,7 @@
     "biome": "Ashen Land",
     "location": "Smoldering Ridge",
     "rarity": "Rare",
+    "retired": true,
     "name": "Ashwing Harpy",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -1943,6 +1983,7 @@
     "biome": "Ashen Land",
     "location": "Smokey Cave",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Soot Golem",
     "archetype": "Knight",
     "baseAttributes": {
@@ -2063,6 +2104,7 @@
     "biome": "Ashen Land",
     "location": "Blackened Forest",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Charwood Stalker",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -2105,6 +2147,7 @@
     "biome": "Ashen Land",
     "location": "Blackened Forest",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Scorched Treant",
     "archetype": "Brute",
     "baseAttributes": {
@@ -2144,6 +2187,7 @@
     "biome": "Ashen Land",
     "location": "Blackened Forest",
     "rarity": "Rare",
+    "retired": true,
     "name": "Reignited Wisp",
     "archetype": "Sage",
     "baseAttributes": {
@@ -2184,6 +2228,7 @@
     "biome": "Fire Temple",
     "location": "Lava Moat Bridge",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Bridge Warden",
     "archetype": "Knight",
     "baseAttributes": {
@@ -2268,6 +2313,7 @@
     "biome": "Fire Temple",
     "location": "Lava Moat Bridge",
     "rarity": "Rare",
+    "retired": true,
     "name": "Flame Drifter",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -2350,6 +2396,7 @@
     "biome": "Fire Temple",
     "location": "Torched Great Hall",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Pilar Watcher",
     "archetype": "Knight",
     "baseAttributes": {
@@ -2431,6 +2478,7 @@
     "biome": "Fire Temple",
     "location": "Throne Room",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Royal Flame Guard",
     "archetype": "Knight",
     "baseAttributes": {
@@ -2476,6 +2524,7 @@
     "biome": "Fire Temple",
     "location": "Throne Room",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Seal Caster",
     "archetype": "Sage",
     "baseAttributes": {
@@ -2518,6 +2567,7 @@
     "biome": "Fire Temple",
     "location": "Throne Room",
     "rarity": "Rare",
+    "retired": true,
     "name": "Throne Effigy",
     "archetype": "Knight",
     "baseAttributes": {
@@ -2600,6 +2650,7 @@
     "biome": "Lava Cave",
     "location": "Lava Spring",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Vent Spore",
     "archetype": "Sage",
     "baseAttributes": {
@@ -2639,6 +2690,7 @@
     "biome": "Lava Cave",
     "location": "Lava Spring",
     "rarity": "Rare",
+    "retired": true,
     "name": "Crystal Leech",
     "archetype": "Sage",
     "baseAttributes": {
@@ -2682,6 +2734,7 @@
     "biome": "Lava Cave",
     "location": "Slag Archipelago",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Slag Tortoise",
     "archetype": "Brute",
     "baseAttributes": {
@@ -2724,6 +2777,7 @@
     "biome": "Lava Cave",
     "location": "Slag Archipelago",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Island Drifter",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -2806,6 +2860,7 @@
     "biome": "Lava Cave",
     "location": "Amber City",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Amber Sentinel",
     "archetype": "Knight",
     "baseAttributes": {
@@ -2893,6 +2948,7 @@
     "biome": "Lava Cave",
     "location": "Amber City",
     "rarity": "Rare",
+    "retired": true,
     "name": "Amber Trapper",
     "archetype": "Sage",
     "baseAttributes": {
@@ -2931,6 +2987,7 @@
     "biome": "Den",
     "location": "Cave Entrance",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Territorial Hound",
     "archetype": "Berserker",
     "baseAttributes": {
@@ -3045,6 +3102,7 @@
     "biome": "Den",
     "location": "Offering Mound",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Tribute Beast",
     "archetype": "Brute",
     "baseAttributes": {
@@ -3123,6 +3181,7 @@
     "biome": "Den",
     "location": "Offering Mound",
     "rarity": "Rare",
+    "retired": true,
     "name": "Mound Warden",
     "archetype": "Knight",
     "baseAttributes": {
@@ -3167,6 +3226,7 @@
     "biome": "Den",
     "location": "Vigil Circle",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Moon Blessed",
     "archetype": "Sage",
     "baseAttributes": {
@@ -3205,6 +3265,7 @@
     "biome": "Den",
     "location": "Vigil Circle",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Echo Stalker",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -3246,6 +3307,7 @@
     "biome": "Den",
     "location": "Vigil Circle",
     "rarity": "Rare",
+    "retired": true,
     "name": "Vigil Alpha",
     "archetype": "Warlord",
     "baseAttributes": {
@@ -3284,6 +3346,7 @@
     "biome": "Labyrinth",
     "location": "Hedge Corridor",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Guile Sprite",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -3401,6 +3464,7 @@
     "biome": "Labyrinth",
     "location": "Endless Maze",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Maze Runner",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -3439,6 +3503,7 @@
     "biome": "Labyrinth",
     "location": "Endless Maze",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Loop Shade",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -3476,6 +3541,7 @@
     "biome": "Labyrinth",
     "location": "Endless Maze",
     "rarity": "Rare",
+    "retired": true,
     "name": "Instinct Eater",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -3513,6 +3579,7 @@
     "biome": "Labyrinth",
     "location": "The Room of Two Mirrors",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Duplicate",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -3588,6 +3655,7 @@
     "biome": "Labyrinth",
     "location": "The Room of Two Mirrors",
     "rarity": "Rare",
+    "retired": true,
     "name": "The Other",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -3626,6 +3694,7 @@
     "biome": "Dense Brush",
     "location": "Thicket",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Thorn Boar",
     "archetype": "Brute",
     "baseAttributes": {
@@ -3666,6 +3735,7 @@
     "biome": "Dense Brush",
     "location": "Thicket",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Root Sprite",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -3705,6 +3775,7 @@
     "biome": "Dense Brush",
     "location": "Thicket",
     "rarity": "Rare",
+    "retired": true,
     "name": "Rattlesnake",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -3745,6 +3816,7 @@
     "biome": "Dense Brush",
     "location": "Wildflower Valley",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Nectar Drone",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -3784,6 +3856,7 @@
     "biome": "Dense Brush",
     "location": "Wildflower Valley",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Pollen Wraith",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -3934,6 +4007,7 @@
     "biome": "Dense Brush",
     "location": "Overgrown Ruin",
     "rarity": "Rare",
+    "retired": true,
     "name": "Ruin Wraith",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -4049,6 +4123,7 @@
     "biome": "Mirror Pond",
     "location": "Reed Shallows",
     "rarity": "Rare",
+    "retired": true,
     "name": "Mud Lurker",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -4087,6 +4162,7 @@
     "biome": "Mirror Pond",
     "location": "Tidal Hollow",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Current Rider",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -4124,6 +4200,7 @@
     "biome": "Mirror Pond",
     "location": "Tidal Hollow",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Slick Eel",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -4161,6 +4238,7 @@
     "biome": "Mirror Pond",
     "location": "Tidal Hollow",
     "rarity": "Rare",
+    "retired": true,
     "name": "Hollow Drifter",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -4198,6 +4276,7 @@
     "biome": "Mirror Pond",
     "location": "Fog Shelf",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Fog Mimic",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -4239,6 +4318,7 @@
     "biome": "Mirror Pond",
     "location": "Fog Shelf",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Cold Creeper",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -4314,6 +4394,7 @@
     "biome": "Spring",
     "location": "Grotto",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Glow Mite",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -4351,6 +4432,7 @@
     "biome": "Spring",
     "location": "Grotto",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Frost Creeper",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -4508,6 +4590,7 @@
     "biome": "Spring",
     "location": "Chronicle Basin",
     "rarity": "Rare",
+    "retired": true,
     "name": "Ink Stalker",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -4549,6 +4632,7 @@
     "biome": "Spring",
     "location": "Blue Vent Basin",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Vent Sprite",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -4588,6 +4672,7 @@
     "biome": "Spring",
     "location": "Blue Vent Basin",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Lion Fish",
     "archetype": "Assassin",
     "baseAttributes": {
@@ -4625,6 +4710,7 @@
     "biome": "Spring",
     "location": "Blue Vent Basin",
     "rarity": "Rare",
+    "retired": true,
     "name": "Mist Phantom",
     "archetype": "Trickster",
     "baseAttributes": {
@@ -4741,6 +4827,7 @@
     "biome": "Water Temple",
     "location": "Flooded Forecourt",
     "rarity": "Rare",
+    "retired": true,
     "name": "Tide Sentinel",
     "archetype": "Knight",
     "baseAttributes": {
@@ -4783,6 +4870,7 @@
     "biome": "Water Temple",
     "location": "Aqueduct Nave",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Pressure Monk",
     "archetype": "Duelist",
     "baseAttributes": {
@@ -4820,6 +4908,7 @@
     "biome": "Water Temple",
     "location": "Aqueduct Nave",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Cascade Rider",
     "archetype": "Acrobat",
     "baseAttributes": {
@@ -4857,6 +4946,7 @@
     "biome": "Water Temple",
     "location": "Aqueduct Nave",
     "rarity": "Rare",
+    "retired": true,
     "name": "Aqueduct Warden",
     "archetype": "Knight",
     "baseAttributes": {
@@ -4899,6 +4989,7 @@
     "biome": "Water Temple",
     "location": "The Drowned Throne",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Still Gazer",
     "archetype": "Sage",
     "baseAttributes": {
@@ -4936,6 +5027,7 @@
     "biome": "Water Temple",
     "location": "The Drowned Throne",
     "rarity": "uncommon",
+    "retired": true,
     "name": "Undertow Shade",
     "archetype": "Trickster",
     "baseAttributes": {

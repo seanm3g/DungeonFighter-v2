@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame.Combat;
@@ -308,7 +308,10 @@ namespace RPGGame
         {
             CombatTurnQueue.SetActingAction(envAction);
             // Everyone in the room (player and current enemy), unless a room affix aims the hazards at one side.
-            var allTargets = RoomAffixRuntime.FilterHazardTargets(room, player, currentEnemy);
+            // A room boon goes to the hero alone.
+            var allTargets = envAction.IsRoomBoon
+                ? new List<Actor> { player }
+                : RoomAffixRuntime.FilterHazardTargets(room, player, currentEnemy);
 
             // Use structured environmental action execution
             var ((actionText, rollInfo), statusEffects) = EnvironmentalActionHandler.ExecuteEnvironmentalActionStructured(room, allTargets, envAction, room);

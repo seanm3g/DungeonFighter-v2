@@ -86,6 +86,12 @@ namespace RPGGame
 
         public List<RoomEnemyData> Enemies { get; set; } = new List<RoomEnemyData>();
 
+        /// <summary>Retired (the pre-region Legacy rooms, 2026-11-22): loads by name, never picked for a dungeon.</summary>
+
+        [JsonPropertyName("retired")]
+
+        public bool Retired { get; set; }
+
         /// <summary>Legacy <c>name</c> key; kept for older JSON until re-pulled from sheet.</summary>
 
         [JsonPropertyName("name")]
@@ -325,7 +331,7 @@ namespace RPGGame
 
             return _rooms?
 
-                .Where(r => r.Value.MatchesDungeonTheme(theme))
+                .Where(r => !r.Value.Retired && r.Value.MatchesDungeonTheme(theme))
 
                 .Select(r => r.Key)
 

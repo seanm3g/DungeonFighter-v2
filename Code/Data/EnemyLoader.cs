@@ -58,6 +58,15 @@ namespace RPGGame
 
         [JsonPropertyName("name")]
         public string Name { get; set; } = "";
+
+        /// <summary>
+        /// Retired by the environments pass (Documentation/ENVIRONMENTS_2026-11-22.md): still loads by name (saves, tools,
+        /// tests, the Action Lab) but never spawns: room pools, dungeon pools and wanderers skip it.
+        /// </summary>
+        [JsonPropertyName("retired")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Retired { get; set; }
+
         [JsonPropertyName("archetype")]
         public string Archetype { get; set; } = "Berserker"; // Default archetype
         /// <summary>

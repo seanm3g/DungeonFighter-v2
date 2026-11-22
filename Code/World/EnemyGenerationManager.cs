@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -221,7 +221,7 @@ namespace RPGGame
         private EnemyData PickWanderer(List<EnemyData> enemyData, List<EnemyData> home)
         {
             var pool = enemyData
-                .Where(e => e.Actions is { Count: > 0 } && !home.Any(h => string.Equals(h.Name, e.Name, StringComparison.OrdinalIgnoreCase)))
+                .Where(e => !e.Retired && e.Actions is { Count: > 0 } && !home.Any(h => string.Equals(h.Name, e.Name, StringComparison.OrdinalIgnoreCase)))
                 .ToList();
             if (pool.Count == 0)
                 pool = home;
@@ -374,6 +374,8 @@ namespace RPGGame
             TravelRegion? resolvedRegion,
             string dungeonTheme)
         {
+            // Retired enemies (environments pass, 2026-11-22) load by name but never spawn.
+            enemyData = enemyData.Where(e => !e.Retired).ToList();
             var placementMatched = EnemySpawnFilter.Filter(enemyData, spawnCtx, resolvedRegion);
 
             List<EnemyData> availableEnemies;

@@ -203,7 +203,8 @@ namespace RPGGame.Tests.Unit.World
             if (scorchedName == null)
                 return;
             var room = RoomLoader.CreateRoom(scorchedName, "Ashen Land", true, new Random(3));
-            Check(room.ActionPool.Count > 0 && room.ActionPool.All(e => e.action.CausesBurn), "scorched: every hazard Burns");
+            Check(room.ActionPool.Any(e => !e.action.IsRoomBoon) && room.ActionPool.Where(e => !e.action.IsRoomBoon).All(e => e.action.CausesBurn)
+                && room.ActionPool.Where(e => e.action.IsRoomBoon).All(e => !e.action.CausesBurn), "scorched: every hazard Burns, the boon stays a boon");
         }
 
         private static void TestGeneratedDungeonsEndWithDemon()

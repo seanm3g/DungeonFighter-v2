@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using RPGGame;
@@ -421,7 +421,7 @@ namespace RPGGame.Tests.Unit
         {
             var thicket = RoomLoader.CreateRoom("Thicket", "Dense Brush");
             var names = thicket.ActionPool.Select(a => a.action.Name).ToList();
-            Check(names.Count == 2 && names.Contains("Thorn Vines") && names.Contains("Falling Branch"),
+            Check(names.Count == 2 && names.Contains("Thorn Vines") && names.Contains("Sunlit Gap"),
                 $"Thicket uses only its authored hazards: {string.Join(", ", names)}");
             var ember = EnvironmentalActionLoader.TryCreateByName("Ember Rain");
             Check(ember != null && ember.CausesBurn, "Ember Rain hazard burns");

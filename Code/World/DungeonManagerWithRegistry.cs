@@ -118,8 +118,8 @@ namespace RPGGame
             int playerLevel = player.Level;
             int anchorLevel = DungeonLevelMath.ResolveSelectionAnchorLevel(playerLevel, player.DungeonDifficultyAnchorLevel);
             
-            // Load all dungeons from Dungeons.json
-            var allDungeons = LoadAllDungeons();
+            // Load all dungeons from Dungeons.json (retired Legacy rows are never offered)
+            var allDungeons = LoadAllDungeons().Where(d => !d.retired).ToList();
 
             // Region travel: offer dungeons whose theme is in this region's linked pool (not only the primary Theme).
             var currentRegion = new TravelRegionCatalog().GetRegionForCharacter(player);

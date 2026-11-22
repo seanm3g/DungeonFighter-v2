@@ -38,5 +38,9 @@ namespace RPGGame
         public List<string> possibleEnemies { get; set; } = new List<string>();
         [JsonPropertyName("colorOverride")]
         public ColorOverride? colorOverride { get; set; }
+        /// <summary>Retired (the pre-region Legacy dungeons, 2026-11-22): loads, but is never offered.</summary>
+        [JsonPropertyName("retired")]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+        public bool retired { get; set; }
     }
 }

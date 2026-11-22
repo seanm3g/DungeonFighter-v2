@@ -90,7 +90,7 @@ namespace RPGGame
         }
 
         private static IEnumerable<Action> Hazards(Environment room) =>
-            room.ActionPool.Select(e => e.action).Where(a => a != null);
+            room.ActionPool.Select(e => e.action).Where(a => a != null && !a.IsRoomBoon); // boons are not hazards
 
         private static void AddHazardStatus(Environment room, string? status)
         {

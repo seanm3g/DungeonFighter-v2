@@ -66,6 +66,14 @@ namespace RPGGame.Data
 
             [JsonPropertyName("causesAcid")]
             public bool CausesAcid { get; set; }
+
+            /// <summary>Room boon: the status this action grants the hero (harden = Guard, focus, haste); empty = a hazard.</summary>
+            [JsonPropertyName("grants")]
+            public string? Grants { get; set; }
+
+            /// <summary>Retired by the environments pass (2026-11-22): still loads by name, no room lists it.</summary>
+            [JsonPropertyName("retired")]
+            public bool Retired { get; set; }
         }
 
         private static EnvironmentalActionLoader? _shared;
@@ -173,6 +181,7 @@ namespace RPGGame.Data
                 action.PoisonPercentToAdd = data.PoisonPercent;
                 action.CausesBurn = data.CausesBurn;
                 action.CausesAcid = data.CausesAcid;
+                action.RoomBoon = (data.Grants ?? "").Trim().ToLowerInvariant();
 
                 return action;
             }

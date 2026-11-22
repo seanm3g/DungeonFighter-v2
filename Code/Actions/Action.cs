@@ -62,6 +62,13 @@ namespace RPGGame
         public string Flavor { get; set; } = "";
         /// <summary>Cost paid when the action resolves (<c>HP 5</c> = 5% max HP); see <see cref="ActionCost"/>.</summary>
         public string Cost { get; set; } = "";
+        /// <summary>
+        /// Room boon (environments pass, 2026-11-22): the status the room grants the hero instead of harming everyone
+        /// (<c>harden</c> = Guard, <c>focus</c>, <c>haste</c>, added through <see cref="Stores"/>); empty = a hazard.
+        /// Set from the <c>grants</c> column of <c>EnvironmentalActions.json</c>.
+        /// </summary>
+        public string RoomBoon { get; set; } = "";
+        public bool IsRoomBoon => !string.IsNullOrWhiteSpace(RoomBoon);
         public bool CausesBleed { get; set; }
         public bool CausesWeaken { get; set; }
         public bool CausesSlow { get; set; }

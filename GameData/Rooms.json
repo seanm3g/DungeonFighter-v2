@@ -10,18 +10,18 @@
         "weight": 1.0
       },
       {
-        "name": "Musk Haze",
+        "name": "Warm Hollow",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Territorial Hound",
+        "name": "Alpha Wolf",
         "weight": 2.0
       },
       {
-        "name": "Alpha Wolf",
-        "weight": 2.0
+        "name": "Cursed Bear",
+        "weight": 1.0
       },
       {
         "name": "Bone Spreader",
@@ -45,21 +45,21 @@
         "weight": 1.0
       },
       {
-        "name": "Musk Haze",
+        "name": "Warm Hollow",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Tribute Beast",
-        "weight": 2.0
+        "name": "Alpha Wolf",
+        "weight": 1.0
       },
       {
         "name": "Cursed Bear",
         "weight": 2.0
       },
       {
-        "name": "Mound Warden",
+        "name": "Bone Spreader",
         "weight": 1.0
       }
     ],
@@ -76,26 +76,26 @@
     "description": "Standing stones under open sky where the pack keeps watch at night.",
     "actions": [
       {
-        "name": "Musk Haze",
+        "name": "Bone-Strewn Floor",
         "weight": 1.0
       },
       {
-        "name": "Bone-Strewn Floor",
+        "name": "Warm Hollow",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Moon Blessed",
-        "weight": 2.0
-      },
-      {
-        "name": "Echo Stalker",
-        "weight": 2.0
-      },
-      {
-        "name": "Vigil Alpha",
+        "name": "Alpha Wolf",
         "weight": 1.0
+      },
+      {
+        "name": "Cursed Bear",
+        "weight": 1.0
+      },
+      {
+        "name": "Bone Spreader",
+        "weight": 2.0
       }
     ],
     "tags": [
@@ -115,25 +115,21 @@
         "weight": 1.0
       },
       {
-        "name": "Falling Branch",
-        "weight": 1.0
-      },
-      {
-        "name": "Pollen Cloud",
+        "name": "Sunlit Gap",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Living Wall Crawler",
+        "name": "Valley Prowler",
         "weight": 2.0
+      },
+      {
+        "name": "Living Wall Crawler",
+        "weight": 1.0
       },
       {
         "name": "Animated Vine",
-        "weight": 2.0
-      },
-      {
-        "name": "Ruin Wraith",
         "weight": 1.0
       }
     ],
@@ -154,21 +150,21 @@
         "weight": 1.0
       },
       {
-        "name": "Falling Branch",
+        "name": "Sunlit Gap",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Thorn Boar",
+        "name": "Valley Prowler",
+        "weight": 1.0
+      },
+      {
+        "name": "Living Wall Crawler",
         "weight": 2.0
       },
       {
-        "name": "Root Sprite",
-        "weight": 2.0
-      },
-      {
-        "name": "Rattlesnake",
+        "name": "Animated Vine",
         "weight": 1.0
       }
     ],
@@ -184,26 +180,26 @@
     "description": "A valley drowned in flowers, humming with insects.",
     "actions": [
       {
-        "name": "Pollen Cloud",
+        "name": "Thorn Vines",
         "weight": 1.0
       },
       {
-        "name": "Thorn Vines",
+        "name": "Sunlit Gap",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Nectar Drone",
-        "weight": 2.0
-      },
-      {
-        "name": "Pollen Wraith",
-        "weight": 2.0
-      },
-      {
         "name": "Valley Prowler",
         "weight": 1.0
+      },
+      {
+        "name": "Living Wall Crawler",
+        "weight": 1.0
+      },
+      {
+        "name": "Animated Vine",
+        "weight": 2.0
       }
     ],
     "tags": [
@@ -223,21 +219,21 @@
         "weight": 1.0
       },
       {
-        "name": "Mirror Glare",
+        "name": "Straight Run",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Maze Runner",
+        "name": "Hedge Hound",
         "weight": 2.0
       },
       {
-        "name": "Loop Shade",
-        "weight": 2.0
+        "name": "Dead End Mimic",
+        "weight": 1.0
       },
       {
-        "name": "Instinct Eater",
+        "name": "Shattered Reflection",
         "weight": 1.0
       }
     ],
@@ -258,21 +254,21 @@
         "weight": 1.0
       },
       {
-        "name": "Mirror Glare",
+        "name": "Straight Run",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Guile Sprite",
-        "weight": 2.0
-      },
-      {
         "name": "Hedge Hound",
-        "weight": 2.0
+        "weight": 1.0
       },
       {
         "name": "Dead End Mimic",
+        "weight": 2.0
+      },
+      {
+        "name": "Shattered Reflection",
         "weight": 1.0
       }
     ],
@@ -289,26 +285,26 @@
     "description": "Two great mirrors face each other; your reflection is a beat too slow.",
     "actions": [
       {
-        "name": "Mirror Glare",
+        "name": "Shifting Hedges",
         "weight": 1.0
       },
       {
-        "name": "Shifting Hedges",
+        "name": "Straight Run",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Duplicate",
-        "weight": 2.0
+        "name": "Hedge Hound",
+        "weight": 1.0
+      },
+      {
+        "name": "Dead End Mimic",
+        "weight": 1.0
       },
       {
         "name": "Shattered Reflection",
         "weight": 2.0
-      },
-      {
-        "name": "The Other",
-        "weight": 1.0
       }
     ],
     "tags": [
@@ -327,18 +323,18 @@
         "weight": 1.0
       },
       {
-        "name": "Slick Mud",
+        "name": "Still Water",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Fog Mimic",
+        "name": "Reed Stalker",
         "weight": 2.0
       },
       {
-        "name": "Cold Creeper",
-        "weight": 2.0
+        "name": "Mosquito Swarm",
+        "weight": 1.0
       },
       {
         "name": "Shelf Specter",
@@ -358,25 +354,25 @@
     "description": "Waist-high reeds hide the waterline and whatever moves beneath it.",
     "actions": [
       {
-        "name": "Slick Mud",
+        "name": "Fog Bank",
         "weight": 1.0
       },
       {
-        "name": "Fog Bank",
+        "name": "Still Water",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
         "name": "Reed Stalker",
-        "weight": 2.0
+        "weight": 1.0
       },
       {
         "name": "Mosquito Swarm",
         "weight": 2.0
       },
       {
-        "name": "Mud Lurker",
+        "name": "Shelf Specter",
         "weight": 1.0
       }
     ],
@@ -393,26 +389,26 @@
     "description": "A basin that fills and empties with an unseen tide.",
     "actions": [
       {
-        "name": "Slick Mud",
+        "name": "Fog Bank",
         "weight": 1.0
       },
       {
-        "name": "Fog Bank",
+        "name": "Still Water",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Current Rider",
-        "weight": 2.0
-      },
-      {
-        "name": "Slick Eel",
-        "weight": 2.0
-      },
-      {
-        "name": "Hollow Drifter",
+        "name": "Reed Stalker",
         "weight": 1.0
+      },
+      {
+        "name": "Mosquito Swarm",
+        "weight": 1.0
+      },
+      {
+        "name": "Shelf Specter",
+        "weight": 2.0
       }
     ],
     "tags": [
@@ -432,21 +428,21 @@
         "weight": 1.0
       },
       {
-        "name": "Cold Current",
+        "name": "Cold Spring",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Vent Sprite",
+        "name": "Cave Lurcher",
         "weight": 2.0
       },
       {
-        "name": "Lion Fish",
-        "weight": 2.0
+        "name": "Chronicle Watcher",
+        "weight": 1.0
       },
       {
-        "name": "Mist Phantom",
+        "name": "Sinkhole Lurker",
         "weight": 1.0
       }
     ],
@@ -463,25 +459,25 @@
     "description": "Names and dates are carved all around a deep, clear pool.",
     "actions": [
       {
-        "name": "Cold Current",
+        "name": "Scalding Vent",
         "weight": 1.0
       },
       {
-        "name": "Scalding Vent",
+        "name": "Cold Spring",
         "weight": 1.0
       }
     ],
     "enemies": [
+      {
+        "name": "Cave Lurcher",
+        "weight": 1.0
+      },
       {
         "name": "Chronicle Watcher",
         "weight": 2.0
       },
       {
         "name": "Sinkhole Lurker",
-        "weight": 2.0
-      },
-      {
-        "name": "Ink Stalker",
         "weight": 1.0
       }
     ],
@@ -498,26 +494,26 @@
     "description": "A dripping grotto lit by glowing mites on the ceiling.",
     "actions": [
       {
-        "name": "Cold Current",
+        "name": "Scalding Vent",
         "weight": 1.0
       },
       {
-        "name": "Scalding Vent",
+        "name": "Cold Spring",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Glow Mite",
-        "weight": 2.0
-      },
-      {
-        "name": "Frost Creeper",
-        "weight": 2.0
-      },
-      {
         "name": "Cave Lurcher",
         "weight": 1.0
+      },
+      {
+        "name": "Chronicle Watcher",
+        "weight": 1.0
+      },
+      {
+        "name": "Sinkhole Lurker",
+        "weight": 2.0
       }
     ],
     "tags": [
@@ -537,21 +533,21 @@
         "weight": 1.0
       },
       {
-        "name": "Tidal Surge",
+        "name": "Temple Ward",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Pressure Monk",
+        "name": "Fourecourt Guard",
         "weight": 2.0
       },
       {
-        "name": "Cascade Rider",
-        "weight": 2.0
+        "name": "Depth Drainer",
+        "weight": 1.0
       },
       {
-        "name": "Aqueduct Warden",
+        "name": "Throne Revenant",
         "weight": 1.0
       }
     ],
@@ -568,25 +564,25 @@
     "description": "The temple forecourt sits ankle-deep in seawater.",
     "actions": [
       {
-        "name": "Tidal Surge",
+        "name": "Corroding Brine",
         "weight": 1.0
       },
       {
-        "name": "Corroding Brine",
+        "name": "Temple Ward",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
         "name": "Fourecourt Guard",
-        "weight": 2.0
+        "weight": 1.0
       },
       {
         "name": "Depth Drainer",
         "weight": 2.0
       },
       {
-        "name": "Tide Sentinel",
+        "name": "Throne Revenant",
         "weight": 1.0
       }
     ],
@@ -603,26 +599,26 @@
     "description": "A throne sunk to its armrests; something still sits on it.",
     "actions": [
       {
-        "name": "Tidal Surge",
+        "name": "Corroding Brine",
         "weight": 1.0
       },
       {
-        "name": "Corroding Brine",
+        "name": "Temple Ward",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Still Gazer",
-        "weight": 2.0
+        "name": "Fourecourt Guard",
+        "weight": 1.0
       },
       {
-        "name": "Undertow Shade",
-        "weight": 2.0
+        "name": "Depth Drainer",
+        "weight": 1.0
       },
       {
         "name": "Throne Revenant",
-        "weight": 1.0
+        "weight": 2.0
       }
     ],
     "tags": [
@@ -642,21 +638,21 @@
         "weight": 1.0
       },
       {
-        "name": "Ash Cloud",
+        "name": "Ash Lee",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Charwood Stalker",
+        "name": "Cinder Hound",
         "weight": 2.0
       },
       {
-        "name": "Scorched Treant",
-        "weight": 2.0
+        "name": "Cave Ember Toad",
+        "weight": 1.0
       },
       {
-        "name": "Reignited Wisp",
+        "name": "Smog Lurker",
         "weight": 1.0
       }
     ],
@@ -673,18 +669,18 @@
     "description": "Smoke pools along the ceiling; breathing low is the only option.",
     "actions": [
       {
-        "name": "Ash Cloud",
+        "name": "Ember Rain",
         "weight": 1.0
       },
       {
-        "name": "Ember Rain",
+        "name": "Ash Lee",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Soot Golem",
-        "weight": 2.0
+        "name": "Cinder Hound",
+        "weight": 1.0
       },
       {
         "name": "Cave Ember Toad",
@@ -708,26 +704,26 @@
     "description": "A ridge of black stone, still warm, under a sky of drifting ash.",
     "actions": [
       {
-        "name": "Ash Cloud",
+        "name": "Ember Rain",
         "weight": 1.0
       },
       {
-        "name": "Ember Rain",
+        "name": "Ash Lee",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
         "name": "Cinder Hound",
-        "weight": 2.0
-      },
-      {
-        "name": "Magma Creeper",
-        "weight": 2.0
-      },
-      {
-        "name": "Ashwing Harpy",
         "weight": 1.0
+      },
+      {
+        "name": "Cave Ember Toad",
+        "weight": 1.0
+      },
+      {
+        "name": "Smog Lurker",
+        "weight": 2.0
       }
     ],
     "tags": [
@@ -747,21 +743,21 @@
         "weight": 1.0
       },
       {
-        "name": "Collapsing Pillar",
+        "name": "Brazier Glow",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Bridge Warden",
+        "name": "Temple Knight",
         "weight": 2.0
       },
       {
         "name": "Lava Spitter",
-        "weight": 2.0
+        "weight": 1.0
       },
       {
-        "name": "Flame Drifter",
+        "name": "Torch Wraith",
         "weight": 1.0
       }
     ],
@@ -782,21 +778,21 @@
         "weight": 1.0
       },
       {
-        "name": "Collapsing Pillar",
+        "name": "Brazier Glow",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Royal Flame Guard",
+        "name": "Temple Knight",
+        "weight": 1.0
+      },
+      {
+        "name": "Lava Spitter",
         "weight": 2.0
       },
       {
-        "name": "Seal Caster",
-        "weight": 2.0
-      },
-      {
-        "name": "Throne Effigy",
+        "name": "Torch Wraith",
         "weight": 1.0
       }
     ],
@@ -817,22 +813,22 @@
         "weight": 1.0
       },
       {
-        "name": "Collapsing Pillar",
+        "name": "Brazier Glow",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
         "name": "Temple Knight",
-        "weight": 2.0
+        "weight": 1.0
       },
       {
-        "name": "Pilar Watcher",
-        "weight": 2.0
+        "name": "Lava Spitter",
+        "weight": 1.0
       },
       {
         "name": "Torch Wraith",
-        "weight": 1.0
+        "weight": 2.0
       }
     ],
     "tags": [
@@ -852,21 +848,21 @@
         "weight": 1.0
       },
       {
-        "name": "Lava Splash",
+        "name": "Hot Draft",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Amber Sentinel",
+        "name": "Molten Crab",
         "weight": 2.0
+      },
+      {
+        "name": "Blood Feeder",
+        "weight": 1.0
       },
       {
         "name": "Overflow Imp",
-        "weight": 2.0
-      },
-      {
-        "name": "Amber Trapper",
         "weight": 1.0
       }
     ],
@@ -883,25 +879,25 @@
     "description": "Lava wells up from below and spills in glowing channels.",
     "actions": [
       {
-        "name": "Lava Splash",
+        "name": "Steam Burst",
         "weight": 1.0
       },
       {
-        "name": "Steam Burst",
+        "name": "Hot Draft",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
+        "name": "Molten Crab",
+        "weight": 1.0
+      },
+      {
         "name": "Blood Feeder",
         "weight": 2.0
       },
       {
-        "name": "Vent Spore",
-        "weight": 2.0
-      },
-      {
-        "name": "Crystal Leech",
+        "name": "Overflow Imp",
         "weight": 1.0
       }
     ],
@@ -918,26 +914,26 @@
     "description": "Islands of cooled slag float on a lake of molten rock.",
     "actions": [
       {
-        "name": "Lava Splash",
+        "name": "Steam Burst",
         "weight": 1.0
       },
       {
-        "name": "Steam Burst",
+        "name": "Hot Draft",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Slag Tortoise",
-        "weight": 2.0
-      },
-      {
-        "name": "Island Drifter",
-        "weight": 2.0
-      },
-      {
         "name": "Molten Crab",
         "weight": 1.0
+      },
+      {
+        "name": "Blood Feeder",
+        "weight": 1.0
+      },
+      {
+        "name": "Overflow Imp",
+        "weight": 2.0
       }
     ],
     "tags": [
@@ -957,7 +953,7 @@
         "weight": 1.0
       },
       {
-        "name": "Heat Wave",
+        "name": "Standing Stone",
         "weight": 1.0
       }
     ],
@@ -967,11 +963,11 @@
         "weight": 2.0
       },
       {
-        "name": "Sand Serpent",
-        "weight": 2.0
+        "name": "Glass Shard Golem",
+        "weight": 1.0
       },
       {
-        "name": "Dune Roller",
+        "name": "Mirage Hunter",
         "weight": 1.0
       }
     ],
@@ -988,25 +984,25 @@
     "description": "Sand fused into sheets of glass that throw back the glare.",
     "actions": [
       {
-        "name": "Heat Wave",
+        "name": "Sandstorm",
         "weight": 1.0
       },
       {
-        "name": "Sandstorm",
+        "name": "Standing Stone",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Sun Lance Scorpion",
-        "weight": 2.0
-      },
-      {
-        "name": "Glare Stalker",
-        "weight": 2.0
+        "name": "Sandstorm Flanker",
+        "weight": 1.0
       },
       {
         "name": "Glass Shard Golem",
+        "weight": 2.0
+      },
+      {
+        "name": "Mirage Hunter",
         "weight": 1.0
       }
     ],
@@ -1023,26 +1019,26 @@
     "description": "A ring of palms around clear water, the only shade for miles.",
     "actions": [
       {
-        "name": "Heat Wave",
+        "name": "Sandstorm",
         "weight": 1.0
       },
       {
-        "name": "Sandstorm",
+        "name": "Standing Stone",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
+        "name": "Sandstorm Flanker",
+        "weight": 1.0
+      },
+      {
+        "name": "Glass Shard Golem",
+        "weight": 1.0
+      },
+      {
         "name": "Mirage Hunter",
         "weight": 2.0
-      },
-      {
-        "name": "Shadow Wraith",
-        "weight": 2.0
-      },
-      {
-        "name": "Restorative Leech",
-        "weight": 1.0
       }
     ],
     "tags": [
@@ -1062,21 +1058,21 @@
         "weight": 1.0
       },
       {
-        "name": "Gale Force",
+        "name": "Tailwind",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Scavenger Rat",
+        "name": "Hawk",
         "weight": 2.0
       },
       {
-        "name": "Toxic Drinker",
-        "weight": 2.0
+        "name": "Edge Stalker",
+        "weight": 1.0
       },
       {
-        "name": "Deserter Shade",
+        "name": "Storm Caller",
         "weight": 1.0
       }
     ],
@@ -1093,25 +1089,25 @@
     "description": "A thin ledge above a long drop and a hard wind.",
     "actions": [
       {
-        "name": "Gale Force",
+        "name": "Rockfall",
         "weight": 1.0
       },
       {
-        "name": "Rockfall",
+        "name": "Tailwind",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
         "name": "Hawk",
-        "weight": 2.0
-      },
-      {
-        "name": "Rock Lobber",
-        "weight": 2.0
+        "weight": 1.0
       },
       {
         "name": "Edge Stalker",
+        "weight": 2.0
+      },
+      {
+        "name": "Storm Caller",
         "weight": 1.0
       }
     ],
@@ -1128,26 +1124,26 @@
     "description": "The top of the world, thin of air and loud with wind.",
     "actions": [
       {
-        "name": "Gale Force",
+        "name": "Rockfall",
         "weight": 1.0
       },
       {
-        "name": "Rockfall",
+        "name": "Tailwind",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
+        "name": "Hawk",
+        "weight": 1.0
+      },
+      {
+        "name": "Edge Stalker",
+        "weight": 1.0
+      },
+      {
         "name": "Storm Caller",
         "weight": 2.0
-      },
-      {
-        "name": "Altitude Wraith",
-        "weight": 2.0
-      },
-      {
-        "name": "Summit Titan",
-        "weight": 1.0
       }
     ],
     "tags": [
@@ -1163,25 +1159,25 @@
     "description": "Sarcophagi line the walls; one lid is not quite closed.",
     "actions": [
       {
-        "name": "Curse of the Tomb",
+        "name": "Dart Trap",
         "weight": 1.0
       },
       {
-        "name": "Dart Trap",
+        "name": "Sun Shaft",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Burial Lich",
+        "name": "Guardian Scarab",
         "weight": 2.0
       },
       {
         "name": "Mummy",
-        "weight": 2.0
+        "weight": 1.0
       },
       {
-        "name": "Ancestor's Shade",
+        "name": "Sun Priest",
         "weight": 1.0
       }
     ],
@@ -1202,17 +1198,17 @@
         "weight": 1.0
       },
       {
-        "name": "Curse of the Tomb",
+        "name": "Sun Shaft",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
-        "name": "Stone Colossus",
-        "weight": 2.0
+        "name": "Guardian Scarab",
+        "weight": 1.0
       },
       {
-        "name": "Poison Dart Sentinel",
+        "name": "Mummy",
         "weight": 2.0
       },
       {
@@ -1237,22 +1233,22 @@
         "weight": 1.0
       },
       {
-        "name": "Curse of the Tomb",
+        "name": "Sun Shaft",
         "weight": 1.0
       }
     ],
     "enemies": [
       {
         "name": "Guardian Scarab",
-        "weight": 2.0
-      },
-      {
-        "name": "Tomb Creeper",
-        "weight": 2.0
-      },
-      {
-        "name": "Sarcopha Gus",
         "weight": 1.0
+      },
+      {
+        "name": "Mummy",
+        "weight": 1.0
+      },
+      {
+        "name": "Sun Priest",
+        "weight": 2.0
       }
     ],
     "tags": [
@@ -1281,7 +1277,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1303,7 +1300,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1324,7 +1322,8 @@
     "tags": [
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1347,7 +1346,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1370,7 +1370,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1393,7 +1394,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1416,7 +1418,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1438,7 +1441,8 @@
       "exposed",
       "dilapidated",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1461,7 +1465,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1485,7 +1490,8 @@
       "elegant",
       "dilapidated",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1507,7 +1513,8 @@
       "exposed",
       "dilapidated",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1534,7 +1541,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1557,7 +1565,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1581,7 +1590,8 @@
       "scorched",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1603,7 +1613,8 @@
       "earth",
       "scorched",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1625,7 +1636,8 @@
       "air",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1647,7 +1659,8 @@
       "air",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1670,7 +1683,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1692,7 +1706,8 @@
       "air",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1714,7 +1729,8 @@
       "air",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1737,7 +1753,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1758,7 +1775,8 @@
     "tags": [
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1780,7 +1798,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1801,7 +1820,8 @@
     "tags": [
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1822,7 +1842,8 @@
     "tags": [
       "overgrown",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1848,7 +1869,8 @@
       "earth",
       "overgrown",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1869,7 +1891,8 @@
     "tags": [
       "overgrown",
       "dormant"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1891,7 +1914,8 @@
       "water",
       "overgrown",
       "dormant"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1912,7 +1936,8 @@
     "tags": [
       "overgrown",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1933,7 +1958,8 @@
     "tags": [
       "overgrown",
       "dormant"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1955,7 +1981,8 @@
       "earth",
       "overgrown",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -1978,7 +2005,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2001,7 +2029,8 @@
       "exposed",
       "elegant",
       "active"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2024,7 +2053,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2042,7 +2072,8 @@
       "earth",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2064,7 +2095,8 @@
       "earth",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2086,7 +2118,8 @@
       "earth",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2109,7 +2142,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2132,7 +2166,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2154,7 +2189,8 @@
       "earth",
       "exposed",
       "dormant"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2176,7 +2212,8 @@
       "earth",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2200,7 +2237,8 @@
       "dilapidated",
       "active"
     ],
-    "unstableThresholdMod": 2
+    "unstableThresholdMod": 2,
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2222,7 +2260,8 @@
       "earth",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2244,7 +2283,8 @@
       "water",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2266,7 +2306,8 @@
       "water",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2289,7 +2330,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2312,7 +2354,8 @@
       "scorched",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2335,7 +2378,8 @@
       "scorched",
       "elegant",
       "active"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2358,7 +2402,8 @@
       "scorched",
       "elegant",
       "active"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2380,7 +2425,8 @@
       "fire",
       "scorched",
       "active"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2402,7 +2448,8 @@
       "fire",
       "scorched",
       "active"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2424,7 +2471,8 @@
       "fire",
       "scorched",
       "active"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2447,7 +2495,8 @@
       "overgrown",
       "exposed",
       "dormant"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2469,7 +2518,8 @@
       "earth",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2492,7 +2542,8 @@
       "exposed",
       "dilapidated",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2514,7 +2565,8 @@
       "water",
       "flooded",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2536,7 +2588,8 @@
       "water",
       "flooded",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2558,7 +2611,8 @@
       "water",
       "flooded",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2580,7 +2634,8 @@
       "exposed",
       "dilapidated",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2601,7 +2656,8 @@
     "tags": [
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2623,7 +2679,8 @@
       "earth",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2646,7 +2703,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2668,7 +2726,8 @@
       "fire",
       "earth",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2691,7 +2750,8 @@
       "exposed",
       "elegant",
       "active"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2714,7 +2774,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2737,7 +2798,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2759,7 +2821,8 @@
       "water",
       "flooded",
       "dormant"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2783,7 +2846,8 @@
       "overgrown",
       "elegant",
       "dormant"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2805,7 +2869,8 @@
       "water",
       "flooded",
       "active"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2831,7 +2896,8 @@
       "fire",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2853,7 +2919,8 @@
       "air",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2876,7 +2943,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2900,7 +2968,8 @@
       "elegant",
       "active"
     ],
-    "unstableThresholdMod": -2
+    "unstableThresholdMod": -2,
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2922,7 +2991,8 @@
       "earth",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2944,7 +3014,8 @@
       "earth",
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2967,7 +3038,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -2989,7 +3061,8 @@
       "exposed",
       "elegant",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -3010,7 +3083,8 @@
     "tags": [
       "exposed",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -3033,7 +3107,8 @@
       "elegant",
       "dilapidated",
       "cycling"
-    ]
+    ],
+    "retired": true
   },
   {
     "region": "Legacy",
@@ -3056,6 +3131,7 @@
       "elegant",
       "dilapidated",
       "cycling"
-    ]
+    ],
+    "retired": true
   }
 ]

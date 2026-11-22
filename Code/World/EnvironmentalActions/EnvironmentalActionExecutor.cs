@@ -43,6 +43,10 @@ namespace RPGGame
                 }
             }
             
+            // A room boon (2026-11-22) only ever lands on the hero; hazards hit whoever the room aims them at.
+            if (action.IsRoomBoon)
+                aliveTargets.RemoveAll(t => t is Enemy || t is not Character);
+
             // Build main action text
             var actionTextBuilder = new ColoredTextBuilder();
             actionTextBuilder.Add(source.Name, ColorPalette.Green);
@@ -189,6 +193,11 @@ namespace RPGGame
         private static void ApplyEnvironmentalEffectSilent(Actor source, Actor target, Action action, int duration, int? defenseFace = null)
         {
             // Apply effects based on action type and properties
+            if (action.IsRoomBoon)
+            {
+                Stores.Add(target, action.RoomBoon, duration); // the rolled 1-2 is the stacks granted
+                return;
+            }
             if (action.CausesBleed)
             {
                 target.ApplyBleed(2, duration); // 2 damage per turn
@@ -218,6 +227,10 @@ namespace RPGGame
             {
                 target.ApplyBurn(3, duration); // 3 damage per turn for the duration
             }
+            else if (action.CausesAcid)
+            {
+                Stores.Add(target, "expose", 1); // Acid loads as Expose
+            }
             else if (action.Type == ActionType.Attack)
             {
                 // For environmental attacks, calculate damage normally
@@ -246,6 +259,16 @@ namespace RPGGame
             var effectBuilder = new ColoredTextBuilder();
             EntityColorHelper.AppendActorNameColored(effectBuilder, target);
             effectBuilder.AddSpace();
+            if (action.IsRoomBoon)
+            {
+                // "Hero gains 2 GUARD"
+                effectBuilder.Add("gains", Colors.White);
+                effectBuilder.AddSpace();
+                effectBuilder.Add(duration.ToString(), ColorPalette.White);
+                effectBuilder.AddSpace();
+                effectBuilder.AddRange(StatusEffectColorHelper.GetColoredStatusEffect(CoreStatuses.Label(action.RoomBoon).ToUpperInvariant()));
+                return effectBuilder.Build();
+            }
             effectBuilder.Add("affected", Colors.White);
             effectBuilder.AddSpace();
             effectBuilder.Add("by", Colors.White);
@@ -290,6 +313,8 @@ namespace RPGGame
                 return "STUN";
             else if (action.CausesBurn)
                 return "BURN";
+            else if (action.CausesAcid)
+                return "EXPOSE";
             // Note: CausesFreeze doesn't exist on Action class, so removed
             
             return null;
