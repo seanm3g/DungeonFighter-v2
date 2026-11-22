@@ -85,7 +85,7 @@ namespace RPGGame.LootReveal
             beats.Add($"{item.Name} — {item.Rarity} {SlotWord(slot)}{material}{tier}");
 
             // 3. How it compares: one line per attribute, then sets.
-            var compare = CompareLines(hero, item, slot, out double gain, out double loss);
+            var compare = CompareLines(hero, item, slot, out double gain, out double loss, out double hitRatio, out double hpRatio);
             beats.Add(current == null ? "Your slot is empty: " + (compare.Count > 0 ? string.Join("  ", compare) : "no stats")
                 : $"vs {current.Name}: " + (compare.Count > 0 ? string.Join("  ", compare) : "the same"));
             var setLines = SetLines(hero, item, slot, out string? brokenBonus);
@@ -125,6 +125,13 @@ namespace RPGGame.LootReveal
             {
                 verdict = LootVerdict.NewSlot;
                 why = "Upgrade: fills an empty slot.";
+            }
+            else if (slot == "weapon" && brokenBonus == null && hitRatio >= WeaponUpgradeHitRatio && hpRatio >= WeaponUpgradeMinHpRatio)
+            {
+                // A weapon is judged on what it does: hits per second (attack / swing time), not raw stat lines
+                // (playtest 11-21: "+4 Damage, but -2 STR" was always a sidegrade).
+                verdict = LootVerdict.Upgrade;
+                why = $"Upgrade: hits {Math.Round((hitRatio - 1) * 100):0}% harder per second.";
             }
             else if (brokenBonus != null && gain > 0 && rank > RarityRank(current.Rarity) && gain >= loss)
             {
@@ -183,10 +190,23 @@ namespace RPGGame.LootReveal
         /// "+3 STR  −2 Defense  +12 Max HP": the hero's numbers with the item worn minus without it, one per attribute
         /// (base, material and suffix already summed). Computed on a copy of the hero so nothing changes.
         /// </summary>
-        public static List<string> CompareLines(Character hero, Item item, string slot, out double gain, out double loss)
+        /// <summary>A weapon whose hits per second rise at least this much is an upgrade on its own.</summary>
+        public const double WeaponUpgradeHitRatio = 1.05;
+
+        /// <summary>...as long as it keeps at least this share of max HP (a weapon "of Vigor" is worth its HP).</summary>
+        public const double WeaponUpgradeMinHpRatio = 0.9;
+
+        public static List<string> CompareLines(Character hero, Item item, string slot, out double gain, out double loss) =>
+            CompareLines(hero, item, slot, out gain, out loss, out _, out _);
+
+        /// <summary>As above; <paramref name="hitRatio"/> is after / before of attack ÷ swing time (1 when unknown).</summary>
+        public static List<string> CompareLines(Character hero, Item item, string slot, out double gain, out double loss, out double hitRatio,
+            out double hpRatio)
         {
             gain = 0;
             loss = 0;
+            hitRatio = 1;
+            hpRatio = 1;
             var lines = new List<string>();
             if (hero == null || string.IsNullOrEmpty(slot))
                 return lines;
@@ -201,9 +221,15 @@ namespace RPGGame.LootReveal
                 return lines;
             }
             var before = Snapshot(copy);
+            double hitBefore = HitRate(copy);
             if (!copy.TryEquipItem(item, slot, out _, out _, ignoreAttributeRequirements: true))
                 return lines;
             var after = Snapshot(copy);
+            double hitAfter = HitRate(copy);
+            if (hitBefore > 0 && hitAfter > 0)
+                hitRatio = hitAfter / hitBefore;
+            if (before["Max HP"] > 0)
+                hpRatio = after["Max HP"] / before["Max HP"];
             foreach (var (label, b) in before)
             {
                 double d = after[label] - b;
@@ -213,6 +239,19 @@ namespace RPGGame.LootReveal
                 lines.Add($"{(d > 0 ? "+" : "−")}{Math.Abs(d):0} {label}");
             }
             return lines;
+        }
+
+        private static double HitRate(Character c)
+        {
+            try
+            {
+                double speed = c.GetTotalAttackSpeed();
+                return speed > 0 ? Math.Max(1, c.Combat.GetTotalDamage()) / speed : 0;
+            }
+            catch
+            {
+                return 0;
+            }
         }
 
         private static Dictionary<string, double> Snapshot(Character c) => new()

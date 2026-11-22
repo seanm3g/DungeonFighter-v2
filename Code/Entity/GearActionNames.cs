@@ -38,8 +38,28 @@ namespace RPGGame
 
             if (isWeapon)
                 EnsureRequiredWeaponBasicInActionNames(weaponType, actions);
+            // The class starter rides on the weapon type, not the starter item (D5.6; playtest 11-21: a better mace
+            // read "replaces WIND UP in your strip", so no weapon was ever an upgrade over the starter).
+            if (isWeapon)
+                foreach (string starter in StarterActionNames(weaponType))
+                    if (!actions.Any(a => string.Equals(a, starter, StringComparison.OrdinalIgnoreCase)))
+                        actions.Add(starter);
 
             return CanonicalizeLoadedActionNames(StripNonHeroGearActionNames(actions));
+        }
+
+        /// <summary>The class starter actions of a weapon type: actions tagged <c>startingweapon</c> and the type's tag
+        /// (Mace: SLAM, WIND UP).</summary>
+        public static List<string> StarterActionNames(WeaponType weaponType)
+        {
+            string tag = weaponType.ToString().ToLowerInvariant();
+            return ActionLoader.GetAllActions()
+                .Where(a => a.Tags != null
+                    && a.Tags.Any(t => string.Equals(t, "startingweapon", StringComparison.OrdinalIgnoreCase))
+                    && a.Tags.Any(t => string.Equals(t, tag, StringComparison.OrdinalIgnoreCase)))
+                .Select(a => a.Name)
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
         }
 
         /// <summary>

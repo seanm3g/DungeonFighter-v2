@@ -294,6 +294,11 @@ reveal's verdict calls the item an upgrade (and says "Verdict: upgrade." / "not 
 recommended-only client learned 8 skills, filled the strip (SLAM > WIND UP), equipped 2 upgrades, reached level 11
 with 4 deaths (8 before). Full tests: 15147 passed, 1 known-flaky failure.
 
-**Still off:** weapons are never recommended. The loot verdict treats any swap that changes strip actions as a
-sidegrade by design, so the level-11 hero still swung the starter Bone Log. Players see the same "Sidegrade" in the
-reveal. Worth a rule: a weapon that keeps the class starter and only changes the gear action is an upgrade on stats.
+**Weapons (fixed after):** no weapon was ever an upgrade over the starter, for two reasons. Only the starter item
+granted the class's setup card (a better mace "replaces WIND UP in your strip"), and the verdict called any raw stat
+loss a sidegrade ("+4 Damage, but −2 STR"). Now every weapon also grants its type's class starter actions
+(`GearActionNames.StarterActionNames`: any mace gives SLAM and WIND UP), and a weapon is an upgrade when its hits per
+second (attack ÷ swing time) rise at least 5% and it keeps at least 90% of max HP ("Upgrade: hits 14% harder per
+second."). Cross-class weapons still read as sidegrades (they replace the strip). Bot re-runs: 3 and 1 weapon swaps
+(+6% to +99%), strip kept as SLAM > WIND UP, level 10 with 0 and 3 deaths. Full tests: 15154 passed, 0 failed.
+New `WeaponUpgradeTests`.
