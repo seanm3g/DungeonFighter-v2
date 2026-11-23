@@ -53,8 +53,8 @@ git after each run; it is in no commit.
 | 8 Cosmetic Wood / Cloth / Unknown | partial | `c542f44e` | 15140 passed / 1 failed (then fixed; ItemRoller 0 failed) |
 | 9 Core slot nodes, material branch gate | partial | `2dc79522` | 15138 passed / 5 failed (4 tree-shape expectations fixed, 1 known flaky) |
 | 10 Late rungs (Fragile cards, Jam / Burn out, callouts) | done (11-22) | see Step 10 | FragileCards 0 failed; combat, data, Fernis suites 0 failed |
-| 11 Content and lore pass | 11.1–11.4 done, 11.5 renames proposed only (11-22) | see Step 11 | see Step 11 |
-| 12 Cleanup (delete switched-off code) | not started (needs your review of the switches first) | — | — |
+| 11 Content and lore pass | done (11-22; renames in Content pass) | see Step 11, Content pass | full run 0 failed |
+| 12 Cleanup (delete switched-off code) | done, partial (11-22) | see Step 12 | full run 0 failed |
 
 ## Phase 11 — item rolls (D11.1–D11.12)
 - **Class affinity (D11.7):** every rolled item has one of 10 affinities (`Item.ClassAffinity`, saved as
@@ -525,5 +525,7 @@ rename pass now. No sims, no patch edits. Details (all **REVIEW**): [`ENVIRONMEN
   Full run: 15383 run, 15380 passed, 3 failed: the two cadence checks ("Mid with +25%", "Finisher gets its own
   +25%"; they fail the same on d7929d50's GameData) and the flaky Stable "both fighters are out at once" (passes on
   rerun). The active patch the run rewrote was restored.
-- **Open:** Turnabout (Labyrinth affix) applies the dropped `disrupt`; Slow hazards slow only the hero; Dense Brush's
-  two Ensnare / Drain kits; boon amounts are guesses; the in-game "DUNGEON FIGHTERS" header is unchanged.
+- **Open:** boon amounts are guesses; the in-game "DUNGEON FIGHTERS" header is unchanged (code compares it).
+- **Fixed after (11-22):** Turnabout (Labyrinth affix) now Rattles on hit (it applied the dropped `disrupt`);
+  Sandstorm and Shifting Hedges Stagger as their text says (they set the hero-only Slow flag); Mosshaven Thorn-Ring
+  is REND + DRAIN (Binding Whip → ENEMY REND), so Dense Brush's three kits differ.
