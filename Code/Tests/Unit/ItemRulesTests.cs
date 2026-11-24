@@ -63,7 +63,10 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(per != null && per.PerTargetStatus == "bleed", "PER TARGET", ref _run, ref _passed, ref _failed);
             TestBase.AssertNull(CrossWireRule.Parse("WHILE -> HEAL 5%"), "HEAL is not passive", ref _run, ref _passed, ref _failed);
             TestBase.AssertNull(CrossWireRule.Parse("ONCONNECT -> DAMAGE +5%"), "DAMAGE needs WHILE", ref _run, ref _passed, ref _failed);
-            TestBase.AssertNull(CrossWireRule.Parse("ONTAKEHIT -> REFLECT 10"), "REFLECT needs a percent", ref _run, ref _passed, ref _failed);
+            var flatReflect = CrossWireRule.Parse("ONTAKEHIT -> REFLECT 10");
+            TestBase.AssertTrue(flatReflect != null && flatReflect.Flat && !flatReflect.Percent, "REFLECT n is a flat return", ref _run, ref _passed, ref _failed);
+            var pctReflect = CrossWireRule.Parse("ONTAKEHIT -> REFLECT 10%");
+            TestBase.AssertTrue(pctReflect != null && !pctReflect.Flat && pctReflect.Percent, "REFLECT n% is a share of damage taken", ref _run, ref _passed, ref _failed);
             TestBase.AssertNull(CrossWireRule.Parse("ONKILL -> BUFF LUCK 1"), "unknown BUFF stat rejected", ref _run, ref _passed, ref _failed);
             var old = CrossWireRule.Parse("ONKILL IF CRISIS>=1 -> MINT TRIUMPH 2");
             TestBase.AssertTrue(old != null && old.IfStore == "CRISIS" && old.IfAtLeast == 1, "cross-wire form still parses", ref _run, ref _passed, ref _failed);
@@ -144,6 +147,14 @@ namespace RPGGame.Tests.Unit
             var taken = new CombatEvent(CombatEventType.ActionHit, attacker) { Target = thorn, Damage = 20, Action = new Action { Name = "BITE", Type = ActionType.Attack } };
             MaterialSetController.TryMintFromEvent(thorn, taken, taken.Action, takeHitOnly: true);
             TestBase.AssertTrue(attacker.CurrentHealth < foeHp, "reflect damages the attacker", ref _run, ref _passed, ref _failed);
+
+            var spike = Hero("SpikeHero");
+            Give(spike, "Spiked", "ONTAKEHIT -> REFLECT 7");
+            var biter = new Character("SpikeFoe", 5);
+            int biterHp = biter.CurrentHealth;
+            var bitten = new CombatEvent(CombatEventType.ActionHit, biter) { Target = spike, Damage = 1, Action = new Action { Name = "BITE", Type = ActionType.Attack } };
+            MaterialSetController.TryMintFromEvent(spike, bitten, bitten.Action, takeHitOnly: true);
+            TestBase.AssertTrue(biter.CurrentHealth < biterHp && biterHp - biter.CurrentHealth >= 1, "flat reflect damages the attacker regardless of hit size", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestBuffAndSpentCondition()

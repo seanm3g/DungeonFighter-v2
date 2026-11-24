@@ -62,8 +62,8 @@ namespace RPGGame
     /// <c>SLOTS&gt;=5</c> (strip length); <c>TARGET bleed</c> / <c>TARGET bleed&gt;=3</c> /
     /// <c>TARGET HP&lt;30</c>; <c>PREFIX undead</c> (enemy prefix tag).</item>
     /// <item>Triggered verbs: <c>MINT</c> (hero mint), <c>ADD</c> (hero resource: harden, fortify, focus, temphp % max
-    /// HP), <c>APPLY</c> (target status), <c>HEAL n%</c> (of the event's damage; plain n = % max HP), <c>REFLECT n%</c>
-    /// (of damage taken, to the attacker), <c>BUFF stat n FOR fight|dungeon</c> (STR, AGI, TECH, INT, HIT, COMBO,
+    /// HP), <c>APPLY</c> (target status), <c>HEAL n%</c> (of the event's damage; plain n = % max HP), <c>REFLECT n% | n</c>
+    /// (% of damage taken, or flat damage, to the attacker),<c>BUFF stat n FOR fight|dungeon</c> (STR, AGI, TECH, INT, HIT, COMBO,
     /// CRIT, ACCURACY).</item>
     /// <item>Passive (WHILE) stats: <c>DAMAGE ±n%</c> (outgoing), <c>ARMOR ±n%</c>, <c>SPEED ±n%</c> (+ = faster),
     /// <c>HIT</c> / <c>COMBO</c> / <c>CRIT</c> ±n (roll bonuses). <c>PER TARGET status</c> multiplies by its stacks.</item>
@@ -354,11 +354,9 @@ namespace RPGGame
                 return null;
             if (!passive && amount <= 0)
                 return null;
-            if (verb == "REFLECT" && !pct)
-                return null;
-
             string scope = "fight";
-            bool flat = false;
+            // REFLECT n% = share of the damage taken; REFLECT n = flat damage back per trigger.
+            bool flat = verb == "REFLECT" && !pct;
             RulePer? per = null;
             int turns = 1;
             string? shape = null, ifTag = null;
@@ -801,7 +799,7 @@ namespace RPGGame
             double amount = rule.Amount * perFactor;
             // Q7 (D2.5): inside the hero's crit, rule amounts are amplified, except those already read off the crit's
             // damage (HEAL n% of the hit, REFLECT).
-            if (!(rule.Verb == "REFLECT" || (rule.Verb == "HEAL" && rule.Percent)))
+            if (!((rule.Verb == "REFLECT" && rule.Percent) || (rule.Verb == "HEAL" && rule.Percent)))
                 amount *= CritAmplifier.For(hero);
 
             switch (rule.Verb)
@@ -826,7 +824,9 @@ namespace RPGGame
                 }
                 case "REFLECT":
                 {
-                    int dmg = (int)Math.Floor(Math.Max(0, eventAmount) * amount / 100.0 + 1e-9);
+                    int dmg = rule.Flat
+                        ? RoundUnits(amount) // already crit-amplified above
+                        : (int)Math.Floor(Math.Max(0, eventAmount) * amount / 100.0 + 1e-9);
                     if (dmg <= 0 || target == null || ReferenceEquals(target, hero))
                         return false;
                     ActionUtilities.ApplyDamage(target, dmg);
@@ -1649,7 +1649,7 @@ namespace RPGGame
                 "RETRIGGER" => rule.Store.Replace("retrigger_", "repeat your ").Replace("slot:", "slot ") + " action",
                 "CRITFACE" => $"crit on natural {rule.Amount:0}+ this fight",
                 "SWING" => $"{(rule.Amount >= 0 ? "+" : "")}{rule.Amount:0.##}% {rule.Store.ToLowerInvariant()} this swing{per}",
-                "REFLECT" => $"deal {rule.Amount:0.##}% of it back",
+                "REFLECT" => (rule.Flat ? $"deal {rule.Amount:0.##} damage back" : $"deal {rule.Amount:0.##}% of it back") + per,
                 "BUFF" => $"+{rule.Amount:0.##} {rule.Store.ToUpperInvariant()}{per} for the {rule.Scope}",
                 "NEXT" => DescribeNext(rule, per),
                 "NEXTROLL" => $"your next roll is a {rule.Amount / (rule.Scale > 0 ? rule.Scale : 1):0}",
