@@ -22,7 +22,6 @@ namespace RPGGame.Data
         /// <summary>Families pushed/ensured as column triples under <see cref="ContextBand"/>.</summary>
         public static readonly Family[] Families =
         {
-            new("ONHIT", "ON HIT", "ON HIT SCOPE", "ON HIT →"),
             new("ONMISS", "ON MISS", "ON MISS SCOPE", "ON MISS →"),
             new("ONCRITICAL", "ON CRIT", "ON CRIT SCOPE", "ON CRIT →"),
             new("ONKILL", "ON KILL", "ON KILL SCOPE", "ON KILL →"),
@@ -284,7 +283,6 @@ namespace RPGGame.Data
                 list.Add(new ActionTriggerBundle { When = when, Count = count.Trim() });
             }
 
-            Add("ONHIT", data.OnHit);
             Add("ONMISS", data.OnMiss);
             Add("ONCRITICAL", data.OnCrit);
             Add("ONKILL", data.OnKill);
@@ -304,7 +302,6 @@ namespace RPGGame.Data
         {
             return CanonicalWhen(when) switch
             {
-                "ONHIT" => data.OnHit ?? "",
                 "ONMISS" => data.OnMiss ?? "",
                 "ONCRITICAL" => data.OnCrit ?? "",
                 "ONKILL" => data.OnKill ?? "",
@@ -318,7 +315,6 @@ namespace RPGGame.Data
         {
             switch (CanonicalWhen(when))
             {
-                case "ONHIT": data.OnHit = count; break;
                 case "ONMISS": data.OnMiss = count; break;
                 case "ONCRITICAL": data.OnCrit = count; break;
                 case "ONKILL": data.OnKill = count; break;

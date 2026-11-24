@@ -98,8 +98,9 @@ namespace RPGGame.Tests.Unit
             var combo = new CombatEvent(CombatEventType.ActionHit, source) { IsCombo = true };
             var crit = new CombatEvent(CombatEventType.ActionHit, source) { IsCritical = true };
 
-            TestBase.AssertTrue(ActionTriggerGate.ShouldApplyStatusEffects(action, normal),
-                "ONHIT matches normal", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            // ONHIT (normal hits only) was retired 2026-11-23 unused: ONCONNECT covers the HIT band and action rolls.
+            TestBase.AssertTrue(!ActionTriggerGate.ShouldApplyStatusEffects(action, normal),
+                "ONHIT (retired) no longer matches", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!ActionTriggerGate.ShouldApplyStatusEffects(action, combo),
                 "ONHIT rejects combo", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(!ActionTriggerGate.ShouldApplyStatusEffects(action, crit),
@@ -220,7 +221,7 @@ namespace RPGGame.Tests.Unit
         {
             var parsed = ActionTriggerGate.ParseTriggerConditionList(
                 "onhit, ONCONNECT, oncrit, ONCRITMISS, ONKILL, ONCOMBOEND, ONROOMSCLEARED:3, ONWIELD:sword, ONFIRSTHIT, IFCLUTCH, IFSAMESACTION, IFTARGETSTATUS:poison");
-            TestBase.AssertTrue(parsed.Contains("ONHIT"), "Parse ONHIT", ref _testsRun, ref _testsPassed, ref _testsFailed);
+            TestBase.AssertTrue(!parsed.Contains("ONHIT"), "ONHIT (retired) is not a trigger", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(parsed.Contains("ONCONNECT"), "Parse ONCONNECT", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(parsed.Contains("ONCRITICAL"), "Parse ONCRIT→ONCRITICAL", ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertTrue(parsed.Contains("ONCRITICALMISS"), "Parse ONCRITMISS", ref _testsRun, ref _testsPassed, ref _testsFailed);

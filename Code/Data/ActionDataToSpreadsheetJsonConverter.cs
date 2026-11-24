@@ -109,7 +109,6 @@ namespace RPGGame.Data
                 var sheetData = new SpreadsheetActionData();
                 ActionTriggerSheetColumns.ApplyBundlesToSpreadsheetRow(sheetData, data.TriggerBundles);
                 row.TriggerBundlesJson = sheetData.TriggerBundlesJson;
-                row.OnHit = sheetData.OnHit;
                 row.OnMiss = sheetData.OnMiss;
                 row.OnCrit = sheetData.OnCrit;
                 row.OnKill = sheetData.OnKill;

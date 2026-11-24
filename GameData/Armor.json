@@ -53,7 +53,7 @@
     "class": "barbarian",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "ONCOMBO IF ACTION BLOOD_FRENZY -> MINT RAGE 1"
+    "modifier": "ONCOMBO IF ACTION BLOOD_FRENZY -> ADD RAGE 1"
   },
   {
     "slot": "head",
@@ -221,7 +221,7 @@
     "class": "wizard",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "ONCOMBO IF ACTION CRYSTALLIZE -> MINT LENS 1"
+    "modifier": "ONCOMBO IF ACTION CRYSTALLIZE -> ADD LENS 1"
   },
   {
     "slot": "head",
@@ -613,7 +613,7 @@
     "class": "warrior",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> MINT BEAT 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> ADD BEAT 1"
   },
   {
     "slot": "head",
@@ -641,7 +641,7 @@
     "class": "barbarian",
     "defenseMin": 6,
     "defenseMax": 8,
-    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> MINT CRISIS 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> ADD CRISIS 1"
   },
   {
     "slot": "head",
@@ -669,7 +669,7 @@
     "class": "wizard",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> MINT CONTACT 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> ADD CONTACT 1"
   },
   {
     "slot": "head",
@@ -725,7 +725,7 @@
     "class": "rogue",
     "defenseMin": 8,
     "defenseMax": 12,
-    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> MINT SWING 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG duelist -> ADD SWING 1"
   },
   {
     "slot": "head",
@@ -1173,7 +1173,7 @@
     "class": "warrior",
     "defenseMin": 14,
     "defenseMax": 18,
-    "modifier": "ONSTATUSAPPLY:slow -> MINT DRAG 1; ONCASH:DRAG -> APPLY slow 1"
+    "modifier": "ONSTATUSAPPLY:slow -> ADD DRAG 1; ONCASH:DRAG -> APPLY slow 1"
   },
   {
     "slot": "head",
@@ -1201,7 +1201,7 @@
     "class": "wizard",
     "defenseMin": 13,
     "defenseMax": 17,
-    "modifier": "ONSTATUSAPPLY:rattle -> MINT CONTACT 1; ONCASH:CONTACT -> APPLY rattle 1"
+    "modifier": "ONSTATUSAPPLY:rattle -> ADD CONTACT 1; ONCASH:CONTACT -> APPLY rattle 1"
   },
   {
     "slot": "head",
@@ -1285,7 +1285,7 @@
     "class": "barbarian",
     "defenseMin": 20,
     "defenseMax": 26,
-    "modifier": "ONSTATUSAPPLY:brittle -> MINT RAGE 1; ONCASH:RAGE -> APPLY brittle 1"
+    "modifier": "ONSTATUSAPPLY:brittle -> ADD RAGE 1; ONCASH:RAGE -> APPLY brittle 1"
   },
   {
     "slot": "head",
@@ -1397,7 +1397,7 @@
     "class": "wizard",
     "defenseMin": 16,
     "defenseMax": 22,
-    "modifier": "ONSTATUSAPPLY:brittle -> MINT CHAIN 1; ONCASH:CHAIN -> APPLY brittle 1"
+    "modifier": "ONSTATUSAPPLY:brittle -> ADD CHAIN 1; ONCASH:CHAIN -> APPLY brittle 1"
   },
   {
     "slot": "head",
@@ -1453,7 +1453,7 @@
     "class": "rogue",
     "defenseMin": 17,
     "defenseMax": 23,
-    "modifier": "ONSTATUSAPPLY:mark -> MINT GRAZE 1; ONCASH:GRAZE -> APPLY mark 1"
+    "modifier": "ONSTATUSAPPLY:mark -> ADD GRAZE 1; ONCASH:GRAZE -> APPLY mark 1"
   },
   {
     "slot": "chest",
@@ -1593,7 +1593,7 @@
     "class": "warrior",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCOMBO IF ACTION BRACE -> MINT STREAK 1"
+    "modifier": "ONCOMBO IF ACTION BRACE -> ADD STREAK 1"
   },
   {
     "slot": "chest",
@@ -2125,7 +2125,7 @@
     "class": "barbarian",
     "defenseMin": 11,
     "defenseMax": 15,
-    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> MINT CRISIS 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> ADD CRISIS 1"
   },
   {
     "slot": "chest",
@@ -2265,7 +2265,7 @@
     "class": "barbarian",
     "defenseMin": 16,
     "defenseMax": 22,
-    "modifier": "ONCONNECT EVERY 2 IF TAG ravager -> MINT RAGE 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG ravager -> ADD RAGE 1"
   },
   {
     "slot": "chest",
@@ -2797,7 +2797,7 @@
     "class": "barbarian",
     "defenseMin": 20,
     "defenseMax": 26,
-    "modifier": "ONSTATUSAPPLY:stagger -> MINT CRISIS 1; ONCASH:CRISIS -> APPLY stagger 1"
+    "modifier": "ONSTATUSAPPLY:stagger -> ADD CRISIS 1; ONCASH:CRISIS -> APPLY stagger 1"
   },
   {
     "slot": "chest",
@@ -3021,7 +3021,7 @@
     "class": "barbarian",
     "defenseMin": 1,
     "defenseMax": 1,
-    "modifier": "ONCOMBO IF ACTION BLUDGEON -> MINT TRIUMPH 1"
+    "modifier": "ONCOMBO IF ACTION BLUDGEON -> ADD TRIUMPH 1"
   },
   {
     "slot": "legs",
@@ -3077,7 +3077,7 @@
     "class": "wizard",
     "defenseMin": 3,
     "defenseMax": 3,
-    "modifier": "ONCOMBO IF ACTION DUNGEON_ANALYSIS -> MINT LENS 1"
+    "modifier": "ONCOMBO IF ACTION DUNGEON_ANALYSIS -> ADD LENS 1"
   },
   {
     "slot": "legs",
@@ -3189,7 +3189,7 @@
     "class": "rogue",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "ONCOMBO IF ACTION DISARM -> MINT TROPHY 1"
+    "modifier": "ONCOMBO IF ACTION DISARM -> ADD TROPHY 1"
   },
   {
     "slot": "legs",
@@ -3609,7 +3609,7 @@
     "class": "wizard",
     "defenseMin": 12,
     "defenseMax": 16,
-    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> MINT CONTACT 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> ADD CONTACT 1"
   },
   {
     "slot": "legs",
@@ -3777,7 +3777,7 @@
     "class": "warrior",
     "defenseMin": 16,
     "defenseMax": 22,
-    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> MINT DRAG 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG spellblade -> ADD DRAG 1"
   },
   {
     "slot": "legs",
@@ -3805,7 +3805,7 @@
     "class": "rogue",
     "defenseMin": 13,
     "defenseMax": 17,
-    "modifier": "ONCONNECT EVERY 2 IF TAG status -> MINT GRAZE 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG status -> ADD GRAZE 1"
   },
   {
     "slot": "legs",
@@ -4197,7 +4197,7 @@
     "class": "rogue",
     "defenseMin": 32,
     "defenseMax": 44,
-    "modifier": "ONSTATUSAPPLY:mark -> MINT SWING 1; ONCASH:SWING -> APPLY mark 1"
+    "modifier": "ONSTATUSAPPLY:mark -> ADD SWING 1; ONCASH:SWING -> APPLY mark 1"
   },
   {
     "slot": "legs",
@@ -4281,7 +4281,7 @@
     "class": "barbarian",
     "defenseMin": 20,
     "defenseMax": 28,
-    "modifier": "ONSTATUSAPPLY:expose -> MINT RAGE 1; ONCASH:RAGE -> APPLY expose 1"
+    "modifier": "ONSTATUSAPPLY:expose -> ADD RAGE 1; ONCASH:RAGE -> APPLY expose 1"
   },
   {
     "slot": "legs",
@@ -4309,7 +4309,7 @@
     "class": "warrior",
     "defenseMin": 28,
     "defenseMax": 38,
-    "modifier": "ONSTATUSAPPLY:rattle -> MINT DRAG 1; ONCASH:DRAG -> APPLY rattle 1"
+    "modifier": "ONSTATUSAPPLY:rattle -> ADD DRAG 1; ONCASH:DRAG -> APPLY rattle 1"
   },
   {
     "slot": "legs",
@@ -4505,7 +4505,7 @@
     "class": "rogue",
     "defenseMin": 2,
     "defenseMax": 2,
-    "modifier": "ONCOMBO IF ACTION ENRAGE -> MINT TROPHY 1"
+    "modifier": "ONCOMBO IF ACTION ENRAGE -> ADD TROPHY 1"
   },
   {
     "slot": "feet",
@@ -4589,7 +4589,7 @@
     "class": "warrior",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "ONCOMBO IF ACTION CLEAVE_THROUGH -> MINT STREAK 1"
+    "modifier": "ONCOMBO IF ACTION CLEAVE_THROUGH -> ADD STREAK 1"
   },
   {
     "slot": "feet",
@@ -4701,7 +4701,7 @@
     "class": "barbarian",
     "defenseMin": 0,
     "defenseMax": 0,
-    "modifier": "ONCOMBO IF ACTION COILED_STRIKE -> MINT CRISIS 1"
+    "modifier": "ONCOMBO IF ACTION COILED_STRIKE -> ADD CRISIS 1"
   },
   {
     "slot": "feet",
@@ -5009,7 +5009,7 @@
     "class": "barbarian",
     "defenseMin": 7,
     "defenseMax": 9,
-    "modifier": "ONCONNECT EVERY 2 IF TAG bludgeon -> MINT TRIUMPH 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG bludgeon -> ADD TRIUMPH 1"
   },
   {
     "slot": "feet",
@@ -5233,7 +5233,7 @@
     "class": "barbarian",
     "defenseMin": 6,
     "defenseMax": 8,
-    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> MINT CRISIS 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warbrute -> ADD CRISIS 1"
   },
   {
     "slot": "feet",
@@ -5709,7 +5709,7 @@
     "class": "barbarian",
     "defenseMin": 20,
     "defenseMax": 26,
-    "modifier": "ONSTATUSAPPLY:expose -> MINT CRISIS 1; ONCASH:CRISIS -> APPLY expose 1"
+    "modifier": "ONSTATUSAPPLY:expose -> ADD CRISIS 1; ONCASH:CRISIS -> APPLY expose 1"
   },
   {
     "slot": "feet",
@@ -5849,6 +5849,6 @@
     "class": "warrior",
     "defenseMin": 13,
     "defenseMax": 17,
-    "modifier": "ONSTATUSAPPLY:stagger -> MINT DRAG 1; ONCASH:DRAG -> APPLY stagger 1"
+    "modifier": "ONSTATUSAPPLY:stagger -> ADD DRAG 1; ONCASH:DRAG -> APPLY stagger 1"
   }
 ]

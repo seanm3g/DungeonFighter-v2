@@ -240,6 +240,8 @@ namespace RPGGame
         public List<ActionAttackBonusItem> ConsumePendingActionBonusesForSlot(int slot) => _state.ConsumePendingActionBonusesForSlot(slot);
         public List<ActionAttackBonusItem> GetPendingActionBonusesForSlot(int slot) => _state.GetPendingActionBonusesForSlot(slot);
         public IEnumerable<int> GetPendingActionBonusSlots() => _state.GetPendingActionBonusSlots();
+        /// <summary>Read-only view of the next-action bank (ACTION ×1 grants) for diagnostics (CARDSNAP).</summary>
+        public IReadOnlyList<ActionAttackBonusItem> PeekNextActionBank() => _state.PendingActionCadenceBonusBank;
         public void ClearPendingActionBonuses() => _state.ClearPendingActionBonuses();
         public int PendingActionCadencePreviewSlot
         {

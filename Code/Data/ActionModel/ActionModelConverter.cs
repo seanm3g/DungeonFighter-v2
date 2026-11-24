@@ -292,7 +292,6 @@ namespace RPGGame.Data.ActionModel
                     ctx.Loss(column, $"'{v}' but no {when} trigger bundle{(valueIsCount ? " with count " + v : "")}");
             }
 
-            Check(nameof(SpreadsheetActionJson.OnHit), "ONHIT", false);
             Check(nameof(SpreadsheetActionJson.OnMiss), "ONMISS", false);
             Check(nameof(SpreadsheetActionJson.OnCrit), "ONCRITICAL", false);
             Check(nameof(SpreadsheetActionJson.OnKill), "ONKILL", false);

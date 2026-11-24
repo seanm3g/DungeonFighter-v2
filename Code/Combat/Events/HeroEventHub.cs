@@ -8,16 +8,13 @@ using RPGGame.Data;
 namespace RPGGame.Combat.Events
 {
     /// <summary>
-    /// Fires the hub events (Documentation/BUILD_SYSTEM_CONDENSED.md §2): ONSTATUSAPPLY, ONCASH, ONSTOREFULL, ONBEAT,
-    /// ONSELFCOST, ONENEMYACT. They are not on the CombatEvent pipeline (action trigger bundles don't see them); the
-    /// hub hands them to everything that reads events by name: material set WHENs, Listener affixes and skill
-    /// cross-wires (<see cref="Raised"/>).
+    /// Fires the hub events (Documentation/BUILD_SYSTEM_CONDENSED.md §2): ONSTATUSAPPLY, ONCASH, ONSTOREFULL,
+    /// ONSELFCOST, ONENEMYACT. They are not on the CombatEvent pipeline; the hub hands them to every rule owner: the
+    /// hero's rule book (items, material sets, Listener affixes, skill nodes) and the card being swung when the event
+    /// was raised (<see cref="Rules.ActionRules.OnHub"/>), then <see cref="Raised"/>.
     /// </summary>
     public static class HeroEventHub
     {
-        /// <summary>Default ONBEAT period when a token has no <c>:n</c>.</summary>
-        public const int DefaultBeat = 4;
-
         /// <summary>Subscribers (skill cross-wires): hero, canonical token, argument (status / store id / beat count).</summary>
         public static event Action<Character, string, string?>? Raised;
 
@@ -36,7 +33,7 @@ namespace RPGGame.Combat.Events
             _targets.TryGetValue(hero, out var weak) && weak.TryGetTarget(out var actor) ? actor : null;
         /// <summary>
         /// Raises <paramref name="token"/> for <paramref name="hero"/>. <paramref name="arg"/> is the status / store id
-        /// (ONSTATUSAPPLY, ONCASH, ONSTOREFULL) or the hero's turn count this fight (ONBEAT). Resolution goes through
+        /// (ONSTATUSAPPLY, ONCASH, ONSTOREFULL). Resolution goes through
         /// <see cref="Rules.RuleEngine"/>: raised while another event is resolving (a mint filling a store, a rule's spend),
         /// it queues and resolves after that event, up to two generations deep (D6.13–D6.14).
         /// </summary>
@@ -44,28 +41,27 @@ namespace RPGGame.Combat.Events
         {
             if (hero == null || hero is Enemy)
                 return;
-            Rules.RuleEngine.Raise(hero, arg == null ? token : token + ":" + arg, () => Resolve(hero, token, arg, amount));
+            // The card swinging when the event is raised hears it too, even when it resolves later in the queue.
+            var card = Rules.ActionRules.Swinging(hero);
+            Rules.RuleEngine.Raise(hero, arg == null ? token : token + ":" + arg, () => Resolve(hero, token, arg, amount, card));
         }
 
-        private static void Resolve(Character hero, string token, string? arg, int amount)
+        private static void Resolve(Character hero, string token, string? arg, int amount, RPGGame.Action? card)
         {
             CrossWires.OnHub(hero, token, arg, amount);
+            if (card != null)
+                Rules.ActionRules.OnHub(hero, card, token, arg);
             Raised?.Invoke(hero, token, arg);
         }
 
         /// <summary>
-        /// True when a WHEN token (with optional <c>:arg</c>) matches the raised event. ONBEAT:n matches every n-th
-        /// turn; other args must equal the raised argument (case-insensitive); no arg matches any.
+        /// True when a WHEN token (with optional <c>:arg</c>) matches the raised event: the arg must equal the raised
+        /// argument (case-insensitive); no arg matches any.
         /// </summary>
         public static bool Matches(string? whenToken, string token, string? raisedArg)
         {
             if (!TriggerEvents.TryGet(whenToken, out var def, out string? wantArg) || def.Token != token)
                 return false;
-            if (token == "ONBEAT")
-            {
-                int period = int.TryParse(wantArg, out int n) && n > 0 ? n : DefaultBeat;
-                return int.TryParse(raisedArg, out int turn) && turn > 0 && turn % period == 0;
-            }
             return string.IsNullOrEmpty(wantArg)
                 || string.Equals(Norm(wantArg), Norm(raisedArg), StringComparison.OrdinalIgnoreCase);
         }
@@ -74,15 +70,14 @@ namespace RPGGame.Combat.Events
 
         // ------------------------------------------------------------------ call-site helpers
 
-        /// <summary>Hero turn start: counts turns this fight and raises ONBEAT with the count.</summary>
+        /// <summary>Hero turn start: counts turns this fight (the TURN self key; rules use ONTURN EVERY n).</summary>
         public static void OnHeroTurnStart(Character hero)
         {
             var box = _fightTurns.GetOrCreateValue(hero);
             box.Value++;
-            Raise(hero, "ONBEAT", box.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
         }
 
-        /// <summary>Hero turn count this fight (ONBEAT's clock).</summary>
+        /// <summary>Hero turn count this fight.</summary>
         public static int FightTurns(Character hero) => _fightTurns.TryGetValue(hero, out var box) ? box.Value : 0;
 
         /// <summary>New fight: restart the beat clock.</summary>

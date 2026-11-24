@@ -626,9 +626,6 @@ namespace RPGGame.UI.Avalonia.Managers
                 if (GetBool(label) == false)
                     action.TriggerConditions.RemoveAll(c => string.Equals(c, token, StringComparison.OrdinalIgnoreCase));
             }
-            SyncTrigger("On Hit (normal)", "ONHIT");
-            // Legacy label from older forms
-            SyncTrigger("On Hit", "ONHIT");
             SyncTrigger("On Connect (any hit)", "ONCONNECT");
             SyncTrigger("On Miss", "ONMISS");
             SyncTrigger("On Crit Miss", "ONCRITICALMISS");

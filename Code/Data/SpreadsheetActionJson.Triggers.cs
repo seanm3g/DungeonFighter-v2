@@ -7,9 +7,6 @@ namespace RPGGame.Data
     /// </summary>
     public partial class SpreadsheetActionJson
     {
-        [JsonPropertyName("onHit")]
-        public string OnHit { get; set; } = "";
-
         [JsonPropertyName("onMiss")]
         public string OnMiss { get; set; } = "";
 

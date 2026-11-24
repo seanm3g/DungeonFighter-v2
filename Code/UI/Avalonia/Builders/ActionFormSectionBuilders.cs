@@ -178,7 +178,6 @@ namespace RPGGame.UI.Avalonia.Builders
                 TextWrapping = TextWrapping.Wrap,
                 Margin = new Thickness(0, 0, 0, 8)
             });
-            _ctx.Factory.AddBooleanField(stack, "On Hit (normal)", HasTrigger(action, "ONHIT"), (value) => SetTrigger(action, "ONHIT", value));
             _ctx.Factory.AddBooleanField(stack, "On Connect (any hit)", HasTrigger(action, "ONCONNECT"), (value) => SetTrigger(action, "ONCONNECT", value));
             _ctx.Factory.AddBooleanField(stack, "On Miss", HasTrigger(action, "ONMISS"), (value) => SetTrigger(action, "ONMISS", value));
             _ctx.Factory.AddBooleanField(stack, "On Crit Miss", HasTrigger(action, "ONCRITICALMISS"), (value) => SetTrigger(action, "ONCRITICALMISS", value));

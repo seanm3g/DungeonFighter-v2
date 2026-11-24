@@ -394,7 +394,7 @@ namespace RPGGame.Tuning
 
         /// <summary>
         /// How well a rule skill node fits this hero (0..1, 0.5 with nothing to check): the share of what its rules name that
-        /// the hero has. Tags (TAG / PREVTAG / NEXTTAG / IFTAG / PER TAGS) need a strip action with the tag; statuses
+        /// the hero has. Tags (TAG / IFTAG / PER TAGS) need a strip action with the tag; statuses
         /// (ONSTATUSAPPLY:x, target conditions, PER TARGET x) a strip action applying them; ONCASH:store a worn set minting
         /// it or a strip verb spending it; WEAPON the equipped type; PER WORN a worn piece. Picks between either-or nodes.
         /// </summary>
@@ -429,7 +429,7 @@ namespace RPGGame.Tuning
                 {
                     switch (c.Subject)
                     {
-                        case "tag" or "class" or "prevtag" or "nexttag": Need(Tagged(c.Key)); break;
+                        case "tag" or "class": Need(Tagged(c.Key)); break;
                         case "weapon": Need(hero.Weapon is WeaponItem w && string.Equals(w.WeaponType.ToString(), c.Key, StringComparison.OrdinalIgnoreCase)); break;
                         case "target" when Stores.TryGet(c.Key, out _): Need(Applies(c.Key)); break;
                     }
@@ -595,11 +595,15 @@ namespace RPGGame.Tuning
             double delta = 0;
             foreach (var m in item.Modifications)
             {
-                if (m == null || string.IsNullOrWhiteSpace(m.Effect) || !Data.AffixWeights.TryGetValue(m.Effect, out double w))
+                if (m == null || string.IsNullOrWhiteSpace(m.Effect))
+                    continue;
+                // Saved cross-wire prefixes (Effect CROSSWIRE until 2026-11-23) are RULE prefixes.
+                string effect = AffixTemplates.Is(m, CrossWires.AffixEffect) ? CrossWires.RuleEffect : m.Effect.Trim();
+                if (!Data.AffixWeights.TryGetValue(effect, out double w))
                     continue;
                 if (m.GetPrefixCategory() != ModificationPrefixCategory.Adjective)
                     continue;
-                bool holds = m.Effect.ToUpperInvariant() switch
+                bool holds = effect.ToUpperInvariant() switch
                 {
                     "LISTEN" or "TUNE" or "STORECOND" or "COUNTSDOUBLE" => inPlan,
                     "CROSSWIRE" or "RULE" => CrossWires.RulesOf(m, item.Name).ToList() is { Count: > 0 } rules

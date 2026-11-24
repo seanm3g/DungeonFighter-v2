@@ -74,11 +74,11 @@ namespace RPGGame
                 yield return new CrossWireRule
                 {
                     When = mod.TriggerWhen.Trim(),
-                    Verb = "MINT",
+                    Verb = "ADD",
                     Store = build.Keyword,
                     Amount = Math.Max(1.0, mod.RolledValue),
                     Source = source,
-                    Text = $"{mod.TriggerWhen} -> MINT {build.Keyword} (Listening)",
+                    Text = $"{mod.TriggerWhen} -> ADD {build.Keyword} (Listening)",
                     SetBuild = build,
                     Listener = true
                 };

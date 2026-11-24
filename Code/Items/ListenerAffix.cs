@@ -19,9 +19,6 @@ namespace RPGGame
     {
         public const string EffectName = "LISTEN";
 
-        /// <summary>Events that need an argument to mean anything; Listener never rolls them.</summary>
-        private static readonly HashSet<string> NeedsArg = new(StringComparer.OrdinalIgnoreCase) { "ONNATURALROLL", "ONROLLVALUE" };
-
         public static bool IsListener(Modification? mod) =>
             mod != null && string.Equals(mod.Effect?.Trim(), EffectName, StringComparison.OrdinalIgnoreCase);
 
@@ -43,7 +40,7 @@ namespace RPGGame
             if (family == null)
                 return Array.Empty<string>();
             return TriggerEvents.All
-                .Where(e => e.Family == family.Value && !NeedsArg.Contains(e.Token))
+                .Where(e => e.Family == family.Value && e.Listenable)
                 .Select(e => e.Token)
                 .ToList();
         }

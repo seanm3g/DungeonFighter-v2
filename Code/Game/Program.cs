@@ -181,6 +181,13 @@ namespace RPGGame
                     return;
                 }
 
+                if (args.Length > 0 && args[0].Equals("CARDSNAP", StringComparison.OrdinalIgnoreCase))
+                {
+                    executionMode = "CARDSNAP";
+                    System.Environment.ExitCode = await RPGGame.Tuning.Profiles.CardSnapshotRunner.RunAsync(args);
+                    return;
+                }
+
                 if (args.Length > 0 && args[0].Equals("ACTIONVALUE", StringComparison.OrdinalIgnoreCase))
                 {
                     executionMode = "ACTIONVALUE";

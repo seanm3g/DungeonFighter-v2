@@ -6,7 +6,7 @@ Writes / updates, in GameData/:
   Armor.json        + class, defenseMin / defenseMax, modifier
   RarityTable.json  + MinLevel, MinLines, MaxLines, Explode (old StatBonuses / ActionBonuses / Modifications columns dropped)
 
-Sources: StatBonuses.json (stat suffixes + animal suffixes), Modifications.json (adjectives, RULE / CROSSWIRE
+Sources: StatBonuses.json (stat suffixes + animal suffixes), Modifications.json (adjectives, RULE
 prefixes, affix templates), PrefixMaterialQuality.json (Quality), Actions.json + BaseModifiers.json (base modifiers).
 
 Re-run after editing the ladders below; it overwrites ItemMods.json and the generated catalog columns.
@@ -142,8 +142,9 @@ SLOT_WORDS = {
     "Steadied": ["Steadying", "Steadied", "Unshaking"],
 }
 
-# Cross-wires spend one material store into another (or a status), so they sit in the material pool.
-MATERIAL_TEMPLATES = {"LISTEN", "TUNE", "STORECOND", "COUNTSDOUBLE", "CROSSWIRE"}
+# Material-store templates sit in the material pool; a RULE row joins it with "Pool": "material" (the cross-wires, which
+# spend one material store into another). CROSSWIRE was its own Effect until 2026-11-23.
+MATERIAL_TEMPLATES = {"LISTEN", "TUNE", "STORECOND", "COUNTSDOUBLE"}
 MECHANIC_TEMPLATES = {"RULE", "OPENER", "FINISHER", "BLOODPRICE"}
 
 QUALITY_LADDER = [  # keyword, min, max, level, weight
@@ -396,7 +397,7 @@ def build_families(gd):
     for m in adj:
         effect = (m.get("Effect") or "").upper()
         slot = m["Name"] in SLOT_WORDS
-        pool = ("material" if effect in MATERIAL_TEMPLATES or slot
+        pool = ("material" if effect in MATERIAL_TEMPLATES or slot or (m.get("Pool") or "").lower() == "material"
                 else "mechanic" if effect in MECHANIC_TEMPLATES else None)
         if pool is None:
             continue
@@ -558,7 +559,7 @@ class ModifierAssigner:
         if kind == "action-tagas":
             return f"WHILE IF ACTION {act()} -> TAGAS {other_tag(cls)}", title(action())
         if kind == "action-mint":
-            return f"ONCOMBO IF ACTION {act()} -> MINT {store()} 1", title(action())
+            return f"ONCOMBO IF ACTION {act()} -> ADD {store()} 1", title(action())
         if kind == "class-dot":
             return f"ONCONNECT EVERY 3 IF CLASS {cls} -> APPLY {dot()} 1", title(dot())
         if kind == "potency":
@@ -577,7 +578,7 @@ class ModifierAssigner:
         if kind == "setcount":
             return "WHILE -> SETCOUNT 1", "Paired"
         if kind == "tag-mint":
-            return f"ONCONNECT EVERY 2 IF TAG {tag()} -> MINT {store()} 1", title(store())
+            return f"ONCONNECT EVERY 2 IF TAG {tag()} -> ADD {store()} 1", title(store())
         if kind == "cash-apply":
             return f"ONCASH:{store()} -> APPLY {foe()} 1", title(store())
         if kind == "exempt":
@@ -599,7 +600,7 @@ class ModifierAssigner:
             (a, name), (b, _) = node(), node()
             return f"WHILE -> RANK {a} 1; WHILE -> RANK {b} 1", name
         if kind == "chain-mint":
-            return (f"ONSTATUSAPPLY:{foe()} -> MINT {store()} 1; "
+            return (f"ONSTATUSAPPLY:{foe()} -> ADD {store()} 1; "
                     f"ONCASH:{store()} -> APPLY {foe()} 1"), title(store())
         if kind == "setcount-rank":
             nid, name = node()

@@ -318,7 +318,7 @@ namespace RPGGame.Tuning.Profiles
                 "NEXT" => rule.Store is "DAMAGE" or "AMP" ? rule.Amount / 100.0 * Math.Max(1, rule.Turns)
                     : rule.Store == "SPEED" ? rule.Amount / 100.0 * ImplicitSpeedShare * Math.Max(1, rule.Turns)
                     : ImplicitGrantShare,
-                "APPLY" or "ADD" or "MINT" => ImplicitGrantShare * Math.Max(1, rule.Amount),
+                "APPLY" or "ADD" => ImplicitGrantShare * Math.Max(1, rule.Amount),
                 "COUNTAS" => ImplicitGrantShare,
                 _ => 0
             };

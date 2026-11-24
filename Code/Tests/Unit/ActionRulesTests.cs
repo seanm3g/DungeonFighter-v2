@@ -24,6 +24,9 @@ namespace RPGGame.Tests.Unit
             TestRoomClearHealsEveryClear();
             TestFiresOnlyOnOwnEvent();
             TestRecordedWithActionOwner();
+            TestCardHearsHubEventDuringItsSwing();
+            TestHubCountAsRejected();
+            TestMintIsAdd();
 
             TestBase.PrintSummary("ActionRules Tests", _run, _passed, _failed);
         }
@@ -116,6 +119,9 @@ namespace RPGGame.Tests.Unit
             var natural = WithBundle("NAT TEST", "ONNATURALROLL", "heal", count: "7");
             TestBase.AssertEqual("ONNATURALROLL:7", ActionRules.For(natural).Single().When, "a roll-face count is the face",
                 ref _run, ref _passed, ref _failed);
+            var exact = WithBundle("EXACT TEST", "ONROLLVALUE", "heal", count: "15");
+            TestBase.AssertEqual("ONROLLVALUE:15", ActionRules.For(exact).Single().When, "a roll-total count is the total",
+                ref _run, ref _passed, ref _failed);
         }
 
         private static void TestFiresOnlyOnOwnEvent()
@@ -126,6 +132,46 @@ namespace RPGGame.Tests.Unit
             var hit = new CombatEvent(CombatEventType.ActionHit, hero) { Target = foe, Action = action };
             TestBase.AssertTrue(!ActionRules.Dispatch(action, hit, hero, foe, new List<string>()),
                 "an ONMISS card rule skips a hit", ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>A card's hub-event rule (ONCASH, ONSTATUSAPPLY, ...) fires when the event is raised during its own swing,
+        /// and not on another swing.</summary>
+        private static void TestCardHearsHubEventDuringItsSwing()
+        {
+            var card = WithBundle("CASH EAR TEST", "ONCASH", "replace_next_roll:11");
+            var hero = new Character("Earful", 1);
+            CombatTriggerContext.TryConsumePendingReplaceRollFace(hero, out _);
+            HeroEventHub.Raise(hero, "ONCASH", "RAGE");
+            TestBase.AssertFalse(CombatTriggerContext.TryConsumePendingReplaceRollFace(hero, out _),
+                "outside the card's swing its ONCASH rule stays quiet", ref _run, ref _passed, ref _failed);
+            using (ActionRules.BeginSwing(hero, card))
+                HeroEventHub.Raise(hero, "ONCASH", "RAGE");
+            bool fired = CombatTriggerContext.TryConsumePendingReplaceRollFace(hero, out int face);
+            TestBase.AssertTrue(fired && face == 11, "a cash-in during the card's swing fires its ONCASH rule", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(ActionRules.Swinging(hero) == null, "the swing marker clears after the swing", ref _run, ref _passed, ref _failed);
+        }
+
+        private static void TestHubCountAsRejected()
+        {
+            TestBase.AssertNull(CrossWireRule.Parse("ONCASH -> COUNTAS ONTAKEHIT"), "COUNTAS from a hub event is rejected",
+                ref _run, ref _passed, ref _failed);
+            TestBase.AssertNull(CrossWireRule.Parse("ONMISS -> COUNTAS ONCASH"), "COUNTAS into a hub event is rejected",
+                ref _run, ref _passed, ref _failed);
+            TestBase.AssertNotNull(CrossWireRule.Parse("ONMISS -> COUNTAS ONTAKEHIT"), "combat-event aliases still parse",
+                ref _run, ref _passed, ref _failed);
+        }
+
+        /// <summary>MINT is ADD; adding to a material store mints it (MINTBONUS applies on every path).</summary>
+        private static void TestMintIsAdd()
+        {
+            var old = CrossWireRule.Parse("ONKILL -> MINT RAGE 2");
+            TestBase.AssertTrue(old != null && old.Verb == "ADD" && old.Store == "RAGE", "MINT reads as ADD", ref _run, ref _passed, ref _failed);
+            var hero = new Character("Minter", 1);
+            int before = hero.Effects.GetMaterialKeyword("RAGE");
+            int added = Stores.Add(hero, "RAGE", 2);
+            TestBase.AssertEqual(before + added, hero.Effects.GetMaterialKeyword("RAGE"), "a store add lands in the material bank",
+                ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(added >= 2, "and reports what landed (MINTBONUS included)", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestRecordedWithActionOwner()

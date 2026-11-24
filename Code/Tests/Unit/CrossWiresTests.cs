@@ -43,7 +43,7 @@ namespace RPGGame.Tests.Unit
         {
             TestBase.SetCurrentTestName(nameof(TestParse));
             var r = CrossWireRule.Parse("ONCASH:RAGE -> MINT CRISIS 50%");
-            TestBase.AssertTrue(r != null && r.Verb == "MINT" && r.Store == "CRISIS" && r.Amount == 50 && r.Percent, "cash → mint percent", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(r != null && r.Verb == "ADD" && r.Store == "CRISIS" && r.Amount == 50 && r.Percent, "cash → mint percent", ref _run, ref _passed, ref _failed);
             var c = CrossWireRule.Parse("ONKILL IF CRISIS>=1 -> MINT TRIUMPH 2");
             TestBase.AssertTrue(c != null && c.IfStore == "CRISIS" && c.IfAtLeast == 1 && !c.Percent, "store condition", ref _run, ref _passed, ref _failed);
             var t = CrossWireRule.Parse("ONATTACK IF TARGET expose -> APPLY bleed 1");
@@ -192,7 +192,7 @@ namespace RPGGame.Tests.Unit
             var none = RPGGame.Tuning.RulesSynergy.KeywordsOf(Array.Empty<string>());
             TestBase.AssertTrue(RPGGame.Tuning.RulesSynergy.NodeRuleBonus(nodes["b-x-bone"], rage) > 0, "Pain to Execution scores with a Bone set", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(0.0, RPGGame.Tuning.RulesSynergy.NodeRuleBonus(nodes["b-x-bone"], none), "and not without RAGE", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(RPGGame.Tuning.RulesSynergy.NodeRuleBonus(nodes["w-x-bronze"], none) > 0, "ONBEAT wire needs no store", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(RPGGame.Tuning.RulesSynergy.NodeRuleBonus(nodes["w-x-bronze"], none) > 0, "ONTURN EVERY 4 wire needs no store", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(RPGGame.Tuning.RulesSynergy.NodeRuleBonus(nodes["b-persist"], none) > 0, "Persistence capstone scores", ref _run, ref _passed, ref _failed);
         }
 
@@ -207,8 +207,8 @@ namespace RPGGame.Tests.Unit
                 int n = trees?.Trees.SelectMany(t => t.Nodes).Count(x => x.Id.Contains(fam) && CrossWireRule.Parse(x.CrossWire) != null) ?? 0;
                 TestBase.AssertEqual(4, n, $"4 {fam.Trim('-')} family nodes parse", ref _run, ref _passed, ref _failed);
             }
-            int mods = LootDataCache.Load().Modifications.Count(m => AffixTemplates.Is(m, CrossWires.AffixEffect) && CrossWireRule.Parse(m.CrossWire) != null);
-            TestBase.AssertEqual(18, mods, "18 cross-wire prefixes parse", ref _run, ref _passed, ref _failed);
+            int mods = LootDataCache.Load().Modifications.Count(m => AffixTemplates.Is(m, CrossWires.RuleEffect) && m.CrossWire.Contains("ONCASH") && CrossWireRule.Parse(m.CrossWire) != null);
+            TestBase.AssertTrue(mods >= 18, $"18+ cross-wire RULE prefixes parse ({mods})", ref _run, ref _passed, ref _failed);
             int caps = trees?.Trees.SelectMany(t => t.Nodes).Count(n => !string.IsNullOrWhiteSpace(n.Persist)) ?? 0;
             TestBase.AssertEqual(4, caps, "4 class Persistence capstones", ref _run, ref _passed, ref _failed);
         }

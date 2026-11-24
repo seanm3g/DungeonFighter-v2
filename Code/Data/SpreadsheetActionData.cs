@@ -188,7 +188,6 @@ namespace RPGGame.Data
         public string DistanceFromXSlot { get; set; } = "";
         
         // Trigger columns (count/enable cells; SCOPE + → triples live under TRIGGERS band — see TriggerBundlesJson)
-        public string OnHit { get; set; } = "";
         public string OnMiss { get; set; } = "";
         public string OnCrit { get; set; } = "";
         public string OnKill { get; set; } = "";
@@ -254,7 +253,7 @@ namespace RPGGame.Data
         {
             "RESET CHAIN", "ON FAIL NO RESET", "LOOP CHAIN", "SHUFFLE", "REPLACE ACTION",
             "CHAIN LENGTH", "CHAIN POSITION", "MODIFY BASED ON CHAIN POISITION", "DISTANCE FROM X SLOT",
-            "ON HIT", "ON MISS", "ON CRIT", "ON KILL", "ON ROOMS CLEARED", "ON ROLL VALUE",
+            "ON MISS", "ON CRIT", "ON KILL", "ON ROOMS CLEARED", "ON ROLL VALUE",
             "MODIFY BASED ON TAGS", "ADD TAG", "REMOVE TAG", "TARGET", "THRESHOLD CATEGORY",
             "THRESHOLD AMOUNT", "BONUS", "BONUS ATTRIBUTE", "CADENCE", "VALUE", "ATTRIBUTE",
             "RESET", "MODIFY ROOM", "GRACE", "CHAIN POSITION BONUSES JSON"

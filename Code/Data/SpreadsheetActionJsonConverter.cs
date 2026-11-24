@@ -127,7 +127,6 @@ namespace RPGGame.Data
             action.ChainPosition = GetStringValue(root, "chainPosition");
             action.ModifyBasedOnChainPosition = GetStringValue(root, "modifyBasedOnChainPosition");
             action.DistanceFromXSlot = GetStringValue(root, "distanceFromXSlot");
-            action.OnHit = GetStringValue(root, "onHit");
             action.OnMiss = GetStringValue(root, "onMiss");
             action.OnCrit = GetStringValue(root, "onCrit");
             action.OnKill = GetStringValue(root, "onKill");
@@ -277,7 +276,6 @@ namespace RPGGame.Data
             WriteIfNotEmpty(writer, "chainPosition", value.ChainPosition);
             WriteIfNotEmpty(writer, "modifyBasedOnChainPosition", value.ModifyBasedOnChainPosition);
             WriteIfNotEmpty(writer, "distanceFromXSlot", value.DistanceFromXSlot);
-            WriteIfNotEmpty(writer, "onHit", value.OnHit);
             WriteIfNotEmpty(writer, "onMiss", value.OnMiss);
             WriteIfNotEmpty(writer, "onCrit", value.OnCrit);
             WriteIfNotEmpty(writer, "onKill", value.OnKill);

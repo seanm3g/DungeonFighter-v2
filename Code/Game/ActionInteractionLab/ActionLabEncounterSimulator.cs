@@ -270,6 +270,9 @@ namespace RPGGame.ActionInteractionLab
         /// <summary>Tools only (BUILDLAB long fights): enemy max HP × this at fight start. 1 = unchanged.</summary>
         public static double EnemyHealthScale { get; set; } = 1.0;
 
+        /// <summary>Diagnostics (CARDSNAP enemy pass): runs on each fight's enemy right after it is built, e.g. to give it one kit.</summary>
+        public static System.Action<Enemy>? EnemySetup { get; set; }
+
         /// <summary>Tools only (BUILDLAB long fights): hero base max HP × this at fight start. 1 = unchanged.</summary>
         public static double PlayerHealthScale { get; set; } = 1.0;
 
@@ -301,6 +304,7 @@ namespace RPGGame.ActionInteractionLab
                     Environment? room;
                     long profBuild = RPGGame.Diagnostics.ToolProfiler.Start();
                     (player, enemy, room) = BuildFightEntities(snapshot);
+                    EnemySetup?.Invoke(enemy);
                     if (Math.Abs(EnemyHealthScale - 1.0) > 0.0001 && enemy.MaxHealth > 0)
                     {
                         enemy.MaxHealth = Math.Max(1, (int)Math.Round(enemy.MaxHealth * EnemyHealthScale));

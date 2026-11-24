@@ -3606,8 +3606,8 @@
       "template": "Spiteful",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -3642,8 +3642,8 @@
       "template": "Resonant",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -3678,8 +3678,8 @@
       "template": "Measured",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -3714,8 +3714,8 @@
       "template": "Syncopated",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -3750,8 +3750,8 @@
       "template": "Headhunter's",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -3786,8 +3786,8 @@
       "template": "Frayed",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -3824,8 +3824,8 @@
       "tags": [
         "apply",
         "burn",
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -3860,8 +3860,8 @@
       "template": "Gritted",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -3896,8 +3896,8 @@
       "template": "Grim",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -3932,8 +3932,8 @@
       "template": "Weighted",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -3968,8 +3968,8 @@
       "template": "Exultant",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -4004,8 +4004,8 @@
       "template": "Restless",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -4040,8 +4040,8 @@
       "template": "Scrying",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -4076,8 +4076,8 @@
       "template": "Rhythmic",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -4112,8 +4112,8 @@
       "template": "Prismatic",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -4148,8 +4148,8 @@
       "template": "Cryptic",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -4185,8 +4185,8 @@
       "weight": 1.0,
       "tags": [
         "apply",
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [
@@ -4221,8 +4221,8 @@
       "template": "Ominous",
       "weight": 1.0,
       "tags": [
-        "crosswire",
-        "material"
+        "material",
+        "rule"
       ],
       "integer": true,
       "tiers": [

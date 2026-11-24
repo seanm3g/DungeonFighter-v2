@@ -2,7 +2,7 @@
   {
     "class": "BARBARIAN",
     "material": "Iron",
-    "synthesis": "ON_ENEMY_HEALTH_THRESHOLD = CRISIS",
+    "synthesis": "ON_HEALTH_THRESHOLD = CRISIS",
     "convertAction": "IRON CULL",
     "feed": "\u002B/x per IRON",
     "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",
@@ -22,7 +22,7 @@
   {
     "class": "BARBARIAN",
     "material": "Bone",
-    "synthesis": "ON_RECEIVE_HIT = RAGE",
+    "synthesis": "ON_TAKE_HIT = RAGE",
     "convertAction": "BONE WRATH",
     "feed": "\u002B/x per BONE",
     "stack2": "SYNTHESIS \u002B CONVERT UNLOCK",

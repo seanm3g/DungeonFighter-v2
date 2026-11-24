@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Avalonia.Media;
+using RPGGame.Data;
 using RPGGame.UI.ColorSystem;
 
 namespace RPGGame
@@ -114,7 +115,7 @@ namespace RPGGame
                 switch (c.Subject)
                 {
                     case "action": Add(c.Key, Kind.Action); break;
-                    case "tag" or "class" or "prevtag" or "nexttag": Add(c.Key, Kind.Tag); break;
+                    case "tag" or "class": Add(c.Key, Kind.Tag); break;
                     case "target" when c.Key != "HP": Add(c.Key, Kind.Status); break;
                     case "self" when IsStoreKey(c.Key): Add(c.Key, Kind.Store); break;
                 }
@@ -128,7 +129,9 @@ namespace RPGGame
             switch (rule.Verb)
             {
                 case "TAGAS": Add(rule.Store, Kind.Tag); break;
-                case "MINT": Add(rule.Store, Kind.Store); break;
+                case "ADD" when MaterialBuildsLoader.FindByKeyword(rule.Store.ToUpperInvariant()) != null:
+                    Add(rule.Store, Kind.Store);
+                    break;
                 case "APPLY" or "ADD" or "POTENCY": Add(rule.Store, Kind.Status); break;
                 case "RANK":
                     var node = SkillTreeService.Trees?.GetNode(rule.Store);
@@ -291,7 +294,7 @@ namespace RPGGame
         public static bool ReadsTag(CrossWireRule rule, string tag)
         {
             bool Eq(string? s) => string.Equals(s?.Trim(), tag, StringComparison.OrdinalIgnoreCase);
-            return rule.Conditions.Any(c => c.Subject is "tag" or "class" or "prevtag" or "nexttag" && Eq(c.Key))
+            return rule.Conditions.Any(c => c.Subject is "tag" or "class" && Eq(c.Key))
                 || (rule.Per?.Kind == "tags" && Eq(rule.Per.Arg))
                 || Eq(rule.IfTag);
         }

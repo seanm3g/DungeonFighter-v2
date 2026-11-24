@@ -63,7 +63,7 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual("DAMAGE passive", Of(AffixTemplates.Opener), "OPENER is IF SLOT=1 DAMAGE", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("DAMAGE passive", Of(AffixTemplates.Finisher), "FINISHER is IF SLOTSLEFT=0 DAMAGE", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("DAMAGE passive", Of(AffixTemplates.BloodPrice), "BLOODPRICE's damage is a DAMAGE rule", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("MINT listener", Of(ListenerAffix.EffectName, "ONCRITICAL"), "LISTEN is an item-owned mint", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual("ADD listener", Of(ListenerAffix.EffectName, "ONCRITICAL"), "LISTEN is an item-owned mint", ref _run, ref _passed, ref _failed);
         }
 
         private static int LastForcedFace(Character hero) =>
@@ -155,7 +155,12 @@ namespace RPGGame.Tests.Unit
             hero.Weapon!.ImplicitRule = "ONSELFCOST -> SPEND loaded 1";
             hero.Equipment.Head!.ImplicitRule = "ONCASH:loaded -> SPEND loaded 1";
             long stoppedBefore = RuleEngine.ChainsStopped;
+            RuleEngine.TakeStoppedLines();
             HeroEventHub.Raise(hero, "ONSELFCOST");
+            var stopLines = RuleEngine.TakeStoppedLines();
+            TestBase.AssertTrue(stopLines.Count == 1 && stopLines[0].Contains("Chain stops") && stopLines[0].Contains("loaded", StringComparison.OrdinalIgnoreCase),
+                "the dropped event becomes one combat log line", ref _run, ref _passed, ref _failed);
+            TestBase.AssertEqual(0, RuleEngine.TakeStoppedLines().Count, "taking the lines clears them", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(7, Stores.Get(hero, "loaded"),
                 "a self-feeding chain resolves the event plus two generations of follow-ups (3 spends)", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual(stoppedBefore + 1, RuleEngine.ChainsStopped, "the third generation is dropped and counted",

@@ -291,8 +291,6 @@ namespace RPGGame.Data
             if (Nz(row.ReplaceNextRoll)) ids.Add("replace_next_roll");
             if (Nz(row.Curse)) ids.Add("curse");
 
-            if (Nz(row.OnHit) || TriggerContains(row.TriggerConditions, "ONHIT") || BundleWhen(row, "ONHIT"))
-                ids.Add("on_hit");
             if (Nz(row.OnMiss) || TriggerContains(row.TriggerConditions, "ONMISS") || BundleWhen(row, "ONMISS"))
                 ids.Add("on_miss");
             if (Nz(row.OnCrit) || TriggerContains(row.TriggerConditions, "ONCRITICAL") || TriggerContains(row.TriggerConditions, "ONCRIT")

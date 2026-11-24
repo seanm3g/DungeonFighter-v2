@@ -143,7 +143,7 @@ namespace RPGGame.Tests.Unit
             var fury = MakeHero("Fury1", WeaponType.Mace);
             SetRank(fury, "b-empty", 1);
             var rule = CrossWires.LearnedNodeRules(fury).Where(x => x.Node.Id == "b-empty").Select(x => x.Rule).FirstOrDefault();
-            TestBase.AssertTrue(rule != null && rule.When == "ONCOMBOEND" && rule.Verb == "MINT" && rule.Store == "RAGE",
+            TestBase.AssertTrue(rule != null && rule.When == "ONCOMBOEND" && rule.Verb == "ADD" && rule.Store == "RAGE",
                 "Empty Fury: a combo end mints RAGE", ref _testsRun, ref _testsPassed, ref _testsFailed);
 
             var r1 = MakeHero("Chaos1", WeaponType.Wand);

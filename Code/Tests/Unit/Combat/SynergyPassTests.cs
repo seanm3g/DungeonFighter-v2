@@ -8,7 +8,7 @@ using RPGGame.Data.ItemGeneration;
 namespace RPGGame.Tests.Unit.Combat
 {
     /// <summary>
-    /// Synergy pass (Documentation/SYNERGY_PASS_2026-11-16.md): the extended rule grammar (PER, WEAPON, PREVTAG / NEXTTAG,
+    /// Synergy pass (Documentation/SYNERGY_PASS_2026-11-16.md): the extended rule grammar (PER, WEAPON,
     /// CHANCE, ONCE, NEXT with FOR / RAMP / IFTAG, AMP / MULTIHIT / attribute passives, rank scaling), the new statuses
     /// (Brittle, Stagger, Haste, Rattle, Mark's crit), the RELEASE verb, cadence ifTag / perTag, either-or skill choices and
     /// that every rule in the catalogs parses.
@@ -66,9 +66,8 @@ namespace RPGGame.Tests.Unit.Combat
             var c = CrossWireRule.Parse("ONCOMBO IF TAG focus -> NEXT AMP 40% FOR 2 RAMP IFTAG status");
             Check(c != null && c.Verb == "NEXT" && c.Turns == 2 && c.Shape == "ramp" && c.IfTag == "status", "NEXT with FOR / RAMP / IFTAG parses");
             var d = CrossWireRule.Parse("WHILE IF WEAPON wand -> AMP 2% PER STAT INT 10");
-            Check(d?.Per is { Kind: "stat", Arg: "INT", Div: 10 }, "PER STAT with a divisor parses");
-            var e = CrossWireRule.Parse("WHILE IF TAG barbarian AND PREVTAG bludgeon -> DAMAGE 12%");
-            Check(e != null && e.Conditions.Any(x => x.Subject == "prevtag"), "PREVTAG parses");
+            Check(d?.Per is { Kind: "self", Arg: "INT", Div: 10 }, "PER STAT (retired) parses as the self key, divisor kept");
+            Check(CrossWireRule.Parse("WHILE IF TAG barbarian AND PREVTAG bludgeon -> DAMAGE 12%") == null, "PREVTAG (removed 2026-11-23) no longer parses");
             Check(CrossWireRule.Parse("WHILE -> STR 25 PER EXTRASLOTS")?.Per is { Kind: "self", Arg: "EXTRASLOTS" }, "bare self-key PER parses");
             Check(CrossWireRule.Parse("WHILE ONCE -> DAMAGE 5%") == null, "passive rules reject ONCE");
             Check(CrossWireRule.Parse("ONCONNECT -> NEXT BOGUS 5") == null, "NEXT rejects unknown stats");
@@ -190,8 +189,8 @@ namespace RPGGame.Tests.Unit.Combat
             hero.Weapon!.Material = "Bone";
             var worn = new RulePer { Kind = "worn", Arg = "barbarian" };
             Check(CrossWires.PerValue(hero, null, worn) >= 1, "WORN barbarian counts a Bone weapon");
-            var stat = new RulePer { Kind = "stat", Arg = "STR", Div = 5 };
-            Check(Math.Abs(CrossWires.PerValue(hero, null, stat) - Math.Floor(hero.GetEffectiveStrength() / 5.0)) < 1e-9, "PER STAT STR 5 = floor(STR / 5)");
+            var stat = new RulePer { Kind = "self", Arg = "STR", Div = 5 };
+            Check(Math.Abs(CrossWires.PerValue(hero, null, stat) - Math.Floor(hero.GetEffectiveStrength() / 5.0)) < 1e-9, "PER STR 5 = floor(STR / 5)");
 
             var sword = MakeHero("PerSword", WeaponType.Sword);
             double before = SkillEffectRouter.Instance.GetSkillAttributeBonus(sword, "AGI");
@@ -209,24 +208,17 @@ namespace RPGGame.Tests.Unit.Combat
 
         private static void TestWeaponAndAdjacencyConditions()
         {
-            Console.WriteLine("--- WEAPON / PREVTAG / NEXTTAG ---");
+            Console.WriteLine("--- WEAPON ---");
             var hero = MakeHero("Adj", WeaponType.Mace);
             hero.Level = 40;
             var a = new Action { Name = "ADJ_A", Type = ActionType.Attack, Tags = new List<string> { "bludgeon" }, IsComboAction = true };
             var b = new Action { Name = "ADJ_B", Type = ActionType.Attack, Tags = new List<string> { "barbarian" }, IsComboAction = true };
             hero.AddToCombo(a);
             hero.AddToCombo(b);
-            var prev = CrossWireRule.Parse("WHILE IF PREVTAG bludgeon -> DAMAGE 10%")!;
-            var next = CrossWireRule.Parse("WHILE IF NEXTTAG barbarian -> DAMAGE 10%")!;
             var mace = CrossWireRule.Parse("WHILE IF WEAPON mace -> DAMAGE 10%")!;
             var sword = CrossWireRule.Parse("WHILE IF WEAPON sword -> DAMAGE 10%")!;
             bool stripOk = hero.GetComboActions().Count >= 2;
             Check(stripOk, "test strip holds both actions");
-            if (stripOk)
-            {
-                Check(CrossWires.ConditionsHold(hero, null, prev, action: b), "B follows a bludgeon action");
-                Check(CrossWires.ConditionsHold(hero, null, next, action: a), "A sits before a barbarian action");
-            }
             Check(CrossWires.ConditionsHold(hero, null, mace) && !CrossWires.ConditionsHold(hero, null, sword), "WEAPON reads the equipped weapon");
         }
 

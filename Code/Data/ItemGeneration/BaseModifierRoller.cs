@@ -81,10 +81,10 @@ namespace RPGGame.Data.ItemGeneration
                             .FirstOrDefault(a => string.Equals(a.Name?.Trim(), c.Key, StringComparison.OrdinalIgnoreCase));
                         influence.AddRange(data?.Tags ?? new List<string>());
                     }
-                    else if (c.Subject is "tag" or "class" or "target" or "prevtag" or "nexttag" or "weapon")
+                    else if (c.Subject is "tag" or "class" or "target" or "weapon")
                         influence.Add(c.Key);
                 }
-                if (parsed.Verb is "POTENCY" or "APPLY" or "ADD" or "MINT" or "TAGAS")
+                if (parsed.Verb is "POTENCY" or "APPLY" or "ADD" or "TAGAS")
                     influence.Add(parsed.Store);
                 if (parsed.IfTag != null)
                     influence.Add(parsed.IfTag);

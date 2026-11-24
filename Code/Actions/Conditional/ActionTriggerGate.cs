@@ -17,7 +17,7 @@ namespace RPGGame.Actions.Conditional
         /// Canonical tokens designers can put in <c>triggerConditions</c>.
         /// </summary>
         public static readonly string[] KnownTokens = TriggerEvents.All
-            .Where(d => d.Emitted && d.Family != TriggerEventFamily.Equip)
+            .Where(d => d.Emitted)
             .SelectMany(d => new[] { d.Token }.Concat(d.Aliases))
             .Concat(FilterTokens)
             .ToArray();
@@ -178,10 +178,6 @@ namespace RPGGame.Actions.Conditional
                 "ONMISS" => combatEvent.IsMiss || combatEvent.Type == CombatEventType.ActionMiss,
                 "ONCRITICALMISS" => combatEvent.IsCriticalMiss
                     || (combatEvent.Type == CombatEventType.ActionMiss && combatEvent.IsCriticalMiss),
-                "ONHIT" or "ONNORMALHIT" => combatEvent.Type == CombatEventType.ActionHit
-                    && !combatEvent.IsCombo
-                    && !combatEvent.IsCritical
-                    && !combatEvent.IsMiss,
                 "ONCONNECT" or "ONANYHIT" => combatEvent.Type == CombatEventType.ActionHit
                     && !combatEvent.IsMiss,
                 "ONCOMBO" or "ONCOMBOHIT" => combatEvent.IsCombo && !combatEvent.IsMiss,
@@ -307,7 +303,6 @@ namespace RPGGame.Actions.Conditional
                         "ONROOMSCLEARED" => "ONROOMSCLEARED",
                         "ONFIRSTHIT" => "ONFIRSTHIT",
                         "ONAFTERMISS" => "ONAFTERMISS",
-                        "ONHIT" => "ONHIT",
                         "ONMISS" => "ONMISS",
                         "ONCOMBO" => "ONCOMBO",
                         "ONCRITICAL" => "ONCRITICAL",
@@ -384,8 +379,7 @@ namespace RPGGame.Actions.Conditional
         private static bool IsKnownCanonical(string normalized) =>
             TriggerEvents.TryGet(normalized, out var def)
             && def.Token == normalized
-            && def.Emitted
-            && def.Family != TriggerEventFamily.Equip;
+            && def.Emitted;
 
         private static bool MatchesRollParity(CombatEvent combatEvent, bool even)
         {

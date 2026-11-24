@@ -207,7 +207,6 @@ namespace RPGGame.Data
             new("EXPLODINGDICETHRESHOLD", SpreadsheetColumnUsage.NotIngested),
             new("CURSE", SpreadsheetColumnUsage.NotIngested),
             new("SKIP", SpreadsheetColumnUsage.NotIngested),
-            new("ONHIT", SpreadsheetColumnUsage.JsonRoundTrip),
             new("ONMISS", SpreadsheetColumnUsage.JsonRoundTrip),
             new("ONCRIT", SpreadsheetColumnUsage.JsonRoundTrip),
             new("ONKILL", SpreadsheetColumnUsage.JsonRoundTrip),

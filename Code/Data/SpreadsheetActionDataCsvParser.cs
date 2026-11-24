@@ -194,7 +194,6 @@ namespace RPGGame.Data
                 header.GetValue(columns, null, "ON ROLL VALUE"),
                 header.GetValue(columns, null, "ONROLLVALUE"),
                 data.OnRollValue);
-            data.OnHit = FirstNonEmpty(header.GetValue(columns, null, "ON HIT"), data.OnHit);
             data.OnMiss = FirstNonEmpty(header.GetValue(columns, null, "ON MISS"), data.OnMiss);
             data.OnCrit = FirstNonEmpty(header.GetValue(columns, null, "ON CRIT"), data.OnCrit);
             data.OnKill = FirstNonEmpty(header.GetValue(columns, null, "ON KILL"), data.OnKill);

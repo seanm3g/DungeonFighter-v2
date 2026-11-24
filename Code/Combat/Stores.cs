@@ -149,10 +149,10 @@ namespace RPGGame
                     {
                         var hero = Hero(a);
                         if (hero == null) return 0;
+                        // Every add to a material store is a mint: MINTBONUS, the fight's mint tally, ONSTOREFULL.
                         int before = hero.Effects.GetMaterialKeyword(keyword);
-                        hero.Effects.AddMaterialKeyword(keyword, n);
-                        RPGGame.Combat.Events.HeroEventHub.OnMintChanged(hero, keyword, before, before + n);
-                        return n;
+                        MaterialSetController.MintKeyword(hero, keyword, n, "store");
+                        return hero.Effects.GetMaterialKeyword(keyword) - before;
                     },
                     spend: (a, max) =>
                     {

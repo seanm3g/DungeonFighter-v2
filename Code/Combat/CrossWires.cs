@@ -16,8 +16,7 @@ namespace RPGGame
     {
         /// <summary><c>self</c> (hero value or store), <c>target</c> (target status or HP), <c>prefix</c> (enemy prefix tag),
         /// <c>weapon</c> (equipped weapon type), or the swing's action: <c>action</c> (name), <c>tag</c> (action tag),
-        /// <c>class</c> (class-tagged action), <c>prevtag</c> / <c>nexttag</c> (the strip neighbour before / after the
-        /// swing's slot has the tag; the strip wraps).</summary>
+        /// <c>class</c> (class-tagged action).</summary>
         public string Subject { get; init; } = "self";
         /// <summary>HP, STEP, SLOT, SLOTS, EXTRASLOTS, SPENT, LENGTH, ROLL, DISTINCT, TURN, HITSTREAK, STR, AGI, TEC, INT,
         /// or a store id (RAGE, focus, bleed…).</summary>
@@ -27,7 +26,7 @@ namespace RPGGame
         public double Value { get; init; }
 
         /// <summary>True for ACTION / TAG / CLASS: the condition reads the hero's swing, so it only holds when one is known.</summary>
-        public bool ReadsAction => Subject is "action" or "tag" or "class" or "prevtag" or "nexttag";
+        public bool ReadsAction => Subject is "action" or "tag" or "class";
     }
 
     /// <summary>
@@ -132,7 +131,7 @@ namespace RPGGame
         /// <summary>Triggered verbs. SPEND store n|all takes from a store (raising ONCASH); NEXTROLL n makes your next natural
         /// roll that face (2026-11-18).</summary>
         public static readonly string[] TriggeredVerbs =
-            { "MINT", "ADD", "APPLY", "HEAL", "REFLECT", "BUFF", "NEXT", "SPEND", "NEXTROLL", "STRIP", "RETRIGGER", "CRITFACE", "SWING" };
+            { "ADD", "APPLY", "HEAL", "REFLECT", "BUFF", "NEXT", "SPEND", "NEXTROLL", "STRIP", "RETRIGGER", "CRITFACE", "SWING" };
         /// <summary>STRIP / RETRIGGER operations (the strip vocabulary, 2026-11-19).</summary>
         public static readonly string[] StripOps =
             { "strip_jump", "strip_skip", "strip_repeat", "strip_loop", "strip_stop", "strip_random", "strip_shuffle", "strip_replace_next", "strip_disable" };
@@ -159,6 +158,22 @@ namespace RPGGame
         public const double SpendAllAmount = 1_000_000;
         private static readonly Regex Compare = new(@"^([A-Za-z_]+)(>=|<=|>|<|=)(-?[0-9]+(?:\.[0-9]+)?)$", RegexOptions.Compiled);
 
+        /// <summary>A combat-pipeline event (not a hub event): what COUNTAS can link.</summary>
+        private static bool IsCombatEvent(string token) => TriggerEvents.TryGet(token, out var def) && def.Emitted;
+
+        /// <summary><c>ONBEAT</c> / <c>ONBEAT:n</c>, the retired every-n-th-turn event (n defaults to 4).</summary>
+        private static bool IsLegacyBeat(string token, out int period)
+        {
+            period = 0;
+            string t = TriggerEvents.Strip(token);
+            if (t != "ONBEAT" && !t.StartsWith("ONBEAT:", StringComparison.Ordinal))
+                return false;
+            period = t.Length > 7 && int.TryParse(t[7..], NumberStyles.Integer, CultureInfo.InvariantCulture, out int n) && n > 0
+                ? n
+                : 4;
+            return true;
+        }
+
         public static CrossWireRule? Parse(string? spec, string source = "")
         {
             if (string.IsNullOrWhiteSpace(spec))
@@ -170,8 +185,11 @@ namespace RPGGame
             var right = spec[(arrow + 2)..].Trim().Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
             if (left.Length == 0 || right.Length < 2)
                 return null;
+            // WHILEEQUIPPED / ONEQUIP (retired 2026-11-23) read as WHILE: every rule lives on something you hold.
+            if (left[0].ToUpperInvariant() is "WHILEEQUIPPED" or "ONEQUIP")
+                left[0] = "WHILE";
             bool passive = left[0].Equals("WHILE", StringComparison.OrdinalIgnoreCase);
-            if (!passive && !TriggerEvents.IsEvent(left[0]))
+            if (!passive && !TriggerEvents.IsEvent(left[0]) && !IsLegacyBeat(left[0], out _))
                 return null;
 
             // Left: WHEN [EVERY n] [ONCE] [CHANCE n%] [IF cond [AND cond]...]
@@ -204,6 +222,13 @@ namespace RPGGame
                 else
                     return null;
             }
+            // ONBEAT[:n] (retired 2026-11-23) is ONTURN EVERY n: both count the hero's turns this fight.
+            if (!passive && IsLegacyBeat(left[0], out int beat))
+            {
+                left[0] = "ONTURN";
+                if (every <= 1)
+                    every = beat;
+            }
             var conds = new List<RuleCondition>();
             if (i < left.Length)
             {
@@ -224,6 +249,9 @@ namespace RPGGame
             }
 
             string verb = right[0].ToUpperInvariant();
+            // MINT (retired 2026-11-23) is ADD: adding to a material store mints it (MINTBONUS, fight tally, source line).
+            if (verb == "MINT")
+                verb = "ADD";
             if (verb is "COUNTAS" or "EXEMPT")
             {
                 // COUNTAS <event> (triggered) / EXEMPT <rule> (passive): no amount.
@@ -232,6 +260,14 @@ namespace RPGGame
                 string what = right[1].ToUpperInvariant();
                 if (verb == "COUNTAS" ? !TriggerEvents.IsEvent(what) : !Exemptions.Contains(what))
                     return null;
+                // COUNTAS folds one combat event into another; hub events (ONCASH, ONSTATUSAPPLY, ...) have no combat event
+                // to re-read, so the alias would never fire. Say so instead of loading a dead rule.
+                if (verb == "COUNTAS" && (!IsCombatEvent(left[0]) || !IsCombatEvent(what)))
+                {
+                    RPGGame.DebugLogger.WriteCombatDebug("CrossWires",
+                        $"{source}: '{spec.Trim()}' ignored: COUNTAS only links combat events, not hub events");
+                    return null;
+                }
                 return new CrossWireRule
                 {
                     When = passive ? "WHILE" : left[0], Every = every, Once = once, Chance = chance, Conditions = conds,
@@ -321,7 +357,7 @@ namespace RPGGame
                     Verb = verb, Amount = face, Source = source, Text = spec.Trim()
                 };
             }
-            if (verb is "MINT" or "ADD" or "APPLY" or "BUFF" or "POTENCY" or "NEXT" or "DROP" or "MINTBONUS" or "SWING")
+            if (verb is "ADD" or "APPLY" or "BUFF" or "POTENCY" or "NEXT" or "DROP" or "MINTBONUS" or "SWING")
             {
                 if (right.Length < 3)
                     return null;
@@ -442,9 +478,11 @@ namespace RPGGame
                 arg = t[k + 1];
                 if (kind == "stat")
                 {
+                    // PER STAT attr (retired 2026-11-23) is the self key: PER STAT INT 5 = PER INT 5.
                     arg = arg.ToUpperInvariant() == "TECH" ? "TEC" : arg.ToUpperInvariant();
                     if (!AttributeStats.Contains(arg))
                         return null;
+                    kind = "self";
                 }
                 else if (kind == "self")
                     arg = KeyOf(arg);
@@ -477,7 +515,7 @@ namespace RPGGame
         private static RuleCondition? ParseCondition(string[] t, ref int i)
         {
             string head = t[i].ToUpperInvariant();
-            if (head is "ACTION" or "TAG" or "CLASS" or "WEAPON" or "PREVTAG" or "NEXTTAG" && i + 1 < t.Length)
+            if (head is "ACTION" or "TAG" or "CLASS" or "WEAPON" && i + 1 < t.Length)
             {
                 string subject = head.ToLowerInvariant();
                 string body = t[i + 1];
@@ -519,6 +557,8 @@ namespace RPGGame
     public static class CrossWires
     {
         /// <summary>Cross-class cross-wire prefixes (rare).</summary>
+        /// <summary>Saved items only: cross-wire prefixes were Effect CROSSWIRE until 2026-11-23; they are RULE rows now
+        /// (<c>"Pool": "material"</c> in Modifications.json puts them in the material loot pool).</summary>
         public const string AffixEffect = "CROSSWIRE";
         /// <summary>General item rule prefixes (lifesteal, reflect, conditional damage, tilt…).</summary>
         public const string RuleEffect = "RULE";
@@ -860,14 +900,9 @@ namespace RPGGame
                 return false;
             switch (rule.Verb)
             {
-                case "MINT":
-                {
-                    string keyword = rule.Store.ToUpperInvariant();
-                    if (MaterialBuildsLoader.FindByKeyword(keyword) == null)
-                        return false;
-                    MaterialSetController.MintKeyword(hero, keyword, units, $"{rule.Source} · rule");
+                case "ADD" when MaterialBuildsLoader.FindByKeyword(rule.Store.ToUpperInvariant()) != null:
+                    MaterialSetController.MintKeyword(hero, rule.Store.ToUpperInvariant(), units, $"{rule.Source} · rule");
                     return true;
-                }
                 case "ADD":
                     if (rule.Store.Equals("temphp", StringComparison.OrdinalIgnoreCase))
                         units = Math.Max(1, (int)Math.Round(hero.GetEffectiveMaxHealth() * units / 100.0)); // temp HP is % max HP
@@ -980,7 +1015,6 @@ namespace RPGGame
             double raw = per.Kind switch
             {
                 "target" => target == null ? 0 : Stores.Get(target, per.Arg),
-                "stat" => AttributeValue(hero, per.Arg),
                 "worn" => WornCount(hero, per.Arg),
                 // A class tag counts gear (tagged pieces, and class materials once the Core root is learned), strip
                 // actions and hybrid partners; any other tag counts strip actions.
@@ -1074,19 +1108,6 @@ namespace RPGGame
             _ => Stores.Get(hero, key)
         };
 
-        /// <summary>The strip neighbour of <paramref name="action"/>'s slot (offset −1 = before, +1 = after; the strip wraps).</summary>
-        private static Action? StripNeighbour(Character hero, Action? action, int offset)
-        {
-            var combo = ActionUtilities.GetComboActions(hero);
-            if (combo.Count < 2)
-                return null;
-            int slot = (int)StripSlot(hero, action) - 1;
-            if (slot < 0)
-                return null;
-            int idx = ((slot + offset) % combo.Count + combo.Count) % combo.Count;
-            return combo[idx];
-        }
-
         // ------------------------------------------------------------------ conditions
 
         public static bool ConditionsHold(Character hero, Actor? target, CrossWireRule rule, int eventAmount = 0, CombatEvent? evt = null,
@@ -1111,12 +1132,6 @@ namespace RPGGame
                 case "weapon":
                     return hero.Equipment.Weapon is WeaponItem w
                         && string.Equals(w.WeaponType.ToString(), c.Key, StringComparison.OrdinalIgnoreCase);
-                case "prevtag":
-                case "nexttag":
-                {
-                    var n = StripNeighbour(hero, action, c.Subject == "prevtag" ? -1 : 1);
-                    return HasTag(hero, n, c.Key);
-                }
                 case "prefix":
                     return target is Enemy e && e.PrefixTags.Any(t => string.Equals(t, c.Key, StringComparison.OrdinalIgnoreCase));
                 case "target":
@@ -1379,7 +1394,7 @@ namespace RPGGame
         {
             if (hero == null || hero is Enemy)
                 return 0;
-            // Attribute rules can read attributes (PER STAT INT, IF STR>=…): nested reads leave rule attributes out.
+            // Attribute rules can read attributes (PER INT, IF STR>=…): nested reads leave rule attributes out.
             bool attribute = CrossWireRule.AttributeStats.Contains(stat.ToUpperInvariant());
             if (attribute && _attributeDepth > 0)
                 return 0;
@@ -1642,8 +1657,9 @@ namespace RPGGame
             string amount = rule.Percent ? $"{rule.Amount:0.##}% of it" : $"{rule.Amount:0.##}";
             string what = rule.Verb switch
             {
-                "MINT" => $"+{amount} {rule.Store.ToUpperInvariant()}{per}",
-                "ADD" => $"+{amount} {rule.Store}{per}",
+                "ADD" => MaterialBuildsLoader.FindByKeyword(rule.Store.ToUpperInvariant()) != null
+                    ? $"+{amount} {rule.Store.ToUpperInvariant()}{per}"
+                    : $"+{amount} {rule.Store}{per}",
                 "HEAL" => (rule.Flat ? $"heal {rule.Amount:0.##} HP" : rule.Percent ? $"heal {rule.Amount:0.##}% of the damage" : $"heal {rule.Amount:0.##}% max HP") + per,
                 "STRIP" => DescribeStrip(rule.Store, rule.Amount),
                 "RETRIGGER" => rule.Store.Replace("retrigger_", "repeat your ").Replace("slot:", "slot ") + " action",
@@ -1706,7 +1722,6 @@ namespace RPGGame
             return p.Kind switch
             {
                 "target" => $"per {step}{p.Arg} on the target",
-                "stat" => $"per {step}{p.Arg}",
                 "worn" => $"per {(p.Div > 1 ? step : "")}{p.Arg} piece worn",
                 "tags" => $"per {(p.Div > 1 ? step : "")}{p.Arg} action in your strip",
                 "quality" => $"per {p.Arg.Replace('|', '/').Replace('_', ' ')} piece worn",
@@ -1736,8 +1751,6 @@ namespace RPGGame
                 "tag" => $"with {c.Key} actions",
                 "class" => $"with {CultureInfo.InvariantCulture.TextInfo.ToTitleCase(c.Key)} actions",
                 "weapon" => $"with a {c.Key}",
-                "prevtag" => $"right after a {c.Key} action in your strip",
-                "nexttag" => $"right before a {c.Key} action in your strip",
                 "target" => c.Key == "HP" ? $"target HP{cmp}%" : c.Op.Length == 0 ? $"vs a target with {c.Key}" : $"target {c.Key}{cmp}",
                 _ => c.Key switch
                 {

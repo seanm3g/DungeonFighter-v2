@@ -25,6 +25,7 @@ namespace RPGGame.Tests.Unit
             TestGateKeepsFilterAliases();
             TestEveryMaterialSynthesisWhenIsAnEvent();
             TestLabelsAndDescriptions();
+            TestEveryCardBundleNamesAnEvent();
             TestReservedEventsAreNotStoredAsConditions();
             TestSynergyWhenKeysCanonicalize();
             TestSynergyBotWhenKeysAreEvents();
@@ -92,11 +93,24 @@ namespace RPGGame.Tests.Unit
             {
                 bool ok = TriggerEvents.TryGet(build.WhenToken, out var def)
                           && def.Token == build.WhenToken
-                          && def.Emitted
-                          && def.Family != TriggerEventFamily.Equip;
+                          && def.Emitted;
                 TestBase.AssertTrue(ok, $"{build.Material} synthesis '{build.Synthesis}' → canonical emitted event ({build.WhenToken})",
                     ref _run, ref _passed, ref _failed);
             }
+        }
+
+        /// <summary>2026-11-23: retiring an event must not silently strand a card (NATURAL SEVEN uses ONNATURALROLL).</summary>
+        private static void TestEveryCardBundleNamesAnEvent()
+        {
+            TestBase.SetCurrentTestName(nameof(TestEveryCardBundleNamesAnEvent));
+            ActionLoader.LoadActions();
+            var stranded = ActionLoader.GetAllActionData()
+                .SelectMany(d => (d.TriggerBundles ?? new List<ActionTriggerBundle>()).Select(b => (d.Name, b.When)))
+                .Where(x => !string.IsNullOrWhiteSpace(x.When) && !TriggerEvents.IsEvent(ActionTriggerGate.NormalizeToken(x.When!)))
+                .Select(x => $"{x.Name}:{x.When}")
+                .ToList();
+            TestBase.AssertTrue(stranded.Count == 0, $"every card trigger bundle names a known event ({string.Join(", ", stranded)})",
+                ref _run, ref _passed, ref _failed);
         }
 
         private static void TestLabelsAndDescriptions()
@@ -106,8 +120,6 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertEqual("On natural 7", ItemTriggerBundleDisplay.FormatWhen("ONNATURALROLL:7"), "arg label", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("On room clear #3", ItemTriggerBundleDisplay.FormatWhen("ONROOMSCLEARED:3"), "room-clear arg label", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("On roll total 15", ItemTriggerBundleDisplay.FormatWhen("ONROLLVALUE:15"), "roll-value arg label", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("While equipped", ItemTriggerBundleDisplay.FormatWhen("WHILE_EQUIPPED"), "equip label", ref _run, ref _passed, ref _failed);
-            TestBase.AssertEqual("On normal hit", ItemTriggerBundleDisplay.FormatWhen("ONHIT"), "normal hit label", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("each time an enemy hits you", MaterialBuildData.DescribeWhen("ON_RECEIVE_HIT"), "describe alias", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("its set trigger", MaterialBuildData.DescribeWhen(""), "describe empty", ref _run, ref _passed, ref _failed);
             TestBase.AssertEqual("ONSOMETHINGNEW", MaterialBuildData.DescribeWhen("ON_SOMETHING_NEW"), "describe unknown falls back to token", ref _run, ref _passed, ref _failed);

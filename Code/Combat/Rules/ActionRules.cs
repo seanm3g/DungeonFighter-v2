@@ -225,6 +225,76 @@ namespace RPGGame.Combat.Rules
             return any;
         }
 
+        // ------------------------------------------------------------------ hub events on the swinging card
+
+        [ThreadStatic] private static Dictionary<Actor, Action>? _swinging;
+
+        /// <summary>The card <paramref name="source"/> is swinging right now (null between swings).</summary>
+        public static Action? Swinging(Actor? source) =>
+            source != null && _swinging != null && _swinging.TryGetValue(source, out var card) ? card : null;
+
+        /// <summary>Marks <paramref name="card"/> as the swing in progress until the returned scope is disposed, so hub
+        /// events raised during it (a cash-in, a status landing, a store filling) reach the card's own rules.</summary>
+        public static IDisposable BeginSwing(Actor source, Action? card)
+        {
+            _swinging ??= new Dictionary<Actor, Action>();
+            _swinging.TryGetValue(source, out var previous);
+            if (card != null)
+                _swinging[source] = card;
+            return new SwingScope(source, previous);
+        }
+
+        private sealed class SwingScope : IDisposable
+        {
+            private readonly Actor _source;
+            private readonly Action? _previous;
+            private bool _done;
+            public SwingScope(Actor source, Action? previous) { _source = source; _previous = previous; }
+            public void Dispose()
+            {
+                if (_done || _swinging == null)
+                    return;
+                _done = true;
+                if (_previous != null)
+                    _swinging[_source] = _previous;
+                else
+                    _swinging.Remove(_source);
+            }
+        }
+
+        /// <summary>
+        /// A hub event (ONCASH, ONSTATUSAPPLY, ONSTOREFULL, ONBEAT, ONSELFCOST, ONENEMYACT) raised during
+        /// <paramref name="card"/>'s swing: fires the card's rules written on it. Returns true when one took effect.
+        /// </summary>
+        public static bool OnHub(Character hero, Action card, string token, string? arg)
+        {
+            var rules = For(card);
+            if (rules.Count == 0)
+                return false;
+            var target = HeroEventHub.CurrentTarget(hero) ?? (Actor)hero;
+            var evt = new CombatEvent(CombatEventType.ActionHit, hero) { Target = target, Action = card };
+            if (!ActionTriggerGate.PassesNonOutcomeFilters(card, evt))
+                return false;
+            var owner = new RuleOwner(RuleOwnerKind.Action, card.Name ?? "action", RuleBook.ActionOrder);
+            var matched = new List<RuleEntry>();
+            for (int i = 0; i < rules.Count; i++)
+                if (rules[i].Verb != "SWING" && HeroEventHub.Matches(rules[i].When, token, arg))
+                    matched.Add(new RuleEntry(rules[i], owner, i));
+            bool any = false;
+            string name = arg == null ? token : token + ":" + arg;
+            var messages = new List<string>();
+            foreach (var entry in RuleEngine.InOrder(matched))
+            {
+                if (!Fire(entry.Rule, card, evt, hero, target, messages))
+                    continue;
+                any = true;
+                RuleEngine.Record(hero, entry, name);
+            }
+            foreach (string line in messages)
+                RPGGame.DebugLogger.WriteCombatDebug("ActionRules", line);
+            return any;
+        }
+
         private static bool Fire(CrossWireRule rule, Action action, CombatEvent? evt, Actor source, Actor target, List<string> messages)
         {
             switch (rule.Verb)

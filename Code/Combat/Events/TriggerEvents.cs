@@ -14,15 +14,14 @@ namespace RPGGame.Combat.Events
         Dice,
         Defense,
         Combo,
-        Time,
-        Equip
+        Time
     }
 
     /// <summary>One trigger event: its canonical token, accepted aliases and player-facing text.</summary>
     public sealed class TriggerEventDef
     {
         public TriggerEventDef(string token, TriggerEventFamily family, string label, string description,
-            string[]? aliases = null, string? argLabel = null, bool emitted = true)
+            string[]? aliases = null, string? argLabel = null, bool emitted = true, bool listenable = true)
         {
             Token = token;
             Family = family;
@@ -31,6 +30,7 @@ namespace RPGGame.Combat.Events
             Aliases = aliases ?? Array.Empty<string>();
             ArgLabel = argLabel;
             Emitted = emitted;
+            Listenable = listenable;
         }
 
         /// <summary>Canonical token, e.g. <c>ONTAKEHIT</c>.</summary>
@@ -52,6 +52,10 @@ namespace RPGGame.Combat.Events
 
         /// <summary>True for events on the CombatEvent pipeline (action trigger bundles see them); false for hub events fired by <see cref="HeroEventHub"/> (materials, Listener affixes, cross-wires only).</summary>
         public bool Emitted { get; }
+
+        /// <summary>True when a Listener affix on its family's slot may roll it (false for events that need an argument or
+        /// that fire once a fight).</summary>
+        public bool Listenable { get; }
     }
 
     /// <summary>
@@ -65,7 +69,6 @@ namespace RPGGame.Combat.Events
         {
             // Hit (weapon)
             new("ONCONNECT", TriggerEventFamily.Hit, "On connect", "each of your attacks that connects (normal, action or crit)", new[] { "ONANYHIT" }),
-            new("ONHIT", TriggerEventFamily.Hit, "On normal hit", "each normal hit (not an action roll or crit)", new[] { "ONNORMALHIT" }),
             new("ONATTACK", TriggerEventFamily.Hit, "On attack", "each attack you make, hit or miss"),
             new("ONFIRSTHIT", TriggerEventFamily.Hit, "On first hit", "your first hit that lands each fight", new[] { "ONFIRSTBLOOD" }),
             new("ONKILL", TriggerEventFamily.Hit, "On kill", "each enemy you kill"),
@@ -78,8 +81,8 @@ namespace RPGGame.Combat.Events
             new("ONAFTERMISS", TriggerEventFamily.Dice, "After miss", "each hit that lands right after a miss"),
             new("ONEVEN", TriggerEventFamily.Dice, "On even roll", "each even roll"),
             new("ONODD", TriggerEventFamily.Dice, "On odd roll", "each odd roll"),
-            new("ONNATURALROLL", TriggerEventFamily.Dice, "On natural roll", "each natural roll of the given face", argLabel: "On natural {0}"),
-            new("ONROLLVALUE", TriggerEventFamily.Dice, "On exact roll", "each roll totalling the given value", argLabel: "On roll total {0}"),
+            new("ONNATURALROLL", TriggerEventFamily.Dice, "On natural roll", "each natural roll of the given face", argLabel: "On natural {0}", listenable: false),
+            new("ONROLLVALUE", TriggerEventFamily.Dice, "On exact roll", "each roll totalling the given value", argLabel: "On roll total {0}", listenable: false),
             new("ONFOCUS", TriggerEventFamily.Dice, "On focus", "each hit that gains you Focus"),
 
             // Defense (body)
@@ -95,18 +98,15 @@ namespace RPGGame.Combat.Events
             new("ONSLOW", TriggerEventFamily.Time, "On slow", "each hit that slows the target"),
             new("ONROOMSCLEARED", TriggerEventFamily.Time, "On room clear", "each room you clear", new[] { "ONROOMCLEARED" }, argLabel: "On room clear #{0}"),
 
-            // Passive channel
-            new("WHILEEQUIPPED", TriggerEventFamily.Equip, "While equipped", "while the item is worn", new[] { "ONEQUIP" }),
-
             // Hub events (HeroEventHub): materials, Listener affixes and skill cross-wires read them; action trigger bundles do not.
             new("ONSTATUSAPPLY", TriggerEventFamily.Hit, "On status applied", "each time you apply a status", argLabel: "On {0} applied", emitted: false),
             new("ONCASH", TriggerEventFamily.Combo, "On spend", "each time you spend a stored resource", argLabel: "On {0} spent", emitted: false),
             new("ONSTOREFULL", TriggerEventFamily.Combo, "On store full", "each time a stored resource reaches its cap", argLabel: "On {0} full", emitted: false),
-            new("ONBEAT", TriggerEventFamily.Time, "On beat", "every n-th turn", argLabel: "Every {0}th turn", emitted: false),
+            // Defense (body) also hears the enemy acting and the hero paying a cost (2026-11-23).
             new("ONSELFCOST", TriggerEventFamily.Defense, "On self cost", "each time you pay HP, item condition or a status on yourself", emitted: false),
-            new("ONENEMYACT", TriggerEventFamily.Time, "On enemy act", "each time the enemy takes an action", emitted: false),
-            // Fight start (2026-11-20): enemy / room start statuses, and hero rules. Equip family, so Listening never rolls it.
-            new("ONFIGHTSTART", TriggerEventFamily.Equip, "On fight start", "at the start of each fight", new[] { "ONBATTLESTART" }, emitted: false),
+            new("ONENEMYACT", TriggerEventFamily.Defense, "On enemy act", "each time the enemy takes an action", emitted: false),
+            // Fight start (2026-11-20): enemy / room start statuses, and hero rules. Once a fight, so Listening never rolls it.
+            new("ONFIGHTSTART", TriggerEventFamily.Time, "On fight start", "at the start of each fight", new[] { "ONBATTLESTART" }, emitted: false, listenable: false),
         };
 
         private static readonly Dictionary<string, TriggerEventDef> ByToken = BuildIndex();

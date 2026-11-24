@@ -7,7 +7,7 @@ using RPGGame.Tests;
 
 namespace RPGGame.Tests.Unit
 {
-    /// <summary>Hub events (ONBEAT, ONCASH, ONSTATUSAPPLY, ONSTOREFULL, ONSELFCOST, ONENEMYACT), Listener affixes and action costs.</summary>
+    /// <summary>Hub events (ONCASH, ONSTATUSAPPLY, ONSTOREFULL, ONSELFCOST, ONENEMYACT), Listener affixes and action costs.</summary>
     public static class HeroEventHubTests
     {
         private static int _run, _passed, _failed;
@@ -49,9 +49,10 @@ namespace RPGGame.Tests.Unit
         private static void TestMatches()
         {
             TestBase.SetCurrentTestName(nameof(TestMatches));
-            TestBase.AssertTrue(HeroEventHub.Matches("ONBEAT", "ONBEAT", "4"), "ONBEAT default period 4 fires on turn 4", ref _run, ref _passed, ref _failed);
-            TestBase.AssertFalse(HeroEventHub.Matches("ONBEAT", "ONBEAT", "3"), "not on turn 3", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(HeroEventHub.Matches("ONBEAT:3", "ONBEAT", "6"), "ONBEAT:3 on turn 6", ref _run, ref _passed, ref _failed);
+            var beat = CrossWireRule.Parse("ONBEAT -> ADD focus 1");
+            TestBase.AssertTrue(beat != null && beat.When == "ONTURN" && beat.Every == 4, "retired ONBEAT reads as ONTURN EVERY 4", ref _run, ref _passed, ref _failed);
+            var beat3 = CrossWireRule.Parse("ONBEAT:3 -> ADD focus 1");
+            TestBase.AssertTrue(beat3 != null && beat3.When == "ONTURN" && beat3.Every == 3, "ONBEAT:3 reads as ONTURN EVERY 3", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HeroEventHub.Matches("ON_STATUS_APPLY:bleed", "ONSTATUSAPPLY", "bleed"), "status arg matches", ref _run, ref _passed, ref _failed);
             TestBase.AssertFalse(HeroEventHub.Matches("ONSTATUSAPPLY:bleed", "ONSTATUSAPPLY", "burn"), "other status does not", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(HeroEventHub.Matches("ONCASH", "ONCASH", "RAGE"), "no arg matches any store", ref _run, ref _passed, ref _failed);
@@ -104,7 +105,11 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertFalse(ListenerAffix.EventsForSlot(weapon).Contains("ONCRITICAL"), "weapon does not roll dice events", ref _run, ref _passed, ref _failed);
             TestBase.AssertTrue(ListenerAffix.EventsForSlot(head).Contains("ONMISS"), "head listens to dice events", ref _run, ref _passed, ref _failed);
             TestBase.AssertFalse(ListenerAffix.EventsForSlot(head).Contains("ONNATURALROLL"), "no arg-only events", ref _run, ref _passed, ref _failed);
-            TestBase.AssertTrue(ListenerAffix.EventsForSlot(feet).Contains("ONBEAT"), "feet listen to time (incl. hub ONBEAT)", ref _run, ref _passed, ref _failed);
+            var body = new ChestItem("B", 1, 1);
+            TestBase.AssertTrue(ListenerAffix.EventsForSlot(feet).Contains("ONTURN"), "feet listen to time", ref _run, ref _passed, ref _failed);
+            TestBase.AssertFalse(ListenerAffix.EventsForSlot(feet).Contains("ONFIGHTSTART"), "never fight start (not listenable)", ref _run, ref _passed, ref _failed);
+            TestBase.AssertTrue(ListenerAffix.EventsForSlot(body).Contains("ONTAKEHIT") && ListenerAffix.EventsForSlot(body).Contains("ONSELFCOST")
+                && ListenerAffix.EventsForSlot(body).Contains("ONENEMYACT"), "body listens to take hit, self cost and enemy act", ref _run, ref _passed, ref _failed);
             var mod = Listener("");
             TestBase.AssertTrue(ListenerAffix.RollEvent(mod, head, new Random(3)) && ListenerAffix.EventsForSlot(head).Contains(mod.TriggerWhen),
                 "rolled event comes from the slot family", ref _run, ref _passed, ref _failed);
@@ -114,13 +119,13 @@ namespace RPGGame.Tests.Unit
         {
             TestBase.SetCurrentTestName(nameof(TestListenerMintsOnHubEvent));
             var hero = Hero("ListenHero", "Bone", "Bone", "Bone", "Bone", "Bone");
-            hero.Equipment.Feet!.Modifications.Add(Listener("ONBEAT"));
+            hero.Equipment.Body!.Modifications.Add(Listener("ONENEMYACT"));
             int perTrigger = MaterialSetController.ComputeMintPerTrigger(hero, MaterialBuildsLoader.FindByMaterial("Bone")!);
             int expected = Math.Max(1, (int)Math.Round(perTrigger * GameConfiguration.Instance.Combat.ListenerMintShare));
-            HeroEventHub.Raise(hero, "ONBEAT", "4");
-            TestBase.AssertEqual(expected, hero.Effects.GetMaterialKeyword("RAGE"), "Bone boots listening ON BEAT mint RAGE on turn 4", ref _run, ref _passed, ref _failed);
-            HeroEventHub.Raise(hero, "ONBEAT", "5");
-            TestBase.AssertEqual(expected, hero.Effects.GetMaterialKeyword("RAGE"), "but not on turn 5", ref _run, ref _passed, ref _failed);
+            HeroEventHub.Raise(hero, "ONENEMYACT");
+            TestBase.AssertEqual(expected, hero.Effects.GetMaterialKeyword("RAGE"), "Bone coat listening ON ENEMY ACT mints RAGE", ref _run, ref _passed, ref _failed);
+            HeroEventHub.Raise(hero, "ONSELFCOST", "hp");
+            TestBase.AssertEqual(expected, hero.Effects.GetMaterialKeyword("RAGE"), "but not on another hub event", ref _run, ref _passed, ref _failed);
         }
 
         private static void TestListenerNeedsFormedSet()

@@ -40,6 +40,7 @@ namespace RPGGame.Combat.Rules
         [ThreadStatic] private static int _generation;
         [ThreadStatic] private static Queue<Pending>? _queue;
         [ThreadStatic] private static List<RuleFire>? _trace;
+        [ThreadStatic] private static List<string>? _stopped;
 
         /// <summary>Events dropped past <see cref="MaxGeneration"/> since start (tests and sims read it).</summary>
         public static long ChainsStopped { get; private set; }
@@ -62,6 +63,22 @@ namespace RPGGame.Combat.Rules
         public static void ClearTrace() => _trace?.Clear();
 
         /// <summary>
+        /// Combat log lines for events dropped past <see cref="MaxGeneration"/> since the last call (then cleared), so the
+        /// player sees where a chain stopped instead of a rule silently not firing.
+        /// </summary>
+        public static IReadOnlyList<string> TakeStoppedLines()
+        {
+            if (_stopped == null || _stopped.Count == 0)
+                return Array.Empty<string>();
+            var lines = _stopped
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .Select(n => $"    Chain stops: {RPGGame.Combat.Events.TriggerEvents.Label(n) ?? n} is {MaxGeneration + 1} triggers deep")
+                .ToList();
+            _stopped.Clear();
+            return lines;
+        }
+
+        /// <summary>
         /// Resolves <paramref name="resolve"/> as an event: at once when nothing is resolving (generation 0, then the queue
         /// drains), else queued one generation deeper (dropped past <see cref="MaxGeneration"/>).
         /// </summary>
@@ -74,6 +91,7 @@ namespace RPGGame.Combat.Rules
                 {
                     ChainsStopped++;
                     RPGGame.DebugLogger.WriteCombatDebug("Rules", $"{name}: the trigger chain stops here (generation {generation})");
+                    (_stopped ??= new List<string>()).Add(name);
                     ChainStopped?.Invoke(hero, name);
                     return;
                 }

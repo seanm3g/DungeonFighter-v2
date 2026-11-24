@@ -461,7 +461,7 @@ namespace RPGGame.Data.ItemGeneration
                 if (_item is WeaponItem w)
                     AddInfluence(w.WeaponType.ToString());
                 if (ListenerAffix.SlotFamily(_item) is { } family)
-                    foreach (var e in TriggerEvents.All.Where(e => e.Family == family))
+                    foreach (var e in TriggerEvents.All.Where(e => e.Family == family && e.Listenable))
                         AddInfluence(e.Token);
                 AddInfluence(_item.Material);
                 var build = MaterialBuildsLoader.FindByMaterial(_item.Material);

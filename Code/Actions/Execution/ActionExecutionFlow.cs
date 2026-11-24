@@ -203,10 +203,14 @@ namespace RPGGame.Actions.Execution
                     stripIndexForFeedback = heroStrip.ComboStep % comboForFeedback.Count;
             }
 
-            if (result.Hit)
-                { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); ApplyHitOutcome(source, combatTarget, result, battleNarrative); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.HitOutcome", pf); }
-            else
-                { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); ApplyMissOutcome(source, combatTarget, result, battleNarrative); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.MissOutcome", pf); }
+            // Hub events raised during the outcome (cash-ins, statuses landing, stores filling) reach this card's rules.
+            using (RPGGame.Combat.Rules.ActionRules.BeginSwing(source, result.SelectedAction))
+            {
+                if (result.Hit)
+                    { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); ApplyHitOutcome(source, combatTarget, result, battleNarrative); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.HitOutcome", pf); }
+                else
+                    { long pf = RPGGame.Diagnostics.ToolProfiler.Start(); ApplyMissOutcome(source, combatTarget, result, battleNarrative); RPGGame.Diagnostics.ToolProfiler.Stop("Flow.MissOutcome", pf); }
+            }
 
             // Nested strip retrigger (max depth 1) — distinct from Multihit damage ticks.
             // Nested HP damage is applied inside the nested Execute; keep outer Damage as this swing only

@@ -53,7 +53,7 @@ namespace RPGGame.Combat.Rules
         public int Index { get; }
 
         /// <summary>D6.12 phase: 0 = gains (MINT, ADD, APPLY) resolve first; 1 = everything else.</summary>
-        public int Phase => Rule.Coded != null ? Rule.CodedPhase : Rule.Verb is "MINT" or "ADD" or "APPLY" ? 0 : 1;
+        public int Phase => Rule.Coded != null ? Rule.CodedPhase : Rule.Verb is "ADD" or "APPLY" ? 0 : 1;
     }
 
     /// <summary>
@@ -162,7 +162,7 @@ namespace RPGGame.Combat.Rules
                 var rule = new CrossWireRule
                 {
                     When = build.WhenToken,
-                    Verb = "MINT",
+                    Verb = "ADD",
                     Store = build.Keyword,
                     Amount = 1,
                     Source = build.Material + " set",

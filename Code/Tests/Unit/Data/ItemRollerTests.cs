@@ -731,7 +731,7 @@ namespace RPGGame.Tests.Unit.Data
                 // {n} (the slot prefixes' rolled value) reads as the template's minimum.
                 var rule = CrossWireRule.Parse(template!.CrossWire.Replace("{n}",
                     Math.Max(1, (int)Math.Round(template.MinValue)).ToString(System.Globalization.CultureInfo.InvariantCulture)), family.Family);
-                if (rule == null || (rule.Verb == "MINT" && RPGGame.Data.MaterialBuildsLoader.FindByKeyword(rule.Store) == null))
+                if (rule == null || (rule.Verb == "ADD" && !Stores.TryGet(rule.Store, out _)))
                     bad.Add(family.Family);
             }
             TestBase.AssertTrue(wires >= 18 && bad.Count == 0,

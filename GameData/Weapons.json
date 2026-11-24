@@ -112,7 +112,7 @@
     "class": "barbarian",
     "damageMin": 7,
     "damageMax": 11,
-    "modifier": "ONCOMBO IF ACTION BARBARIAN_RAGE -> MINT RAGE 1"
+    "modifier": "ONCOMBO IF ACTION BARBARIAN_RAGE -> ADD RAGE 1"
   },
   {
     "type": "Mace",
@@ -527,7 +527,7 @@
     "class": "barbarian",
     "damageMin": 28,
     "damageMax": 42,
-    "modifier": "ONCONNECT EVERY 2 IF TAG barbarian -> MINT CRISIS 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG barbarian -> ADD CRISIS 1"
   },
   {
     "type": "Mace",
@@ -619,7 +619,7 @@
     "class": "barbarian",
     "damageMin": 32,
     "damageMax": 48,
-    "modifier": "ONCONNECT EVERY 2 IF TAG bludgeon -> MINT RAGE 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG bludgeon -> ADD RAGE 1"
   },
   {
     "type": "Mace",
@@ -964,7 +964,7 @@
     "class": "barbarian",
     "damageMin": 121,
     "damageMax": 181,
-    "modifier": "ONSTATUSAPPLY:expose -> MINT CRISIS 1; ONCASH:CRISIS -> APPLY expose 1"
+    "modifier": "ONSTATUSAPPLY:expose -> ADD CRISIS 1; ONCASH:CRISIS -> APPLY expose 1"
   },
   {
     "type": "Mace",
@@ -1056,7 +1056,7 @@
     "class": "barbarian",
     "damageMin": 107,
     "damageMax": 160,
-    "modifier": "ONSTATUSAPPLY:brittle -> MINT TRIUMPH 1; ONCASH:TRIUMPH -> APPLY brittle 1"
+    "modifier": "ONSTATUSAPPLY:brittle -> ADD TRIUMPH 1; ONCASH:TRIUMPH -> APPLY brittle 1"
   },
   {
     "type": "Mace",
@@ -1218,7 +1218,7 @@
     "class": "warrior",
     "damageMin": 8,
     "damageMax": 12,
-    "modifier": "ONCOMBO IF ACTION BARGE -> MINT BEAT 1"
+    "modifier": "ONCOMBO IF ACTION BARGE -> ADD BEAT 1"
   },
   {
     "type": "Sword",
@@ -1586,7 +1586,7 @@
     "class": "warrior",
     "damageMin": 28,
     "damageMax": 42,
-    "modifier": "ONCONNECT EVERY 2 IF TAG warrior -> MINT DRAG 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG warrior -> ADD DRAG 1"
   },
   {
     "type": "Sword",
@@ -1678,7 +1678,7 @@
     "class": "warrior",
     "damageMin": 25,
     "damageMax": 37,
-    "modifier": "ONCONNECT EVERY 2 IF TAG swift -> MINT BEAT 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG swift -> ADD BEAT 1"
   },
   {
     "type": "Sword",
@@ -2092,7 +2092,7 @@
     "class": "warrior",
     "damageMin": 84,
     "damageMax": 126,
-    "modifier": "ONSTATUSAPPLY:stagger -> MINT DRAG 1; ONCASH:DRAG -> APPLY stagger 1"
+    "modifier": "ONSTATUSAPPLY:stagger -> ADD DRAG 1; ONCASH:DRAG -> APPLY stagger 1"
   },
   {
     "type": "Sword",
@@ -2184,7 +2184,7 @@
     "class": "warrior",
     "damageMin": 107,
     "damageMax": 160,
-    "modifier": "ONSTATUSAPPLY:slow -> MINT STREAK 1; ONCASH:STREAK -> APPLY slow 1"
+    "modifier": "ONSTATUSAPPLY:slow -> ADD STREAK 1; ONCASH:STREAK -> APPLY slow 1"
   },
   {
     "type": "Sword",
@@ -2368,7 +2368,7 @@
     "class": "rogue",
     "damageMin": 7,
     "damageMax": 11,
-    "modifier": "ONCOMBO IF ACTION CONCENTRATE -> MINT GRAZE 1"
+    "modifier": "ONCOMBO IF ACTION CONCENTRATE -> ADD GRAZE 1"
   },
   {
     "type": "Dagger",
@@ -2484,7 +2484,7 @@
     "class": "rogue",
     "damageMin": 4,
     "damageMax": 6,
-    "modifier": "ONCOMBO IF ACTION COUNTED_PACES -> MINT SWING 1"
+    "modifier": "ONCOMBO IF ACTION COUNTED_PACES -> ADD SWING 1"
   },
   {
     "type": "Dagger",
@@ -2834,7 +2834,7 @@
     "class": "rogue",
     "damageMin": 29,
     "damageMax": 44,
-    "modifier": "ONCONNECT EVERY 2 IF TAG rogue -> MINT TROPHY 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG rogue -> ADD TROPHY 1"
   },
   {
     "type": "Dagger",
@@ -2934,7 +2934,7 @@
     "class": "rogue",
     "damageMin": 27,
     "damageMax": 41,
-    "modifier": "ONCONNECT EVERY 2 IF TAG status -> MINT SWING 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG status -> ADD SWING 1"
   },
   {
     "type": "Dagger",
@@ -3334,7 +3334,7 @@
     "class": "rogue",
     "damageMin": 96,
     "damageMax": 144,
-    "modifier": "ONSTATUSAPPLY:brittle -> MINT TROPHY 1; ONCASH:TROPHY -> APPLY brittle 1"
+    "modifier": "ONSTATUSAPPLY:brittle -> ADD TROPHY 1; ONCASH:TROPHY -> APPLY brittle 1"
   },
   {
     "type": "Dagger",
@@ -3434,7 +3434,7 @@
     "class": "rogue",
     "damageMin": 76,
     "damageMax": 115,
-    "modifier": "ONSTATUSAPPLY:expose -> MINT GRAZE 1; ONCASH:GRAZE -> APPLY expose 1"
+    "modifier": "ONSTATUSAPPLY:expose -> ADD GRAZE 1; ONCASH:GRAZE -> APPLY expose 1"
   },
   {
     "type": "Dagger",
@@ -3624,7 +3624,7 @@
     "class": "wizard",
     "damageMin": 7,
     "damageMax": 11,
-    "modifier": "ONCOMBO IF ACTION CHORUS -> MINT CHAIN 1"
+    "modifier": "ONCOMBO IF ACTION CHORUS -> ADD CHAIN 1"
   },
   {
     "type": "Wand",
@@ -3740,7 +3740,7 @@
     "class": "wizard",
     "damageMin": 4,
     "damageMax": 6,
-    "modifier": "ONCOMBO IF ACTION CONFUSE -> MINT LENS 1"
+    "modifier": "ONCOMBO IF ACTION CONFUSE -> ADD LENS 1"
   },
   {
     "type": "Wand",
@@ -3763,7 +3763,7 @@
     "class": "wizard",
     "damageMin": 6,
     "damageMax": 9,
-    "modifier": "ONCOMBO IF ACTION CONFUSE -> MINT LENS 1"
+    "modifier": "ONCOMBO IF ACTION CONFUSE -> ADD LENS 1"
   },
   {
     "type": "Wand",
@@ -4039,7 +4039,7 @@
     "class": "wizard",
     "damageMin": 25,
     "damageMax": 37,
-    "modifier": "ONCONNECT EVERY 2 IF TAG hexblade -> MINT CONTACT 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG hexblade -> ADD CONTACT 1"
   },
   {
     "type": "Wand",
@@ -4154,7 +4154,7 @@
     "class": "wizard",
     "damageMin": 26,
     "damageMax": 39,
-    "modifier": "ONCONNECT EVERY 2 IF TAG store -> MINT LENS 1"
+    "modifier": "ONCONNECT EVERY 2 IF TAG store -> ADD LENS 1"
   },
   {
     "type": "Wand",
@@ -4522,7 +4522,7 @@
     "class": "wizard",
     "damageMin": 96,
     "damageMax": 144,
-    "modifier": "ONSTATUSAPPLY:brittle -> MINT CONTACT 1; ONCASH:CONTACT -> APPLY brittle 1"
+    "modifier": "ONSTATUSAPPLY:brittle -> ADD CONTACT 1; ONCASH:CONTACT -> APPLY brittle 1"
   },
   {
     "type": "Wand",
@@ -4614,7 +4614,7 @@
     "class": "wizard",
     "damageMin": 78,
     "damageMax": 117,
-    "modifier": "ONSTATUSAPPLY:weaken -> MINT CHAIN 1; ONCASH:CHAIN -> APPLY weaken 1"
+    "modifier": "ONSTATUSAPPLY:weaken -> ADD CHAIN 1; ONCASH:CHAIN -> APPLY weaken 1"
   },
   {
     "type": "Wand",

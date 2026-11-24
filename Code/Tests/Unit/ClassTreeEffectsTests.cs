@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using RPGGame.Combat;
 using RPGGame.Combat.Events;
 
 namespace RPGGame.Tests.Unit
@@ -31,6 +32,7 @@ namespace RPGGame.Tests.Unit
             TestPerfectAimAndArchmage();
             TestArcaneWeave();
             TestBoneWrathHeals();
+            TestHookRules();
 
             TestBase.PrintSummary("ClassTreeEffects Tests", _testsRun, _testsPassed, _testsFailed);
         }
@@ -70,7 +72,7 @@ namespace RPGGame.Tests.Unit
             hero.Weapon!.Material = "Bone";
             hero.Progression.LearnedSkillRanks["b-kin"] = 1;
             var rule = CrossWires.LearnedNodeRules(hero).Where(x => x.Node.Id == "b-kin").Select(x => x.Rule).FirstOrDefault();
-            TestBase.AssertTrue(rule != null && rule.When == "ONFIRSTHIT" && rule.Verb == "MINT" && rule.Store == "RAGE",
+            TestBase.AssertTrue(rule != null && rule.When == "ONFIRSTHIT" && rule.Verb == "ADD" && rule.Store == "RAGE",
                 "Tribal Kinship: the first hit each fight mints RAGE per Barbarian piece",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
@@ -87,7 +89,7 @@ namespace RPGGame.Tests.Unit
             TestBase.AssertTrue(expected > 0, "test setup: enough TEC for a whole bonus unit",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(expected, CrossWires.MintBonus(hero, "GRAZE"),
-                "Edge Synthesis (MINTBONUS rogue PER STAT TEC 20) feeds Glass's GRAZE mints",
+                "Edge Synthesis (MINTBONUS rogue PER TEC 20) feeds Glass's GRAZE mints",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
             TestBase.AssertEqual(0, CrossWires.MintBonus(hero, "RAGE"), "Edge Synthesis does not feed Barbarian currencies",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
@@ -149,6 +151,51 @@ namespace RPGGame.Tests.Unit
             var rule = CrossWires.LearnedNodeRules(hero).Where(x => x.Node.Id == "b-wrath").Select(x => x.Rule).FirstOrDefault();
             TestBase.AssertTrue(rule != null && rule.When.StartsWith("ONCASH", StringComparison.OrdinalIgnoreCase) && rule.Verb == "NEXT" && rule.Store == "DAMAGE",
                 "Wrath Unbound: spending RAGE adds damage to the next action",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+        }
+
+        /// <summary>2026-11-23: the events and keys no rule used (ONSELFCOST, ONENEMYACT, ONEVEN, TURN, SLOTS, MISSINGHP, PER SELF).</summary>
+        private static void TestHookRules()
+        {
+            var expect = new (string Node, int Rules, string Token)[]
+            {
+                ("b-blood", 3, "ONSELFCOST"), ("b-trance", 2, "MISSINGHP"), ("w-phalanx", 2, "ONENEMYACT"),
+                ("w-cadence", 2, "TURN"), ("r-grease", 2, "ONEVEN"), ("z-slotInt", 2, "SLOTS"),
+            };
+            foreach (var (id, count, token) in expect)
+            {
+                var hero = MakeHero("Hook" + id, WeaponType.Mace, 100);
+                hero.Progression.LearnedSkillRanks[id] = 1;
+                int parsed = CrossWires.LearnedNodeRules(hero).Count(x => x.Node.Id == id);
+                string text = GameConfiguration.Instance.SkillTrees.GetNode(id)?.CrossWire ?? "";
+                TestBase.AssertTrue(parsed == count && text.Contains(token), $"{id}: all {count} rules parse ({token})",
+                    ref _testsRun, ref _testsPassed, ref _testsFailed);
+            }
+
+            var phalanx = MakeHero("Phalanx", WeaponType.Sword, 100);
+            phalanx.Progression.LearnedSkillRanks["w-phalanx"] = 5; // power 0.57: rank 1 rounds 0.57 Fortify at random
+            int fortifyBefore = Stores.Get(phalanx, "fortify");
+            for (int i = 0; i < 3; i++)
+                HeroEventHub.Raise(phalanx, "ONENEMYACT");
+            TestBase.AssertTrue(Stores.Get(phalanx, "fortify") > fortifyBefore, "Phalanx: every 3rd enemy action adds Fortify",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var trance = MakeHero("Trance", WeaponType.Mace, 100);
+            trance.Progression.LearnedSkillRanks["b-trance"] = 1;
+            double fullHp = CrossWires.Passive(trance, "DAMAGE");
+            trance.CurrentHealth = trance.MaxHealth / 2;
+            double halfHp = CrossWires.Passive(trance, "DAMAGE");
+            TestBase.AssertTrue(halfHp - fullHp >= 4.5 * Power("b-trance"), $"Battle Trance: +1% damage per 10% HP missing ({fullHp} -> {halfHp})",
+                ref _testsRun, ref _testsPassed, ref _testsFailed);
+
+            var keeper = MakeHero("Keeper", WeaponType.Sword, 100);
+            keeper.Progression.LearnedSkillRanks["w-cadence"] = 1;
+            HeroEventHub.ResetFight(keeper);
+            double early = CrossWires.Passive(keeper, "SPEED");
+            for (int i = 0; i < 6; i++)
+                HeroEventHub.OnHeroTurnStart(keeper);
+            double late = CrossWires.Passive(keeper, "SPEED");
+            TestBase.AssertTrue(late > early, $"Cadence Keeper: faster from turn 6 ({early} -> {late})",
                 ref _testsRun, ref _testsPassed, ref _testsFailed);
         }
     }

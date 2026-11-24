@@ -215,6 +215,7 @@ namespace RPGGame
                 // Room clears mint once in RoomClearedTriggerApplicator, not once per pool action.
                 if (combatEvent.Type != CombatEventType.RoomCleared)
                     MaterialSetController.TryMintFromEvent(heroSynth, combatEvent, action, gainedFocus: gainedFocus, appliedSlow: appliedSlow);
+                results.AddRange(RPGGame.Combat.Rules.RuleEngine.TakeStoppedLines());
             }
             
             return effectsApplied;

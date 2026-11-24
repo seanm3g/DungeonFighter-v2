@@ -86,7 +86,7 @@ namespace RPGGame
         [JsonPropertyName("damageModPerRank")]
         public int DamageModPerRank { get; set; }
 
-        /// <summary>Cross-wire rule (<c>ONCASH:RAGE -> MINT CRISIS 50%</c>) active while learned; see <see cref="CrossWires"/>.</summary>
+        /// <summary>Cross-wire rule (<c>ONCASH:RAGE -> ADD CRISIS 50%</c>) active while learned; see <see cref="CrossWires"/>.</summary>
         [JsonPropertyName("crossWire")]
         public string CrossWire { get; set; } = "";
 
